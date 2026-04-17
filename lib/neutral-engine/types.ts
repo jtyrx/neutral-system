@@ -52,6 +52,7 @@ export type SystemRole =
   | 'contrastAlt'
 
 export type SystemMappingConfig = {
+  /** Light theme: Fills / strokes / text ladder starts (low index = light end). */
   fillStart: number
   strokeStart: number
   textStart: number
@@ -59,9 +60,28 @@ export type SystemMappingConfig = {
   fillCount: number
   strokeCount: number
   textCount: number
+  /**
+   * Dark elevated: independent role controls (passed to inverted tail-based pickers).
+   * Legacy presets without these fields migrate from light fields (+2 for text start).
+   */
+  darkFillStart: number
+  darkStrokeStart: number
+  darkTextStart: number
+  darkFillCount: number
+  darkStrokeCount: number
+  darkTextCount: number
   altCount: number
-  /** Index increment between consecutive picks (≥1). */
-  stepInterval: number
+  /**
+   * Base step between ladder picks for each role (× contrast distance in the engine).
+   * Light theme: fills / strokes / text.
+   */
+  lightFillStepInterval: number
+  lightStrokeStepInterval: number
+  lightTextStepInterval: number
+  /** Dark elevated: fills / strokes / text. */
+  darkFillStepInterval: number
+  darkStrokeStepInterval: number
+  darkTextStepInterval: number
   /** Multiplier ≥1 widens spacing between mapped indices (contrast personality). */
   contrastDistance: number
   themeMode: ThemeMode

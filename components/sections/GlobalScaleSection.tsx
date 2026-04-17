@@ -2,13 +2,19 @@
 
 import {memo} from 'react'
 
+import {
+  clampGlobalScaleSteps,
+  GLOBAL_SCALE_STEP_MAX,
+  GLOBAL_SCALE_STEP_MIN,
+} from '@/lib/neutral-engine/globalScale'
 import type {GlobalScaleConfig, GlobalSwatch, NamingStyle} from '@/lib/neutral-engine/types'
+import {ChromaModeComparisonRail} from '@/components/viz/ChromaModeComparisonRail'
 import {LightnessLadder} from '@/components/viz/LightnessLadder'
 import {LightnessSparkline} from '@/components/viz/LightnessSparkline'
 
 type Props = {
   config: GlobalScaleConfig
-  onChange: (next: GlobalScaleConfig) => void
+  patchGlobal: <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K]) => void
   global: GlobalSwatch[]
   selectedIndex: number | null
   onSelectSwatch: (index: number) => void
@@ -26,6 +32,11 @@ const chromaOptions: {id: GlobalScaleConfig['chromaMode']; label: string}[] = [
   {id: 'taper_mid', label: 'Taper (mid emphasis)'},
   {id: 'taper_ends', label: 'Taper (ends emphasis)'},
 ]
+
+const stepOptions: number[] = Array.from(
+  {length: GLOBAL_SCALE_STEP_MAX - GLOBAL_SCALE_STEP_MIN + 1},
+  (_, i) => GLOBAL_SCALE_STEP_MIN + i,
+)
 
 type RampProps = {
   global: GlobalSwatch[]
@@ -86,7 +97,7 @@ function numOr(prev: number, raw: string): number {
 
 function GlobalScaleSectionInner({
   config,
-  onChange,
+  patchGlobal,
   global,
   selectedIndex,
   onSelectSwatch,
@@ -102,23 +113,28 @@ function GlobalScaleSectionInner({
         </p>
       </header>
 
+      <ChromaModeComparisonRail config={config} />
+
+      <GlobalScaleRampVisualization
+        global={global}
+        selectedIndex={selectedIndex}
+        onSelectSwatch={onSelectSwatch}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <label className="space-y-1">
           <span className="ns-label">Steps</span>
-          <input
-            type="number"
-            min={4}
-            max={256}
+          <select
             className="ns-input font-mono"
-            value={config.steps}
-            onChange={(e) => {
-              const v = Number(e.target.value)
-              const steps = Number.isFinite(v)
-                ? Math.max(4, Math.min(256, Math.floor(v)))
-                : config.steps
-              onChange({...config, steps})
-            }}
-          />
+            value={clampGlobalScaleSteps(config.steps)}
+            onChange={(e) => patchGlobal('steps', Number(e.target.value))}
+          >
+            {stepOptions.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="space-y-1">
           <span className="ns-label">Lightest L (0–1)</span>
@@ -127,7 +143,7 @@ function GlobalScaleSectionInner({
             step={0.005}
             className="ns-input font-mono"
             value={config.lHigh}
-            onChange={(e) => onChange({...config, lHigh: numOr(config.lHigh, e.target.value)})}
+            onChange={(e) => patchGlobal('lHigh', numOr(config.lHigh, e.target.value))}
           />
         </label>
         <label className="space-y-1">
@@ -137,7 +153,7 @@ function GlobalScaleSectionInner({
             step={0.005}
             className="ns-input font-mono"
             value={config.lLow}
-            onChange={(e) => onChange({...config, lLow: numOr(config.lLow, e.target.value)})}
+            onChange={(e) => patchGlobal('lLow', numOr(config.lLow, e.target.value))}
           />
         </label>
         <label className="space-y-1">
@@ -146,8 +162,8 @@ function GlobalScaleSectionInner({
             type="number"
             className="ns-input font-mono"
             value={config.hue}
-            disabled={config.variantId === 'pure' || config.chromaMode === 'achromatic'}
-            onChange={(e) => onChange({...config, hue: numOr(config.hue, e.target.value)})}
+            disabled={config.chromaMode === 'achromatic'}
+            onChange={(e) => patchGlobal('hue', numOr(config.hue, e.target.value))}
           />
         </label>
         <label className="space-y-1">
@@ -159,7 +175,7 @@ function GlobalScaleSectionInner({
             value={config.baseChroma}
             disabled={config.chromaMode === 'achromatic'}
             onChange={(e) =>
-              onChange({...config, baseChroma: numOr(config.baseChroma, e.target.value)})
+              patchGlobal('baseChroma', numOr(config.baseChroma, e.target.value))
             }
           />
         </label>
@@ -168,7 +184,7 @@ function GlobalScaleSectionInner({
           <select
             className="ns-input"
             value={config.namingStyle}
-            onChange={(e) => onChange({...config, namingStyle: e.target.value as NamingStyle})}
+            onChange={(e) => patchGlobal('namingStyle', e.target.value as NamingStyle)}
           >
             {namingOptions.map((o) => (
               <option key={o.id} value={o.id}>
@@ -183,7 +199,7 @@ function GlobalScaleSectionInner({
             className="ns-input"
             value={config.chromaMode}
             onChange={(e) =>
-              onChange({...config, chromaMode: e.target.value as GlobalScaleConfig['chromaMode']})
+              patchGlobal('chromaMode', e.target.value as GlobalScaleConfig['chromaMode'])
             }
           >
             {chromaOptions.map((o) => (
@@ -194,12 +210,6 @@ function GlobalScaleSectionInner({
           </select>
         </label>
       </div>
-
-      <GlobalScaleRampVisualization
-        global={global}
-        selectedIndex={selectedIndex}
-        onSelectSwatch={onSelectSwatch}
-      />
     </section>
   )
 }

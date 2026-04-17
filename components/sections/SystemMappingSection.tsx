@@ -8,8 +8,15 @@ import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
 import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
 
 type Props = {
+  /** Raw workbench state — bound to inputs. */
   config: SystemMappingConfig
-  onChange: (next: SystemMappingConfig) => void
+  /**
+   * Deferred mapping + compact/wide contrast — **must** match `deriveSystemTokens` (same as
+   * `effectiveMappingConfig` from the workbench hook).
+   */
+  derivationConfig: SystemMappingConfig
+  contrastMode: 'compact' | 'wide'
+  patchSystem: <K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K]) => void
   steps: number
 }
 
@@ -56,19 +63,23 @@ function ResolvedIndices({label, indices}: {label: string; indices: number[]}) {
   )
 }
 
-function SystemMappingSectionInner({config, onChange, steps}: Props) {
+function SystemMappingSectionInner({
+  config,
+  derivationConfig,
+  contrastMode,
+  patchSystem,
+  steps,
+}: Props) {
   const n = Math.max(2, steps)
 
   const lightIdx = useMemo(
-    () => previewResolvedRoleIndices(config, n, 'light'),
-    [config, n],
+    () => previewResolvedRoleIndices(derivationConfig, n, 'light'),
+    [derivationConfig, n],
   )
   const darkIdx = useMemo(
-    () => previewResolvedRoleIndices(config, n, 'darkElevated'),
-    [config, n],
+    () => previewResolvedRoleIndices(derivationConfig, n, 'darkElevated'),
+    [derivationConfig, n],
   )
-
-  const patch = (partial: Partial<SystemMappingConfig>) => onChange({...config, ...partial})
 
   return (
     <section id="system" className="scroll-mt-6 space-y-8">
@@ -76,35 +87,28 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
         <p className="eyebrow">2 · System mapping</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Fills, strokes & text</h2>
         <p className="mt-2 max-w-2xl text-sm text-white/55">
-          One ladder drives both themes: the fields below set shared start indices and counts. Light
-          maps from the bright end; dark elevated inverts picks from the tail. The dark column shows
-          the resolved indices for that theme.
+          Light and Dark elevated each have their own ladder starts and shade counts on the shared
+          global ramp. Resolved indices and offset maps use the same math as previews and exports,
+          including the preview toolbar’s <span className="font-mono text-white/70">{contrastMode}</span>{' '}
+          contrast mode (wide widens ladder spacing).
         </p>
       </header>
 
-      {/* Shared — applies to both theme derivations */}
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-white">Shared mapping</h3>
         <p className="mt-1 text-xs text-white/45">
-          Step spacing and contrast affect both Light and Dark elevated picks. Alt overlays and dark
+          Contrast distance applies to both themes (× wide boost when the preview is in wide mode).
+          Step interval is set per theme and role in each ladder group below. Alt overlays and dark
           segment length are global.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <NumField
-            label="Step interval"
-            hint="Base step between ladder picks"
-            min={1}
-            max={32}
-            value={config.stepInterval}
-            onChange={(v) => patch({stepInterval: v})}
-          />
           <NumField
             label="Contrast distance"
             hint="Widens spacing (both themes)"
             min={0.5}
             step={0.1}
             value={config.contrastDistance}
-            onChange={(v) => patch({contrastDistance: v})}
+            onChange={(v) => patchSystem('contrastDistance', v)}
           />
           <NumField
             label="Alt overlays"
@@ -112,7 +116,7 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
             min={0}
             max={8}
             value={config.altCount}
-            onChange={(v) => patch({altCount: v})}
+            onChange={(v) => patchSystem('altCount', v)}
           />
           <NumField
             label="Alt alpha"
@@ -121,7 +125,7 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
             max={1}
             step={0.05}
             value={config.altAlpha}
-            onChange={(v) => patch({altAlpha: v})}
+            onChange={(v) => patchSystem('altAlpha', v)}
           />
           <NumField
             label="Dark segment length"
@@ -129,13 +133,13 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
             min={3}
             max={steps}
             value={config.darkSegmentLength}
-            onChange={(v) => patch({darkSegmentLength: v})}
+            onChange={(v) => patchSystem('darkSegmentLength', v)}
           />
           <label className="flex items-center gap-2 pt-6 sm:col-span-2 lg:col-span-4">
             <input
               type="checkbox"
               checked={config.includeContrastGroups}
-              onChange={(e) => patch({includeContrastGroups: e.target.checked})}
+              onChange={(e) => patchSystem('includeContrastGroups', e.target.checked)}
               className="size-4 rounded border-white/20"
             />
             <span className="text-sm text-white/70">Include contrast groups (experimental)</span>
@@ -143,16 +147,13 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
         </div>
       </div>
 
-      {/* Light vs Dark — role-grouped */}
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-        {/* Light — editable role groups */}
         <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.06] p-4 sm:p-5">
           <div className="border-b border-amber-400/20 pb-3">
             <p className="eyebrow text-amber-200/80">Light theme</p>
-            <h3 className="mt-1 text-base font-semibold text-white">Ladder inputs</h3>
+            <h3 className="mt-1 text-base font-semibold text-white">Role ladders</h3>
             <p className="mt-1 text-xs text-white/50">
-              Edit starts and counts. Picks move from the light end of the global ramp (low index =
-              lightest).
+              Picks step along the global ramp from the light end (low index = lightest).
             </p>
           </div>
 
@@ -162,14 +163,22 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Fills</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Surface / background fills</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumField
+                  label="Step interval"
+                  hint="Fills · × contrast distance"
+                  min={1}
+                  max={32}
+                  value={config.lightFillStepInterval}
+                  onChange={(v) => patchSystem('lightFillStepInterval', v)}
+                />
                 <NumField
                   label="Fill start index"
                   hint="First global index on ladder"
                   min={0}
                   max={steps - 1}
                   value={config.fillStart}
-                  onChange={(v) => patch({fillStart: v})}
+                  onChange={(v) => patchSystem('fillStart', v)}
                 />
                 <NumField
                   label="Fill shade count"
@@ -177,10 +186,10 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
                   min={1}
                   max={16}
                   value={config.fillCount}
-                  onChange={(v) => patch({fillCount: v})}
+                  onChange={(v) => patchSystem('fillCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices (light)" indices={lightIdx.fill} />
+              <ResolvedIndices label="Resolved global indices" indices={lightIdx.fill} />
             </div>
 
             <div className="space-y-3 border-t border-amber-400/15 pt-5">
@@ -188,23 +197,31 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Strokes</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Borders & dividers</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumField
+                  label="Step interval"
+                  hint="Strokes · × contrast distance"
+                  min={1}
+                  max={32}
+                  value={config.lightStrokeStepInterval}
+                  onChange={(v) => patchSystem('lightStrokeStepInterval', v)}
+                />
                 <NumField
                   label="Stroke start index"
                   min={0}
                   max={steps - 1}
                   value={config.strokeStart}
-                  onChange={(v) => patch({strokeStart: v})}
+                  onChange={(v) => patchSystem('strokeStart', v)}
                 />
                 <NumField
                   label="Stroke shade count"
                   min={1}
                   max={16}
                   value={config.strokeCount}
-                  onChange={(v) => patch({strokeCount: v})}
+                  onChange={(v) => patchSystem('strokeCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices (light)" indices={lightIdx.stroke} />
+              <ResolvedIndices label="Resolved global indices" indices={lightIdx.stroke} />
             </div>
 
             <div className="space-y-3 border-t border-amber-400/15 pt-5">
@@ -212,68 +229,165 @@ function SystemMappingSectionInner({config, onChange, steps}: Props) {
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Text</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Foreground & secondary type</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumField
+                  label="Step interval"
+                  hint="Text · × contrast distance"
+                  min={1}
+                  max={32}
+                  value={config.lightTextStepInterval}
+                  onChange={(v) => patchSystem('lightTextStepInterval', v)}
+                />
                 <NumField
                   label="Text start index"
                   min={0}
                   max={steps - 1}
                   value={config.textStart}
-                  onChange={(v) => patch({textStart: v})}
+                  onChange={(v) => patchSystem('textStart', v)}
                 />
                 <NumField
                   label="Text shade count"
                   min={1}
                   max={16}
                   value={config.textCount}
-                  onChange={(v) => patch({textCount: v})}
+                  onChange={(v) => patchSystem('textCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices (light)" indices={lightIdx.text} />
+              <ResolvedIndices label="Resolved global indices" indices={lightIdx.text} />
             </div>
           </div>
         </div>
 
-        {/* Dark elevated — read-only resolved indices per role */}
         <div className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-4 sm:p-5">
           <div className="border-b border-sky-400/20 pb-3">
             <p className="eyebrow text-sky-200/80">Dark elevated</p>
-            <h3 className="mt-1 text-base font-semibold text-white">Resolved indices</h3>
+            <h3 className="mt-1 text-base font-semibold text-white">Role ladders</h3>
             <p className="mt-1 text-xs text-white/50">
-              Uses the same starts and counts as Light; the engine maps from the dark tail (elevated
-              surfaces). Adjust values in the Light panel — this column updates.
+              Independent controls; the engine maps from the dark tail using the same inverted
+              index rules as before (fills, strokes, and text each use their own start inputs).
             </p>
           </div>
 
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Fills</h4>
-              <p className="text-[0.65rem] text-white/45">Inverted picks from canvas end</p>
-              <ResolvedIndices label="Global indices" indices={darkIdx.fill} />
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Fills</h4>
+                <p className="mt-0.5 text-[0.65rem] text-white/45">Tail-anchored surface ramp</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumField
+                  label="Step interval"
+                  hint="Fills · × contrast distance"
+                  min={1}
+                  max={32}
+                  value={config.darkFillStepInterval}
+                  onChange={(v) => patchSystem('darkFillStepInterval', v)}
+                />
+                <NumField
+                  label="Fill start index"
+                  hint="Offset into dark tail pool"
+                  min={0}
+                  max={steps - 1}
+                  value={config.darkFillStart}
+                  onChange={(v) => patchSystem('darkFillStart', v)}
+                />
+                <NumField
+                  label="Fill shade count"
+                  min={1}
+                  max={16}
+                  value={config.darkFillCount}
+                  onChange={(v) => patchSystem('darkFillCount', v)}
+                />
+              </div>
+              <ResolvedIndices label="Resolved global indices" indices={darkIdx.fill} />
             </div>
+
             <div className="space-y-3 border-t border-sky-400/15 pt-5">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Strokes</h4>
-              <p className="text-[0.65rem] text-white/45">Stroke ladder offset</p>
-              <ResolvedIndices label="Global indices" indices={darkIdx.stroke} />
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Strokes</h4>
+                <p className="mt-0.5 text-[0.65rem] text-white/45">Hairline / divider ramp</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumField
+                  label="Step interval"
+                  hint="Strokes · × contrast distance"
+                  min={1}
+                  max={32}
+                  value={config.darkStrokeStepInterval}
+                  onChange={(v) => patchSystem('darkStrokeStepInterval', v)}
+                />
+                <NumField
+                  label="Stroke start index"
+                  min={0}
+                  max={steps - 1}
+                  value={config.darkStrokeStart}
+                  onChange={(v) => patchSystem('darkStrokeStart', v)}
+                />
+                <NumField
+                  label="Stroke shade count"
+                  min={1}
+                  max={16}
+                  value={config.darkStrokeCount}
+                  onChange={(v) => patchSystem('darkStrokeCount', v)}
+                />
+              </div>
+              <ResolvedIndices label="Resolved global indices" indices={darkIdx.stroke} />
             </div>
+
             <div className="space-y-3 border-t border-sky-400/15 pt-5">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Text</h4>
-              <p className="text-[0.65rem] text-white/45">Text uses offset start + 2 in dark engine</p>
-              <ResolvedIndices label="Global indices" indices={darkIdx.text} />
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Text</h4>
+                <p className="mt-0.5 text-[0.65rem] text-white/45">Type ramp (stroke-text picker)</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumField
+                  label="Step interval"
+                  hint="Text · × contrast distance"
+                  min={1}
+                  max={32}
+                  value={config.darkTextStepInterval}
+                  onChange={(v) => patchSystem('darkTextStepInterval', v)}
+                />
+                <NumField
+                  label="Text start index"
+                  min={0}
+                  max={steps - 1}
+                  value={config.darkTextStart}
+                  onChange={(v) => patchSystem('darkTextStart', v)}
+                />
+                <NumField
+                  label="Text shade count"
+                  min={1}
+                  max={16}
+                  value={config.darkTextCount}
+                  onChange={(v) => patchSystem('darkTextCount', v)}
+                />
+              </div>
+              <ResolvedIndices label="Resolved global indices" indices={darkIdx.text} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <OffsetMapDiagram
-          steps={steps}
-          fillStart={config.fillStart}
-          strokeStart={config.strokeStart}
-          textStart={config.textStart}
-          fillCount={config.fillCount}
-          strokeCount={config.strokeCount}
-          textCount={config.textCount}
-        />
+      <div className="space-y-4">
+        <div className="grid gap-4 lg:grid-cols-1">
+          <OffsetMapDiagram
+            steps={steps}
+            themeLabel="Light"
+            description="Bars use the same resolved global indices as light themeMode tokens (low index = light)."
+            fillIndices={lightIdx.fill}
+            strokeIndices={lightIdx.stroke}
+            textIndices={lightIdx.text}
+          />
+          <OffsetMapDiagram
+            steps={steps}
+            themeLabel="Dark elevated"
+            description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
+            fillIndices={darkIdx.fill}
+            strokeIndices={darkIdx.stroke}
+            textIndices={darkIdx.text}
+          />
+        </div>
         <ThemeRangeBar steps={steps} darkSegmentLength={config.darkSegmentLength} />
       </div>
     </section>

@@ -1,27 +1,30 @@
 'use client'
 
 /**
- * Workbench state: `global` is memoized from `globalConfig` only.
- * Contrast / preview toggles update `lightTokens` / `darkTokens` but must not rebuild the global
- * ramp — UI sections that only depend on `global` + `globalConfig` are wrapped in `React.memo`
- * (see Workbench) so compact/wide and theme preview stay cheap to paint.
- *
- * Heavy work (`buildGlobalScale`, `deriveSystemTokens`) runs off the urgent path via
- * `useDeferredValue` so typing in controls stays responsive while the palette catches up.
+ * Workbench state: `global` is memoized from the **current** `globalConfig` (not deferred) so
+ * ladder length, resolved indices, and `deriveSystemTokens` stay aligned when Steps changes.
+ * System mapping uses `useDeferredValue` so dense control panels stay responsive while tokens catch up.
  */
 import type {SetStateAction} from 'react'
 import {useCallback, useDeferredValue, useMemo, useState, useTransition} from 'react'
 
+import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {
+  applyContrastModeToSystemMapping,
   buildGlobalScale,
+  buildTokenView,
+  clampSystemMappingToLadderLength,
+  DEFAULT_SYSTEM_MAPPING,
   deriveSystemTokens,
   type GlobalScaleConfig,
   type GlobalSwatch,
   type SystemMappingConfig,
   type SystemToken,
+  type TokenView,
   type WorkbenchSelection,
 } from '@/lib/neutral-engine'
-import {globalConfigsEqual, systemConfigsEqual} from '@/lib/neutral-engine/configEquality'
+import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
+import {systemConfigsEqual} from '@/lib/neutral-engine/configEquality'
 
 const DEFAULT_GLOBAL: GlobalScaleConfig = {
   steps: 48,
@@ -35,28 +38,20 @@ const DEFAULT_GLOBAL: GlobalScaleConfig = {
   variantId: 'pure',
 }
 
-const DEFAULT_SYSTEM: SystemMappingConfig = {
-  fillStart: 0,
-  strokeStart: 2,
-  textStart: 14,
-  fillCount: 4,
-  strokeCount: 3,
-  textCount: 3,
-  altCount: 2,
-  stepInterval: 1,
-  contrastDistance: 1,
-  themeMode: 'light',
-  darkSegmentLength: 8,
-  altAlpha: 0.45,
-  includeContrastGroups: false,
-}
+const DEFAULT_SYSTEM: SystemMappingConfig = DEFAULT_SYSTEM_MAPPING
 
 export function useNeutralWorkbench() {
   const [globalConfig, setGlobalConfigBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
-  const [systemConfig, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
+  const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
-  const [contrastMode, setContrastModeBase] = useState<'compact' | 'wide'>('compact')
+  const [contrastMode, setContrastModeBase] = useState<'compact' | 'wide'>('wide')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
+  /**
+   * Light vs Dark comparison panel: split shows both ramps; focus shows one (preview toolbar picks which).
+   * We still derive light+dark tokens whenever mapping changes — export and theme panels need both themes;
+   * skipping one `deriveSystemTokens` in focus mode would require lazy export or a second deferred pass.
+   */
+  const [comparisonLayout, setComparisonLayout] = useState<ComparisonLayout>('split')
 
   const [isPending, startTransition] = useTransition()
 
@@ -76,43 +71,67 @@ export function useNeutralWorkbench() {
     startTransition(() => setContrastModeBase(action))
   }, [])
 
-  const deferredGlobalConfig = useDeferredValue(globalConfig)
-  const deferredSystemConfig = useDeferredValue(systemConfig)
+  /** Single-field updates with referential stability when the value is unchanged (avoids redundant transitions). */
+  const patchGlobal = useCallback(<K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K]) => {
+    startTransition(() => {
+      setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
+    })
+  }, [])
+
+  const patchSystem = useCallback(<K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K]) => {
+    startTransition(() => {
+      setSystemConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
+    })
+  }, [])
+
+  const deferredSystemBase = useDeferredValue(systemConfigBase)
 
   const deferredStale = useMemo(
-    () =>
-      !globalConfigsEqual(globalConfig, deferredGlobalConfig) ||
-      !systemConfigsEqual(systemConfig, deferredSystemConfig),
-    [globalConfig, deferredGlobalConfig, systemConfig, deferredSystemConfig],
+    () => !systemConfigsEqual(systemConfigBase, deferredSystemBase),
+    [systemConfigBase, deferredSystemBase],
   )
 
   /** True while React is applying a transition or deferred values have not caught up to latest input. */
   const inputBusy = isPending || deferredStale
 
-  const global = useMemo(() => buildGlobalScale(deferredGlobalConfig), [deferredGlobalConfig])
+  const ladderN = useMemo(() => clampGlobalScaleSteps(globalConfig.steps), [globalConfig.steps])
 
-  const effectiveSystem = useMemo(
-    () => ({
-      ...deferredSystemConfig,
-      contrastDistance:
-        contrastMode === 'wide'
-          ? Math.max(deferredSystemConfig.contrastDistance * 2.1, 2)
-          : deferredSystemConfig.contrastDistance,
-    }),
-    [deferredSystemConfig, contrastMode],
+  /** Ladder-bounded mapping — matches `deriveSystemTokens` / export (starts & dark segment stay in range). */
+  const systemConfig = useMemo(
+    () => clampSystemMappingToLadderLength(ladderN, systemConfigBase),
+    [ladderN, systemConfigBase],
+  )
+
+  const global = useMemo(() => buildGlobalScale(globalConfig), [globalConfig])
+
+  /** Same object passed to deriveSystemTokens — also drives resolved-index UI (must stay aligned). */
+  const effectiveMappingConfig = useMemo(
+    () =>
+      applyContrastModeToSystemMapping(
+        clampSystemMappingToLadderLength(ladderN, deferredSystemBase),
+        contrastMode,
+      ),
+    [deferredSystemBase, contrastMode, ladderN],
   )
 
   const lightTokens = useMemo(
-    () => deriveSystemTokens(global, {...effectiveSystem, themeMode: 'light'}),
-    [global, effectiveSystem],
+    () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'light'}),
+    [global, effectiveMappingConfig],
   )
 
   const darkTokens = useMemo(
-    () => deriveSystemTokens(global, {...effectiveSystem, themeMode: 'darkElevated'}),
-    [global, effectiveSystem],
+    () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'darkElevated'}),
+    [global, effectiveMappingConfig],
   )
 
+  const lightTokenView = useMemo(() => buildTokenView(lightTokens), [lightTokens])
+  const darkTokenView = useMemo(() => buildTokenView(darkTokens), [darkTokens])
+
   const activeSystemTokens = previewTheme === 'light' ? lightTokens : darkTokens
+  const activeTokenView = useMemo(
+    (): TokenView => (previewTheme === 'light' ? lightTokenView : darkTokenView),
+    [previewTheme, lightTokenView, darkTokenView],
+  )
 
   const selectGlobal = useCallback((index: number) => {
     setSelection({kind: 'global', index})
@@ -125,11 +144,18 @@ export function useNeutralWorkbench() {
   return {
     globalConfig,
     setGlobalConfig,
+    patchGlobal,
     systemConfig,
     setSystemConfig,
+    patchSystem,
+    /** Deferred + contrast-mode-adjusted; use for any display that must match token derivation. */
+    effectiveMappingConfig,
     global,
     lightTokens,
     darkTokens,
+    lightTokenView,
+    darkTokenView,
+    activeTokenView,
     activeSystemTokens,
     previewTheme,
     setPreviewTheme,
@@ -140,6 +166,8 @@ export function useNeutralWorkbench() {
     selectGlobal,
     selectSystem,
     inputBusy,
+    comparisonLayout,
+    setComparisonLayout,
   }
 }
 

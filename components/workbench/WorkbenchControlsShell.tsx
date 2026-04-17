@@ -16,7 +16,7 @@ type Props = {
 export function WorkbenchControlsShell({wb, selectedGlobalIndex}: Props) {
   return (
     <div className="ns-workbench__controls border-t border-white/10 bg-black/15">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <header className="mb-8 hidden border-b border-white/10 pb-6 lg:block">
           <p className="eyebrow">Workbench</p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight text-white">Neutral System Builder</h1>

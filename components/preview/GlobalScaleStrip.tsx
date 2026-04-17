@@ -1,33 +1,46 @@
 'use client'
 
-import {useMemo} from 'react'
+import {memo} from 'react'
 
-import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
+import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
   global: GlobalSwatch[]
-  tokens: SystemToken[]
+  tokenView: TokenView
   /** Shown above the strip (e.g. “Light · global ramp”). */
   caption: string
   /** Accent for focus ring / column chrome. */
   accentClassName?: string
+  /**
+   * When true, render swatches in reverse index order (presentation only; indices and token lookups unchanged).
+   * Used for dark-theme ramps so the visual reads dark→light alongside light-theme light→dark.
+   */
+  invertDisplay?: boolean
+}
+
+/**
+ * Column count for exactly two row-major rows: first row is first ⌈n/2⌉ swatches,
+ * second row is the remainder (equal halves when n is even).
+ */
+function twoRowGridColumnCount(length: number): number {
+  return length <= 0 ? 1 : Math.ceil(length / 2)
 }
 
 /**
  * Full global ramp in index order; swatches that host semantic tokens show role chips.
+ * Renders as two balanced rows (grid flow) for scanability — same treatment for every theme.
  */
-export function GlobalScaleStrip({global, tokens, caption, accentClassName}: Props) {
-  const rolesByIndex = useMemo(() => {
-    const m = new Map<number, SystemToken[]>()
-    for (const t of tokens) {
-      const list = m.get(t.sourceGlobalIndex) ?? []
-      list.push(t)
-      m.set(t.sourceGlobalIndex, list)
-    }
-    return m
-  }, [tokens])
+function GlobalScaleStripInner({
+  global,
+  tokenView,
+  caption,
+  accentClassName,
+  invertDisplay = false,
+}: Props) {
+  const rolesByIndex = tokenView.byGlobalIndex
 
-  if (global.length === 0) {
+  const len = global.length
+  if (len === 0) {
     return (
       <div className="rounded-xl border border-dashed border-white/20 p-4 text-center text-xs text-white/45">
         No swatches — adjust global scale steps.
@@ -35,19 +48,26 @@ export function GlobalScaleStrip({global, tokens, caption, accentClassName}: Pro
     )
   }
 
+  const cols = twoRowGridColumnCount(len)
+
   return (
     <div className="space-y-2">
       <p className="text-[0.65rem] font-medium tracking-wide text-white/55">{caption}</p>
       <div
         className={`overflow-x-auto rounded-xl border border-white/10 bg-black/25 p-2 ${accentClassName ?? ''}`}
       >
-        <div className="flex min-h-[3.25rem] min-w-max gap-px">
-          {global.map((s) => {
+        <div
+          className="grid min-h-[3.25rem] gap-x-px gap-y-1"
+          style={{gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`}}
+        >
+          {Array.from({length: len}, (_, displayOrder) => {
+            const i = invertDisplay ? len - 1 - displayOrder : displayOrder
+            const s = global[i]!
             const mapped = rolesByIndex.get(s.index) ?? []
             return (
               <div
                 key={s.index}
-                className="flex w-5 min-w-[1.15rem] flex-col items-stretch sm:w-6 sm:min-w-[1.25rem]"
+                className="flex min-w-0 flex-col items-stretch"
                 title={`${s.label} · idx ${s.index}`}
               >
                 <div
@@ -79,3 +99,5 @@ export function GlobalScaleStrip({global, tokens, caption, accentClassName}: Pro
     </div>
   )
 }
+
+export const GlobalScaleStrip = memo(GlobalScaleStripInner)

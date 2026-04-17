@@ -1,5 +1,7 @@
 'use client'
 
+import {memo, useCallback} from 'react'
+
 type Props = {
   previewTheme: 'light' | 'dark'
   onPreviewTheme: (t: 'light' | 'dark') => void
@@ -19,7 +21,7 @@ const THEME_LABEL: Record<'light' | 'dark', string> = {
   dark: 'Dark elevated',
 }
 
-export function ThemePreviewControls({
+function ThemePreviewControlsInner({
   previewTheme,
   onPreviewTheme,
   contrastMode,
@@ -27,6 +29,11 @@ export function ThemePreviewControls({
   dense,
   showThemeToggle = true,
 }: Props) {
+  const onLight = useCallback(() => onPreviewTheme('light'), [onPreviewTheme])
+  const onDark = useCallback(() => onPreviewTheme('dark'), [onPreviewTheme])
+  const onCompact = useCallback(() => onContrastMode('compact'), [onContrastMode])
+  const onWide = useCallback(() => onContrastMode('wide'), [onContrastMode])
+
   const pad = dense ? 'px-3 py-1' : 'px-4 py-1.5'
   return (
     <div className={`flex flex-wrap items-center gap-2 ${dense ? '' : 'gap-3'}`}>
@@ -36,34 +43,48 @@ export function ThemePreviewControls({
           role="group"
           aria-label="Mock UI and focus comparison theme"
         >
-          {(['light', 'dark'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => onPreviewTheme(t)}
-              className={`rounded-full ${pad} text-xs font-medium ${
-                previewTheme === t ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
-              }`}
-            >
-              {THEME_LABEL[t]}
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={onLight}
+            className={`rounded-full ${pad} text-xs font-medium ${
+              previewTheme === 'light' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
+            }`}
+          >
+            {THEME_LABEL.light}
+          </button>
+          <button
+            type="button"
+            onClick={onDark}
+            className={`rounded-full ${pad} text-xs font-medium ${
+              previewTheme === 'dark' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
+            }`}
+          >
+            {THEME_LABEL.dark}
+          </button>
         </div>
       ) : null}
       <div className="flex rounded-full border border-white/12 p-0.5">
-        {(['compact', 'wide'] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => onContrastMode(m)}
-            className={`rounded-full ${pad} text-xs font-medium capitalize ${
-              contrastMode === m ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
-            }`}
-          >
-            {m}
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={onCompact}
+          className={`rounded-full ${pad} text-xs font-medium capitalize ${
+            contrastMode === 'compact' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
+          }`}
+        >
+          compact
+        </button>
+        <button
+          type="button"
+          onClick={onWide}
+          className={`rounded-full ${pad} text-xs font-medium capitalize ${
+            contrastMode === 'wide' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
+          }`}
+        >
+          wide
+        </button>
       </div>
     </div>
   )
 }
+
+export const ThemePreviewControls = memo(ThemePreviewControlsInner)

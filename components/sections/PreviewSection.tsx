@@ -1,122 +1,229 @@
 'use client'
 
-import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
+import {memo, useMemo} from 'react'
+
+import type {GlobalSwatch, SystemToken, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
   previewTheme: 'light' | 'dark'
   global: GlobalSwatch[]
-  tokens: SystemToken[]
+  tokenView: TokenView
   /** Larger mock UI and minimal chrome — use in the primary preview column. */
   hero?: boolean
 }
 
-function pick(tokens: SystemToken[], role: SystemToken['role'], i = 0) {
-  return tokens.filter((t) => t.role === role)[i]?.serialized.hex ?? '#888'
+const FILL_LAYER_LABELS = [
+  'Canvas · app background',
+  'Default surface',
+  'Subtle surface',
+  'Muted surface',
+  'Raised surface',
+  'Overlay · elevation',
+] as const
+
+const TEXT_SAMPLE_LABELS = [
+  'Display / emphasis',
+  'Body · primary',
+  'Secondary',
+  'Supporting',
+  'Faint / tertiary',
+] as const
+
+function hexAt(tokens: SystemToken[], i: number, fallback: string): string {
+  return tokens[i]?.serialized.hex ?? tokens[tokens.length - 1]?.serialized.hex ?? fallback
 }
 
-export function PreviewSection({previewTheme, global, tokens, hero = false}: Props) {
-  const bg =
+const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
+  previewTheme,
+  global,
+  tokenView,
+  densePadding,
+}: Props & {densePadding: boolean}) {
+  const {fills, texts, strokes} = useMemo(() => {
+    return {
+      fills: tokenView.byRole.get('fill') ?? [],
+      texts: tokenView.byRole.get('text') ?? [],
+      strokes: tokenView.byRole.get('stroke') ?? [],
+    }
+  }, [tokenView])
+
+  const canvasFallback =
     previewTheme === 'light'
-      ? global[0]?.serialized.hex ?? '#fff'
-      : global[global.length - 1]?.serialized.hex ?? '#000'
-  const surface = pick(tokens, 'fill', 0)
-  const surface2 = pick(tokens, 'fill', 1)
-  const border = pick(tokens, 'stroke', 0)
-  const text = pick(tokens, 'text', 0)
-  const text2 = pick(tokens, 'text', 1)
-  const muted = pick(tokens, 'text', 2)
-  const altTok = tokens.find((t) => t.role === 'alt')
-  const overlayMix = altTok
-    ? `color-mix(in oklch, ${altTok.serialized.oklchCss} 35%, transparent)`
-    : 'transparent'
+      ? global[0]?.serialized.hex ?? '#f4f4f5'
+      : global[global.length - 1]?.serialized.hex ?? '#09090b'
+
+  const stroke0 = hexAt(strokes, 0, previewTheme === 'light' ? '#d4d4d8' : '#3f3f46')
+  const stroke1 = hexAt(strokes, 1, stroke0)
+  const stroke2 = hexAt(strokes, 2, stroke1)
+
+  const f = (i: number) => hexAt(fills, i, canvasFallback)
+  const t = (i: number) => hexAt(texts, i, previewTheme === 'light' ? '#18181b' : '#fafafa')
+
+  const pad = densePadding ? 'p-4 sm:p-5' : 'p-5 sm:p-8'
 
   return (
-    <section className={hero ? 'space-y-5' : 'scroll-mt-6 space-y-6'}>
-      {!hero ? (
-        <header>
-          <p className="eyebrow">6 · UI preview</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Surfaces in context</h2>
-          <p className="mt-2 max-w-2xl text-sm text-white/55">
-            Mock layout using mapped tokens for background, cards, borders, type, and overlay. Toggle
-            light/dark preview in the Themes section.
-          </p>
-        </header>
-      ) : null}
+    <div
+      className={`overflow-hidden rounded-2xl border border-white/10 ${pad} min-h-[min(26rem,52vh)] sm:min-h-[min(30rem,58vh)]`}
+      style={{backgroundColor: f(0)}}
+    >
+      <div className="mx-auto max-w-3xl">
+        <p
+          className="text-[0.65rem] font-medium uppercase tracking-[0.12em]"
+          style={{color: t(3)}}
+        >
+          UI mock · fill ramp
+        </p>
 
-      <div
-        className={`grid gap-4 rounded-2xl border border-white/10 lg:grid-cols-[1.1fr_0.9fr] ${
-          hero ? 'min-h-[min(28rem,50vh)] p-5 sm:p-6 lg:min-h-[min(32rem,55vh)]' : 'p-4'
-        }`}
-        style={{backgroundColor: bg, color: text}}
-      >
-        <div className="space-y-4">
-          <div
-            className={`rounded-xl border shadow-lg ${hero ? 'p-5 sm:p-6' : 'p-4'}`}
-            style={{backgroundColor: surface, borderColor: border, color: text}}
-          >
-            <p className={hero ? 'text-base font-semibold' : 'text-sm font-semibold'}>Card title</p>
-            <p className={`mt-1 opacity-80 ${hero ? 'text-sm sm:text-base' : 'text-sm'}`} style={{color: text2}}>
-              Secondary line using second text token.
+        <div
+          className="mt-4 rounded-2xl border shadow-sm"
+          style={{
+            backgroundColor: f(1),
+            borderColor: stroke0,
+            boxShadow:
+              previewTheme === 'light'
+                ? '0 1px 0 rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06)'
+                : '0 1px 0 rgba(255,255,255,0.04), 0 12px 40px rgba(0,0,0,0.45)',
+          }}
+        >
+          <div className="border-b px-5 py-3 sm:px-6" style={{borderColor: stroke0}}>
+            <p className="text-[0.6rem] font-medium uppercase tracking-wide opacity-70" style={{color: t(3)}}>
+              {FILL_LAYER_LABELS[1]}
             </p>
-            <p className={`mt-3 ${hero ? 'text-xs sm:text-sm' : 'text-xs'}`} style={{color: muted}}>
-              Tertiary / disabled tone
+            <h3 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl" style={{color: t(0)}}>
+              {TEXT_SAMPLE_LABELS[0]}
+            </h3>
+            <p className="mt-2 max-w-prose text-sm leading-relaxed" style={{color: t(1)}}>
+              Body copy sits on the default surface using the primary text token. This block checks
+              readability between fill and text ladders.
             </p>
-            <div
-              className="mt-4 flex gap-2 border-t pt-3"
-              style={{borderColor: border}}
+            <p className="mt-2 text-sm" style={{color: t(2)}}>
+              Secondary copy for subheads, metadata, and de-emphasized labels.
+            </p>
+          </div>
+
+          <div className="grid gap-0 sm:grid-cols-[minmax(0,7.5rem)_1fr]">
+            <aside
+              className="border-b p-4 sm:border-b-0 sm:border-r rounded-bl-[0.875rem]"
+              style={{
+                backgroundColor: f(3),
+                borderColor: stroke0,
+              }}
             >
-              <span
-                className="rounded-lg px-3 py-1.5 text-xs font-medium"
-                style={{backgroundColor: surface2, color: text}}
+              <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(3)}}>
+                {FILL_LAYER_LABELS[3]}
+              </p>
+              <p className="mt-3 text-xs leading-snug" style={{color: t(2)}}>
+                Sidebar on muted fill
+              </p>
+              <p className="mt-2 text-[0.65rem] leading-snug" style={{color: t(4)}}>
+                Quiet rail
+              </p>
+            </aside>
+
+            <div className="space-y-4 p-5 sm:p-6">
+              <div
+                className="rounded-xl border p-4"
+                style={{backgroundColor: f(2), borderColor: stroke0}}
               >
-                Button
-              </span>
-              <span
-                className="rounded-lg border px-3 py-1.5 text-xs"
-                style={{borderColor: border, color: text}}
+                <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(3)}}>
+                  {FILL_LAYER_LABELS[2]}
+                </p>
+                <p className="mt-2 text-sm" style={{color: t(2)}}>
+                  Nested content band — one step softer than the shell.
+                </p>
+              </div>
+
+              <div
+                className="rounded-xl border p-5"
+                style={{
+                  backgroundColor: f(4),
+                  borderColor: stroke1,
+                  boxShadow:
+                    previewTheme === 'light'
+                      ? '0 2px 8px rgba(0,0,0,0.07)'
+                      : '0 2px 12px rgba(0,0,0,0.5)',
+                }}
               >
-                Ghost
-              </span>
+                <p className="text-sm font-semibold" style={{color: t(0)}}>
+                  {FILL_LAYER_LABELS[4]}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed" style={{color: t(2)}}>
+                  Cards and floating panels pick up the raised fill while type hierarchy stays on the
+                  text ramp.
+                </p>
+              </div>
+
+              <div
+                className="rounded-xl border px-4 py-3"
+                style={{backgroundColor: f(5), borderColor: stroke2}}
+              >
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(2)}}>
+                      {FILL_LAYER_LABELS[5]}
+                    </p>
+                    <p className="mt-1 text-xs" style={{color: t(3)}}>
+                      Sticky actions, sheets, and high-elevation chrome.
+                    </p>
+                  </div>
+                  <span className="text-[0.65rem] font-mono tabular-nums" style={{color: t(4)}}>
+                    disabled
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className="rounded-lg border border-dashed px-3 py-2"
+                style={{borderColor: stroke0}}
+              >
+                <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(3)}}>
+                  Text ramp
+                </p>
+                <div className="mt-2 space-y-1.5">
+                  {TEXT_SAMPLE_LABELS.map((label, i) => (
+                    <p key={label} className="text-sm leading-snug" style={{color: t(i)}}>
+                      <span className="mr-1.5 inline-block w-4 font-mono text-[0.6rem] tabular-nums opacity-55" style={{color: t(3)}}>
+                        {i}
+                      </span>
+                      {label}
+                    </p>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-          <div
-            className="rounded-xl border px-3 py-2 font-mono text-xs"
-            style={{
-              backgroundColor: surface,
-              borderColor: border,
-              color: text,
-            }}
-          >
-            <span className="opacity-50">Search…</span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div
-            className="flex flex-1 flex-col rounded-xl border"
-            style={{backgroundColor: surface2, borderColor: border}}
-          >
-            <div
-              className="border-b px-3 py-2 text-xs font-medium"
-              style={{borderColor: border, color: text}}
-            >
-              Sidebar
-            </div>
-            <div className="flex-1 px-3 py-2 text-[0.65rem]" style={{color: muted}}>
-              Nav item
-            </div>
-          </div>
-          <div
-            className="relative rounded-xl border p-3"
-            style={{backgroundColor: surface, borderColor: border, color: text}}
-          >
-            <div className="pointer-events-none absolute inset-0 rounded-xl" style={{background: overlayMix}} />
-            <p className="relative text-xs font-medium">Modal / overlay</p>
-            <p className="relative mt-1 text-[0.65rem] opacity-80">
-              Alt token as translucent wash.
-            </p>
           </div>
         </div>
       </div>
+    </div>
+  )
+})
+
+function PreviewSectionInner({previewTheme, global, tokenView, hero = false}: Props) {
+  if (hero) {
+    return (
+      <section className="space-y-5">
+        <SurfacesHierarchyMock
+          previewTheme={previewTheme}
+          global={global}
+          tokenView={tokenView}
+          densePadding={false}
+        />
+      </section>
+    )
+  }
+
+  return (
+    <section className="scroll-mt-6 space-y-6">
+      <header>
+        <p className="eyebrow">6 · UI preview</p>
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Surfaces in context</h2>
+        <p className="mt-2 max-w-2xl text-sm text-white/55">
+          Fill and text tokens from the active theme, layered as a compact validation surface.
+        </p>
+      </header>
+      <SurfacesHierarchyMock previewTheme={previewTheme} global={global} tokenView={tokenView} densePadding />
     </section>
   )
 }
+
+export const PreviewSection = memo(PreviewSectionInner)

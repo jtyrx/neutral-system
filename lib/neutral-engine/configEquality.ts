@@ -22,8 +22,19 @@ export function systemConfigsEqual(a: SystemMappingConfig, b: SystemMappingConfi
     a.fillCount === b.fillCount &&
     a.strokeCount === b.strokeCount &&
     a.textCount === b.textCount &&
+    a.darkFillStart === b.darkFillStart &&
+    a.darkStrokeStart === b.darkStrokeStart &&
+    a.darkTextStart === b.darkTextStart &&
+    a.darkFillCount === b.darkFillCount &&
+    a.darkStrokeCount === b.darkStrokeCount &&
+    a.darkTextCount === b.darkTextCount &&
     a.altCount === b.altCount &&
-    a.stepInterval === b.stepInterval &&
+    a.lightFillStepInterval === b.lightFillStepInterval &&
+    a.lightStrokeStepInterval === b.lightStrokeStepInterval &&
+    a.lightTextStepInterval === b.lightTextStepInterval &&
+    a.darkFillStepInterval === b.darkFillStepInterval &&
+    a.darkStrokeStepInterval === b.darkStrokeStepInterval &&
+    a.darkTextStepInterval === b.darkTextStepInterval &&
     a.contrastDistance === b.contrastDistance &&
     a.themeMode === b.themeMode &&
     a.darkSegmentLength === b.darkSegmentLength &&

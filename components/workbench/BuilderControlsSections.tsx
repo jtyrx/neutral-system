@@ -6,6 +6,7 @@ import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
 import {ThemePanelsSection} from '@/components/sections/ThemePanelsSection'
 import {VariantsSection} from '@/components/sections/VariantsSection'
 import type {NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
+import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 
 type Props = {
   wb: NeutralWorkbench
@@ -18,19 +19,22 @@ export function BuilderControlsSections({wb, selectedGlobalIndex}: Props) {
     <div className="space-y-14 pb-16 lg:space-y-16 lg:pb-24">
       <GlobalScaleSection
         config={wb.globalConfig}
-        onChange={wb.setGlobalConfig}
+        patchGlobal={wb.patchGlobal}
         global={wb.global}
         selectedIndex={selectedGlobalIndex}
         onSelectSwatch={wb.selectGlobal}
       />
       <SystemMappingSection
         config={wb.systemConfig}
-        onChange={wb.setSystemConfig}
-        steps={wb.global.length > 0 ? wb.global.length : wb.globalConfig.steps}
+        derivationConfig={wb.effectiveMappingConfig}
+        contrastMode={wb.contrastMode}
+        patchSystem={wb.patchSystem}
+        steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
       />
       <ThemePanelsSection
-        lightTokens={wb.lightTokens}
-        darkTokens={wb.darkTokens}
+        global={wb.global}
+        lightTokenView={wb.lightTokenView}
+        darkTokenView={wb.darkTokenView}
         onSelectSystem={wb.selectSystem}
       />
       <VariantsSection config={wb.globalConfig} onChange={wb.setGlobalConfig} />

@@ -1,6 +1,6 @@
 'use client'
 
-import {useCallback, useMemo, useState} from 'react'
+import {memo, useCallback, useMemo, useState} from 'react'
 
 import {
   exportCssVariables,
@@ -20,7 +20,7 @@ type Props = {
 
 type Tab = 'json' | 'css' | 'csv' | 'tailwind'
 
-export function ExportSection({
+function ExportSectionInner({
   globalConfig,
   systemConfig,
   global,
@@ -30,17 +30,20 @@ export function ExportSection({
   const [tab, setTab] = useState<Tab>('json')
   const [copied, setCopied] = useState(false)
 
-  const payload = useMemo(
-    () => ({
-      json: exportJson({global, light: lightTokens, dark: darkTokens}),
-      css: exportCssVariables({global, light: lightTokens, dark: darkTokens}),
-      csv: exportCsv(global),
-      tailwind: exportTailwindThemeSnippet({global}),
-    }),
-    [global, lightTokens, darkTokens],
-  )
-
-  const text = payload[tab]
+  const text = useMemo(() => {
+    switch (tab) {
+      case 'json':
+        return exportJson({global, light: lightTokens, dark: darkTokens})
+      case 'css':
+        return exportCssVariables({global, light: lightTokens, dark: darkTokens})
+      case 'csv':
+        return exportCsv(global)
+      case 'tailwind':
+        return exportTailwindThemeSnippet({global})
+      default:
+        return ''
+    }
+  }, [tab, global, lightTokens, darkTokens])
 
   const copy = useCallback(async () => {
     try {
@@ -164,3 +167,5 @@ export function ExportSection({
     </section>
   )
 }
+
+export const ExportSection = memo(ExportSectionInner)

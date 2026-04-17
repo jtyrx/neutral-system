@@ -1,42 +1,23 @@
 'use client'
 
+import {memo, useCallback, useState} from 'react'
+
+import {SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
 import {humanizeRole} from '@/components/preview/previewLabels'
-import type {SystemRole, SystemToken} from '@/lib/neutral-engine/types'
+import type {GlobalSwatch} from '@/lib/neutral-engine'
+import type {SystemRole, SystemToken, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
-  lightTokens: SystemToken[]
-  darkTokens: SystemToken[]
+  global: GlobalSwatch[]
+  lightTokenView: TokenView
+  darkTokenView: TokenView
   onSelectSystem: (id: string) => void
 }
 
-const ROLE_GROUPS: {roles: SystemRole[]; heading: string; hint: string}[] = [
-  {
-    roles: ['fill'],
-    heading: 'Fills',
-    hint: 'Surface and background fills',
-  },
-  {
-    roles: ['stroke'],
-    heading: 'Strokes',
-    hint: 'Borders, hairlines, dividers',
-  },
-  {
-    roles: ['text'],
-    heading: 'Text',
-    hint: 'Foreground and secondary type',
-  },
-  {
-    roles: ['alt'],
-    heading: 'Alt / overlay',
-    hint: 'Translucent washes',
-  },
-]
-
 const CONTRAST_ROLES: SystemRole[] = ['contrastFill', 'contrastStroke', 'contrastText', 'contrastAlt']
 
-function tokensForRoles(tokens: SystemToken[], roles: SystemRole[]) {
-  const set = new Set(roles)
-  return tokens.filter((t) => set.has(t.role))
+function tokensForRoles(view: TokenView, roles: SystemRole[]): SystemToken[] {
+  return roles.flatMap((r) => view.byRole.get(r) ?? [])
 }
 
 function RoleTokenTable({
@@ -56,7 +37,7 @@ function RoleTokenTable({
           <tr>
             <th className="px-2 py-1.5">Role</th>
             <th className="px-2 py-1.5">Token</th>
-            <th className="px-2 py-1.5">Idx</th>
+            <th className="px-2 py-1.5 text-right">Idx</th>
             <th className="px-2 py-1.5">Swatch</th>
           </tr>
         </thead>
@@ -65,7 +46,7 @@ function RoleTokenTable({
             <tr key={t.id} className="border-b border-white/[0.06]">
               <td className="px-2 py-1.5 text-white/75">{humanizeRole(t.role)}</td>
               <td className="px-2 py-1.5 text-white/60">{t.name}</td>
-              <td className="px-2 py-1.5">{t.sourceGlobalIndex}</td>
+              <td className="px-2 py-1.5 text-right text-white/40">{t.sourceGlobalIndex}</td>
               <td className="px-2 py-1.5">
                 <button
                   type="button"
@@ -87,17 +68,22 @@ function ThemeTokenColumn({
   eyebrow,
   title,
   hint,
-  tokens,
+  tokenView,
+  global,
   onSelectSystem,
   variant,
 }: {
   eyebrow: string
   title: string
   hint: string
-  tokens: SystemToken[]
+  tokenView: TokenView
+  global: GlobalSwatch[]
   onSelectSystem: (id: string) => void
   variant: 'light' | 'dark'
 }) {
+  const [showTable, setShowTable] = useState(false)
+  const toggle = useCallback(() => setShowTable((v) => !v), [])
+
   const shell =
     variant === 'light'
       ? 'border-amber-400/25 bg-amber-500/[0.06]'
@@ -106,7 +92,7 @@ function ThemeTokenColumn({
     variant === 'light' ? 'text-amber-100/90' : 'text-sky-100/90'
   const eyebrowTone = variant === 'light' ? 'text-amber-200/80' : 'text-sky-200/80'
 
-  const contrastToks = tokensForRoles(tokens, CONTRAST_ROLES)
+  const contrastToks = tokensForRoles(tokenView, CONTRAST_ROLES)
 
   return (
     <div className={`rounded-2xl border p-4 sm:p-5 ${shell}`}>
@@ -114,45 +100,62 @@ function ThemeTokenColumn({
         <p className={`eyebrow ${eyebrowTone}`}>{eyebrow}</p>
         <h3 className="mt-1 text-lg font-semibold text-white">{title}</h3>
         <p className="mt-1 text-xs text-white/50">{hint}</p>
+        <button
+          type="button"
+          onClick={toggle}
+          className="mt-3 rounded-full border border-white/12 px-2.5 py-1 text-[0.65rem] text-white/65 hover:bg-white/8 hover:text-white"
+        >
+          {showTable ? 'Visual view' : 'Data table'}
+        </button>
       </header>
 
       <div className="mt-6 space-y-8">
-        {ROLE_GROUPS.map(({roles, heading: h, hint: sub}) => {
-          const groupTokens = tokens.filter((t) => roles.includes(t.role))
-          return (
-            <div key={h} className="space-y-2">
-              <div>
-                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>{h}</h4>
-                <p className="text-[0.65rem] text-white/40">{sub}</p>
+        {showTable ? (
+          <>
+            {(['fill', 'stroke', 'text', 'alt'] as const).map((role) => {
+              const groupTokens = tokensForRoles(tokenView, [role])
+              if (groupTokens.length === 0) return null
+              return (
+                <div key={role} className="space-y-2">
+                  <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>{role}</h4>
+                  <RoleTokenTable tokens={groupTokens} onSelect={onSelectSystem} />
+                </div>
+              )
+            })}
+            {contrastToks.length > 0 ? (
+              <div className="space-y-2 border-t border-white/10 pt-6">
+                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Contrast</h4>
+                <RoleTokenTable tokens={contrastToks} onSelect={onSelectSystem} />
               </div>
-              <RoleTokenTable tokens={groupTokens} onSelect={onSelectSystem} />
-            </div>
-          )
-        })}
-
-        {contrastToks.length > 0 ? (
-          <div className="space-y-2 border-t border-white/10 pt-6">
-            <div>
-              <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Contrast</h4>
-              <p className="text-[0.65rem] text-white/40">Experimental contrast group tokens</p>
-            </div>
-            <RoleTokenTable tokens={contrastToks} onSelect={onSelectSystem} />
-          </div>
-        ) : null}
+            ) : null}
+          </>
+        ) : (
+          <>
+            <SemanticSingleThemeGrid tokenView={tokenView} global={global} />
+            {contrastToks.length > 0 ? (
+              <div className="space-y-2 border-t border-white/10 pt-6">
+                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
+                  Contrast (experimental)
+                </h4>
+                <RoleTokenTable tokens={contrastToks} onSelect={onSelectSystem} />
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
     </div>
   )
 }
 
-export function ThemePanelsSection({lightTokens, darkTokens, onSelectSystem}: Props) {
+function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelectSystem}: Props) {
   return (
     <section id="themes" className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">3 · Themes</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Light vs dark elevated</h2>
         <p className="mt-2 max-w-2xl text-sm text-white/55">
-          Tokens derived from the same mapping. Each theme is grouped by fills, strokes, and text so
-          you can compare roles without mixing contexts.
+          Same visual grouping as the preview panel. Use the data table when you need raw indices for
+          debugging.
         </p>
       </header>
 
@@ -161,7 +164,8 @@ export function ThemePanelsSection({lightTokens, darkTokens, onSelectSystem}: Pr
           eyebrow="Light theme"
           title="Semantic tokens"
           hint="Mapped from the bright end of the global ramp (themeMode: light)."
-          tokens={lightTokens}
+          tokenView={lightTokenView}
+          global={global}
           onSelectSystem={onSelectSystem}
           variant="light"
         />
@@ -169,7 +173,8 @@ export function ThemePanelsSection({lightTokens, darkTokens, onSelectSystem}: Pr
           eyebrow="Dark elevated"
           title="Semantic tokens"
           hint="Mapped from the dark tail for elevated UI (themeMode: darkElevated)."
-          tokens={darkTokens}
+          tokenView={darkTokenView}
+          global={global}
           onSelectSystem={onSelectSystem}
           variant="dark"
         />
@@ -177,3 +182,5 @@ export function ThemePanelsSection({lightTokens, darkTokens, onSelectSystem}: Pr
     </section>
   )
 }
+
+export const ThemePanelsSection = memo(ThemePanelsSectionInner)

@@ -8,6 +8,8 @@ import {WorkbenchControlsShell} from '@/components/workbench/WorkbenchControlsSh
 import {WorkbenchLoadingToast} from '@/components/workbench/WorkbenchLoadingToast'
 import {WorkbenchPreviewColumn} from '@/components/workbench/WorkbenchPreviewColumn'
 import {useNeutralWorkbench} from '@/hooks/useNeutralWorkbench'
+import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
+import {migrateSystemMappingConfig} from '@/lib/neutral-engine'
 import type {GlobalScaleConfig, SystemMappingConfig, SystemToken} from '@/lib/neutral-engine/types'
 
 /** Stable empty refs so Inspector can skip updates when system tokens are not needed. */
@@ -21,8 +23,13 @@ export function Workbench() {
   useEffect(() => {
     function onLoad(e: Event) {
       const ce = e as CustomEvent<{globalConfig: GlobalScaleConfig; systemConfig: SystemMappingConfig}>
-      if (ce.detail?.globalConfig) setGlobalConfig(ce.detail.globalConfig)
-      if (ce.detail?.systemConfig) setSystemConfig(ce.detail.systemConfig)
+      if (ce.detail?.globalConfig) {
+        const g = ce.detail.globalConfig
+        setGlobalConfig({...g, steps: clampGlobalScaleSteps(g.steps)})
+      }
+      if (ce.detail?.systemConfig) {
+        setSystemConfig(migrateSystemMappingConfig(ce.detail.systemConfig))
+      }
     }
     window.addEventListener('neutral-system:load-preset', onLoad)
     return () => window.removeEventListener('neutral-system:load-preset', onLoad)
@@ -30,8 +37,6 @@ export function Workbench() {
 
   const selectedGlobalIndex =
     wb.selection?.kind === 'global' ? wb.selection.index : null
-
-  const activePreviewTokens = wb.previewTheme === 'light' ? wb.lightTokens : wb.darkTokens
 
   return (
     <div className="ns-workbench">
@@ -60,9 +65,13 @@ export function Workbench() {
           contrastMode={wb.contrastMode}
           onContrastMode={wb.setContrastMode}
           global={wb.global}
-          lightTokens={wb.lightTokens}
-          darkTokens={wb.darkTokens}
-          tokens={activePreviewTokens}
+          lightTokenView={wb.lightTokenView}
+          darkTokenView={wb.darkTokenView}
+          activeTokenView={wb.activeTokenView}
+          comparisonLayout={wb.comparisonLayout}
+          onComparisonLayout={wb.setComparisonLayout}
+          systemConfig={wb.systemConfig}
+          steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
         />
         <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} />
       </div>

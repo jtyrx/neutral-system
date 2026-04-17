@@ -1,31 +1,37 @@
 'use client'
 
-import {GlobalScaleStrip} from '@/components/preview/GlobalScaleStrip'
-import {SemanticRoleTable} from '@/components/preview/SemanticRoleTable'
-import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
+import {memo} from 'react'
+
+import {GlobalRampCard} from '@/components/preview/GlobalRampCard'
+import {PairedRolesPanel} from '@/components/preview/PairedRolesPanel'
+import type {GlobalSwatch, SystemRole, TokenView} from '@/lib/neutral-engine'
 
 export type ComparisonLayout = 'split' | 'focus'
 
 type Props = {
   layout: ComparisonLayout
-  /** When layout is focus, which theme is shown. */
   focusTheme: 'light' | 'dark'
   global: GlobalSwatch[]
-  lightTokens: SystemToken[]
-  darkTokens: SystemToken[]
+  lightTokenView: TokenView
+  darkTokenView: TokenView
 }
 
-/**
- * Light vs Dark Elevated: side-by-side scales + role tables, or single-column focus with parent toggle.
- */
-export function PreviewComparison({layout, focusTheme, global, lightTokens, darkTokens}: Props) {
+const GROUP_HINTS: Partial<Record<SystemRole, string>> = {
+  text: 'Content picks follow the text ramp (strongest → weakest) for each theme.',
+}
+
+function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, darkTokenView}: Props) {
   if (layout === 'focus') {
     const isLight = focusTheme === 'light'
-    const tokens = isLight ? lightTokens : darkTokens
+    const tokenView = isLight ? lightTokenView : darkTokenView
     const title = isLight ? 'Light' : 'Dark elevated'
     const caption = isLight
       ? 'Light · global ramp (low index = lightest)'
-      : 'Dark elevated · global ramp (high index = canvas / deep surfaces)'
+      : 'Dark elevated · global ramp (tail-anchored picks)'
+    const directionHint = isLight
+      ? 'Ramp reads light → dark (low → high index).'
+      : 'Surfaces pull from the dark tail; the strip is inverted so it reads dark → light left to right.'
+
     return (
       <div className="space-y-4">
         <div
@@ -38,7 +44,7 @@ export function PreviewComparison({layout, focusTheme, global, lightTokens, dark
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">{title}</p>
-              <p className="mt-0.5 text-sm font-medium text-white/90">Neutral system mapping</p>
+              <p className="mt-0.5 text-sm font-medium text-white/90">Mapping preview</p>
             </div>
             <span
               className={`rounded-full px-2 py-0.5 font-mono text-[0.6rem] ${
@@ -48,80 +54,79 @@ export function PreviewComparison({layout, focusTheme, global, lightTokens, dark
               {isLight ? 'themeMode: light' : 'themeMode: darkElevated'}
             </span>
           </div>
-          <GlobalScaleStrip
+          <GlobalRampCard
             global={global}
-            tokens={tokens}
+            tokenView={tokenView}
             caption={caption}
             accentClassName={isLight ? 'ring-1 ring-amber-400/20' : 'ring-1 ring-sky-400/20'}
+            invertDisplay={!isLight}
+            directionHint={directionHint}
           />
-          <div className="mt-4">
-            <p className="mb-2 text-[0.65rem] font-medium uppercase tracking-wide text-white/45">
-              Semantic roles
-            </p>
-            <SemanticRoleTable
-              tokens={tokens}
-              global={global}
-              label={`${title} semantic role mapping`}
-            />
-          </div>
+          <PairedRolesPanel
+            variant="focus"
+            focusTheme={focusTheme}
+            global={global}
+            lightTokenView={lightTokenView}
+            darkTokenView={darkTokenView}
+            groupHints={GROUP_HINTS}
+          />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-      <div className="rounded-xl border border-amber-400/25 bg-amber-500/[0.06] p-3 sm:p-4">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <p className="eyebrow">Light</p>
-            <p className="mt-0.5 text-sm font-medium text-white/90">Neutral system mapping</p>
+    <div className="space-y-8">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+        <div className="rounded-xl border border-amber-400/25 bg-amber-500/[0.06] p-3 sm:p-4">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <p className="eyebrow">Light</p>
+              <p className="mt-0.5 text-sm font-medium text-white/90">Global ramp</p>
+            </div>
+            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 font-mono text-[0.6rem] text-amber-100/90">
+              themeMode: light
+            </span>
           </div>
-          <span className="rounded-full bg-amber-500/15 px-2 py-0.5 font-mono text-[0.6rem] text-amber-100/90">
-            themeMode: light
-          </span>
-        </div>
-        <GlobalScaleStrip
-          global={global}
-          tokens={lightTokens}
-          caption="Light · global ramp (low index = lightest)"
-          accentClassName="ring-1 ring-amber-400/15"
-        />
-        <div className="mt-4">
-          <p className="mb-2 text-[0.65rem] font-medium uppercase tracking-wide text-white/45">
-            Semantic roles
-          </p>
-          <SemanticRoleTable tokens={lightTokens} global={global} label="Light semantic role mapping" />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-sky-400/25 bg-sky-500/[0.06] p-3 sm:p-4">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <p className="eyebrow">Dark elevated</p>
-            <p className="mt-0.5 text-sm font-medium text-white/90">Neutral system mapping</p>
-          </div>
-          <span className="rounded-full bg-sky-500/15 px-2 py-0.5 font-mono text-[0.6rem] text-sky-100/90">
-            themeMode: darkElevated
-          </span>
-        </div>
-        <GlobalScaleStrip
-          global={global}
-          tokens={darkTokens}
-          caption="Dark elevated · global ramp (surfaces from dark segment)"
-          accentClassName="ring-1 ring-sky-400/15"
-        />
-        <div className="mt-4">
-          <p className="mb-2 text-[0.65rem] font-medium uppercase tracking-wide text-white/45">
-            Semantic roles
-          </p>
-          <SemanticRoleTable
-            tokens={darkTokens}
+          <GlobalRampCard
             global={global}
-            label="Dark elevated semantic role mapping"
+            tokenView={lightTokenView}
+            caption="Light · global ramp (low index = lightest)"
+            accentClassName="ring-1 ring-amber-400/15"
+            directionHint="Ramp reads light → dark (low → high index)."
+          />
+        </div>
+
+        <div className="rounded-xl border border-sky-400/25 bg-sky-500/[0.06] p-3 sm:p-4">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <p className="eyebrow">Dark elevated</p>
+              <p className="mt-0.5 text-sm font-medium text-white/90">Global ramp</p>
+            </div>
+            <span className="rounded-full bg-sky-500/15 px-2 py-0.5 font-mono text-[0.6rem] text-sky-100/90">
+              themeMode: darkElevated
+            </span>
+          </div>
+          <GlobalRampCard
+            global={global}
+            tokenView={darkTokenView}
+            caption="Dark elevated · global ramp (tail pool)"
+            accentClassName="ring-1 ring-sky-400/15"
+            invertDisplay
+            directionHint="Surfaces from the dark tail; strip inverted so it reads dark → light left to right."
           />
         </div>
       </div>
+
+      <PairedRolesPanel
+        variant="split"
+        global={global}
+        lightTokenView={lightTokenView}
+        darkTokenView={darkTokenView}
+        groupHints={GROUP_HINTS}
+      />
     </div>
   )
 }
+
+export const PreviewComparison = memo(PreviewComparisonInner)

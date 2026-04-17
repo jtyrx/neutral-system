@@ -1,16 +1,30 @@
 import type {SystemRole} from '@/lib/neutral-engine/types'
 
-/** Stable ordering for role display in comparison panels. */
-export const ROLE_DISPLAY_ORDER: SystemRole[] = [
-  'fill',
-  'stroke',
-  'text',
-  'alt',
-  'contrastFill',
-  'contrastStroke',
-  'contrastText',
-  'contrastAlt',
-]
+export {ROLE_DISPLAY_ORDER} from '@/lib/neutral-engine/tokenViews'
+
+/** Primary UI label for mapping groups (token names like fill-0 stay as secondary). */
+export function friendlySemanticGroupLabel(role: SystemRole): string {
+  switch (role) {
+    case 'fill':
+      return 'Surface'
+    case 'stroke':
+      return 'Border'
+    case 'text':
+      return 'Content'
+    case 'alt':
+      return 'Overlay'
+    case 'contrastFill':
+      return 'Contrast · surface'
+    case 'contrastStroke':
+      return 'Contrast · border'
+    case 'contrastText':
+      return 'Contrast · content'
+    case 'contrastAlt':
+      return 'Contrast · overlay'
+    default:
+      return role
+  }
+}
 
 export function humanizeRole(role: SystemRole): string {
   switch (role) {

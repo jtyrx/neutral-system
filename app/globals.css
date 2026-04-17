@@ -1,0 +1,92 @@
+@import 'tailwindcss';
+
+@layer base {
+  :root {
+    --bg: oklch(12% 0.02 285);
+    --surface: oklch(16% 0.02 285);
+    --border: oklch(22% 0.02 285);
+    --text: oklch(96% 0.01 285);
+    --muted: oklch(72% 0.02 285);
+    --accent: oklch(78% 0.14 55);
+    --shadow: 0 24px 80px -32px oklch(0% 0 0 / 0.75);
+  }
+
+  body {
+    @apply min-h-screen antialiased;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: rgb(255 138 76 / 0.75);
+    color: black;
+  }
+}
+
+@layer components {
+  /**
+   * Preview-first shell: main stacks [preview → controls]; inspector is a supporting column on lg+.
+   * Mobile: toolbar → main (preview + controls) → inspector.
+   */
+  .ns-workbench {
+    display: grid;
+    min-height: 100dvh;
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'mob-toolbar'
+      'main'
+      'inspector';
+  }
+
+  @media (min-width: 1024px) {
+    .ns-workbench {
+      grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
+      grid-template-rows: auto;
+      grid-template-areas: 'main inspector';
+      align-items: start;
+    }
+
+    .ns-workbench__mob-toolbar {
+      display: none;
+    }
+  }
+
+  .ns-workbench__mob-toolbar {
+    grid-area: mob-toolbar;
+  }
+
+  .ns-workbench__main {
+    grid-area: main;
+  }
+
+  .ns-workbench__inspector {
+    grid-area: inspector;
+  }
+
+  .ns-shell {
+    @apply flex min-h-screen w-full flex-col;
+  }
+  @media (min-width: 1024px) {
+    .ns-shell {
+      @apply grid;
+      grid-template-columns: 14rem minmax(0, 1fr) 18rem;
+      grid-template-rows: minmax(0, 1fr);
+    }
+  }
+  .ns-panel {
+    @apply border-white/10 bg-black/20 backdrop-blur-xl;
+    box-shadow: var(--shadow);
+  }
+  .ns-input {
+    @apply w-full rounded-xl border border-white/12 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-white/20;
+  }
+  .ns-label {
+    @apply text-xs font-medium text-white/70;
+  }
+  .eyebrow {
+    @apply font-mono text-[0.65rem] uppercase tracking-[0.22em] text-white/50;
+  }
+}

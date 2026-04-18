@@ -1,9 +1,15 @@
 'use client'
 
-import {memo} from 'react'
+import { memo } from 'react'
 
-import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
-
+import type { GlobalSwatch, SystemToken, TokenView } from '@/lib/neutral-engine'
+import {
+  BORDER_SLOTS,
+  compareSemanticRoles,
+  semanticCategory,
+  SURFACE_ROLE_SORT_ORDER,
+  TEXT_SLOTS,
+} from '@/lib/neutral-engine/semanticNaming'
 type Props = {
   global: GlobalSwatch[]
   tokenView: TokenView
@@ -26,14 +32,42 @@ function twoRowGridColumnCount(length: number): number {
   return length <= 0 ? 1 : Math.ceil(length / 2)
 }
 
-/** Short chip label for dot-path roles (e.g. surface.base → base). */
-function shortRoleChip(role: string): string {
-  const last = role.split('.').pop() ?? role
-  return last.length <= 4 ? last : `${last.slice(0, 3)}…`
+const BORDER_ROLE_ORDER = BORDER_SLOTS.map((s) => `border.${s}` as const)
+const TEXT_ROLE_ORDER = TEXT_SLOTS.map((s) => `text.${s}` as const)
+
+/** Ladder-ordered S#/B#/T# badges; interactive/emphasis use a neutral dot. */
+function stripRoleBadge(role: string): { text: string; className: string } {
+  const cat = semanticCategory(role)
+  if (cat === 'surface') {
+    const i = SURFACE_ROLE_SORT_ORDER.indexOf(role)
+    if (i >= 0) return { text: `S${i + 1}`, className: 'bg-emerald-400/90 text-zinc-950' }
+    const m = /^surface\.layer-(\d+)$/.exec(role)
+    if (m) return { text: `S${Number(m[1]) + 1}`, className: 'bg-emerald-400/90 text-zinc-950' }
+    return { text: 'S?', className: 'bg-emerald-400/90 text-zinc-950' }
+  }
+  if (cat === 'border') {
+    const i = BORDER_ROLE_ORDER.findIndex((r) => r === role)
+    if (i >= 0) return { text: `B${i + 1}`, className: 'bg-amber-400/90 text-zinc-950' }
+    const m = /^border\.layer-(\d+)$/.exec(role)
+    if (m) return { text: `B${Number(m[1]) + 1}`, className: 'bg-amber-400/90 text-zinc-950' }
+    return { text: 'B?', className: 'bg-amber-400/90 text-zinc-950' }
+  }
+  if (cat === 'text') {
+    const i = TEXT_ROLE_ORDER.findIndex((r) => r === role)
+    if (i >= 0) return { text: `T${i + 1}`, className: 'bg-sky-400/90 text-zinc-950' }
+    const m = /^text\.layer-(\d+)$/.exec(role)
+    if (m) return { text: `T${Number(m[1]) + 1}`, className: 'bg-sky-400/90 text-zinc-950' }
+    return { text: 'T?', className: 'bg-sky-400/90 text-zinc-950' }
+  }
+  return { text: '·', className: 'bg-white/20 text-white/90 ring-1 ring-white/15' }
+}
+
+function sortMappedForStrip(tokens: SystemToken[]): SystemToken[] {
+  return [...tokens].sort((a, b) => compareSemanticRoles(a.role, b.role))
 }
 
 /**
- * Full global ramp in index order; swatches that host semantic tokens show role chips.
+ * Full global ramp in index order; swatches that host semantic tokens show S#/B#/T# ladder badges.
  * Renders as two balanced rows (grid flow) for scanability — same treatment for every theme.
  */
 function GlobalScaleStripInner({
@@ -60,43 +94,48 @@ function GlobalScaleStripInner({
     <div className="space-y-2">
       <p className="text-[0.65rem] font-medium tracking-wide text-white/55">{caption}</p>
       <div
-        className={`overflow-x-auto rounded-xl border border-white/10 bg-black/25 p-2 ${accentClassName ?? ''}`}
+        className={`w-full overflow-x-auto rounded-xl border border-white/10 bg-black/25 p-2 ${accentClassName ?? ''}`}
       >
         <div
-          className="grid min-h-[3.25rem] gap-x-px gap-y-1"
-          style={{gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`}}
+          className="grid w-full min-w-0 gap-x-1 gap-y-1"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
-          {Array.from({length: len}, (_, displayOrder) => {
+          {Array.from({ length: len }, (_, displayOrder) => {
             const i = invertDisplay ? len - 1 - displayOrder : displayOrder
             const s = global[i]!
             const mapped = rolesByIndex.get(s.index) ?? []
+            const ordered = sortMappedForStrip(mapped)
             return (
               <div
                 key={s.index}
-                className="flex min-w-0 flex-col items-stretch"
+                className="flex min-w-0 flex-col items-stretch font-mono"
                 title={`${s.label} · idx ${s.index}`}
               >
+                {/* Fixed height: no flex-1 so every swatch matches regardless of badge count */}
                 <div
-                  className="min-h-[2.25rem] flex-1 rounded-t border border-white/10"
-                  style={{backgroundColor: s.serialized.hex}}
+                  className="h-9 w-full shrink-0 rounded-t border border-white/10 lg:h-11"
+                  style={{ backgroundColor: s.serialized.hex }}
                 />
-                <div className="flex max-h-14 flex-wrap justify-center gap-px overflow-hidden py-0.5">
-                  {mapped.slice(0, 3).map((t) => (
-                    <span
-                      key={t.id}
-                      className="max-w-full truncate rounded px-0.5 font-mono text-[0.5rem] leading-none text-white/70 ring-1 ring-white/15"
-                      title={`${t.name} (${t.role})`}
-                    >
-                      {shortRoleChip(t.role)}
-                    </span>
-                  ))}
-                  {mapped.length > 3 ? (
-                    <span className="font-mono text-[0.5rem] text-white/40">+{mapped.length - 3}</span>
-                  ) : null}
-                </div>
-                <span className="text-center font-mono text-[0.5rem] leading-none text-white/35">
+                <span className="shrink-0 text-center text-[0.5rem] leading-none text-white/35 py-0.5 px-0.5">
                   {s.index}
                 </span>
+                <div className="flex h-14 shrink-0 flex-col flex-wrap justify-center gap-px overflow-hidden py-0.5">
+                  {ordered.slice(0, 3).map((t) => {
+                    const badge = stripRoleBadge(t.role)
+                    return (
+                      <span
+                        key={t.id}
+                        className={`inline-flex max-w-full min-w-[1.1rem] justify-center rounded px-0.5 py-px text-[0.5rem] font-semibold leading-none ${badge.className}`}
+                        title={`${t.name} (${t.role})`}
+                      >
+                        {badge.text}
+                      </span>
+                    )
+                  })}
+                  {mapped.length > 3 ? (
+                    <span className="text-[0.5rem] text-white/40">+{mapped.length - 3}</span>
+                  ) : null}
+                </div>
               </div>
             )
           })}

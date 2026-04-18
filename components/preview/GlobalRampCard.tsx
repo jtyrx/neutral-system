@@ -1,6 +1,6 @@
 'use client'
 
-import {memo} from 'react'
+import {memo, type HTMLAttributes} from 'react'
 
 import {GlobalScaleStrip} from '@/components/preview/GlobalScaleStrip'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
@@ -13,7 +13,7 @@ type Props = {
   invertDisplay?: boolean
   /** Short directional hint — not mapping logic. */
   directionHint: string
-}
+} & Pick<HTMLAttributes<HTMLDivElement>, 'id' | 'role' | 'aria-label'>
 
 /**
  * Global ramp strip with a concise caption about index direction / tail behavior.
@@ -25,9 +25,12 @@ function GlobalRampCardInner({
   accentClassName,
   invertDisplay,
   directionHint,
+  id,
+  role,
+  'aria-label': ariaLabel,
 }: Props) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" id={id} role={role} aria-label={ariaLabel}>
       <GlobalScaleStrip
         global={global}
         tokenView={tokenView}

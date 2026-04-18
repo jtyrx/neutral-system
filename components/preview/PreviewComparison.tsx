@@ -59,6 +59,9 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             </span>
           </div>
           <GlobalRampCard
+            id={isLight ? 'light-global-ramp' : 'dark-global-ramp'}
+            role="region"
+            aria-label={isLight ? 'Light global ramp' : 'Dark elevated global ramp'}
             global={global}
             tokenView={tokenView}
             caption={caption}
@@ -93,6 +96,9 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             </span>
           </div>
           <GlobalRampCard
+            id="light-global-ramp"
+            role="region"
+            aria-label="Light global ramp"
             global={global}
             tokenView={lightTokenView}
             caption="Light · global ramp (low index = lightest)"
@@ -112,6 +118,9 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             </span>
           </div>
           <GlobalRampCard
+            id="dark-global-ramp"
+            role="region"
+            aria-label="Dark elevated global ramp"
             global={global}
             tokenView={darkTokenView}
             caption="Dark elevated · global ramp (tail pool)"

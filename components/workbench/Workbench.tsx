@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect} from 'react'
+import {useCallback, useEffect} from 'react'
 
 import {Inspector} from '@/components/workbench/Inspector'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
@@ -37,6 +37,10 @@ export function Workbench() {
 
   const selectedGlobalIndex =
     wb.selection?.kind === 'global' ? wb.selection.index : null
+
+  const dismissGlobalInspector = useCallback(() => {
+    wb.setSelection(null)
+  }, [wb.setSelection])
 
   return (
     <div className="ns-workbench flex min-h-dvh flex-col bg-[oklch(0.12_0.02_285)] lg:grid lg:min-h-dvh grid-cols-[minmax(0,1fr)_minmax(0,36rem)]  xl:grid-cols-[minmax(0,1fr)_minmax(0,48rem)] lg:grid-rows-1">
@@ -98,6 +102,7 @@ export function Workbench() {
             global={wb.global}
             lightTokens={wb.selection?.kind === 'system' ? wb.lightTokens : EMPTY_SYSTEM_TOKENS}
             darkTokens={wb.selection?.kind === 'system' ? wb.darkTokens : EMPTY_SYSTEM_TOKENS}
+            onDismissGlobal={dismissGlobalInspector}
           />
           <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} />
         </div>

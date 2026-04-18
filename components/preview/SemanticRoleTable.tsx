@@ -2,10 +2,9 @@
 
 import {memo, useMemo} from 'react'
 
-import {humanizeRole} from '@/components/preview/previewLabels'
 import {
   primitiveNeutralExportName,
-  sortSystemTokensByPrimitiveLadder,
+  primitiveSortKey,
 } from '@/components/preview/primitiveTokenTable'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
 import {isInversePairRole, isOverflowRole} from '@/lib/neutral-engine/semanticNaming'
@@ -35,25 +34,34 @@ type Props = {
 }
 
 /**
- * Primitive-token inspection table: neutral-* ladder as primary identifier; semantic role de-emphasized.
+ * Deduplicated primitive ladder table: one row per `neutral-*` swatch used by mapped tokens (no semantic columns).
  */
 function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}: Props) {
-  const rows = useMemo(() => {
+  const primitiveIndices = useMemo(() => {
     const base = tokenView.sortedForTable.filter((t) => !isOverflowRole(t.role))
-    const filtered = layerFilter === 'all' ? base : base.filter((t) => roleMatchesLayerFilter(t.role, layerFilter))
-    return sortSystemTokensByPrimitiveLadder(filtered, global)
+    const filtered =
+      layerFilter === 'all' ? base : base.filter((t) => roleMatchesLayerFilter(t.role, layerFilter))
+    const seen = new Set<number>()
+    const indices: number[] = []
+    for (const t of filtered) {
+      const i = t.sourceGlobalIndex
+      if (!seen.has(i)) {
+        seen.add(i)
+        indices.push(i)
+      }
+    }
+    indices.sort((a, b) => {
+      const ka = primitiveSortKey(global[a])
+      const kb = primitiveSortKey(global[b])
+      if (ka !== kb) return ka - kb
+      const la = global[a]?.label ?? ''
+      const lb = global[b]?.label ?? ''
+      return la.localeCompare(lb, undefined, {numeric: true})
+    })
+    return indices
   }, [tokenView, layerFilter, global])
 
-  /** First row index per source global index — only that row renders the filled swatch (Paired Roles scanability). */
-  const firstRowForSourceIndex = useMemo(() => {
-    const m = new Map<number, number>()
-    rows.forEach((t, i) => {
-      if (!m.has(t.sourceGlobalIndex)) m.set(t.sourceGlobalIndex, i)
-    })
-    return m
-  }, [rows])
-
-  if (rows.length === 0) {
+  if (primitiveIndices.length === 0) {
     return (
       <p className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-white/45">
         {layerFilter !== 'all'
@@ -65,48 +73,38 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
 
   return (
     <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/20" role="region" aria-label={label}>
-      <table className="w-full min-w-[16rem] text-left text-[0.65rem]">
+      <table className="w-full min-w-[28rem] text-left text-[0.65rem]">
         <thead className="border-b border-white/10 font-mono text-white/45">
           <tr>
             <th className="px-2 py-1.5 font-medium">Primitive</th>
-            <th className="px-2 py-1.5 text-right font-medium">Idx</th>
             <th className="w-12 px-2 py-1.5 font-medium">Swatch</th>
+            <th className="px-2 py-1.5 font-medium">Hex</th>
+            <th className="min-w-[10rem] px-2 py-1.5 font-medium">OKLCH</th>
+            <th className="px-2 py-1.5 text-right font-medium">Idx</th>
           </tr>
         </thead>
         <tbody className="font-mono">
-          {rows.map((t, rowIndex) => {
-            const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex)
-            const showSwatch = firstRowForSourceIndex.get(t.sourceGlobalIndex) === rowIndex
+          {primitiveIndices.map((idx) => {
+            const sw = global[idx]
+            const prim = primitiveNeutralExportName(global, idx)
+            const hex = sw?.serialized.hex ?? '—'
+            const oklch = sw?.serialized.oklchCss ?? '—'
+            const swatchBg = hex.startsWith('#') ? hex : undefined
             return (
-              <tr key={t.id} className="border-b border-white/[0.06]">
-                <td className="px-2 py-1.5 align-top">
-                  <span className="block font-medium text-white/90">{prim}</span>
-                  <span className="mt-0.5 block text-[0.6rem] font-normal leading-snug text-white/35">
-                    {humanizeRole(t.role)}
-                    <span className="text-white/25"> · </span>
-                    <span className="text-white/30">{t.name}</span>
-                  </span>
-                </td>
-                <td className="px-2 py-1.5 text-right align-top tabular-nums text-white/50">
-                  {t.sourceGlobalIndex}
+              <tr key={`prim-${idx}`} className="border-b border-white/[0.06]">
+                <td className="px-2 py-1.5 align-middle">
+                  <span className="font-medium text-white/90">{prim}</span>
                 </td>
                 <td className="px-2 py-1.5 align-middle">
-                  {showSwatch ? (
-                    <span
-                      className="inline-block h-9 w-9 shrink-0 rounded border border-white/15 shadow-inner"
-                      style={{backgroundColor: t.serialized.hex}}
-                      title={`${prim} · idx ${t.sourceGlobalIndex}`}
-                    />
-                  ) : (
-                    <span
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded border border-dashed border-white/20 bg-white/[0.02] text-[0.65rem] text-white/30"
-                      title={`Same primitive as above · ${prim} · idx ${t.sourceGlobalIndex}`}
-                      aria-label={`Same color swatch as earlier row for ${prim}`}
-                    >
-                      ↳
-                    </span>
-                  )}
+                  <span
+                    className="inline-block h-9 w-9 shrink-0 rounded border border-white/15 shadow-inner"
+                    style={swatchBg ? {backgroundColor: swatchBg} : undefined}
+                    title={`${prim} · ${hex}`}
+                  />
                 </td>
+                <td className="px-2 py-1.5 align-middle tabular-nums text-white/75">{hex}</td>
+                <td className="max-w-[min(28rem,55vw)] px-2 py-1.5 align-middle break-all text-white/60">{oklch}</td>
+                <td className="px-2 py-1.5 text-right align-middle tabular-nums text-white/50">{idx}</td>
               </tr>
             )
           })}

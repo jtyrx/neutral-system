@@ -12,6 +12,7 @@ import {
   SemanticSingleThemeGrid,
 } from '@/components/preview/SemanticPairGrid'
 import {SemanticRoleTable, type SemanticLayerFilter} from '@/components/preview/SemanticRoleTable'
+import {UsedNeutralPrimitivesTable} from '@/components/preview/UsedNeutralPrimitivesTable'
 import {usedGlobalIndicesFromTokenViews, type GlobalSwatch, type TokenView} from '@/lib/neutral-engine'
 
 export type PairedRolesPanelVariant = 'split' | 'focus'
@@ -22,7 +23,7 @@ type InspectionView = 'paired' | 'neutral'
 
 type ThemeFocus = 'light' | 'dark' | 'both'
 
-type DisplayMode = 'visual' | 'table'
+type DisplayMode = 'visual' | 'table' | 'usedPrimitives'
 
 const INSPECTION_OPTIONS: SegmentedOption<InspectionView>[] = [
   {value: 'paired', label: 'Paired roles', shortLabel: 'Paired'},
@@ -47,6 +48,7 @@ const ROLE_SCOPE_OPTIONS: SegmentedOption<RoleScope>[] = [
 const DISPLAY_OPTIONS: SegmentedOption<DisplayMode>[] = [
   {value: 'table', label: 'Data table', shortLabel: 'Table'},
   {value: 'visual', label: 'Visual pairs', shortLabel: 'Visual'},
+  {value: 'usedPrimitives', label: 'Used primitives', shortLabel: 'Used'},
 ]
 
 function layerFilterFromScope(scope: RoleScope): SemanticLayerFilter {
@@ -126,10 +128,13 @@ export function PairedRolesPanel({
       <div className="mb-4">
         <p className="eyebrow">Paired roles</p>
         <p className="mt-1 text-sm text-white/70">
-          Default: <span className="font-mono text-white/80">Data table</span> — primitive{' '}
-          <span className="font-mono text-white/70">neutral-*</span> ladder per theme (semantic mapping
-          as secondary). Use <span className="font-mono text-white/80">Visual pairs</span> for
-          side-by-side cards. Inspection can switch to the full neutral scale.
+          Default: <span className="font-mono text-white/80">Data table</span> — one row per{' '}
+          <span className="font-mono text-white/70">neutral-*</span> primitive (hex, OKLCH, idx) for
+          the current layer filter.{' '}
+          <span className="font-mono text-white/80">Used primitives</span> lists every ramp step
+          referenced by the mapping (light + dark).{' '}
+          <span className="font-mono text-white/80">Visual pairs</span> shows side-by-side semantic
+          cards. Inspection can switch to the full neutral scale.
         </p>
       </div>
 
@@ -212,6 +217,14 @@ export function PairedRolesPanel({
           />
         ) : null}
 
+        {inspectionView === 'paired' && variant === 'split' && displayMode === 'usedPrimitives' ? (
+          <UsedNeutralPrimitivesTable
+            global={global}
+            usedIndices={usedGlobalIndices}
+            label="Used neutral primitive tokens (light and dark mapping)"
+          />
+        ) : null}
+
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'table' ? (
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="space-y-2">
@@ -256,6 +269,19 @@ export function PairedRolesPanel({
               global={global}
               label={`${focusTitle} primitive token mapping`}
               layerFilter={layerFilter}
+            />
+          </div>
+        ) : null}
+
+        {inspectionView === 'paired' && variant === 'focus' && displayMode === 'usedPrimitives' ? (
+          <div className="space-y-2">
+            <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/45">
+              Used neutral primitives
+            </p>
+            <UsedNeutralPrimitivesTable
+              global={global}
+              usedIndices={usedGlobalIndices}
+              label="Used neutral primitive tokens (light and dark mapping)"
             />
           </div>
         ) : null}

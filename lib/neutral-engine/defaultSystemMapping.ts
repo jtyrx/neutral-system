@@ -8,30 +8,30 @@ import {
 /** Canonical defaults for system mapping; used by the workbench and preset migration. */
 /** Wide-mode baseline: canonical seed for Light + Dark elevated (see product defaults). */
 export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
-  fillStart: 0,
-  strokeStart: 4,
-  textStart: 34,
-  fillCount: 4,
-  strokeCount: 3,
-  textCount: 4,
-  darkFillStart: 0,
-  darkStrokeStart: 2,
-  darkTextStart: 15,
-  darkFillCount: 4,
-  darkStrokeCount: 3,
-  darkTextCount: 4,
-  altCount: 2,
-  lightFillStepInterval: 1,
-  lightStrokeStepInterval: 1,
-  lightTextStepInterval: 2,
-  darkFillStepInterval: 1,
-  darkStrokeStepInterval: 1,
-  darkTextStepInterval: 2,
-  contrastDistance: 1,
-  themeMode: 'light',
-  darkSegmentLength: 8,
-  altAlpha: 0.45,
-  includeContrastGroups: false,
+  fillStart: 0,                // Index where fill slots start in the palette (light mode)
+  strokeStart: 4,              // Index where stroke slots start in the palette (light mode)
+  textStart: 34,               // Index where text slots start in the palette (light mode)
+  fillCount: 5,                // Number of fill slots to use (light mode)
+  strokeCount: 3,              // Number of stroke slots to use (light mode)
+  textCount: 5,                // Number of text slots to use (light mode)
+  darkFillStart: 0,            // Index where fill slots start in the palette (dark mode)
+  darkStrokeStart: 2,          // Index where stroke slots start in the palette (dark mode)
+  darkTextStart: 15,           // Index where text slots start in the palette (dark mode)
+  darkFillCount: 4,            // Number of fill slots to use (dark mode)
+  darkStrokeCount: 3,          // Number of stroke slots to use (dark mode)
+  darkTextCount: 4,            // Number of text slots to use (dark mode)
+  altCount: 2,                 // Number of alternative slots/groups to allocate
+  lightFillStepInterval: 1,    // Step interval between fills in light mode
+  lightStrokeStepInterval: 1,  // Step interval between strokes in light mode
+  lightTextStepInterval: 2,    // Step interval between text slots in light mode
+  darkFillStepInterval: 1,     // Step interval between fills in dark mode
+  darkStrokeStepInterval: 1,   // Step interval between strokes in dark mode
+  darkTextStepInterval: 2,     // Step interval between text slots in dark mode
+  contrastDistance: 1,         // Integer distance to increase contrast group separation
+  themeMode: 'light',          // Starting theme mode; can be 'light' or 'dark'
+  darkSegmentLength: 8,        // Segment length for dark mode palette linear mappings
+  altAlpha: 0.45,              // Alpha value to use for alternative slots
+  includeContrastGroups: false,// Whether to include explicit contrast groups in mapping
 }
 
 type PartialSystemWithLegacy = Partial<SystemMappingConfig> & {stepInterval?: number}

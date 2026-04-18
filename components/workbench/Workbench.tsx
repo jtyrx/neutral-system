@@ -67,19 +67,14 @@ export function Workbench() {
       <main className="ns-workbench__preview-col order-1 min-h-0 min-w-0 lg:order-none">
         <WorkbenchPreviewColumn
           previewTheme={wb.previewTheme}
-          onPreviewTheme={wb.setPreviewTheme}
-          contrastEmphasis={wb.contrastEmphasis}
-          onContrastEmphasis={wb.setContrastEmphasis}
           showContrastPairs={wb.showContrastPairs}
-          onShowContrastPairs={wb.setShowContrastPairs}
           global={wb.global}
           lightTokens={wb.lightTokens}
           darkTokens={wb.darkTokens}
           lightTokenView={wb.lightTokenView}
           darkTokenView={wb.darkTokenView}
           comparisonLayout={wb.comparisonLayout}
-          onComparisonLayout={wb.setComparisonLayout}
-          systemConfig={wb.systemConfig}
+          derivationConfig={wb.effectiveMappingConfig}
           steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
         />
       </main>

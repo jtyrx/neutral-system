@@ -4,23 +4,19 @@ import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {ContrastPairsPanel} from '@/components/preview/ContrastPairsPanel'
 import {DualThemeAppShell} from '@/components/preview/DualThemeAppShell'
 import {PreviewContextPanel} from '@/components/preview/PreviewContextPanel'
-import type {ContrastEmphasis, GlobalSwatch, SystemMappingConfig, SystemToken, TokenView} from '@/lib/neutral-engine'
+import type {GlobalSwatch, SystemMappingConfig, SystemToken, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
   previewTheme: 'light' | 'dark'
-  onPreviewTheme: (t: 'light' | 'dark') => void
-  contrastEmphasis: ContrastEmphasis
-  onContrastEmphasis: (e: ContrastEmphasis) => void
   showContrastPairs: boolean
-  onShowContrastPairs: (v: boolean) => void
   global: GlobalSwatch[]
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
   lightTokenView: TokenView
   darkTokenView: TokenView
   comparisonLayout: ComparisonLayout
-  onComparisonLayout: (l: ComparisonLayout) => void
-  systemConfig: SystemMappingConfig
+  /** Mapping + contrast emphasis — matches token derivation and system mapping diagrams. */
+  derivationConfig: SystemMappingConfig
   steps: number
 }
 
@@ -29,19 +25,14 @@ type Props = {
  */
 export function WorkbenchPreviewColumn({
   previewTheme,
-  onPreviewTheme,
-  contrastEmphasis,
-  onContrastEmphasis,
   showContrastPairs,
-  onShowContrastPairs,
   global,
   lightTokens,
   darkTokens,
   lightTokenView,
   darkTokenView,
   comparisonLayout,
-  onComparisonLayout,
-  systemConfig,
+  derivationConfig,
   steps,
 }: Props) {
   return (
@@ -75,14 +66,8 @@ export function WorkbenchPreviewColumn({
         lightTokenView={lightTokenView}
         darkTokenView={darkTokenView}
         previewTheme={previewTheme}
-        onPreviewTheme={onPreviewTheme}
-        contrastEmphasis={contrastEmphasis}
-        onContrastEmphasis={onContrastEmphasis}
-        showContrastPairs={showContrastPairs}
-        onShowContrastPairs={onShowContrastPairs}
         comparisonLayout={comparisonLayout}
-        onComparisonLayout={onComparisonLayout}
-        systemConfig={systemConfig}
+        derivationConfig={derivationConfig}
         steps={steps}
       />
     </div>

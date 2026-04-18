@@ -1,66 +1,22 @@
 'use client'
 
-import {memo, useCallback} from 'react'
+import {useMemo} from 'react'
 
-import {ContrastSpacingPreview} from '@/components/preview/ContrastSpacingPreview'
 import {PreviewComparison, type ComparisonLayout} from '@/components/preview/PreviewComparison'
-import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
-import type {ContrastEmphasis, GlobalSwatch, SystemMappingConfig, TokenView} from '@/lib/neutral-engine'
+import {OffsetMapDiagram} from '@/components/viz/OffsetMapDiagram'
+import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
+import type {GlobalSwatch, SystemMappingConfig, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
   global: GlobalSwatch[]
   lightTokenView: TokenView
   darkTokenView: TokenView
   previewTheme: 'light' | 'dark'
-  onPreviewTheme: (t: 'light' | 'dark') => void
-  contrastEmphasis: ContrastEmphasis
-  onContrastEmphasis: (e: ContrastEmphasis) => void
-  showContrastPairs?: boolean
-  onShowContrastPairs?: (v: boolean) => void
   comparisonLayout: ComparisonLayout
-  onComparisonLayout: (l: ComparisonLayout) => void
-  systemConfig: SystemMappingConfig
+  /** Same derivation as system mapping / exports (contrast emphasis applied). */
+  derivationConfig: SystemMappingConfig
   steps: number
 }
-
-const LayoutToggle = memo(function LayoutToggle({
-  layout,
-  onLayout,
-}: {
-  layout: ComparisonLayout
-  onLayout: (l: ComparisonLayout) => void
-}) {
-  const onSplit = useCallback(() => onLayout('split'), [onLayout])
-  const onFocus = useCallback(() => onLayout('focus'), [onLayout])
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[0.65rem] font-medium uppercase tracking-wide text-white/45">Compare</span>
-      <div className="flex rounded-full border border-white/12 p-0.5">
-        <button
-          type="button"
-          onClick={onSplit}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-            layout === 'split' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
-          }`}
-          aria-pressed={layout === 'split'}
-        >
-          Split
-        </button>
-        <button
-          type="button"
-          onClick={onFocus}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-            layout === 'focus' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
-          }`}
-          aria-pressed={layout === 'focus'}
-        >
-          Focus
-        </button>
-      </div>
-    </div>
-  )
-})
 
 /**
  * Light vs Dark comparison — scrolls with page (not sticky) so the hero mock stays primary.
@@ -70,16 +26,21 @@ export function PreviewContextPanel({
   lightTokenView,
   darkTokenView,
   previewTheme,
-  onPreviewTheme,
-  contrastEmphasis,
-  onContrastEmphasis,
-  showContrastPairs,
-  onShowContrastPairs,
   comparisonLayout,
-  onComparisonLayout,
-  systemConfig,
+  derivationConfig,
   steps,
 }: Props) {
+  const n = Math.max(2, steps)
+
+  const lightIdx = useMemo(
+    () => previewResolvedRoleIndices(derivationConfig, n, 'light'),
+    [derivationConfig, n],
+  )
+  const darkIdx = useMemo(
+    () => previewResolvedRoleIndices(derivationConfig, n, 'darkElevated'),
+    [derivationConfig, n],
+  )
+
   return (
     <div
       className="border-b border-white/10 bg-[oklch(11%_0.025_285_/0.92)] backdrop-blur-xl supports-[backdrop-filter]:bg-[oklch(11%_0.025_285_/0.88)]"
@@ -98,22 +59,27 @@ export function PreviewContextPanel({
                 Ramps and paired roles use the same mapping as exports. Split = both themes; Focus =
                 one at a time. Contrast emphasis changes ladder spacing (see below).
               </p>
-              <div className="mt-4 max-w-xl">
-                <ContrastSpacingPreview systemConfig={systemConfig} steps={steps} />
+              <div className="mt-4 max-w-full" id="offset-mapping-diagrams">
+                <div className="grid gap-4 lg:grid-cols-1">
+                  <OffsetMapDiagram
+                    steps={steps}
+                    themeLabel="Light"
+                    description="Bars use the same resolved global indices as light themeMode tokens (low index = light)."
+                    surfaceIndices={lightIdx.surface}
+                    borderIndices={lightIdx.border}
+                    textIndices={lightIdx.text}
+                  />
+                  <OffsetMapDiagram
+                    steps={steps}
+                    themeLabel="Dark elevated"
+                    description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
+                    surfaceIndices={darkIdx.surface}
+                    borderIndices={darkIdx.border}
+                    textIndices={darkIdx.text}
+                  />
+                </div>
               </div>
             </div>
-            {/* <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <LayoutToggle layout={comparisonLayout} onLayout={onComparisonLayout} />
-              <ThemePreviewControls
-                previewTheme={previewTheme}
-                onPreviewTheme={onPreviewTheme}
-                contrastEmphasis={contrastEmphasis}
-                onContrastEmphasis={onContrastEmphasis}
-                showContrastPairs={showContrastPairs}
-                onShowContrastPairs={onShowContrastPairs}
-                dense
-              />
-            </div> */}
           </div>
         </header>
 

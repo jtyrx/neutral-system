@@ -21,9 +21,9 @@ type Props = {
 }
 
 const namingOptions: {id: NamingStyle; label: string}[] = [
+  {id: 'token_ladder', label: 'Token Ladder'},
   {id: 'semantic', label: '0 … n−1'},
   {id: 'numeric_desc', label: '100 → 4'},
-  {id: 'token_ladder', label: 'Token ladder'},
 ]
 
 const chromaOptions: {id: GlobalScaleConfig['chromaMode']; label: string}[] = [
@@ -108,7 +108,7 @@ function GlobalScaleSectionInner({
         <p className="eyebrow">1 · Global scale</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Neutral ladder</h2>
         <p className="mt-2 max-w-2xl text-sm text-white/55">
-          Linear OKLCH lightness from light to dark (8–48 steps; default 48). Hue and chroma stay
+          Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay
           locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
         </p>
       </header>

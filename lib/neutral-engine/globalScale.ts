@@ -1,6 +1,6 @@
 import Color from 'colorjs.io'
 
-import {labelForIndex} from '@/lib/neutral-engine/naming'
+import {labelsForNamingStyle} from '@/lib/neutral-engine/naming'
 import {serializeColor} from '@/lib/neutral-engine/serialize'
 import type {ChromaMode, GlobalScaleConfig, GlobalSwatch} from '@/lib/neutral-engine/types'
 
@@ -55,6 +55,7 @@ export function buildGlobalScale(config: GlobalScaleConfig): GlobalSwatch[] {
   /** Hue applies only when chroma can be non-zero; achromatic uses `oklch(L 0 none)` via {@link buildOklchString}. */
   const useHue = chromaMode === 'achromatic' ? null : finiteOr(hue, 260)
   const out: GlobalSwatch[] = []
+  const labels = labelsForNamingStyle(namingStyle, n)
 
   for (let i = 0; i < n; i++) {
     const t = n === 1 ? 0 : i / (n - 1)
@@ -62,7 +63,7 @@ export function buildGlobalScale(config: GlobalScaleConfig): GlobalSwatch[] {
     const C = chromaAtT(chromaMode, finiteOr(baseChroma, 0), t)
     const css = buildOklchString(L, C, useHue)
     const color = new Color(css).to('srgb')
-    const label = labelForIndex(namingStyle, i, n)
+    const label = labels[i] ?? String(i)
     out.push({
       index: i,
       label,

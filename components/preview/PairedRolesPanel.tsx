@@ -45,8 +45,8 @@ const ROLE_SCOPE_OPTIONS: SegmentedOption<RoleScope>[] = [
 ]
 
 const DISPLAY_OPTIONS: SegmentedOption<DisplayMode>[] = [
-  {value: 'visual', label: 'Visual pairs', shortLabel: 'Visual'},
   {value: 'table', label: 'Data table', shortLabel: 'Table'},
+  {value: 'visual', label: 'Visual pairs', shortLabel: 'Visual'},
 ]
 
 function layerFilterFromScope(scope: RoleScope): SemanticLayerFilter {
@@ -86,7 +86,7 @@ export function PairedRolesPanel({
   const [inspectionView, setInspectionView] = useState<InspectionView>('paired')
   const [themeFocus, setThemeFocus] = useState<ThemeFocus>('both')
   const [roleScope, setRoleScope] = useState<RoleScope>('all')
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('visual')
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('table')
 
   const layerFilter = useMemo(() => layerFilterFromScope(roleScope), [roleScope])
 
@@ -126,8 +126,10 @@ export function PairedRolesPanel({
       <div className="mb-4">
         <p className="eyebrow">Paired roles</p>
         <p className="mt-1 text-sm text-white/70">
-          Same semantic role across themes (e.g. surface.base). Use inspection to switch to the
-          full neutral ladder.
+          Default: <span className="font-mono text-white/80">Data table</span> — primitive{' '}
+          <span className="font-mono text-white/70">neutral-*</span> ladder per theme (semantic mapping
+          as secondary). Use <span className="font-mono text-white/80">Visual pairs</span> for
+          side-by-side cards. Inspection can switch to the full neutral scale.
         </p>
       </div>
 
@@ -217,7 +219,7 @@ export function PairedRolesPanel({
               <SemanticRoleTable
                 tokenView={lightTokenView}
                 global={global}
-                label="Light semantic role mapping"
+                label="Light primitive token mapping"
                 layerFilter={layerFilter}
               />
             </div>
@@ -228,7 +230,7 @@ export function PairedRolesPanel({
               <SemanticRoleTable
                 tokenView={darkTokenView}
                 global={global}
-                label="Dark elevated semantic role mapping"
+                label="Dark elevated primitive token mapping"
                 layerFilter={layerFilter}
               />
             </div>
@@ -252,7 +254,7 @@ export function PairedRolesPanel({
             <SemanticRoleTable
               tokenView={focusTokenView}
               global={global}
-              label={`${focusTitle} semantic role mapping`}
+              label={`${focusTitle} primitive token mapping`}
               layerFilter={layerFilter}
             />
           </div>

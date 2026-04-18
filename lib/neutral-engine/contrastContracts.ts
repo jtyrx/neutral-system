@@ -25,6 +25,10 @@ export const SURFACE_TEXT_CONTRACTS: Record<string, readonly string[]> = {
   'surface.subtle': ['text.primary', 'text.secondary', 'text.tertiary'],
   'surface.container': ['text.primary', 'text.secondary', 'text.tertiary'],
   'surface.elevated': ['text.primary', 'text.secondary', 'text.tertiary'],
+  'surface.rung-5': ['text.primary', 'text.secondary', 'text.tertiary'],
+  'surface.rung-6': ['text.primary', 'text.secondary', 'text.tertiary'],
+  'surface.rung-7': ['text.primary', 'text.secondary', 'text.tertiary'],
+  'surface.rung-8': ['text.primary', 'text.secondary', 'text.tertiary'],
   'surface.inverse': ['text.inverse', 'text.primary', 'text.secondary'],
 }
 

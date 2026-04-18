@@ -28,14 +28,14 @@ import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import {systemConfigsEqual} from '@/lib/neutral-engine/configEquality'
 
 const DEFAULT_GLOBAL: GlobalScaleConfig = {
-  steps: 48,
+  steps: 41,
   lHigh: 0.985,
   lLow: 0.04,
   progression: 'linear',
   chromaMode: 'achromatic',
   baseChroma: 0.012,
   hue: 260,
-  namingStyle: 'semantic',
+  namingStyle: 'token_ladder',
   variantId: 'pure',
 }
 
@@ -45,7 +45,7 @@ export function useNeutralWorkbench() {
   const [globalConfig, setGlobalConfigBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
   const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
-  const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('inverse')
+  const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('default')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
   /**
    * Light vs Dark comparison panel: split shows both ramps; focus shows one (preview toolbar picks which).

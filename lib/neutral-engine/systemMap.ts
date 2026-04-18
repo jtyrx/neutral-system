@@ -5,10 +5,10 @@ import {
   emphasisBorderRole,
   emphasisSurfaceRole,
   emphasisTextRole,
-  INVERSE_MODIFIER_INDEX,
-  surfaceRoleForIndex,
-  SURFACE_SLOTS,
-  TEXT_SLOTS,
+  SURFACE_STANDARD_COUNT_MAX,
+  SURFACE_STANDARD_COUNT_MIN,
+  surfaceStandardRoleForIndex,
+  TEXT_STANDARD_SLOT_COUNT,
   textRoleForIndex,
 } from '@/lib/neutral-engine/semanticNaming'
 import type {
@@ -95,17 +95,30 @@ export function mirrorRampIndex(globalIndex: number, n: number): number {
   return clampIndex(n - 1 - globalIndex, n)
 }
 
-function withInverseMirror(
-  indices: number[],
-  n: number,
-  slotCount: number,
-): number[] {
-  return indices.map((idx, k) => {
-    if (k === INVERSE_MODIFIER_INDEX && k < slotCount) {
-      return mirrorRampIndex(indices[0], n)
-    }
-    return idx
-  })
+/** Clamp UI “text token count” to standard ladder slots only (inverse is not counted). */
+function clampStandardCount(raw: number, max: number): number {
+  const r = Math.round(raw)
+  if (!Number.isFinite(r)) return 1
+  return Math.max(1, Math.min(max, r))
+}
+
+/** Clamp surface fill count: {@link SURFACE_STANDARD_COUNT_MIN}…{@link SURFACE_STANDARD_COUNT_MAX}. */
+function clampSurfaceStandardCount(raw: number): number {
+  const r = Math.round(raw)
+  if (!Number.isFinite(r)) return SURFACE_STANDARD_COUNT_MIN
+  return Math.max(SURFACE_STANDARD_COUNT_MIN, Math.min(SURFACE_STANDARD_COUNT_MAX, r))
+}
+
+/** Inverse surface: theme-flip of the first standard surface pick (base). */
+export function resolveSurfaceInverseIndex(standardSurfaceIndices: number[], n: number): number {
+  if (standardSurfaceIndices.length === 0) return clampIndex(0, n)
+  return mirrorRampIndex(standardSurfaceIndices[0], n)
+}
+
+/** Inverse text: theme-flip of primary (first slot after semantic ordering). */
+export function resolveTextInverseIndex(orderedTextIndices: number[], n: number): number {
+  if (orderedTextIndices.length === 0) return clampIndex(0, n)
+  return mirrorRampIndex(orderedTextIndices[0], n)
 }
 
 export function pickLightIndices(
@@ -219,35 +232,62 @@ export function deriveSystemTokens(
     cfg.contrastDistance,
   )
 
+  const surfaceStandardCount = clampSurfaceStandardCount(isLight ? cfg.fillCount : cfg.darkFillCount)
+  const textStandardCount = clampStandardCount(
+    isLight ? cfg.textCount : cfg.darkTextCount,
+    TEXT_STANDARD_SLOT_COUNT,
+  )
+
   const fillIndices = isLight
-    ? pickLightIndices(cfg.fillStart, cfg.fillCount, stepFill, n)
-    : pickDarkIndices(cfg.darkFillStart, cfg.darkFillCount, stepFill, n)
+    ? pickLightIndices(cfg.fillStart, surfaceStandardCount, stepFill, n)
+    : pickDarkIndices(cfg.darkFillStart, surfaceStandardCount, stepFill, n)
 
   const strokeIndices = isLight
     ? pickLightIndices(cfg.strokeStart, cfg.strokeCount, stepStroke, n)
     : pickDarkStrokeTextIndices(cfg.darkStrokeStart, cfg.darkStrokeCount, stepStroke, n)
 
   const textIndicesRaw = isLight
-    ? pickLightIndices(cfg.textStart, cfg.textCount, stepText, n)
-    : pickDarkStrokeTextIndices(cfg.darkTextStart, cfg.darkTextCount, stepText, n)
+    ? pickLightIndices(cfg.textStart, textStandardCount, stepText, n)
+    : pickDarkStrokeTextIndices(cfg.darkTextStart, textStandardCount, stepText, n)
   const textOrdered = orderTextIndicesForSemanticRoles(textIndicesRaw)
-  const surfaceIndices = withInverseMirror(fillIndices, n, SURFACE_SLOTS.length)
-  const textIndices = withInverseMirror(textOrdered, n, TEXT_SLOTS.length)
 
-  surfaceIndices.forEach((idx, k) => {
-    const role = surfaceRoleForIndex(k)
+  const surfaceInverseIdx = resolveSurfaceInverseIndex(fillIndices, n)
+  const textInverseIdx = resolveTextInverseIndex(textOrdered, n)
+
+  fillIndices.forEach((idx, k) => {
+    const role = surfaceStandardRoleForIndex(k)
     tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
   })
+  tokens.push(
+    makeToken(
+      'surface.inverse',
+      'surface.inverse',
+      'surface.inverse',
+      theme,
+      surfaceInverseIdx,
+      global[surfaceInverseIdx]!,
+    ),
+  )
 
   strokeIndices.forEach((idx, k) => {
     const role = borderRoleForIndex(k)
     tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
   })
 
-  textIndices.forEach((idx, k) => {
+  textOrdered.forEach((idx, k) => {
     const role = textRoleForIndex(k)
     tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
   })
+  tokens.push(
+    makeToken(
+      'text.inverse',
+      'text.inverse',
+      'text.inverse',
+      theme,
+      textInverseIdx,
+      global[textInverseIdx]!,
+    ),
+  )
 
   const altBase = isLight
     ? clampIndex(Math.floor(n * 0.45), n)
@@ -262,7 +302,7 @@ export function deriveSystemTokens(
     const bumpFill = Math.max(1, Math.round(stepFill * 2))
     const bumpStroke = Math.max(1, Math.round(stepStroke * 2))
     const bumpText = Math.max(1, Math.round(stepText * 2))
-    surfaceIndices.forEach((idx, k) => {
+    fillIndices.forEach((idx, k) => {
       const hi = clampIndex(idx + bumpFill, n)
       const role = emphasisSurfaceRole(k)
       tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
@@ -272,7 +312,7 @@ export function deriveSystemTokens(
       const role = emphasisBorderRole(k)
       tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
-    textIndices.forEach((idx, k) => {
+    textOrdered.forEach((idx, k) => {
       const lo = clampIndex(idx - bumpText, n)
       const role = emphasisTextRole(k)
       tokens.push(makeToken(role, role, role, theme, lo, global[lo]!))
@@ -292,23 +332,29 @@ export function previewResolvedRoleIndices(
     const sf = effectiveStepFromInterval(cfg.lightFillStepInterval, cfg.contrastDistance)
     const ss = effectiveStepFromInterval(cfg.lightStrokeStepInterval, cfg.contrastDistance)
     const st = effectiveStepFromInterval(cfg.lightTextStepInterval, cfg.contrastDistance)
-    const surfaceRaw = pickLightIndices(cfg.fillStart, cfg.fillCount, sf, n)
-    const textRaw = pickLightIndices(cfg.textStart, cfg.textCount, st, n)
+    const surfaceCount = clampSurfaceStandardCount(cfg.fillCount)
+    const textCount = clampStandardCount(cfg.textCount, TEXT_STANDARD_SLOT_COUNT)
+    const surfaceStd = pickLightIndices(cfg.fillStart, surfaceCount, sf, n)
+    const textRaw = pickLightIndices(cfg.textStart, textCount, st, n)
+    const textOrd = orderTextIndicesForSemanticRoles(textRaw)
     return {
-      surface: withInverseMirror(surfaceRaw, n, SURFACE_SLOTS.length),
+      surface: [...surfaceStd, resolveSurfaceInverseIndex(surfaceStd, n)],
       border: pickLightIndices(cfg.strokeStart, cfg.strokeCount, ss, n),
-      text: withInverseMirror(orderTextIndicesForSemanticRoles(textRaw), n, TEXT_SLOTS.length),
+      text: [...textOrd, resolveTextInverseIndex(textOrd, n)],
     }
   }
   const df = effectiveStepFromInterval(cfg.darkFillStepInterval, cfg.contrastDistance)
   const ds = effectiveStepFromInterval(cfg.darkStrokeStepInterval, cfg.contrastDistance)
   const dt = effectiveStepFromInterval(cfg.darkTextStepInterval, cfg.contrastDistance)
-  const surfaceRaw = pickDarkIndices(cfg.darkFillStart, cfg.darkFillCount, df, n)
-  const textRaw = pickDarkStrokeTextIndices(cfg.darkTextStart, cfg.darkTextCount, dt, n)
+  const surfaceCount = clampSurfaceStandardCount(cfg.darkFillCount)
+  const textCount = clampStandardCount(cfg.darkTextCount, TEXT_STANDARD_SLOT_COUNT)
+  const surfaceStd = pickDarkIndices(cfg.darkFillStart, surfaceCount, df, n)
+  const textRaw = pickDarkStrokeTextIndices(cfg.darkTextStart, textCount, dt, n)
+  const textOrd = orderTextIndicesForSemanticRoles(textRaw)
   return {
-    surface: withInverseMirror(surfaceRaw, n, SURFACE_SLOTS.length),
+    surface: [...surfaceStd, resolveSurfaceInverseIndex(surfaceStd, n)],
     border: pickDarkStrokeTextIndices(cfg.darkStrokeStart, cfg.darkStrokeCount, ds, n),
-    text: withInverseMirror(orderTextIndicesForSemanticRoles(textRaw), n, TEXT_SLOTS.length),
+    text: [...textOrd, resolveTextInverseIndex(textOrd, n)],
   }
 }
 

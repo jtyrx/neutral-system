@@ -48,9 +48,49 @@ type PairRowProps = {
   pair: {light: SystemToken; dark: SystemToken}
   global: GlobalSwatch[]
   emphasis: PairEmphasis
+  /** Only first row per source index shows the filled swatch (per column). */
+  showLightSwatch: boolean
+  showDarkSwatch: boolean
 }
 
-const PairRow = memo(function PairRow({pair, global, emphasis}: PairRowProps) {
+function SwatchOrSamePrimitive({
+  show,
+  hex,
+  label,
+  title,
+}: {
+  show: boolean
+  hex: string
+  label: string | undefined
+  title: string
+}) {
+  if (show) {
+    return (
+      <span
+        className="h-12 w-12 shrink-0 rounded-lg border border-white/15 shadow-inner"
+        style={{backgroundColor: hex}}
+        title={label}
+      />
+    )
+  }
+  return (
+    <span
+      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-white/25 bg-white/[0.02] text-[0.7rem] text-white/35"
+      title={`Same primitive as above · ${title}`}
+      aria-label="Same color swatch as earlier row"
+    >
+      ↳
+    </span>
+  )
+}
+
+const PairRow = memo(function PairRow({
+  pair,
+  global,
+  emphasis,
+  showLightSwatch,
+  showDarkSwatch,
+}: PairRowProps) {
   const {light: lt, dark: dt} = pair
   const swL = global[lt.sourceGlobalIndex]
   const swD = global[dt.sourceGlobalIndex]
@@ -72,10 +112,11 @@ const PairRow = memo(function PairRow({pair, global, emphasis}: PairRowProps) {
       <div
         className={`flex gap-3 rounded-lg border p-3 transition-opacity ${lightCard} ${lightMuted ? 'opacity-50' : ''}`}
       >
-        <span
-          className="h-12 w-12 shrink-0 rounded-lg border border-white/15 shadow-inner"
-          style={{backgroundColor: lt.serialized.hex}}
-          title={swL?.label}
+        <SwatchOrSamePrimitive
+          show={showLightSwatch}
+          hex={lt.serialized.hex}
+          label={swL?.label}
+          title={`idx ${lt.sourceGlobalIndex}`}
         />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-white/90">{humanizeRole(lt.role)}</p>
@@ -86,10 +127,11 @@ const PairRow = memo(function PairRow({pair, global, emphasis}: PairRowProps) {
       <div
         className={`flex gap-3 rounded-lg border p-3 transition-opacity ${darkCard} ${darkMuted ? 'opacity-50' : ''}`}
       >
-        <span
-          className="h-12 w-12 shrink-0 rounded-lg border border-white/15 shadow-inner"
-          style={{backgroundColor: dt.serialized.hex}}
-          title={swD?.label}
+        <SwatchOrSamePrimitive
+          show={showDarkSwatch}
+          hex={dt.serialized.hex}
+          label={swD?.label}
+          title={`idx ${dt.sourceGlobalIndex}`}
         />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-white/90">{humanizeRole(dt.role)}</p>
@@ -132,6 +174,13 @@ function SemanticPairGridInner({
         const pairs = zipByName(light, dark)
         if (pairs.length === 0) return null
 
+        const firstLightIdx = new Map<number, number>()
+        const firstDarkIdx = new Map<number, number>()
+        pairs.forEach((p, i) => {
+          if (!firstLightIdx.has(p.light.sourceGlobalIndex)) firstLightIdx.set(p.light.sourceGlobalIndex, i)
+          if (!firstDarkIdx.has(p.dark.sourceGlobalIndex)) firstDarkIdx.set(p.dark.sourceGlobalIndex, i)
+        })
+
         const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
         const hint =
           section.kind === 'inverse' ? groupHints?.inversePair : groupHints?.[section.layer]
@@ -159,8 +208,15 @@ function SemanticPairGridInner({
                   Dark elevated
                 </p>
               </div>
-              {pairs.map((pair) => (
-                <PairRow key={pair.light.id} pair={pair} global={global} emphasis={pairEmphasis} />
+              {pairs.map((pair, pairIndex) => (
+                <PairRow
+                  key={pair.light.id}
+                  pair={pair}
+                  global={global}
+                  emphasis={pairEmphasis}
+                  showLightSwatch={firstLightIdx.get(pair.light.sourceGlobalIndex) === pairIndex}
+                  showDarkSwatch={firstDarkIdx.get(pair.dark.sourceGlobalIndex) === pairIndex}
+                />
               ))}
             </div>
           </div>
@@ -183,19 +239,31 @@ const SingleTokenRow = memo(function SingleTokenRow({
   t,
   global,
   accent,
+  showSwatch,
 }: {
   t: SystemToken
   global: GlobalSwatch[]
   accent?: 'amber' | 'sky'
+  showSwatch: boolean
 }) {
   const sw = global[t.sourceGlobalIndex]
   return (
     <div className={`flex gap-3 rounded-lg border p-3 ${singleAccentClass(accent)}`}>
-      <span
-        className="h-12 w-12 shrink-0 rounded-lg border border-white/15 shadow-inner"
-        style={{backgroundColor: t.serialized.hex}}
-        title={sw?.label}
-      />
+      {showSwatch ? (
+        <span
+          className="h-12 w-12 shrink-0 rounded-lg border border-white/15 shadow-inner"
+          style={{backgroundColor: t.serialized.hex}}
+          title={sw?.label}
+        />
+      ) : (
+        <span
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-white/25 bg-white/[0.02] text-[0.7rem] text-white/35"
+          title={`Same primitive as above · idx ${t.sourceGlobalIndex}`}
+          aria-label="Same color swatch as earlier row"
+        >
+          ↳
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-white/90">{humanizeRole(t.role)}</p>
         <p className="mt-0.5 font-mono text-[0.65rem] text-white/45">{t.name}</p>
@@ -228,6 +296,10 @@ function SemanticSingleThemeGridInner({
       {pairSections.map((section) => {
         const toks = tokensForPairSection(tokenView, section)
         if (toks.length === 0) return null
+        const firstRowForSource = new Map<number, number>()
+        toks.forEach((t, i) => {
+          if (!firstRowForSource.has(t.sourceGlobalIndex)) firstRowForSource.set(t.sourceGlobalIndex, i)
+        })
         const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
         const hint =
           section.kind === 'inverse' ? groupHints?.inversePair : groupHints?.[section.layer]
@@ -248,8 +320,14 @@ function SemanticSingleThemeGridInner({
               {hint ? <p className="mt-1 text-[0.65rem] text-white/40">{hint}</p> : null}
             </div>
             <div className="space-y-3">
-              {toks.map((t) => (
-                <SingleTokenRow key={t.id} t={t} global={global} accent={accent} />
+              {toks.map((t, rowIndex) => (
+                <SingleTokenRow
+                  key={t.id}
+                  t={t}
+                  global={global}
+                  accent={accent}
+                  showSwatch={firstRowForSource.get(t.sourceGlobalIndex) === rowIndex}
+                />
               ))}
             </div>
           </div>

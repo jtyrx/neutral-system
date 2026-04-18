@@ -61,9 +61,9 @@ function SpacingRow({
     <div>
       <p className="text-[0.6rem] text-white/50">{label}</p>
       <div className="relative mt-1 h-5 rounded bg-white/[0.06]">
-        {indices.map((idx) => (
+        {indices.map((idx, k) => (
           <span
-            key={`${label}-${idx}`}
+            key={`${label}-${k}-${idx}`}
             className="absolute top-1/2 h-2 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-sm bg-amber-400/80"
             style={{left: `${(idx / denom) * 100}%`}}
             title={`index ${idx}`}

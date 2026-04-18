@@ -183,9 +183,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Surface token count"
-                  hint="Number of surface roles"
-                  min={1}
-                  max={16}
+                  hint="Standard ladder only (base through extra rungs). Inverse surface is mirrored from base, not counted here."
+                  min={2}
+                  max={8}
                   value={config.fillCount}
                   onChange={(v) => patchSystem('fillCount', v)}
                 />
@@ -248,8 +248,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text shade count"
+                  hint="Standard ladder only (primary–disabled). Inverse text is mirrored from primary, not counted here."
                   min={1}
-                  max={16}
+                  max={4}
                   value={config.textCount}
                   onChange={(v) => patchSystem('textCount', v)}
                 />
@@ -294,9 +295,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Surface token count"
-                  hint="Number of surface roles"
-                  min={1}
-                  max={16}
+                  hint="Standard ladder only (base through extra rungs). Inverse surface is mirrored from base, not counted here."
+                  min={2}
+                  max={8}
                   value={config.darkFillCount}
                   onChange={(v) => patchSystem('darkFillCount', v)}
                 />
@@ -359,8 +360,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text shade count"
+                  hint="Standard ladder only (primary–disabled). Inverse text is mirrored from primary, not counted here."
                   min={1}
-                  max={16}
+                  max={4}
                   value={config.darkTextCount}
                   onChange={(v) => patchSystem('darkTextCount', v)}
                 />

@@ -9,8 +9,8 @@ type Props = {
   /** Explanatory line under the title. */
   description: string
   /** Resolved global indices per role — same values as token derivation. */
-  fillIndices: number[]
-  strokeIndices: number[]
+  surfaceIndices: number[]
+  borderIndices: number[]
   textIndices: number[]
 }
 
@@ -65,8 +65,8 @@ function OffsetMapDiagramInner({
   steps,
   themeLabel,
   description,
-  fillIndices,
-  strokeIndices,
+  surfaceIndices,
+  borderIndices,
   textIndices,
 }: Props) {
   const n = Math.max(2, steps)
@@ -77,8 +77,8 @@ function OffsetMapDiagramInner({
     <div className="space-y-2 rounded-xl border border-white/10 bg-black/25 p-4">
       <p className="eyebrow">Offset mapping · {themeLabel}</p>
       <p className="text-[0.7rem] text-white/45">{description}</p>
-      <OffsetMapRow label="Fills" indices={fillIndices} tone="bg-emerald-400/90" steps={steps} tickIndices={tickIndices} />
-      <OffsetMapRow label="Strokes" indices={strokeIndices} tone="bg-amber-400/90" steps={steps} tickIndices={tickIndices} />
+      <OffsetMapRow label="Surface" indices={surfaceIndices} tone="bg-emerald-400/90" steps={steps} tickIndices={tickIndices} />
+      <OffsetMapRow label="Border" indices={borderIndices} tone="bg-amber-400/90" steps={steps} tickIndices={tickIndices} />
       <OffsetMapRow label="Text" indices={textIndices} tone="bg-sky-400/90" steps={steps} tickIndices={tickIndices} />
     </div>
   )

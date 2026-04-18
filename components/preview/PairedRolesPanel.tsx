@@ -6,14 +6,17 @@ import {NeutralScaleReferenceTable} from '@/components/preview/NeutralScaleRefer
 import type {NeutralTableThemeContext} from '@/components/preview/NeutralScaleReferenceTable'
 import {NeutralScaleUsageTable} from '@/components/preview/NeutralScaleUsageTable'
 import {ControlTier, SegmentedControl, type SegmentedOption} from '@/components/preview/SegmentedControl'
-import {SemanticPairGrid} from '@/components/preview/SemanticPairGrid'
-import {SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
-import {SemanticRoleTable} from '@/components/preview/SemanticRoleTable'
-import {usedGlobalIndicesFromTokenViews, type GlobalSwatch, type SystemRole, type TokenView} from '@/lib/neutral-engine'
+import {
+  type PairedRoleGroupHints,
+  SemanticPairGrid,
+  SemanticSingleThemeGrid,
+} from '@/components/preview/SemanticPairGrid'
+import {SemanticRoleTable, type SemanticLayerFilter} from '@/components/preview/SemanticRoleTable'
+import {usedGlobalIndicesFromTokenViews, type GlobalSwatch, type TokenView} from '@/lib/neutral-engine'
 
 export type PairedRolesPanelVariant = 'split' | 'focus'
 
-type RoleScope = 'all' | 'fill' | 'stroke' | 'text' | 'alt'
+type RoleScope = 'all' | 'surface' | 'border' | 'text' | 'interactive' | 'inverse'
 
 type InspectionView = 'paired' | 'neutral'
 
@@ -34,10 +37,11 @@ const THEME_FOCUS_OPTIONS: SegmentedOption<ThemeFocus>[] = [
 
 const ROLE_SCOPE_OPTIONS: SegmentedOption<RoleScope>[] = [
   {value: 'all', label: 'All layers', shortLabel: 'All'},
-  {value: 'fill', label: 'Surface', shortLabel: 'Surface'},
-  {value: 'stroke', label: 'Border', shortLabel: 'Border'},
+  {value: 'surface', label: 'Surface', shortLabel: 'Surface'},
+  {value: 'border', label: 'Border', shortLabel: 'Border'},
   {value: 'text', label: 'Content', shortLabel: 'Content'},
-  {value: 'alt', label: 'Overlay', shortLabel: 'Overlay'},
+  {value: 'inverse', label: 'Inverse', shortLabel: 'Inverse'},
+  {value: 'interactive', label: 'State & overlay', shortLabel: 'State'},
 ]
 
 const DISPLAY_OPTIONS: SegmentedOption<DisplayMode>[] = [
@@ -45,9 +49,8 @@ const DISPLAY_OPTIONS: SegmentedOption<DisplayMode>[] = [
   {value: 'table', label: 'Data table', shortLabel: 'Table'},
 ]
 
-function rolesFromScope(scope: RoleScope): SystemRole[] | undefined {
-  if (scope === 'all') return undefined
-  return [scope]
+function layerFilterFromScope(scope: RoleScope): SemanticLayerFilter {
+  return scope
 }
 
 function neutralThemeContext(
@@ -69,7 +72,7 @@ export type PairedRolesPanelProps = {
   darkTokenView: TokenView
   /** Focus layout: active preview theme (drives single-theme chrome). */
   focusTheme?: 'light' | 'dark'
-  groupHints?: Partial<Record<SystemRole, string>>
+  groupHints?: PairedRoleGroupHints
 }
 
 export function PairedRolesPanel({
@@ -85,7 +88,7 @@ export function PairedRolesPanel({
   const [roleScope, setRoleScope] = useState<RoleScope>('all')
   const [displayMode, setDisplayMode] = useState<DisplayMode>('visual')
 
-  const roleFilter = useMemo(() => rolesFromScope(roleScope), [roleScope])
+  const layerFilter = useMemo(() => layerFilterFromScope(roleScope), [roleScope])
 
   const pairEmphasis = useMemo(() => {
     if (variant === 'focus') return 'both' as const
@@ -123,8 +126,8 @@ export function PairedRolesPanel({
       <div className="mb-4">
         <p className="eyebrow">Paired roles</p>
         <p className="mt-1 text-sm text-white/70">
-          Same token name across themes (e.g. fill-0 ↔ fill-0). Use inspection to switch to the full
-          neutral ladder.
+          Same semantic role across themes (e.g. surface.base). Use inspection to switch to the
+          full neutral ladder.
         </p>
       </div>
 
@@ -175,10 +178,10 @@ export function PairedRolesPanel({
         ) : null}
 
         {showPrimitiveTiers ? (
-          <div className="grid gap-4 lg:grid-cols-2 lg:items-end">
-            <ControlTier label="Primitive layer">
+          <div className="grid gap-4 lg:grid-cols-1 lg:items-end">
+            <ControlTier label="Semantic layer">
               <SegmentedControl
-                aria-label="Primitive token layer"
+                aria-label="Semantic token layer"
                 value={roleScope}
                 options={ROLE_SCOPE_OPTIONS}
                 onChange={onRoleScope}
@@ -202,8 +205,7 @@ export function PairedRolesPanel({
             lightTokenView={lightTokenView}
             darkTokenView={darkTokenView}
             global={global}
-            groupHint={groupHints}
-            roles={roleFilter}
+            groupHints={groupHints}
             pairEmphasis={pairEmphasis}
           />
         ) : null}
@@ -216,7 +218,7 @@ export function PairedRolesPanel({
                 tokenView={lightTokenView}
                 global={global}
                 label="Light semantic role mapping"
-                roles={roleFilter}
+                layerFilter={layerFilter}
               />
             </div>
             <div className="space-y-2">
@@ -227,7 +229,7 @@ export function PairedRolesPanel({
                 tokenView={darkTokenView}
                 global={global}
                 label="Dark elevated semantic role mapping"
-                roles={roleFilter}
+                layerFilter={layerFilter}
               />
             </div>
           </div>
@@ -237,8 +239,7 @@ export function PairedRolesPanel({
           <SemanticSingleThemeGrid
             tokenView={focusTokenView}
             global={global}
-            groupHint={groupHints}
-            roles={roleFilter}
+            groupHints={groupHints}
             themeChrome={focusTheme}
           />
         ) : null}
@@ -252,7 +253,7 @@ export function PairedRolesPanel({
               tokenView={focusTokenView}
               global={global}
               label={`${focusTitle} semantic role mapping`}
-              roles={roleFilter}
+              layerFilter={layerFilter}
             />
           </div>
         ) : null}

@@ -10,12 +10,13 @@ import {useCallback, useDeferredValue, useMemo, useState, useTransition} from 'r
 
 import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {
-  applyContrastModeToSystemMapping,
+  applyContrastEmphasisToSystemMapping,
   buildGlobalScale,
   buildTokenView,
   clampSystemMappingToLadderLength,
   DEFAULT_SYSTEM_MAPPING,
   deriveSystemTokens,
+  type ContrastEmphasis,
   type GlobalScaleConfig,
   type GlobalSwatch,
   type SystemMappingConfig,
@@ -44,7 +45,7 @@ export function useNeutralWorkbench() {
   const [globalConfig, setGlobalConfigBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
   const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
-  const [contrastMode, setContrastModeBase] = useState<'compact' | 'wide'>('wide')
+  const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('inverse')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
   /**
    * Light vs Dark comparison panel: split shows both ramps; focus shows one (preview toolbar picks which).
@@ -52,6 +53,7 @@ export function useNeutralWorkbench() {
    * skipping one `deriveSystemTokens` in focus mode would require lazy export or a second deferred pass.
    */
   const [comparisonLayout, setComparisonLayout] = useState<ComparisonLayout>('split')
+  const [showContrastPairs, setShowContrastPairs] = useState(false)
 
   const [isPending, startTransition] = useTransition()
 
@@ -67,8 +69,8 @@ export function useNeutralWorkbench() {
     startTransition(() => setPreviewThemeBase(action))
   }, [])
 
-  const setContrastMode = useCallback((action: SetStateAction<'compact' | 'wide'>) => {
-    startTransition(() => setContrastModeBase(action))
+  const setContrastEmphasis = useCallback((action: SetStateAction<ContrastEmphasis>) => {
+    startTransition(() => setContrastEmphasisBase(action))
   }, [])
 
   /** Single-field updates with referential stability when the value is unchanged (avoids redundant transitions). */
@@ -107,11 +109,11 @@ export function useNeutralWorkbench() {
   /** Same object passed to deriveSystemTokens — also drives resolved-index UI (must stay aligned). */
   const effectiveMappingConfig = useMemo(
     () =>
-      applyContrastModeToSystemMapping(
+      applyContrastEmphasisToSystemMapping(
         clampSystemMappingToLadderLength(ladderN, deferredSystemBase),
-        contrastMode,
+        contrastEmphasis,
       ),
-    [deferredSystemBase, contrastMode, ladderN],
+    [deferredSystemBase, contrastEmphasis, ladderN],
   )
 
   const lightTokens = useMemo(
@@ -159,8 +161,8 @@ export function useNeutralWorkbench() {
     activeSystemTokens,
     previewTheme,
     setPreviewTheme,
-    contrastMode,
-    setContrastMode,
+    contrastEmphasis,
+    setContrastEmphasis,
     selection,
     setSelection,
     selectGlobal,
@@ -168,6 +170,8 @@ export function useNeutralWorkbench() {
     inputBusy,
     comparisonLayout,
     setComparisonLayout,
+    showContrastPairs,
+    setShowContrastPairs,
   }
 }
 

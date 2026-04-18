@@ -26,6 +26,12 @@ function twoRowGridColumnCount(length: number): number {
   return length <= 0 ? 1 : Math.ceil(length / 2)
 }
 
+/** Short chip label for dot-path roles (e.g. surface.base → base). */
+function shortRoleChip(role: string): string {
+  const last = role.split('.').pop() ?? role
+  return last.length <= 4 ? last : `${last.slice(0, 3)}…`
+}
+
 /**
  * Full global ramp in index order; swatches that host semantic tokens show role chips.
  * Renders as two balanced rows (grid flow) for scanability — same treatment for every theme.
@@ -43,7 +49,7 @@ function GlobalScaleStripInner({
   if (len === 0) {
     return (
       <div className="rounded-xl border border-dashed border-white/20 p-4 text-center text-xs text-white/45">
-        No swatches — adjust global scale steps.
+        No swatches — check global scale configuration.
       </div>
     )
   }
@@ -81,7 +87,7 @@ function GlobalScaleStripInner({
                       className="max-w-full truncate rounded px-0.5 font-mono text-[0.5rem] leading-none text-white/70 ring-1 ring-white/15"
                       title={`${t.name} (${t.role})`}
                     >
-                      {t.role.slice(0, 3)}
+                      {shortRoleChip(t.role)}
                     </span>
                   ))}
                   {mapped.length > 3 ? (

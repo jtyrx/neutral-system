@@ -39,10 +39,10 @@ export function Workbench() {
     wb.selection?.kind === 'global' ? wb.selection.index : null
 
   return (
-    <div className="ns-workbench">
+    <div className="ns-workbench flex min-h-dvh flex-col bg-[oklch(0.12_0.02_285)] lg:grid lg:min-h-dvh grid-cols-[minmax(0,1fr)_minmax(0,36rem)]  xl:grid-cols-[minmax(0,1fr)_minmax(0,48rem)] lg:grid-rows-1">
       <WorkbenchLoadingToast busy={wb.inputBusy} />
 
-      <div className="ns-workbench__mob-toolbar ns-panel border-b border-white/10">
+      <div className="ns-workbench__mob-toolbar ns-panel border-b border-white/10 lg:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="eyebrow">Neutral System</p>
@@ -51,38 +51,61 @@ export function Workbench() {
           <ThemePreviewControls
             previewTheme={wb.previewTheme}
             onPreviewTheme={wb.setPreviewTheme}
-            contrastMode={wb.contrastMode}
-            onContrastMode={wb.setContrastMode}
+            contrastEmphasis={wb.contrastEmphasis}
+            onContrastEmphasis={wb.setContrastEmphasis}
+            showContrastPairs={wb.showContrastPairs}
+            onShowContrastPairs={wb.setShowContrastPairs}
             dense
           />
         </div>
       </div>
 
-      <div className="ns-workbench__main min-w-0">
+      {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-white/10 lg:order-none lg:border-r lg:bg-black/20">
+         <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} /> 
+      </aside> */}
+
+      <main className="ns-workbench__preview-col order-1 min-h-0 min-w-0 lg:order-none">
         <WorkbenchPreviewColumn
           previewTheme={wb.previewTheme}
           onPreviewTheme={wb.setPreviewTheme}
-          contrastMode={wb.contrastMode}
-          onContrastMode={wb.setContrastMode}
+          contrastEmphasis={wb.contrastEmphasis}
+          onContrastEmphasis={wb.setContrastEmphasis}
+          showContrastPairs={wb.showContrastPairs}
+          onShowContrastPairs={wb.setShowContrastPairs}
           global={wb.global}
+          lightTokens={wb.lightTokens}
+          darkTokens={wb.darkTokens}
           lightTokenView={wb.lightTokenView}
           darkTokenView={wb.darkTokenView}
-          activeTokenView={wb.activeTokenView}
           comparisonLayout={wb.comparisonLayout}
           onComparisonLayout={wb.setComparisonLayout}
           systemConfig={wb.systemConfig}
           steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
         />
-        <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} />
-      </div>
+      </main>
 
-      <aside className="ns-workbench__inspector ns-panel flex min-h-0 min-w-0 flex-col overflow-y-auto border-t border-white/10 p-4 lg:sticky lg:top-0 lg:max-h-dvh lg:shrink-0 lg:border-t-0 lg:border-l">
-        <Inspector
-          selection={wb.selection}
-          global={wb.global}
-          lightTokens={wb.selection?.kind === 'system' ? wb.lightTokens : EMPTY_SYSTEM_TOKENS}
-          darkTokens={wb.selection?.kind === 'system' ? wb.darkTokens : EMPTY_SYSTEM_TOKENS}
-        />
+      <aside className="ns-workbench__inspector-col order-3 h-full min-w-0 border-t border-white/10 lg:order-none lg:border-l lg:border-t-0">
+        <div className="sticky top-0 max-h-dvh overflow-y-auto p-4">
+          <div className="mb-4 hidden items-center justify-between gap-2 lg:flex">
+            <p className="eyebrow">Preview</p>
+            <ThemePreviewControls
+              previewTheme={wb.previewTheme}
+              onPreviewTheme={wb.setPreviewTheme}
+              contrastEmphasis={wb.contrastEmphasis}
+              onContrastEmphasis={wb.setContrastEmphasis}
+              showContrastPairs={wb.showContrastPairs}
+              onShowContrastPairs={wb.setShowContrastPairs}
+              dense
+            />
+          </div>
+          <Inspector
+            selection={wb.selection}
+            global={wb.global}
+            lightTokens={wb.selection?.kind === 'system' ? wb.lightTokens : EMPTY_SYSTEM_TOKENS}
+            darkTokens={wb.selection?.kind === 'system' ? wb.darkTokens : EMPTY_SYSTEM_TOKENS}
+          />
+          <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} />
+        </div>
       </aside>
     </div>
   )

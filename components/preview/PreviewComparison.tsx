@@ -4,7 +4,8 @@ import {memo} from 'react'
 
 import {GlobalRampCard} from '@/components/preview/GlobalRampCard'
 import {PairedRolesPanel} from '@/components/preview/PairedRolesPanel'
-import type {GlobalSwatch, SystemRole, TokenView} from '@/lib/neutral-engine'
+import type {PairedRoleGroupHints} from '@/components/preview/SemanticPairGrid'
+import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
 
 export type ComparisonLayout = 'split' | 'focus'
 
@@ -16,8 +17,11 @@ type Props = {
   darkTokenView: TokenView
 }
 
-const GROUP_HINTS: Partial<Record<SystemRole, string>> = {
+const GROUP_HINTS: PairedRoleGroupHints = {
+  surface: 'Base → elevated surfaces (hierarchy ladder; inverse pair is grouped separately).',
   text: 'Content picks follow the text ramp (strongest → weakest) for each theme.',
+  inversePair:
+    'Contrast-flip: inverse surface and text on inverse — mirror theme hierarchy, not a normal ladder step.',
 }
 
 function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, darkTokenView}: Props) {
@@ -77,7 +81,7 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+      <div className="grid gap-4 lg:grid-cols-1 lg:gap-4">
         <div className="rounded-xl border border-amber-400/25 bg-amber-500/[0.06] p-3 sm:p-4">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>

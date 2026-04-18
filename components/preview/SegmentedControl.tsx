@@ -65,7 +65,7 @@ export function ControlTier({
   children: ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+    <div className="flex flex-col gap-2 sm:gap-4">
       <p className="shrink-0 text-[0.6rem] font-medium uppercase tracking-wide text-white/35 sm:min-w-[7.5rem]">
         {label}
       </p>

@@ -41,18 +41,14 @@ export type GlobalSwatch = {
   serialized: SerializedColor
 }
 
-export type SystemRole =
-  | 'fill'
-  | 'stroke'
-  | 'text'
-  | 'alt'
-  | 'contrastFill'
-  | 'contrastStroke'
-  | 'contrastText'
-  | 'contrastAlt'
+/**
+ * Semantic role id (same as `SystemToken.name`): dot-path roles, e.g. `surface.base`, `text.primary`,
+ * `border.default`, `state.hover`, `emphasis.surface.0`.
+ */
+export type SystemRole = string
 
 export type SystemMappingConfig = {
-  /** Light theme: Fills / strokes / text ladder starts (low index = light end). */
+  /** Light theme: surface / border / text ladder starts (low index = light end). Internal field name `fill*` is legacy. */
   fillStart: number
   strokeStart: number
   textStart: number

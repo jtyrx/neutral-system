@@ -72,7 +72,7 @@ function InspectorInner({selection, global, lightTokens, darkTokens}: Props) {
           className="h-20 w-full rounded-xl border border-white/10"
           style={{backgroundColor: s.serialized.hex}}
         />
-        <dl className="space-y-2 font-mono text-[0.65rem] text-white/80">
+        <dl className="space-y-2 font-mono text-[0.65rem] text-white/80 grid grid-cols-1 lg:grid-cols-2">
           <div>
             <dt className="text-white/45">Label</dt>
             <dd>{s.label}</dd>
@@ -129,48 +129,48 @@ function InspectorInner({selection, global, lightTokens, darkTokens}: Props) {
   const cr = token.color.contrastWCAG21(bg)
 
   return (
-    <div className="ns-panel space-y-4 rounded-2xl border p-4">
+    <div className="ns-panel group/ins space-y-3 rounded-2xl border p-4">
       <p className="eyebrow">System token</p>
       <div
         className="h-16 w-full rounded-xl border border-white/10"
         style={{backgroundColor: token.serialized.hex}}
       />
-      <dl className="space-y-2 font-mono text-[0.65rem] text-white/80">
-        <div>
-          <dt className="text-white/45">Name</dt>
-          <dd>{token.name}</dd>
-        </div>
-        <div>
-          <dt className="text-white/45">Role</dt>
-          <dd>{token.role}</dd>
-        </div>
-        <div>
-          <dt className="text-white/45">Theme</dt>
-          <dd>{token.theme}</dd>
-        </div>
-        <div>
-          <dt className="text-white/45">Source global index</dt>
-          <dd>{token.sourceGlobalIndex}</dd>
-        </div>
-        {token.alpha != null ? (
+      <p className="font-mono text-[0.7rem] text-white/90">{token.role}</p>
+      <p className="text-[0.65rem] text-white/45">Hover the card for OKLCH, index, and contrast.</p>
+      <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover/ins:max-h-[28rem] group-hover/ins:opacity-100">
+        <dl className="space-y-2 border-t border-white/10 pt-3 font-mono text-[0.65rem] text-white/80">
           <div>
-            <dt className="text-white/45">Alpha</dt>
-            <dd>{token.alpha}</dd>
+            <dt className="text-white/45">Name</dt>
+            <dd>{token.name}</dd>
           </div>
-        ) : null}
-        <div>
-          <dt className="text-white/45">OKLCH</dt>
-          <dd className="break-all">{token.serialized.oklchCss}</dd>
-        </div>
-        <div>
-          <dt className="text-white/45">HEX</dt>
-          <dd>{token.serialized.hex}</dd>
-        </div>
-        <div>
-          <dt className="text-white/45">Contrast vs {token.theme === 'light' ? 'white' : 'black'}</dt>
-          <dd>{cr.toFixed(2)}</dd>
-        </div>
-      </dl>
+          <div>
+            <dt className="text-white/45">Theme</dt>
+            <dd>{token.theme}</dd>
+          </div>
+          <div>
+            <dt className="text-white/45">Source global index</dt>
+            <dd>{token.sourceGlobalIndex}</dd>
+          </div>
+          {token.alpha != null ? (
+            <div>
+              <dt className="text-white/45">Alpha</dt>
+              <dd>{token.alpha}</dd>
+            </div>
+          ) : null}
+          <div>
+            <dt className="text-white/45">OKLCH</dt>
+            <dd className="break-all">{token.serialized.oklchCss}</dd>
+          </div>
+          <div>
+            <dt className="text-white/45">HEX</dt>
+            <dd>{token.serialized.hex}</dd>
+          </div>
+          <div>
+            <dt className="text-white/45">Contrast vs {token.theme === 'light' ? 'white' : 'black'}</dt>
+            <dd>{cr.toFixed(2)}</dd>
+          </div>
+        </dl>
+      </div>
     </div>
   )
 }

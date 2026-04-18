@@ -1,50 +1,39 @@
+import {semanticCategory} from '@/lib/neutral-engine/semanticNaming'
 import type {SystemRole} from '@/lib/neutral-engine/types'
 
-export {ROLE_DISPLAY_ORDER} from '@/lib/neutral-engine/tokenViews'
-
-/** Primary UI label for mapping groups (token names like fill-0 stay as secondary). */
-export function friendlySemanticGroupLabel(role: SystemRole): string {
-  switch (role) {
-    case 'fill':
+/** Primary UI label for a semantic category (used when grouping by primitive layer). */
+export function friendlySemanticCategoryLabel(category: string): string {
+  switch (category) {
+    case 'surface':
       return 'Surface'
-    case 'stroke':
+    case 'border':
       return 'Border'
     case 'text':
       return 'Content'
-    case 'alt':
-      return 'Overlay'
-    case 'contrastFill':
-      return 'Contrast · surface'
-    case 'contrastStroke':
-      return 'Contrast · border'
-    case 'contrastText':
-      return 'Contrast · content'
-    case 'contrastAlt':
-      return 'Contrast · overlay'
+    case 'interactive':
+      return 'State & overlay'
+    case 'emphasis':
+      return 'Emphasis'
+    case 'inversePair':
+      return 'Inverse'
     default:
-      return role
+      return category
   }
 }
 
-export function humanizeRole(role: SystemRole): string {
-  switch (role) {
-    case 'fill':
-      return 'Fill'
-    case 'stroke':
-      return 'Stroke'
-    case 'text':
-      return 'Text'
-    case 'alt':
-      return 'Alt / overlay'
-    case 'contrastFill':
-      return 'Contrast fill'
-    case 'contrastStroke':
-      return 'Contrast stroke'
-    case 'contrastText':
-      return 'Contrast text'
-    case 'contrastAlt':
-      return 'Contrast alt'
-    default:
-      return role
+/** Primary UI label for mapping groups — uses dot-path roles. */
+export function friendlySemanticGroupLabel(role: SystemRole): string {
+  const cat = semanticCategory(role)
+  if (role.startsWith('emphasis.')) {
+    if (role.startsWith('emphasis.surface')) return 'Emphasis · surface'
+    if (role.startsWith('emphasis.border')) return 'Emphasis · border'
+    if (role.startsWith('emphasis.text')) return 'Emphasis · content'
+    return 'Emphasis'
   }
+  return friendlySemanticCategoryLabel(cat)
+}
+
+/** Human-readable row label for a token role. */
+export function humanizeRole(role: SystemRole): string {
+  return role.replace(/\./g, ' · ')
 }

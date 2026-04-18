@@ -4,7 +4,7 @@ const LADDER_ANCHORS = [
   0, 25, 50, 75, 100, 150, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 975, 1000,
 ]
 
-/** Map index to token-style labels (0 … 1000 ladder). */
+/** Map index to token-style labels (0 … 1000 ladder for `token_ladder`). */
 export function labelForIndex(style: NamingStyle, index: number, steps: number): string {
   if (steps < 2) return '0'
   const t = index / (steps - 1)

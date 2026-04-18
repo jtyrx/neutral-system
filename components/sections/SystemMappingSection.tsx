@@ -5,17 +5,17 @@ import {memo, useMemo} from 'react'
 import {OffsetMapDiagram} from '@/components/viz/OffsetMapDiagram'
 import {ThemeRangeBar} from '@/components/viz/ThemeRangeBar'
 import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
-import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
+import type {ContrastEmphasis, SystemMappingConfig} from '@/lib/neutral-engine'
 
 type Props = {
   /** Raw workbench state — bound to inputs. */
   config: SystemMappingConfig
   /**
-   * Deferred mapping + compact/wide contrast — **must** match `deriveSystemTokens` (same as
+   * Deferred mapping + contrast emphasis — **must** match `deriveSystemTokens` (same as
    * `effectiveMappingConfig` from the workbench hook).
    */
   derivationConfig: SystemMappingConfig
-  contrastMode: 'compact' | 'wide'
+  contrastEmphasis: ContrastEmphasis
   patchSystem: <K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K]) => void
   steps: number
 }
@@ -66,7 +66,7 @@ function ResolvedIndices({label, indices}: {label: string; indices: number[]}) {
 function SystemMappingSectionInner({
   config,
   derivationConfig,
-  contrastMode,
+  contrastEmphasis,
   patchSystem,
   steps,
 }: Props) {
@@ -85,21 +85,22 @@ function SystemMappingSectionInner({
     <section id="system" className="scroll-mt-6 space-y-8">
       <header>
         <p className="eyebrow">2 · System mapping</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Fills, strokes & text</h2>
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Surface, border & text</h2>
         <p className="mt-2 max-w-2xl text-sm text-white/55">
           Light and Dark elevated each have their own ladder starts and shade counts on the shared
           global ramp. Resolved indices and offset maps use the same math as previews and exports,
-          including the preview toolbar’s <span className="font-mono text-white/70">{contrastMode}</span>{' '}
-          contrast mode (wide widens ladder spacing).
+          including the preview toolbar’s{' '}
+          <span className="font-mono text-white/70">{contrastEmphasis}</span> contrast emphasis (inverse
+          widens ladder spacing the most).
         </p>
       </header>
 
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-white">Shared mapping</h3>
         <p className="mt-1 text-xs text-white/45">
-          Contrast distance applies to both themes (× wide boost when the preview is in wide mode).
-          Step interval is set per theme and role in each ladder group below. Alt overlays and dark
-          segment length are global.
+          Contrast distance applies to both themes (scaled by emphasis in the preview toolbar). Step
+          interval is set per theme and role in each ladder group below. Alt overlays and dark segment
+          length are global.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <NumField
@@ -148,7 +149,7 @@ function SystemMappingSectionInner({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-        <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.06] p-4 sm:p-5">
+        <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.06] p-4 sm:p-5 flex flex-col justify-between">
           <div className="border-b border-amber-400/20 pb-3">
             <p className="eyebrow text-amber-200/80">Light theme</p>
             <h3 className="mt-1 text-base font-semibold text-white">Role ladders</h3>
@@ -160,20 +161,20 @@ function SystemMappingSectionInner({
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Fills</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Surface / background fills</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Surface</h4>
+                <p className="mt-0.5 text-[0.65rem] text-white/45">Surface / background ramp</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
-                  hint="Fills · × contrast distance"
+                  hint="Surface · × contrast distance"
                   min={1}
                   max={32}
                   value={config.lightFillStepInterval}
                   onChange={(v) => patchSystem('lightFillStepInterval', v)}
                 />
                 <NumField
-                  label="Fill start index"
+                  label="Surface start index"
                   hint="First global index on ladder"
                   min={0}
                   max={steps - 1}
@@ -181,47 +182,47 @@ function SystemMappingSectionInner({
                   onChange={(v) => patchSystem('fillStart', v)}
                 />
                 <NumField
-                  label="Fill shade count"
-                  hint="Number of fill tokens"
+                  label="Surface token count"
+                  hint="Number of surface roles"
                   min={1}
                   max={16}
                   value={config.fillCount}
                   onChange={(v) => patchSystem('fillCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices" indices={lightIdx.fill} />
+              <ResolvedIndices label="Resolved global indices" indices={lightIdx.surface} />
             </div>
 
             <div className="space-y-3 border-t border-amber-400/15 pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Strokes</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Border</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Borders & dividers</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
-                  hint="Strokes · × contrast distance"
+                  hint="Border · × contrast distance"
                   min={1}
                   max={32}
                   value={config.lightStrokeStepInterval}
                   onChange={(v) => patchSystem('lightStrokeStepInterval', v)}
                 />
                 <NumField
-                  label="Stroke start index"
+                  label="Border start index"
                   min={0}
                   max={steps - 1}
                   value={config.strokeStart}
                   onChange={(v) => patchSystem('strokeStart', v)}
                 />
                 <NumField
-                  label="Stroke shade count"
+                  label="Border token count"
                   min={1}
                   max={16}
                   value={config.strokeCount}
                   onChange={(v) => patchSystem('strokeCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices" indices={lightIdx.stroke} />
+              <ResolvedIndices label="Resolved global indices" indices={lightIdx.border} />
             </div>
 
             <div className="space-y-3 border-t border-amber-400/15 pt-5">
@@ -229,7 +230,7 @@ function SystemMappingSectionInner({
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Text</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Foreground & secondary type</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Text · × contrast distance"
@@ -258,33 +259,33 @@ function SystemMappingSectionInner({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-4 sm:p-5">
+        <div className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-4 sm:p-5 flex flex-col justify-between">
           <div className="border-b border-sky-400/20 pb-3">
             <p className="eyebrow text-sky-200/80">Dark elevated</p>
             <h3 className="mt-1 text-base font-semibold text-white">Role ladders</h3>
             <p className="mt-1 text-xs text-white/50">
               Independent controls; the engine maps from the dark tail using the same inverted
-              index rules as before (fills, strokes, and text each use their own start inputs).
+              index rules as before (surface, border, and text each use their own start inputs).
             </p>
           </div>
 
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Fills</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Surface</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Tail-anchored surface ramp</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
-                  hint="Fills · × contrast distance"
+                  hint="Surface · × contrast distance"
                   min={1}
                   max={32}
                   value={config.darkFillStepInterval}
                   onChange={(v) => patchSystem('darkFillStepInterval', v)}
                 />
                 <NumField
-                  label="Fill start index"
+                  label="Surface start index"
                   hint="Offset into dark tail pool"
                   min={0}
                   max={steps - 1}
@@ -292,46 +293,47 @@ function SystemMappingSectionInner({
                   onChange={(v) => patchSystem('darkFillStart', v)}
                 />
                 <NumField
-                  label="Fill shade count"
+                  label="Surface token count"
+                  hint="Number of surface roles"
                   min={1}
                   max={16}
                   value={config.darkFillCount}
                   onChange={(v) => patchSystem('darkFillCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices" indices={darkIdx.fill} />
+              <ResolvedIndices label="Resolved global indices" indices={darkIdx.surface} />
             </div>
 
             <div className="space-y-3 border-t border-sky-400/15 pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Strokes</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Border</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Hairline / divider ramp</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
-                  hint="Strokes · × contrast distance"
+                  hint="Border · × contrast distance"
                   min={1}
                   max={32}
                   value={config.darkStrokeStepInterval}
                   onChange={(v) => patchSystem('darkStrokeStepInterval', v)}
                 />
                 <NumField
-                  label="Stroke start index"
+                  label="Border start index"
                   min={0}
                   max={steps - 1}
                   value={config.darkStrokeStart}
                   onChange={(v) => patchSystem('darkStrokeStart', v)}
                 />
                 <NumField
-                  label="Stroke shade count"
+                  label="Border token count"
                   min={1}
                   max={16}
                   value={config.darkStrokeCount}
                   onChange={(v) => patchSystem('darkStrokeCount', v)}
                 />
               </div>
-              <ResolvedIndices label="Resolved global indices" indices={darkIdx.stroke} />
+              <ResolvedIndices label="Resolved global indices" indices={darkIdx.border} />
             </div>
 
             <div className="space-y-3 border-t border-sky-400/15 pt-5">
@@ -339,7 +341,7 @@ function SystemMappingSectionInner({
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Text</h4>
                 <p className="mt-0.5 text-[0.65rem] text-white/45">Type ramp (stroke-text picker)</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Text · × contrast distance"
@@ -375,16 +377,16 @@ function SystemMappingSectionInner({
             steps={steps}
             themeLabel="Light"
             description="Bars use the same resolved global indices as light themeMode tokens (low index = light)."
-            fillIndices={lightIdx.fill}
-            strokeIndices={lightIdx.stroke}
+            surfaceIndices={lightIdx.surface}
+            borderIndices={lightIdx.border}
             textIndices={lightIdx.text}
           />
           <OffsetMapDiagram
             steps={steps}
             themeLabel="Dark elevated"
             description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
-            fillIndices={darkIdx.fill}
-            strokeIndices={darkIdx.stroke}
+            surfaceIndices={darkIdx.surface}
+            borderIndices={darkIdx.border}
             textIndices={darkIdx.text}
           />
         </div>

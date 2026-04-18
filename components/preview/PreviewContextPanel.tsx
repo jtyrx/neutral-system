@@ -5,7 +5,7 @@ import {memo, useCallback} from 'react'
 import {ContrastSpacingPreview} from '@/components/preview/ContrastSpacingPreview'
 import {PreviewComparison, type ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
-import type {GlobalSwatch, SystemMappingConfig, TokenView} from '@/lib/neutral-engine'
+import type {ContrastEmphasis, GlobalSwatch, SystemMappingConfig, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
   global: GlobalSwatch[]
@@ -13,8 +13,10 @@ type Props = {
   darkTokenView: TokenView
   previewTheme: 'light' | 'dark'
   onPreviewTheme: (t: 'light' | 'dark') => void
-  contrastMode: 'compact' | 'wide'
-  onContrastMode: (m: 'compact' | 'wide') => void
+  contrastEmphasis: ContrastEmphasis
+  onContrastEmphasis: (e: ContrastEmphasis) => void
+  showContrastPairs?: boolean
+  onShowContrastPairs?: (v: boolean) => void
   comparisonLayout: ComparisonLayout
   onComparisonLayout: (l: ComparisonLayout) => void
   systemConfig: SystemMappingConfig
@@ -69,8 +71,10 @@ export function PreviewContextPanel({
   darkTokenView,
   previewTheme,
   onPreviewTheme,
-  contrastMode,
-  onContrastMode,
+  contrastEmphasis,
+  onContrastEmphasis,
+  showContrastPairs,
+  onShowContrastPairs,
   comparisonLayout,
   onComparisonLayout,
   systemConfig,
@@ -92,22 +96,24 @@ export function PreviewContextPanel({
               </h2>
               <p className="mt-1 max-w-2xl text-xs text-white/50">
                 Ramps and paired roles use the same mapping as exports. Split = both themes; Focus =
-                one at a time. Compact / wide changes ladder spacing (see below).
+                one at a time. Contrast emphasis changes ladder spacing (see below).
               </p>
               <div className="mt-4 max-w-xl">
                 <ContrastSpacingPreview systemConfig={systemConfig} steps={steps} />
               </div>
             </div>
-            <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            {/* <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <LayoutToggle layout={comparisonLayout} onLayout={onComparisonLayout} />
               <ThemePreviewControls
                 previewTheme={previewTheme}
                 onPreviewTheme={onPreviewTheme}
-                contrastMode={contrastMode}
-                onContrastMode={onContrastMode}
+                contrastEmphasis={contrastEmphasis}
+                onContrastEmphasis={onContrastEmphasis}
+                showContrastPairs={showContrastPairs}
+                onShowContrastPairs={onShowContrastPairs}
                 dense
               />
-            </div>
+            </div> */}
           </div>
         </header>
 

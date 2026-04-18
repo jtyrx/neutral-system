@@ -2,29 +2,29 @@
 
 import {memo, useMemo} from 'react'
 
-import {applyContrastModeToSystemMapping} from '@/lib/neutral-engine/effectiveMapping'
+import {applyContrastEmphasisToSystemMapping} from '@/lib/neutral-engine/effectiveMapping'
 import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
 import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
 
 type Props = {
-  /** Raw mapping inputs (same base used for compact vs wide illustration). */
+  /** Raw mapping inputs (same base used for emphasis comparison). */
   systemConfig: SystemMappingConfig
   /** Global ramp length. */
   steps: number
 }
 
 /**
- * Read-only: shows how **fill** resolved indices differ between compact and wide contrast modes.
+ * Read-only: shows how **surface** resolved indices differ between subtle and inverse contrast emphasis.
  */
 function ContrastSpacingPreviewInner({systemConfig, steps}: Props) {
   const n = Math.max(2, steps)
 
-  const {compactFill, wideFill} = useMemo(() => {
-    const c = applyContrastModeToSystemMapping(systemConfig, 'compact')
-    const w = applyContrastModeToSystemMapping(systemConfig, 'wide')
+  const {subtleSurface, inverseSurface} = useMemo(() => {
+    const subtle = applyContrastEmphasisToSystemMapping(systemConfig, 'subtle')
+    const inverse = applyContrastEmphasisToSystemMapping(systemConfig, 'inverse')
     return {
-      compactFill: previewResolvedRoleIndices(c, n, 'light').fill,
-      wideFill: previewResolvedRoleIndices(w, n, 'light').fill,
+      subtleSurface: previewResolvedRoleIndices(subtle, n, 'light').surface,
+      inverseSurface: previewResolvedRoleIndices(inverse, n, 'light').surface,
     }
   }, [systemConfig, n])
 
@@ -32,15 +32,16 @@ function ContrastSpacingPreviewInner({systemConfig, steps}: Props) {
     <div
       className="rounded-xl border border-white/10 bg-black/25 px-3 py-2"
       role="img"
-      aria-label="Fill ladder spacing: compact versus wide contrast mode"
+      aria-label="Surface ladder spacing: subtle versus inverse contrast emphasis"
     >
-      <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/45">Fill spacing · Light</p>
+      <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/45">Surface spacing · Light</p>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
-        <SpacingRow label="Compact" indices={compactFill} maxSpan={n} />
-        <SpacingRow label="Wide" indices={wideFill} maxSpan={n} />
+        <SpacingRow label="Subtle" indices={subtleSurface} maxSpan={n} />
+        <SpacingRow label="Inverse" indices={inverseSurface} maxSpan={n} />
       </div>
       <p className="mt-2 text-[0.55rem] leading-snug text-white/35">
-        Dots mark resolved global indices for fills. Wide increases contrast distance between picks.
+        Dots mark resolved global indices for the surface ramp. Inverse increases contrast distance
+        between picks.
       </p>
     </div>
   )

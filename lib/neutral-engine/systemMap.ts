@@ -1,4 +1,16 @@
 import {serializeColor} from '@/lib/neutral-engine/serialize'
+import {
+  altRoleForIndex,
+  borderRoleForIndex,
+  emphasisBorderRole,
+  emphasisSurfaceRole,
+  emphasisTextRole,
+  INVERSE_MODIFIER_INDEX,
+  surfaceRoleForIndex,
+  SURFACE_SLOTS,
+  TEXT_SLOTS,
+  textRoleForIndex,
+} from '@/lib/neutral-engine/semanticNaming'
 import type {
   GlobalSwatch,
   SystemMappingConfig,
@@ -75,6 +87,27 @@ function clampIndex(i: number, n: number): number {
   return Math.max(0, Math.min(n - 1, Math.round(i)))
 }
 
+/**
+ * Full ladder opposite of `globalIndex` (theme-flip counterpart): light end ↔ dark end.
+ * Used for `surface-inverse` and `text-neutral-inverse` vs their `default` slots.
+ */
+export function mirrorRampIndex(globalIndex: number, n: number): number {
+  return clampIndex(n - 1 - globalIndex, n)
+}
+
+function withInverseMirror(
+  indices: number[],
+  n: number,
+  slotCount: number,
+): number[] {
+  return indices.map((idx, k) => {
+    if (k === INVERSE_MODIFIER_INDEX && k < slotCount) {
+      return mirrorRampIndex(indices[0], n)
+    }
+    return idx
+  })
+}
+
 export function pickLightIndices(
   start: number,
   count: number,
@@ -116,13 +149,12 @@ export function pickDarkStrokeTextIndices(
 }
 
 /**
- * Raw text picks walk ladder order, but token ids `text-0` … `text-(n-1)` are semantic:
- * strongest (display / emphasis) → weakest (faint).
+ * Raw text picks walk ladder order; roles use `text.primary` … `text.inverse` (dot-path).
  *
- * - **Light:** on light surfaces, stronger type = **darker** ink = **higher** global index among
- *   the pick run. `pickLightIndices` returns ascending indices (lighter → darker), so we reverse.
- * - **Dark elevated:** on dark surfaces, stronger type = **brighter** = **lower** global index among
- *   the pick run. `pickDarkStrokeTextIndices` returns descending indices, so we reverse.
+ * - **Light:** stronger type = **darker** ink = **higher** global index in the pick run;
+ *   `pickLightIndices` is ascending, so we reverse for semantic order.
+ * - **Dark elevated:** stronger type = **brighter** = **lower** global index;
+ *   `pickDarkStrokeTextIndices` is descending, so we reverse.
  */
 export function orderTextIndicesForSemanticRoles(raw: number[]): number[] {
   if (raw.length <= 1) return raw
@@ -198,45 +230,23 @@ export function deriveSystemTokens(
   const textIndicesRaw = isLight
     ? pickLightIndices(cfg.textStart, cfg.textCount, stepText, n)
     : pickDarkStrokeTextIndices(cfg.darkTextStart, cfg.darkTextCount, stepText, n)
-  const textIndices = orderTextIndicesForSemanticRoles(textIndicesRaw)
+  const textOrdered = orderTextIndicesForSemanticRoles(textIndicesRaw)
+  const surfaceIndices = withInverseMirror(fillIndices, n, SURFACE_SLOTS.length)
+  const textIndices = withInverseMirror(textOrdered, n, TEXT_SLOTS.length)
 
-  fillIndices.forEach((idx, k) => {
-    tokens.push(
-      makeToken(
-        `fill-${k}`,
-        `fill-${k}`,
-        'fill',
-        theme,
-        idx,
-        global[idx]!,
-      ),
-    )
+  surfaceIndices.forEach((idx, k) => {
+    const role = surfaceRoleForIndex(k)
+    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
   })
 
   strokeIndices.forEach((idx, k) => {
-    tokens.push(
-      makeToken(
-        `stroke-${k}`,
-        `stroke-${k}`,
-        'stroke',
-        theme,
-        idx,
-        global[idx]!,
-      ),
-    )
+    const role = borderRoleForIndex(k)
+    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
   })
 
   textIndices.forEach((idx, k) => {
-    tokens.push(
-      makeToken(
-        `text-${k}`,
-        `text-${k}`,
-        'text',
-        theme,
-        idx,
-        global[idx]!,
-      ),
-    )
+    const role = textRoleForIndex(k)
+    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
   })
 
   const altBase = isLight
@@ -244,61 +254,28 @@ export function deriveSystemTokens(
     : clampIndex(n - 4, n)
   for (let k = 0; k < cfg.altCount; k++) {
     const idx = clampIndex(altBase + k, n)
-    tokens.push(
-      makeToken(
-        `alt-${k}`,
-        `alt-${k}`,
-        'alt',
-        theme,
-        idx,
-        global[idx]!,
-        cfg.altAlpha,
-      ),
-    )
+    const role = altRoleForIndex(k)
+    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!, cfg.altAlpha))
   }
 
   if (cfg.includeContrastGroups) {
     const bumpFill = Math.max(1, Math.round(stepFill * 2))
     const bumpStroke = Math.max(1, Math.round(stepStroke * 2))
     const bumpText = Math.max(1, Math.round(stepText * 2))
-    fillIndices.forEach((idx, k) => {
+    surfaceIndices.forEach((idx, k) => {
       const hi = clampIndex(idx + bumpFill, n)
-      tokens.push(
-        makeToken(
-          `contrast-fill-${k}`,
-          `contrast-fill-${k}`,
-          'contrastFill',
-          theme,
-          hi,
-          global[hi]!,
-        ),
-      )
+      const role = emphasisSurfaceRole(k)
+      tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
     strokeIndices.forEach((idx, k) => {
       const hi = clampIndex(idx + bumpStroke, n)
-      tokens.push(
-        makeToken(
-          `contrast-stroke-${k}`,
-          `contrast-stroke-${k}`,
-          'contrastStroke',
-          theme,
-          hi,
-          global[hi]!,
-        ),
-      )
+      const role = emphasisBorderRole(k)
+      tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
     textIndices.forEach((idx, k) => {
       const lo = clampIndex(idx - bumpText, n)
-      tokens.push(
-        makeToken(
-          `contrast-text-${k}`,
-          `contrast-text-${k}`,
-          'contrastText',
-          theme,
-          lo,
-          global[lo]!,
-        ),
-      )
+      const role = emphasisTextRole(k)
+      tokens.push(makeToken(role, role, role, theme, lo, global[lo]!))
     })
   }
 
@@ -310,28 +287,28 @@ export function previewResolvedRoleIndices(
   cfg: SystemMappingConfig,
   n: number,
   theme: 'light' | 'darkElevated',
-): {fill: number[]; stroke: number[]; text: number[]} {
+): {surface: number[]; border: number[]; text: number[]} {
   if (theme === 'light') {
     const sf = effectiveStepFromInterval(cfg.lightFillStepInterval, cfg.contrastDistance)
     const ss = effectiveStepFromInterval(cfg.lightStrokeStepInterval, cfg.contrastDistance)
     const st = effectiveStepFromInterval(cfg.lightTextStepInterval, cfg.contrastDistance)
+    const surfaceRaw = pickLightIndices(cfg.fillStart, cfg.fillCount, sf, n)
+    const textRaw = pickLightIndices(cfg.textStart, cfg.textCount, st, n)
     return {
-      fill: pickLightIndices(cfg.fillStart, cfg.fillCount, sf, n),
-      stroke: pickLightIndices(cfg.strokeStart, cfg.strokeCount, ss, n),
-      text: orderTextIndicesForSemanticRoles(
-        pickLightIndices(cfg.textStart, cfg.textCount, st, n),
-      ),
+      surface: withInverseMirror(surfaceRaw, n, SURFACE_SLOTS.length),
+      border: pickLightIndices(cfg.strokeStart, cfg.strokeCount, ss, n),
+      text: withInverseMirror(orderTextIndicesForSemanticRoles(textRaw), n, TEXT_SLOTS.length),
     }
   }
   const df = effectiveStepFromInterval(cfg.darkFillStepInterval, cfg.contrastDistance)
   const ds = effectiveStepFromInterval(cfg.darkStrokeStepInterval, cfg.contrastDistance)
   const dt = effectiveStepFromInterval(cfg.darkTextStepInterval, cfg.contrastDistance)
+  const surfaceRaw = pickDarkIndices(cfg.darkFillStart, cfg.darkFillCount, df, n)
+  const textRaw = pickDarkStrokeTextIndices(cfg.darkTextStart, cfg.darkTextCount, dt, n)
   return {
-    fill: pickDarkIndices(cfg.darkFillStart, cfg.darkFillCount, df, n),
-    stroke: pickDarkStrokeTextIndices(cfg.darkStrokeStart, cfg.darkStrokeCount, ds, n),
-    text: orderTextIndicesForSemanticRoles(
-      pickDarkStrokeTextIndices(cfg.darkTextStart, cfg.darkTextCount, dt, n),
-    ),
+    surface: withInverseMirror(surfaceRaw, n, SURFACE_SLOTS.length),
+    border: pickDarkStrokeTextIndices(cfg.darkStrokeStart, cfg.darkStrokeCount, ds, n),
+    text: withInverseMirror(orderTextIndicesForSemanticRoles(textRaw), n, TEXT_SLOTS.length),
   }
 }
 

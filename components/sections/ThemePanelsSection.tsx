@@ -2,10 +2,16 @@
 
 import {memo, useCallback, useState} from 'react'
 
-import {SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
-import {humanizeRole} from '@/components/preview/previewLabels'
+import {friendlySemanticCategoryLabel, humanizeRole} from '@/components/preview/previewLabels'
+import {type PairSection, SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
 import type {GlobalSwatch} from '@/lib/neutral-engine'
-import type {SystemRole, SystemToken, TokenView} from '@/lib/neutral-engine'
+import type {SystemToken, TokenView} from '@/lib/neutral-engine'
+import {
+  tokensForInversePairCategory,
+  tokensForSemanticLayer,
+  tokensForSemanticLayerPublic,
+  tokensForSemanticLayerPublicNonInverse,
+} from '@/lib/neutral-engine/tokenViews'
 
 type Props = {
   global: GlobalSwatch[]
@@ -14,10 +20,20 @@ type Props = {
   onSelectSystem: (id: string) => void
 }
 
-const CONTRAST_ROLES: SystemRole[] = ['contrastFill', 'contrastStroke', 'contrastText', 'contrastAlt']
+const THEME_TABLE_GROUPS: {section: PairSection; hint: string}[] = [
+  {section: {kind: 'layer', layer: 'surface'}, hint: 'base · subtle · container · elevated'},
+  {section: {kind: 'layer', layer: 'border'}, hint: 'subtle · default · strong'},
+  {section: {kind: 'layer', layer: 'text'}, hint: 'primary · secondary · tertiary · disabled'},
+  {section: {kind: 'inverse'}, hint: 'inverse surface · text on inverse (contrast flip)'},
+  {section: {kind: 'layer', layer: 'interactive'}, hint: 'state.hover · overlay.scrim'},
+]
 
-function tokensForRoles(view: TokenView, roles: SystemRole[]): SystemToken[] {
-  return roles.flatMap((r) => view.byRole.get(r) ?? [])
+function tokensForThemeTableBlock(view: TokenView, section: PairSection): SystemToken[] {
+  if (section.kind === 'inverse') return tokensForInversePairCategory(view)
+  if (section.layer === 'surface' || section.layer === 'text') {
+    return tokensForSemanticLayerPublicNonInverse(view, section.layer)
+  }
+  return tokensForSemanticLayerPublic(view, section.layer)
 }
 
 function RoleTokenTable({
@@ -92,7 +108,7 @@ function ThemeTokenColumn({
     variant === 'light' ? 'text-amber-100/90' : 'text-sky-100/90'
   const eyebrowTone = variant === 'light' ? 'text-amber-200/80' : 'text-sky-200/80'
 
-  const contrastToks = tokensForRoles(tokenView, CONTRAST_ROLES)
+  const emphasisToks = tokensForSemanticLayer(tokenView, 'emphasis')
 
   return (
     <div className={`rounded-2xl border p-4 sm:p-5 ${shell}`}>
@@ -112,32 +128,38 @@ function ThemeTokenColumn({
       <div className="mt-6 space-y-8">
         {showTable ? (
           <>
-            {(['fill', 'stroke', 'text', 'alt'] as const).map((role) => {
-              const groupTokens = tokensForRoles(tokenView, [role])
+            {THEME_TABLE_GROUPS.map(({section, hint}) => {
+              const groupTokens = tokensForThemeTableBlock(tokenView, section)
               if (groupTokens.length === 0) return null
+              const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
+              const k = section.kind === 'inverse' ? 'inverse' : section.layer
               return (
-                <div key={role} className="space-y-2">
-                  <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>{role}</h4>
+                <div key={k} className="space-y-2">
+                  <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
+                    {friendlySemanticCategoryLabel(titleKey)}
+                  </h4>
+                  <p className="text-[0.65rem] text-white/40">{hint}</p>
                   <RoleTokenTable tokens={groupTokens} onSelect={onSelectSystem} />
                 </div>
               )
             })}
-            {contrastToks.length > 0 ? (
+            {emphasisToks.length > 0 ? (
               <div className="space-y-2 border-t border-white/10 pt-6">
-                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Contrast</h4>
-                <RoleTokenTable tokens={contrastToks} onSelect={onSelectSystem} />
+                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Emphasis</h4>
+                <p className="text-[0.65rem] text-white/40">Experimental accessible pairs (higher contrast).</p>
+                <RoleTokenTable tokens={emphasisToks} onSelect={onSelectSystem} />
               </div>
             ) : null}
           </>
         ) : (
           <>
             <SemanticSingleThemeGrid tokenView={tokenView} global={global} />
-            {contrastToks.length > 0 ? (
+            {emphasisToks.length > 0 ? (
               <div className="space-y-2 border-t border-white/10 pt-6">
                 <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
-                  Contrast (experimental)
+                  Emphasis (experimental)
                 </h4>
-                <RoleTokenTable tokens={contrastToks} onSelect={onSelectSystem} />
+                <RoleTokenTable tokens={emphasisToks} onSelect={onSelectSystem} />
               </div>
             ) : null}
           </>
@@ -159,7 +181,7 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-4">
         <ThemeTokenColumn
           eyebrow="Light theme"
           title="Semantic tokens"

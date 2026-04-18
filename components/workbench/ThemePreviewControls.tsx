@@ -2,37 +2,58 @@
 
 import {memo, useCallback} from 'react'
 
+import type {ContrastEmphasis} from '@/lib/neutral-engine'
+
 type Props = {
   previewTheme: 'light' | 'dark'
   onPreviewTheme: (t: 'light' | 'dark') => void
-  contrastMode: 'compact' | 'wide'
-  onContrastMode: (m: 'compact' | 'wide') => void
+  contrastEmphasis: ContrastEmphasis
+  onContrastEmphasis: (e: ContrastEmphasis) => void
+  showContrastPairs?: boolean
+  onShowContrastPairs?: (v: boolean) => void
   /** Tighter padding for toolbars */
   dense?: boolean
   /** When false, only contrast mapping is shown (e.g. split comparison already shows both themes). */
   showThemeToggle?: boolean
 }
 
-/**
- * Shared light/dark + contrast toggles for the live preview (toolbar + theme section).
- */
 const THEME_LABEL: Record<'light' | 'dark', string> = {
   light: 'Light',
   dark: 'Dark elevated',
 }
 
+const EMPHASIS_ORDER: ContrastEmphasis[] = ['subtle', 'default', 'strong', 'inverse']
+
+const EMPHASIS_LABEL: Record<ContrastEmphasis, string> = {
+  subtle: 'Subtle',
+  default: 'Default',
+  strong: 'Strong',
+  inverse: 'Inverse',
+}
+
 function ThemePreviewControlsInner({
   previewTheme,
   onPreviewTheme,
-  contrastMode,
-  onContrastMode,
+  contrastEmphasis,
+  onContrastEmphasis,
+  showContrastPairs,
+  onShowContrastPairs,
   dense,
   showThemeToggle = true,
 }: Props) {
   const onLight = useCallback(() => onPreviewTheme('light'), [onPreviewTheme])
   const onDark = useCallback(() => onPreviewTheme('dark'), [onPreviewTheme])
-  const onCompact = useCallback(() => onContrastMode('compact'), [onContrastMode])
-  const onWide = useCallback(() => onContrastMode('wide'), [onContrastMode])
+  const onSubtle = useCallback(() => onContrastEmphasis('subtle'), [onContrastEmphasis])
+  const onDefault = useCallback(() => onContrastEmphasis('default'), [onContrastEmphasis])
+  const onStrong = useCallback(() => onContrastEmphasis('strong'), [onContrastEmphasis])
+  const onInverse = useCallback(() => onContrastEmphasis('inverse'), [onContrastEmphasis])
+
+  const emphasisHandler: Record<ContrastEmphasis, () => void> = {
+    subtle: onSubtle,
+    default: onDefault,
+    strong: onStrong,
+    inverse: onInverse,
+  }
 
   const pad = dense ? 'px-3 py-1' : 'px-4 py-1.5'
   return (
@@ -63,25 +84,31 @@ function ThemePreviewControlsInner({
           </button>
         </div>
       ) : null}
-      <div className="flex rounded-full border border-white/12 p-0.5">
-        <button
-          type="button"
-          onClick={onCompact}
-          className={`rounded-full ${pad} text-xs font-medium capitalize ${
-            contrastMode === 'compact' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
-          }`}
-        >
-          compact
-        </button>
-        <button
-          type="button"
-          onClick={onWide}
-          className={`rounded-full ${pad} text-xs font-medium capitalize ${
-            contrastMode === 'wide' ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
-          }`}
-        >
-          wide
-        </button>
+      {onShowContrastPairs ? (
+        <label className="flex cursor-pointer items-center gap-2 text-xs text-white/70">
+          <input
+            type="checkbox"
+            className="rounded border-white/20 bg-black/40"
+            checked={showContrastPairs ?? false}
+            onChange={(e) => onShowContrastPairs(e.target.checked)}
+          />
+          Contrast pairs
+        </label>
+      ) : null}
+      <div className="flex flex-wrap rounded-full border border-white/12 p-0.5">
+        {EMPHASIS_ORDER.map((e) => (
+          <button
+            key={e}
+            type="button"
+            onClick={emphasisHandler[e]}
+            className={`rounded-full ${pad} text-xs font-medium capitalize ${
+              contrastEmphasis === e ? 'bg-white/15 text-white' : 'text-white/55 hover:text-white/80'
+            }`}
+            aria-pressed={contrastEmphasis === e}
+          >
+            {EMPHASIS_LABEL[e]}
+          </button>
+        ))}
       </div>
     </div>
   )

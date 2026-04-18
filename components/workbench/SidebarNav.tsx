@@ -3,11 +3,10 @@
 import {memo} from 'react'
 
 const LINKS = [
-  {id: 'global', label: 'Global scale'},
-  {id: 'system', label: 'System mapping'},
-  {id: 'themes', label: 'Light / dark'},
-  {id: 'variants', label: 'Variants'},
-  {id: 'preview', label: 'UI preview'},
+  {id: 'global', label: 'Scale'},
+  {id: 'system', label: 'Mapping'},
+  {id: 'themes', label: 'Theme tables'},
+  {id: 'preview', label: 'Preview'},
   {id: 'export', label: 'Export'},
 ] as const
 

@@ -6,7 +6,7 @@ import {
   exportCssVariables,
   exportCsv,
   exportJson,
-  exportTailwindThemeSnippet,
+  exportTailwindV4ThemeInline,
 } from '@/lib/neutral-engine/exportFormats'
 import type {GlobalScaleConfig, GlobalSwatch, SystemMappingConfig, SystemToken} from '@/lib/neutral-engine/types'
 
@@ -39,7 +39,7 @@ function ExportSectionInner({
       case 'csv':
         return exportCsv(global)
       case 'tailwind':
-        return exportTailwindThemeSnippet({global})
+        return exportTailwindV4ThemeInline({global, light: lightTokens})
       default:
         return ''
     }
@@ -104,8 +104,10 @@ function ExportSectionInner({
         <p className="eyebrow">7 · Export</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Tokens</h2>
         <p className="mt-2 max-w-2xl text-sm text-white/55">
-          JSON bundles global + light/dark system roles. CSS uses{' '}
-          <span className="font-mono">data-theme</span> hooks. CSV lists the global ladder only.
+          JSON bundles tier-1 primitives + light/dark semantic roles (same shape as before). CSS uses{' '}
+          <span className="font-mono">--color-neutral-*</span> primitives and{' '}
+          <span className="font-mono">--color-surface-base</span>,{' '}
+          <span className="font-mono">--color-text-primary</span>, etc. for Tailwind-style utilities.
         </p>
       </header>
 

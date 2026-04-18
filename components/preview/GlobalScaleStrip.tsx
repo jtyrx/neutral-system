@@ -119,13 +119,13 @@ function GlobalScaleStripInner({
                 <span className="shrink-0 text-center text-[0.5rem] leading-none text-white/35 py-0.5 px-0.5">
                   {s.index}
                 </span>
-                <div className="flex h-14 shrink-0 flex-col flex-wrap justify-center gap-px overflow-hidden py-0.5">
+                <div className="flex h-14 shrink-0 flex-col flex-wrap justify-start content-start items-start gap-1 overflow-hidden py-0.5">
                   {ordered.slice(0, 3).map((t) => {
                     const badge = stripRoleBadge(t.role)
                     return (
                       <span
                         key={t.id}
-                        className={`inline-flex max-w-full min-w-[1.1rem] justify-center rounded px-0.5 py-px text-[0.5rem] font-semibold leading-none ${badge.className}`}
+                        className={`inline-flex max-w-full min-w-[1.1rem] justify-center rounded px-0.5 py-0.5 text-[0.5rem] font-semibold leading-none ${badge.className}`}
                         title={`${t.name} (${t.role})`}
                       >
                         {badge.text}

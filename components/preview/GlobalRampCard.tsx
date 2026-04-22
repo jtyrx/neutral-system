@@ -38,7 +38,7 @@ function GlobalRampCardInner({
         accentClassName={accentClassName}
         invertDisplay={invertDisplay}
       />
-      <p className="text-[0.6rem] leading-snug text-white/40">{directionHint}</p>
+      <p className="text-[0.6rem] leading-snug text-[var(--ns-text-faint)]">{directionHint}</p>
     </div>
   )
 }

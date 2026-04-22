@@ -38,6 +38,7 @@ function inspectorAreEqual(prev: Props, next: Props): boolean {
   if (a.kind === 'system' && b.kind === 'system') {
     return (
       a.id === b.id &&
+      a.theme === b.theme &&
       prev.lightTokens === next.lightTokens &&
       prev.darkTokens === next.darkTokens
     )
@@ -87,7 +88,7 @@ function GlobalSwatchInspector({global, index, onDismiss}: GlobalSwatchInspector
       id="global-swatch-inspector"
       role="region"
       aria-label="Global swatch inspector"
-      className={`ns-panel space-y-4 rounded-2xl border p-4 ${
+      className={`ns-panel space-y-4 rounded-sm border p-4 ${
         exiting
           ? 'pointer-events-none translate-y-0.5 scale-[0.995] opacity-0 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]'
           : 'animate-inspector-enter'
@@ -98,59 +99,59 @@ function GlobalSwatchInspector({global, index, onDismiss}: GlobalSwatchInspector
         <button
           type="button"
           onClick={handleClose}
-          className="shrink-0 rounded-lg border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[0.65rem] font-medium text-white/55 transition-colors hover:bg-white/[0.09] hover:text-white/90"
+          className="shrink-0 rounded-lg border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-2.5 py-1 text-[0.65rem] font-medium text-[var(--ns-text-muted)] transition-colors hover:bg-[var(--ns-hairline)] hover:text-[var(--ns-text)]"
           aria-label="Close global swatch inspector"
         >
           Close
         </button>
       </div>
       <div
-        className="h-20 w-full rounded-xl border border-white/10"
+        className="h-20 w-full rounded-xl border border-[var(--ns-hairline)]"
         style={{backgroundColor: s.serialized.hex}}
       />
-      <dl className="grid grid-cols-1 gap-2 font-mono text-[0.65rem] text-white/80 lg:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-2 font-mono text-[0.65rem] text-[var(--ns-text)] lg:grid-cols-2">
         <div>
-          <dt className="text-white/45">Label</dt>
+          <dt className="text-[var(--ns-text-muted)]">Label</dt>
           <dd>{s.label}</dd>
         </div>
         <div>
-          <dt className="text-white/45">Index</dt>
+          <dt className="text-[var(--ns-text-muted)]">Index</dt>
           <dd>
             {s.index} / {global.length - 1}
           </dd>
         </div>
         <div>
-          <dt className="text-white/45">OKLCH</dt>
+          <dt className="text-[var(--ns-text-muted)]">OKLCH</dt>
           <dd className="break-all">{s.serialized.oklchCss}</dd>
         </div>
         <div>
-          <dt className="text-white/45">HEX</dt>
+          <dt className="text-[var(--ns-text-muted)]">HEX</dt>
           <dd>{s.serialized.hex}</dd>
         </div>
         <div>
-          <dt className="text-white/45">RGB</dt>
+          <dt className="text-[var(--ns-text-muted)]">RGB</dt>
           <dd className="break-all">{s.serialized.rgbCss}</dd>
         </div>
         <div>
-          <dt className="text-white/45">ΔE_OK → next</dt>
+          <dt className="text-[var(--ns-text-muted)]">ΔE_OK → next</dt>
           <dd>{advice.deltaEOK != null ? advice.deltaEOK.toFixed(4) : '—'}</dd>
         </div>
         <div>
-          <dt className="text-white/45">Contrast vs white</dt>
+          <dt className="text-[var(--ns-text-muted)]">Contrast vs white</dt>
           <dd>
             {onWhite.toFixed(2)} ({advice.wcagOnWhite})
           </dd>
         </div>
         <div>
-          <dt className="text-white/45">Contrast vs black</dt>
+          <dt className="text-[var(--ns-text-muted)]">Contrast vs black</dt>
           <dd>
             {onBlack.toFixed(2)} ({advice.wcagOnBlack})
           </dd>
         </div>
         {advice.tooCloseToNext ? (
-          <p className="text-amber-200/90">Steps may be too close for distinct UI roles.</p>
+          <p className="text-[var(--ns-chrome-amber-text)]">Steps may be too close for distinct UI roles.</p>
         ) : null}
-        {advice.hint ? <p className="text-white/55">{advice.hint}</p> : null}
+        {advice.hint ? <p className="text-[var(--ns-text-muted)]">{advice.hint}</p> : null}
       </dl>
     </div>
   )
@@ -162,9 +163,9 @@ function InspectorInner({selection, global, lightTokens, darkTokens, onDismissGl
 
   if (!selection) {
     return (
-      <div className="ns-panel rounded-2xl border p-4">
+      <div className="ns-panel rounded-sm border px-4 py-3">
         <p className="eyebrow">Inspector</p>
-        <p className="mt-2 text-sm text-white/50">Select a swatch or system token from the canvas.</p>
+        <p className="mt-2 text-sm text-[var(--ns-text-muted)]">Select a swatch or system token from the canvas.</p>
       </div>
     )
   }
@@ -181,53 +182,54 @@ function InspectorInner({selection, global, lightTokens, darkTokens, onDismissGl
     )
   }
 
-  const token =
-    lightTokens.find((t) => t.id === selection.id) ??
-    darkTokens.find((t) => t.id === selection.id)
+  const preferDark = selection.theme === 'darkElevated'
+  const token = preferDark
+    ? darkTokens.find((t) => t.id === selection.id) ?? lightTokens.find((t) => t.id === selection.id)
+    : lightTokens.find((t) => t.id === selection.id) ?? darkTokens.find((t) => t.id === selection.id)
   if (!token) return null
 
   const bg = token.theme === 'light' ? white : black
   const cr = token.color.contrastWCAG21(bg)
 
   return (
-    <div className="ns-panel group/ins space-y-3 rounded-2xl border p-4">
+    <div className="ns-panel group/ins space-y-3 rounded-md border p-4">
       <p className="eyebrow">System token</p>
       <div
-        className="h-16 w-full rounded-xl border border-white/10"
+        className="h-16 w-full rounded-xl border border-[var(--ns-hairline)]"
         style={{backgroundColor: token.serialized.hex}}
       />
-      <p className="font-mono text-[0.7rem] text-white/90">{token.role}</p>
-      <p className="text-[0.65rem] text-white/45">Hover the card for OKLCH, index, and contrast.</p>
+      <p className="font-mono text-[0.7rem] text-[var(--ns-text)]">{token.role}</p>
+      <p className="text-[0.65rem] text-[var(--ns-text-muted)]">Hover the card for OKLCH, index, and contrast.</p>
       <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover/ins:max-h-[28rem] group-hover/ins:opacity-100">
-        <dl className="space-y-2 border-t border-white/10 pt-3 font-mono text-[0.65rem] text-white/80">
+        <dl className="space-y-2 border-t border-[var(--ns-hairline)] pt-3 font-mono text-[0.65rem] text-[var(--ns-text)]">
           <div>
-            <dt className="text-white/45">Name</dt>
+            <dt className="text-[var(--ns-text-muted)]">Name</dt>
             <dd>{token.name}</dd>
           </div>
           <div>
-            <dt className="text-white/45">Theme</dt>
+            <dt className="text-[var(--ns-text-muted)]">Theme</dt>
             <dd>{token.theme}</dd>
           </div>
           <div>
-            <dt className="text-white/45">Source global index</dt>
+            <dt className="text-[var(--ns-text-muted)]">Source global index</dt>
             <dd>{token.sourceGlobalIndex}</dd>
           </div>
           {token.alpha != null ? (
             <div>
-              <dt className="text-white/45">Alpha</dt>
+              <dt className="text-[var(--ns-text-muted)]">Alpha</dt>
               <dd>{token.alpha}</dd>
             </div>
           ) : null}
           <div>
-            <dt className="text-white/45">OKLCH</dt>
+            <dt className="text-[var(--ns-text-muted)]">OKLCH</dt>
             <dd className="break-all">{token.serialized.oklchCss}</dd>
           </div>
           <div>
-            <dt className="text-white/45">HEX</dt>
+            <dt className="text-[var(--ns-text-muted)]">HEX</dt>
             <dd>{token.serialized.hex}</dd>
           </div>
           <div>
-            <dt className="text-white/45">Contrast vs {token.theme === 'light' ? 'white' : 'black'}</dt>
+            <dt className="text-[var(--ns-text-muted)]">Contrast vs {token.theme === 'light' ? 'white' : 'black'}</dt>
             <dd>{cr.toFixed(2)}</dd>
           </div>
         </dl>

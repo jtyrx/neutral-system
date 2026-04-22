@@ -14,7 +14,11 @@ import {LightnessSparkline} from '@/components/viz/LightnessSparkline'
 
 type Props = {
   config: GlobalScaleConfig
-  patchGlobal: <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K]) => void
+  patchGlobal: <K extends keyof GlobalScaleConfig>(
+    key: K,
+    value: GlobalScaleConfig[K],
+    label?: string,
+  ) => void
   global: GlobalSwatch[]
   selectedIndex: number | null
   onSelectSwatch: (index: number) => void
@@ -58,7 +62,7 @@ const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisualization(
 
   return (
     <>
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--ns-hairline)]">
         <div
           className="flex min-h-[4.5rem]"
           style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}
@@ -69,7 +73,7 @@ const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisualization(
               type="button"
               title={s.serialized.oklchCss}
               onClick={() => onSelectSwatch(s.index)}
-              className={`min-w-[8px] flex-1 border-l border-white/5 first:border-l-0 ${
+              className={`min-w-[8px] flex-1 border-l border-[var(--ns-hairline)] first:border-l-0 ${
                 ringIndex === s.index ? 'ring-2 ring-inset ring-white/50' : ''
               }`}
               style={{backgroundColor: s.serialized.hex}}
@@ -106,8 +110,8 @@ function GlobalScaleSectionInner({
     <section id="global" className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">1 · Global scale</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Neutral ladder</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/55">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Neutral ladder</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
           Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay
           locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
         </p>

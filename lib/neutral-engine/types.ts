@@ -42,8 +42,8 @@ export type GlobalSwatch = {
 }
 
 /**
- * Semantic role id (same as `SystemToken.name`): dot-path roles, e.g. `surface.base`, `text.primary`,
- * `border.default`, `state.hover`, `emphasis.surface.0`.
+ * Semantic role id (same as `SystemToken.name`): dot-path roles, e.g. `surface.default`, `text.muted`,
+ * `border.focus`, `state.hover`, `emphasis.surface.0`.
  */
 export type SystemRole = string
 
@@ -59,6 +59,7 @@ export type SystemMappingConfig = {
   /**
    * Dark elevated: independent role controls (passed to inverted tail-based pickers).
    * Legacy presets without these fields migrate from light fields (+2 for text start).
+   * **−1** is valid: one step before offset 0 in {@link pickDarkIndices} (see engine).
    */
   darkFillStart: number
   darkStrokeStart: number
@@ -86,6 +87,11 @@ export type SystemMappingConfig = {
   /** Alpha for alt / overlay tokens (0–1). */
   altAlpha: number
   includeContrastGroups: boolean
+  /**
+   * Custom OKLCH for `surface.brand` (user-editable). Invalid strings fall back to ramp-derived brand
+   * in the engine while keeping this field as typed by the user.
+   */
+  brandOklch: string
 }
 
 export type SystemToken = {
@@ -97,10 +103,15 @@ export type SystemToken = {
   color: Color
   serialized: SerializedColor
   alpha?: number
+  /**
+   * When true, exports use `serialized.oklchCss` directly (not `var(--color-neutral-*)` from ramp).
+   * Used for `surface.brand` when `brandOklch` parses successfully.
+   */
+  customColor?: boolean
 }
 
 export type PreviewTheme = 'light' | 'dark'
 
 export type WorkbenchSelection =
   | { kind: 'global'; index: number }
-  | { kind: 'system'; id: string }
+  | { kind: 'system'; id: string; theme?: ThemeMode }

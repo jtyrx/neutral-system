@@ -32,8 +32,8 @@ type RowProps = {
 const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, tickIndices}: RowProps) {
   return (
     <div className="flex items-center gap-2 text-[0.65rem]">
-      <span className="w-16 shrink-0 font-medium text-white/55">{label}</span>
-      <div className="relative h-4 flex-1 rounded bg-white/5">
+      <span className="w-16 shrink-0 font-medium text-[var(--ns-text-muted)]">{label}</span>
+      <div className="relative h-4 flex-1 rounded bg-[var(--ns-chip)]">
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded"
           aria-hidden
@@ -41,7 +41,7 @@ const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, ti
           {tickIndices.map((i) => (
             <div
               key={i}
-              className="absolute bottom-1 top-1 w-px -translate-x-1/2 bg-white/[0.07]"
+              className="absolute bottom-1 top-1 w-px -translate-x-1/2 bg-[var(--ns-chip)]"
               style={{left: indexToLeftPercent(i, steps)}}
             />
           ))}
@@ -74,12 +74,12 @@ function OffsetMapDiagramInner({
   const tickIndices = useMemo(() => Array.from({length: n}, (_, i) => i), [n])
 
   return (
-    <div className="space-y-2 rounded-xl border border-white/10 bg-black/25 p-4">
+    <div className="space-y-2 rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] px-4 py-3">
       <p className="eyebrow">Offset mapping · {themeLabel}</p>
-      <p className="text-[0.7rem] text-white/45">{description}</p>
+      <p className="text-[0.7rem] text-[var(--ns-text-muted)]">{description}</p>
       <OffsetMapRow label="Surface" indices={surfaceIndices} tone="bg-emerald-400/90" steps={steps} tickIndices={tickIndices} />
-      <OffsetMapRow label="Border" indices={borderIndices} tone="bg-amber-400/90" steps={steps} tickIndices={tickIndices} />
-      <OffsetMapRow label="Text" indices={textIndices} tone="bg-sky-400/90" steps={steps} tickIndices={tickIndices} />
+      <OffsetMapRow label="Border" indices={borderIndices} tone="bg-[var(--ns-chrome-amber-fill-strong)]" steps={steps} tickIndices={tickIndices} />
+      <OffsetMapRow label="Text" indices={textIndices} tone="bg-[var(--ns-chrome-sky-fill-strong)]" steps={steps} tickIndices={tickIndices} />
     </div>
   )
 }

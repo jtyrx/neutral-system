@@ -2,6 +2,7 @@
 
 import {useCallback, useEffect} from 'react'
 
+import {LiveThemeStyles} from '@/components/providers/LiveThemeStyles'
 import {Inspector} from '@/components/workbench/Inspector'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
 import {WorkbenchControlsShell} from '@/components/workbench/WorkbenchControlsShell'
@@ -19,16 +20,17 @@ export function Workbench() {
   const wb = useNeutralWorkbench()
   const setGlobalConfig = wb.setGlobalConfig
   const setSystemConfig = wb.setSystemConfig
+  const setSelection = wb.setSelection
 
   useEffect(() => {
     function onLoad(e: Event) {
       const ce = e as CustomEvent<{globalConfig: GlobalScaleConfig; systemConfig: SystemMappingConfig}>
       if (ce.detail?.globalConfig) {
         const g = ce.detail.globalConfig
-        setGlobalConfig({...g, steps: clampGlobalScaleSteps(g.steps)})
+        setGlobalConfig({...g, steps: clampGlobalScaleSteps(g.steps)}, 'Global scale')
       }
       if (ce.detail?.systemConfig) {
-        setSystemConfig(migrateSystemMappingConfig(ce.detail.systemConfig))
+        setSystemConfig(migrateSystemMappingConfig(ce.detail.systemConfig), 'System mapping')
       }
     }
     window.addEventListener('neutral-system:load-preset', onLoad)
@@ -39,20 +41,28 @@ export function Workbench() {
     wb.selection?.kind === 'global' ? wb.selection.index : null
 
   const dismissGlobalInspector = useCallback(() => {
-    wb.setSelection(null)
-  }, [wb.setSelection])
+    setSelection(null)
+  }, [setSelection])
 
   return (
-    <div className="ns-workbench flex min-h-dvh flex-col bg-[oklch(0.12_0.02_285)] lg:grid lg:min-h-dvh grid-cols-[minmax(0,1fr)_minmax(0,36rem)]  xl:grid-cols-[minmax(0,1fr)_minmax(0,48rem)] lg:grid-rows-1">
-      <WorkbenchLoadingToast busy={wb.inputBusy} />
+    <div className="ns-workbench flex min-h-dvh flex-col bg-[var(--ns-app-bg)] text-[var(--ns-text)] lg:grid lg:min-h-dvh grid-cols-[minmax(0,1fr)_minmax(0,36rem)]  xl:grid-cols-[minmax(0,1fr)_minmax(0,48rem)] lg:grid-rows-1">
+      <LiveThemeStyles
+        global={wb.global}
+        lightTokens={wb.lightTokens}
+        darkTokens={wb.darkTokens}
+        themeMode={wb.themeMode}
+      />
+      <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 
-      <div className="ns-workbench__mob-toolbar ns-panel border-b border-white/10 lg:hidden">
+      <div className="ns-workbench__mob-toolbar ns-panel border-b border-[var(--ns-hairline)] lg:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="eyebrow">Neutral System</p>
-            <p className="text-sm font-semibold tracking-tight text-white">Builder</p>
+            <p className="text-sm font-semibold tracking-tight text-[var(--ns-text)]">Builder</p>
           </div>
           <ThemePreviewControls
+            globalThemeMode={wb.themeMode}
+            onGlobalThemeMode={wb.setThemeMode}
             previewTheme={wb.previewTheme}
             onPreviewTheme={wb.setPreviewTheme}
             contrastEmphasis={wb.contrastEmphasis}
@@ -64,7 +74,7 @@ export function Workbench() {
         </div>
       </div>
 
-      {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-white/10 lg:order-none lg:border-r lg:bg-black/20">
+      {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-[var(--ns-hairline)] lg:order-none lg:border-r lg:bg-[var(--ns-surface-raised)]">
          <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} /> 
       </aside> */}
 
@@ -77,17 +87,25 @@ export function Workbench() {
           darkTokens={wb.darkTokens}
           lightTokenView={wb.lightTokenView}
           darkTokenView={wb.darkTokenView}
+          liveBrandSurfaceOklch={wb.liveBrandSurfaceOklch}
           comparisonLayout={wb.comparisonLayout}
+          onComparisonLayoutChange={wb.setComparisonLayout}
+          contrastEmphasis={wb.contrastEmphasis}
+          inspectionMode={wb.inspectionMode}
+          onToggleInspection={wb.toggleInspectionMode}
+          onSelectSystem={wb.selectSystem}
           derivationConfig={wb.effectiveMappingConfig}
           steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
         />
       </main>
 
-      <aside className="ns-workbench__inspector-col order-3 h-full min-w-0 border-t border-white/10 lg:order-none lg:border-l lg:border-t-0">
+      <aside className="ns-workbench__inspector-col order-3 h-full min-w-0 border-t border-[var(--ns-hairline)] lg:order-none lg:border-l lg:border-t-0">
         <div className="sticky top-0 max-h-dvh overflow-y-auto p-4">
           <div className="mb-4 hidden items-center justify-between gap-2 lg:flex">
             <p className="eyebrow">Preview</p>
             <ThemePreviewControls
+              globalThemeMode={wb.themeMode}
+              onGlobalThemeMode={wb.setThemeMode}
               previewTheme={wb.previewTheme}
               onPreviewTheme={wb.setPreviewTheme}
               contrastEmphasis={wb.contrastEmphasis}

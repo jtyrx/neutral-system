@@ -15,7 +15,7 @@ function LightnessLadderInner({swatches, onSelect, selectedIndex}: Props) {
   return (
     <div className="space-y-2">
       <p className="eyebrow">Lightness ladder</p>
-      <div className="flex h-28 w-full gap-px overflow-hidden rounded-xl border border-white/10 bg-black/30">
+      <div className="flex h-28 w-full gap-px overflow-hidden rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)]">
         {swatches.map((s) => (
           <button
             key={s.index}
@@ -31,7 +31,7 @@ function LightnessLadderInner({swatches, onSelect, selectedIndex}: Props) {
           </button>
         ))}
       </div>
-      <p className="text-[0.65rem] text-white/45">
+      <p className="text-[0.65rem] text-[var(--ns-text-muted)]">
         Lightest → darkest (left → right). OKLCH lightness interpolated linearly.
       </p>
     </div>

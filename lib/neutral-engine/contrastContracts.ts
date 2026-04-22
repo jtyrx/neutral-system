@@ -18,18 +18,16 @@ export type ContrastPairResult = {
 
 /**
  * Recommended text roles per surface for product validation (not exhaustive).
- * `surface.inverse` prefers `text.inverse` and high-contrast neutrals.
+ * `surface.inverse` prefers `text.on` and high-contrast neutrals.
  */
 export const SURFACE_TEXT_CONTRACTS: Record<string, readonly string[]> = {
-  'surface.base': ['text.primary', 'text.secondary', 'text.tertiary', 'text.disabled'],
-  'surface.subtle': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.container': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.elevated': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.rung-5': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.rung-6': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.rung-7': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.rung-8': ['text.primary', 'text.secondary', 'text.tertiary'],
-  'surface.inverse': ['text.inverse', 'text.primary', 'text.secondary'],
+  'surface.sunken': ['text.default', 'text.subtle', 'text.muted'],
+  'surface.default': ['text.default', 'text.subtle', 'text.muted', 'text.disabled'],
+  'surface.subtle': ['text.default', 'text.subtle', 'text.muted'],
+  'surface.raised': ['text.default', 'text.subtle', 'text.muted'],
+  'surface.overlay': ['text.default', 'text.subtle', 'text.muted'],
+  'surface.brand': ['text.on', 'text.default', 'text.subtle'],
+  'surface.inverse': ['text.on', 'text.default'],
 }
 
 function tokenByRole(tokens: SystemToken[], role: string): SystemToken | undefined {

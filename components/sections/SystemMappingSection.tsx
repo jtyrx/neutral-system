@@ -1,11 +1,15 @@
 'use client'
 
-import {memo, useMemo} from 'react'
+import { memo, useMemo } from 'react'
 
-import {OffsetMapDiagram} from '@/components/viz/OffsetMapDiagram'
-import {ThemeRangeBar} from '@/components/viz/ThemeRangeBar'
-import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
-import type {ContrastEmphasis, SystemMappingConfig} from '@/lib/neutral-engine'
+import { OffsetMapDiagram } from '@/components/viz/OffsetMapDiagram'
+import { ThemeRangeBar } from '@/components/viz/ThemeRangeBar'
+import { previewResolvedRoleIndices } from '@/lib/neutral-engine/systemMap'
+import {
+  BORDER_STANDARD_SLOT_COUNT,
+  SURFACE_STANDARD_COUNT_MAX,
+} from '@/lib/neutral-engine/semanticNaming'
+import type { ContrastEmphasis, SystemMappingConfig } from '@/lib/neutral-engine'
 
 type Props = {
   /** Raw workbench state — bound to inputs. */
@@ -16,7 +20,11 @@ type Props = {
    */
   derivationConfig: SystemMappingConfig
   contrastEmphasis: ContrastEmphasis
-  patchSystem: <K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K]) => void
+  patchSystem: <K extends keyof SystemMappingConfig>(
+    key: K,
+    value: SystemMappingConfig[K],
+    label?: string,
+  ) => void
   steps: number
 }
 
@@ -40,7 +48,7 @@ function NumField({
   return (
     <label className="space-y-1">
       <span className="ns-label">{label}</span>
-      {hint ? <span className="block text-[0.65rem] leading-snug text-white/40">{hint}</span> : null}
+      {hint ? <span className="block text-[0.65rem] leading-snug text-[var(--ns-text-faint)]">{hint}</span> : null}
       <input
         type="number"
         min={min}
@@ -54,11 +62,11 @@ function NumField({
   )
 }
 
-function ResolvedIndices({label, indices}: {label: string; indices: number[]}) {
+function ResolvedIndices({ label, indices }: { label: string; indices: number[] }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
-      <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/45">{label}</p>
-      <p className="mt-1 font-mono text-[0.7rem] leading-relaxed text-white/80">{indices.join(', ') || '—'}</p>
+    <div className="rounded-lg border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] px-3 py-2">
+      <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-text-muted)]">{label}</p>
+      <p className="mt-1 font-mono text-[0.7rem] leading-relaxed text-[var(--ns-text)]">{indices.join(', ') || '—'}</p>
     </div>
   )
 }
@@ -85,19 +93,19 @@ function SystemMappingSectionInner({
     <section id="system" className="scroll-mt-6 space-y-8">
       <header>
         <p className="eyebrow">2 · System mapping</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Surface, border & text</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/55">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Surface, border & text</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text)]/55">
           Light and Dark elevated each have their own ladder starts and shade counts on the shared
           global ramp. Resolved indices and offset maps use the same math as previews and exports,
           including the preview toolbar’s{' '}
-          <span className="font-mono text-white/70">{contrastEmphasis}</span> contrast emphasis (inverse
+          <span className="font-mono text-[var(--ns-text-subtle)]">{contrastEmphasis}</span> contrast emphasis (inverse
           widens ladder spacing the most).
         </p>
       </header>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-white">Shared mapping</h3>
-        <p className="mt-1 text-xs text-white/45">
+      <div className="rounded-sm border border-[var(--ns-hairline)] bg-[var(--ns-overlay-soft)] px-4 py-3 sm:px-5 sm:py-4">
+        <h3 className="text-sm font-semibold text-[var(--ns-text)]">Shared mapping</h3>
+        <p className="mt-1 text-xs text-[var(--ns-text-muted)]">
           Contrast distance applies to both themes (scaled by emphasis in the preview toolbar). Step
           interval is set per theme and role in each ladder group below. Alt overlays and dark segment
           length are global.
@@ -141,19 +149,22 @@ function SystemMappingSectionInner({
               type="checkbox"
               checked={config.includeContrastGroups}
               onChange={(e) => patchSystem('includeContrastGroups', e.target.checked)}
-              className="size-4 rounded border-white/20"
+              className="size-4 rounded border-[var(--ns-hairline-strong)]"
             />
-            <span className="text-sm text-white/70">Include contrast groups (experimental)</span>
+            <span className="text-sm text-[var(--ns-text-subtle)]">Include contrast groups (experimental)</span>
           </label>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-        <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.06] p-4 sm:p-5 flex flex-col justify-between">
-          <div className="border-b border-amber-400/20 pb-3">
-            <p className="eyebrow text-amber-200/80">Light theme</p>
-            <h3 className="mt-1 text-base font-semibold text-white">Role ladders</h3>
-            <p className="mt-1 text-xs text-white/50">
+      <div
+        id="light-theme-role-ladders"
+        className="grid gap-4 lg:grid-cols-2 lg:gap-6"
+      >
+        <div className="rounded-2xl border border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)] p-4 sm:p-5 flex flex-col justify-between">
+          <div className="border-b border-[var(--ns-chrome-amber-border-soft)] pb-3">
+            <p className="eyebrow text-[var(--ns-chrome-amber-text)]">Light theme</p>
+            <h3 className="mt-1 text-base font-semibold text-[var(--ns-text)]">Role ladders</h3>
+            <p className="mt-1 text-xs text-[var(--ns-text-muted)]">
               Picks step along the global ramp from the light end (low index = lightest).
             </p>
           </div>
@@ -161,8 +172,8 @@ function SystemMappingSectionInner({
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Surface</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Surface / background ramp</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[var(--ns-chrome-amber-text)]">Surface</h4>
+                <p className="mt-0.5 text-[0.65rem] text-[var(--ns-text-muted)]">Surface / background ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -183,9 +194,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Surface token count"
-                  hint="Standard ladder only (base through extra rungs). Inverse surface is mirrored from base, not counted here."
+                  hint="Standard elevation ladder (sunken → overlay, max 5). surface.inverse is auto, not counted."
                   min={2}
-                  max={8}
+                  max={SURFACE_STANDARD_COUNT_MAX}
                   value={config.fillCount}
                   onChange={(v) => patchSystem('fillCount', v)}
                 />
@@ -193,10 +204,10 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={lightIdx.surface} />
             </div>
 
-            <div className="space-y-3 border-t border-amber-400/15 pt-5">
+            <div className="space-y-3 border-t border-[var(--ns-chrome-amber-border-faint)] pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Border</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Borders & dividers</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[var(--ns-chrome-amber-text)]">Border</h4>
+                <p className="mt-0.5 text-[0.65rem] text-[var(--ns-text-muted)]">Borders & dividers</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -216,8 +227,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Border token count"
+                  hint="Ladder: default / subtle / strong (max 3). border.focus is a max-contrast flip, auto-emitted."
                   min={1}
-                  max={16}
+                  max={BORDER_STANDARD_SLOT_COUNT}
                   value={config.strokeCount}
                   onChange={(v) => patchSystem('strokeCount', v)}
                 />
@@ -225,10 +237,10 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={lightIdx.border} />
             </div>
 
-            <div className="space-y-3 border-t border-amber-400/15 pt-5">
+            <div className="space-y-3 border-t border-[var(--ns-chrome-amber-border-faint)] pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-amber-100/90">Text</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Foreground & secondary type</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[var(--ns-chrome-amber-text)]">Text</h4>
+                <p className="mt-0.5 text-[0.65rem] text-[var(--ns-text-muted)]">Foreground & secondary type</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -248,7 +260,7 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text shade count"
-                  hint="Standard ladder only (primary–disabled). Inverse text is mirrored from primary, not counted here."
+                  hint="Standard ladder (default → disabled). text.on is mirrored from default, not counted."
                   min={1}
                   max={4}
                   value={config.textCount}
@@ -260,11 +272,14 @@ function SystemMappingSectionInner({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.06] p-4 sm:p-5 flex flex-col justify-between">
-          <div className="border-b border-sky-400/20 pb-3">
-            <p className="eyebrow text-sky-200/80">Dark elevated</p>
-            <h3 className="mt-1 text-base font-semibold text-white">Role ladders</h3>
-            <p className="mt-1 text-xs text-white/50">
+        <div
+          id="dark-theme-role-ladders"
+          className="rounded-2xl border border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)] p-4 sm:p-5 flex flex-col justify-between"
+        >
+          <div className="border-b border-[var(--ns-chrome-sky-border-soft)] pb-3">
+            <p className="eyebrow text-[var(--ns-chrome-sky-text)]">Dark elevated</p>
+            <h3 className="mt-1 text-base font-semibold text-[var(--ns-text)]">Role ladders</h3>
+            <p className="mt-1 text-xs text-[var(--ns-text-muted)]">
               Independent controls; the engine maps from the dark tail using the same inverted
               index rules as before (surface, border, and text each use their own start inputs).
             </p>
@@ -273,8 +288,8 @@ function SystemMappingSectionInner({
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Surface</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Tail-anchored surface ramp</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[var(--ns-chrome-sky-text)]">Surface</h4>
+                <p className="mt-0.5 text-[0.65rem] text-[var(--ns-text-muted)]">Tail-anchored surface ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -287,17 +302,17 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Surface start index"
-                  hint="Offset into dark tail pool"
-                  min={0}
+                  hint="Offset into dark tail pool. Use −1 for one step before index 0 (valid; not “missing”)."
+                  min={-1}
                   max={steps - 1}
                   value={config.darkFillStart}
                   onChange={(v) => patchSystem('darkFillStart', v)}
                 />
                 <NumField
                   label="Surface token count"
-                  hint="Standard ladder only (base through extra rungs). Inverse surface is mirrored from base, not counted here."
+                  hint="Standard elevation ladder (sunken → overlay, max 5). surface.inverse is auto, not counted."
                   min={2}
-                  max={8}
+                  max={SURFACE_STANDARD_COUNT_MAX}
                   value={config.darkFillCount}
                   onChange={(v) => patchSystem('darkFillCount', v)}
                 />
@@ -305,10 +320,10 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={darkIdx.surface} />
             </div>
 
-            <div className="space-y-3 border-t border-sky-400/15 pt-5">
+            <div className="space-y-3 border-t border-[var(--ns-chrome-sky-border-faint)] pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Border</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Hairline / divider ramp</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[var(--ns-chrome-sky-text)]">Border</h4>
+                <p className="mt-0.5 text-[0.65rem] text-[var(--ns-text-muted)]">Hairline / divider ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -328,8 +343,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Border token count"
+                  hint="Ladder: default / subtle / strong (max 3). border.focus is auto-emitted."
                   min={1}
-                  max={16}
+                  max={BORDER_STANDARD_SLOT_COUNT}
                   value={config.darkStrokeCount}
                   onChange={(v) => patchSystem('darkStrokeCount', v)}
                 />
@@ -337,10 +353,10 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={darkIdx.border} />
             </div>
 
-            <div className="space-y-3 border-t border-sky-400/15 pt-5">
+            <div className="space-y-3 border-t border-[var(--ns-chrome-sky-border-faint)] pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-sky-100/90">Text</h4>
-                <p className="mt-0.5 text-[0.65rem] text-white/45">Type ramp (stroke-text picker)</p>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[var(--ns-chrome-sky-text)]">Text</h4>
+                <p className="mt-0.5 text-[0.65rem] text-[var(--ns-text-muted)]">Type ramp (stroke-text picker)</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -360,7 +376,7 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text shade count"
-                  hint="Standard ladder only (primary–disabled). Inverse text is mirrored from primary, not counted here."
+                  hint="Standard ladder (default → disabled). text.on is mirrored from default, not counted."
                   min={1}
                   max={4}
                   value={config.darkTextCount}

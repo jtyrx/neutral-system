@@ -7,6 +7,7 @@ import {
   exportCsv,
   exportJson,
   exportTailwindV4ThemeInline,
+  isPreviewOnlyBrandToken,
 } from '@/lib/neutral-engine/exportFormats'
 import type {GlobalScaleConfig, GlobalSwatch, SystemMappingConfig, SystemToken} from '@/lib/neutral-engine/types'
 
@@ -30,20 +31,31 @@ function ExportSectionInner({
   const [tab, setTab] = useState<Tab>('json')
   const [copied, setCopied] = useState(false)
 
+  // Brand is preview-only: strip it from downloadable JSON/CSS/Tailwind payloads. Live chrome still
+  // receives `--color-surface-brand` via LiveThemeStyles, which consumes tokens unfiltered.
+  const exportLight = useMemo(
+    () => lightTokens.filter((t) => !isPreviewOnlyBrandToken(t)),
+    [lightTokens],
+  )
+  const exportDark = useMemo(
+    () => darkTokens.filter((t) => !isPreviewOnlyBrandToken(t)),
+    [darkTokens],
+  )
+
   const text = useMemo(() => {
     switch (tab) {
       case 'json':
-        return exportJson({global, light: lightTokens, dark: darkTokens})
+        return exportJson({global, light: exportLight, dark: exportDark})
       case 'css':
-        return exportCssVariables({global, light: lightTokens, dark: darkTokens})
+        return exportCssVariables({global, light: exportLight, dark: exportDark})
       case 'csv':
         return exportCsv(global)
       case 'tailwind':
-        return exportTailwindV4ThemeInline({global, light: lightTokens})
+        return exportTailwindV4ThemeInline({global, light: exportLight})
       default:
         return ''
     }
-  }, [tab, global, lightTokens, darkTokens])
+  }, [tab, global, exportLight, exportDark])
 
   const copy = useCallback(async () => {
     try {
@@ -102,12 +114,13 @@ function ExportSectionInner({
     <section id="export" className="scroll-mt-6 space-y-4">
       <header>
         <p className="eyebrow">7 · Export</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Tokens</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/55">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Tokens</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
           JSON bundles tier-1 primitives + light/dark semantic roles (same shape as before). CSS uses{' '}
           <span className="font-mono">--color-neutral-*</span> primitives and{' '}
-          <span className="font-mono">--color-surface-base</span>,{' '}
-          <span className="font-mono">--color-text-primary</span>, etc. for Tailwind-style utilities.
+          <span className="font-mono">--color-surface-default</span>,{' '}
+          <span className="font-mono">--color-text-default</span>,{' '}
+          <span className="font-mono">--color-border-focus</span>, etc. for Tailwind-style utilities.
         </p>
       </header>
 
@@ -118,7 +131,7 @@ function ExportSectionInner({
             type="button"
             onClick={() => setTab(t)}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize ${
-              tab === t ? 'border-white/40 bg-white/15 text-white' : 'border-white/12 text-white/65'
+              tab === t ? 'border-[var(--ns-hairline-strong)] bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]' : 'border-[var(--ns-hairline)] text-[var(--ns-text-subtle)]'
             }`}
           >
             {t === 'tailwind' ? '@theme' : t}
@@ -127,32 +140,32 @@ function ExportSectionInner({
         <button
           type="button"
           onClick={copy}
-          className="ml-auto rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-xs text-white/85"
+          className="ml-auto rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs text-[var(--ns-text)]"
         >
           {copied ? 'Copied' : 'Copy'}
         </button>
         <button
           type="button"
           onClick={() => download(`neutral-export.${tab === 'tailwind' ? 'css' : tab}`, text, 'text/plain')}
-          className="rounded-full border border-white/12 px-3 py-1.5 text-xs text-white/85"
+          className="rounded-full border border-[var(--ns-hairline)] px-3 py-1.5 text-xs text-[var(--ns-text)]"
         >
           Download
         </button>
       </div>
 
-      <pre className="max-h-80 overflow-auto rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-[0.65rem] leading-relaxed text-white/80">
+      <pre className="max-h-80 overflow-auto rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-4 font-mono text-[0.65rem] leading-relaxed text-[var(--ns-text)]">
         {text}
       </pre>
 
-      <div className="flex flex-wrap gap-3 border-t border-white/10 pt-4">
+      <div className="flex flex-wrap gap-3 border-t border-[var(--ns-hairline)] pt-4">
         <button
           type="button"
           onClick={downloadPreset}
-          className="rounded-full border border-white/12 bg-white/6 px-3 py-1.5 text-xs text-white/85"
+          className="rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs text-[var(--ns-text)]"
         >
           Download preset (config JSON)
         </button>
-        <label className="cursor-pointer rounded-full border border-white/12 bg-white/6 px-3 py-1.5 text-xs text-white/85">
+        <label className="cursor-pointer rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs text-[var(--ns-text)]">
           Load preset
           <input
             type="file"

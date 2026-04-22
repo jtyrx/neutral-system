@@ -1,13 +1,13 @@
 'use client'
 
-import {memo} from 'react'
+import { memo } from 'react'
 
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
-import {ContrastPairsPanel} from '@/components/preview/ContrastPairsPanel'
-import {PreviewContextHeader} from '@/components/preview/PreviewContextHeader'
-import {PreviewContextPanel} from '@/components/preview/PreviewContextPanel'
-import {SemanticPreviewWorkbench} from '@/components/preview/SemanticPreviewWorkbench'
-import type {TokenSelectTheme} from '@/components/preview/SemanticTokenAnnotation'
+import type { ComparisonLayout } from '@/components/preview/PreviewComparison'
+import { ContrastPairsPanel } from '@/components/preview/ContrastPairsPanel'
+import { PreviewContextHeader } from '@/components/preview/PreviewContextHeader'
+import { PreviewContextPanel } from '@/components/preview/PreviewContextPanel'
+import { SemanticPreviewWorkbench } from '@/components/preview/SemanticPreviewWorkbench'
+import type { TokenSelectTheme } from '@/components/preview/SemanticTokenAnnotation'
 import type {
   ContrastEmphasis,
   GlobalSwatch,
@@ -25,7 +25,7 @@ type Props = {
   lightTokenView: TokenView
   darkTokenView: TokenView
   /** `surface.brand` OKLCH from immediate mapping (no defer) — callout updates with Custom Brand. */
-  liveBrandSurfaceOklch: {light: string; dark: string}
+  liveBrandSurfaceOklch: { light: string; dark: string }
   comparisonLayout: ComparisonLayout
   onComparisonLayoutChange: (l: ComparisonLayout) => void
   contrastEmphasis: ContrastEmphasis
@@ -77,7 +77,11 @@ function WorkbenchPreviewColumnInner({
         onComparisonLayoutChange={onComparisonLayoutChange}
       />
 
-      <div className="flex flex-col gap-10 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div
+        id="preview-workbench-blocks"
+        aria-label="Semantic preview blocks"
+        className="flex flex-col gap-10 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      >
         <section aria-label="Semantic preview blocks" className="mx-auto w-full">
           <SemanticPreviewWorkbench
             global={global}

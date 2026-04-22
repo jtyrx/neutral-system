@@ -2,6 +2,7 @@
   "name": "neutral-system",
   "private": true,
   "version": "0.1.0",
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

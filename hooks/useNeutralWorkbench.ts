@@ -1,14 +1,27 @@
 'use client'
 
 /**
- * Workbench state: `global` is memoized from the **current** `globalConfig` (not deferred) so
- * ladder length, resolved indices, and `deriveSystemTokens` stay aligned when Steps changes.
- * System mapping uses `useDeferredValue` so dense control panels stay responsive while tokens catch up.
+ * Workbench state: all input changes are applied **synchronously** so the single token
+ * derivation + CSS write lands within one React commit. Our instrumented costs
+ * (`buildGlobalScale` ≤3ms, `deriveSystemTokens` ≤1ms, `buildTokenView` ≤0.2ms,
+ * `exportCssVariables` ≤0.2ms, CSS var recalc ≈15ms) total ~15-20ms per click — well
+ * under a frame. `useTransition`/`useDeferredValue` were previously used to defer heavy
+ * derivation, but that work is now cheap, and relying on the React concurrent scheduler
+ * turns a one-frame update into many-frames — catastrophic when the browser throttles
+ * rAF to 1Hz for unfocused windows. Synchronous updates stay fast in every focus state.
  */
 import type {SetStateAction} from 'react'
-import {useCallback, useDeferredValue, useMemo, useState, useTransition} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 
 import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import {
+  beginTimer,
+  endTimerOnce,
+  getLastPreset,
+  getPresetCounts,
+  presetDebugEnabled,
+  setLastPreset,
+} from '@/lib/debug/presetDebug'
 import {
   applyContrastEmphasisToSystemMapping,
   buildGlobalScale,
@@ -28,7 +41,6 @@ import {
 } from '@/lib/neutral-engine'
 import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
-import {globalConfigsEqual, systemConfigsEqual} from '@/lib/neutral-engine/configEquality'
 import {labelForGlobalPatchKey, labelForSystemPatchKey} from '@/lib/neutral-engine/workbenchInputLabels'
 
 const DEFAULT_GLOBAL: GlobalScaleConfig = {
@@ -67,16 +79,21 @@ export function useNeutralWorkbench() {
   const [inspectionMode, setInspectionMode] = useState(false)
   const [busyInputLabel, setBusyInputLabel] = useState('Updating')
 
-  const [isPending, startTransition] = useTransition()
-
   const touchBusyLabel = useCallback((label: string) => {
     setBusyInputLabel(label)
   }, [])
 
   const setGlobalConfig = useCallback(
     (action: SetStateAction<GlobalScaleConfig>, label = 'Global scale') => {
+      if (presetDebugEnabled()) {
+        beginTimer(label)
+        const last = getLastPreset()
+        if (last) {
+          setLastPreset({...last, setGlobalConfigLabel: label, setGlobalConfigAt: performance.now()})
+        }
+      }
       touchBusyLabel(label)
-      startTransition(() => setGlobalConfigBase(action))
+      setGlobalConfigBase(action)
     },
     [touchBusyLabel],
   )
@@ -84,7 +101,7 @@ export function useNeutralWorkbench() {
   const setSystemConfig = useCallback(
     (action: SetStateAction<SystemMappingConfig>, label = 'System mapping') => {
       touchBusyLabel(label)
-      startTransition(() => setSystemConfigBase(action))
+      setSystemConfigBase(action)
     },
     [touchBusyLabel],
   )
@@ -92,12 +109,12 @@ export function useNeutralWorkbench() {
   const setPreviewTheme = useCallback(
     (value: 'light' | 'dark', label = 'Preview theme') => {
       touchBusyLabel(label)
-      startTransition(() => setPreviewThemeBase(value))
+      setPreviewThemeBase(value)
     },
     [touchBusyLabel],
   )
 
-  /** Global theme toggle — non-deferred so the whole chrome flips immediately. */
+  /** Global theme toggle — synchronous so the whole chrome flips immediately. */
   const setThemeMode = useCallback(
     (value: 'light' | 'dark', label = 'Theme mode') => {
       touchBusyLabel(label)
@@ -123,18 +140,16 @@ export function useNeutralWorkbench() {
   const setContrastEmphasis = useCallback(
     (value: ContrastEmphasis, label?: string) => {
       touchBusyLabel(label ?? emphasisLabel(value))
-      startTransition(() => setContrastEmphasisBase(value))
+      setContrastEmphasisBase(value)
     },
     [touchBusyLabel, emphasisLabel],
   )
 
-  /** Single-field updates with referential stability when the value is unchanged (avoids redundant transitions). */
+  /** Single-field updates with referential stability when the value is unchanged. */
   const patchGlobal = useCallback(
     <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => {
       touchBusyLabel(explicitLabel ?? labelForGlobalPatchKey(key))
-      startTransition(() => {
-        setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
-      })
+      setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
     },
     [touchBusyLabel],
   )
@@ -142,42 +157,17 @@ export function useNeutralWorkbench() {
   const patchSystem = useCallback(
     <K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K], explicitLabel?: string) => {
       touchBusyLabel(explicitLabel ?? labelForSystemPatchKey(key))
-      startTransition(() => {
-        setSystemConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
-      })
+      setSystemConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
     },
     [touchBusyLabel],
   )
 
-  const deferredSystemBase = useDeferredValue(systemConfigBase)
-  const deferredGlobalConfig = useDeferredValue(globalConfig)
-  const deferredContrastEmphasis = useDeferredValue(contrastEmphasis)
-  const deferredPreviewTheme = useDeferredValue(previewTheme)
-
-  const systemDeferredStale = useMemo(
-    () => !systemConfigsEqual(systemConfigBase, deferredSystemBase),
-    [systemConfigBase, deferredSystemBase],
-  )
-
-  const globalDeferredStale = useMemo(
-    () => !globalConfigsEqual(globalConfig, deferredGlobalConfig),
-    [globalConfig, deferredGlobalConfig],
-  )
-
-  const contrastDeferredStale = contrastEmphasis !== deferredContrastEmphasis
-  const themeDeferredStale = previewTheme !== deferredPreviewTheme
-
   /**
-   * True while a transition is pending **or** any deferred mirror of controlled inputs has not
-   * caught up (global scale, system mapping, contrast, preview theme). Keeps loading UI visible
-   * for the full deferred window — `isPending` alone often clears in one frame.
+   * Always `false` — updates are synchronous and complete in a single commit, so there is
+   * no "pending" window to report. Kept on the return surface for API stability with
+   * consumers that still read it (e.g. `WorkbenchLoadingToast`).
    */
-  const inputBusy =
-    isPending ||
-    globalDeferredStale ||
-    systemDeferredStale ||
-    contrastDeferredStale ||
-    themeDeferredStale
+  const inputBusy = false
 
   const ladderN = useMemo(() => clampGlobalScaleSteps(globalConfig.steps), [globalConfig.steps])
 
@@ -189,18 +179,24 @@ export function useNeutralWorkbench() {
 
   const global = useMemo(() => buildGlobalScale(globalConfig), [globalConfig])
 
-  /** Same object passed to deriveSystemTokens — also drives resolved-index UI (must stay aligned). */
-  const effectiveMappingConfig = useMemo(
-    () =>
-      applyContrastEmphasisToSystemMapping(
-        clampSystemMappingToLadderLength(ladderN, deferredSystemBase),
-        contrastEmphasis,
-      ),
-    [deferredSystemBase, contrastEmphasis, ladderN],
-  )
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!presetDebugEnabled()) return
+    const last = getLastPreset()
+    if (!last) return
+    const perfLabel = last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf'
+    console.log(
+      perfLabel,
+      'buildGlobalScale',
+      JSON.stringify({label: last.label, steps: global.length, at: performance.now()}),
+    )
+  }, [global])
 
-  /** Same mapping rules as token derivation, but **not** deferred — used for live `surface.brand` OKLCH in semantic preview. */
-  const immediateMappingConfig = useMemo(
+  /**
+   * Same object passed to deriveSystemTokens — also drives resolved-index UI (must stay aligned).
+   * Synchronous: no deferred mirrors, token derivation runs in the same commit as the input change.
+   */
+  const effectiveMappingConfig = useMemo(
     () =>
       applyContrastEmphasisToSystemMapping(
         clampSystemMappingToLadderLength(ladderN, systemConfigBase),
@@ -209,14 +205,17 @@ export function useNeutralWorkbench() {
     [systemConfigBase, contrastEmphasis, ladderN],
   )
 
+  /** Kept as a named alias for the live `surface.brand` OKLCH consumer; identical to effectiveMappingConfig. */
+  const immediateMappingConfig = effectiveMappingConfig
+
   const liveBrandSurfaceOklch = useMemo(() => {
-    const light = deriveBrandSurfaceToken(global, immediateMappingConfig, 'light')
-    const dark = deriveBrandSurfaceToken(global, immediateMappingConfig, 'darkElevated')
+    const light = deriveBrandSurfaceToken(global, effectiveMappingConfig, 'light')
+    const dark = deriveBrandSurfaceToken(global, effectiveMappingConfig, 'darkElevated')
     return {
       light: trimCssColorValue(light?.serialized.oklchCss ?? 'oklch(0% 0 none)'),
       dark: trimCssColorValue(dark?.serialized.oklchCss ?? 'oklch(0% 0 none)'),
     }
-  }, [global, immediateMappingConfig])
+  }, [global, effectiveMappingConfig])
 
   const lightTokens = useMemo(
     () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'light'}),
@@ -227,6 +226,46 @@ export function useNeutralWorkbench() {
     () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'darkElevated'}),
     [global, effectiveMappingConfig],
   )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!presetDebugEnabled()) return
+    const last = getLastPreset()
+    if (!last) return
+    const perfLabel = last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf'
+
+    // End-to-end timer closes here (idempotent across re-renders via `timerEnded` guard).
+    endTimerOnce()
+
+    try {
+      const entry = getPresetCounts(last.at)
+      if (entry) {
+        console.log(
+          perfLabel,
+          'Summary',
+          JSON.stringify({
+            kind: last.kind,
+            label: last.label,
+            buildGlobalScaleCalls: entry.buildGlobalScaleCalls ?? 0,
+            at: performance.now(),
+          }),
+        )
+      }
+    } catch {
+      // ignore
+    }
+    console.log(
+      perfLabel,
+      'deriveSystemTokens done',
+      JSON.stringify({
+        kind: last.kind,
+        label: last.label,
+        lightTokens: lightTokens.length,
+        darkTokens: darkTokens.length,
+        at: performance.now(),
+      }),
+    )
+  }, [lightTokens, darkTokens])
 
   const lightTokenView = useMemo(() => buildTokenView(lightTokens), [lightTokens])
   const darkTokenView = useMemo(() => buildTokenView(darkTokens), [darkTokens])
@@ -249,46 +288,87 @@ export function useNeutralWorkbench() {
     setInspectionMode((v) => !v)
   }, [])
 
-  return {
-    globalConfig,
-    setGlobalConfig,
-    patchGlobal,
-    systemConfig,
-    setSystemConfig,
-    patchSystem,
-    /** Deferred + contrast-mode-adjusted; use for any display that must match token derivation. */
-    effectiveMappingConfig,
-    /** Non-deferred mapping; `liveBrandSurfaceOklch` tracks Custom Brand without `useDeferredValue` lag. */
-    immediateMappingConfig,
-    liveBrandSurfaceOklch,
-    global,
-    lightTokens,
-    darkTokens,
-    lightTokenView,
-    darkTokenView,
-    activeTokenView,
-    activeSystemTokens,
-    previewTheme,
-    setPreviewTheme,
-    themeMode,
-    setThemeMode,
-    toggleThemeMode,
-    contrastEmphasis,
-    setContrastEmphasis,
-    selection,
-    setSelection,
-    selectGlobal,
-    selectSystem,
-    inputBusy,
-    busyInputLabel,
-    comparisonLayout,
-    setComparisonLayout,
-    showContrastPairs,
-    setShowContrastPairs,
-    inspectionMode,
-    setInspectionMode,
-    toggleInspectionMode,
-  }
+  /**
+   * Stabilize the returned bag: every setter is already `useCallback`-stable; only state values
+   * rotate. Memoizing on the underlying states means any consumer that receives the full `wb`
+   * object (e.g. `WorkbenchControlsShell`) can benefit from `React.memo` when the slices it reads
+   * haven't changed. Without this, every workbench render would hand out a fresh object reference
+   * and defeat downstream memoization.
+   */
+  return useMemo(
+    () => ({
+      globalConfig,
+      setGlobalConfig,
+      patchGlobal,
+      systemConfig,
+      setSystemConfig,
+      patchSystem,
+      effectiveMappingConfig,
+      immediateMappingConfig,
+      liveBrandSurfaceOklch,
+      global,
+      lightTokens,
+      darkTokens,
+      lightTokenView,
+      darkTokenView,
+      activeTokenView,
+      activeSystemTokens,
+      previewTheme,
+      setPreviewTheme,
+      themeMode,
+      setThemeMode,
+      toggleThemeMode,
+      contrastEmphasis,
+      setContrastEmphasis,
+      selection,
+      setSelection,
+      selectGlobal,
+      selectSystem,
+      inputBusy,
+      busyInputLabel,
+      comparisonLayout,
+      setComparisonLayout,
+      showContrastPairs,
+      setShowContrastPairs,
+      inspectionMode,
+      setInspectionMode,
+      toggleInspectionMode,
+    }),
+    [
+      globalConfig,
+      setGlobalConfig,
+      patchGlobal,
+      systemConfig,
+      setSystemConfig,
+      patchSystem,
+      effectiveMappingConfig,
+      immediateMappingConfig,
+      liveBrandSurfaceOklch,
+      global,
+      lightTokens,
+      darkTokens,
+      lightTokenView,
+      darkTokenView,
+      activeTokenView,
+      activeSystemTokens,
+      previewTheme,
+      setPreviewTheme,
+      themeMode,
+      setThemeMode,
+      toggleThemeMode,
+      contrastEmphasis,
+      setContrastEmphasis,
+      selection,
+      selectGlobal,
+      selectSystem,
+      inputBusy,
+      busyInputLabel,
+      comparisonLayout,
+      showContrastPairs,
+      inspectionMode,
+      toggleInspectionMode,
+    ],
+  )
 }
 
 export type NeutralWorkbench = ReturnType<typeof useNeutralWorkbench>

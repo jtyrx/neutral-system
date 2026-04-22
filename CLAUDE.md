@@ -4,12 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+This repo uses **pnpm** (`pnpm-lock.yaml` is the source of truth; the `packageManager` field in `package.json` pins the version).
+
 ```bash
-npm run dev         # Next.js dev server (Turbopack) on :3000
-npm run build       # production build
-npm run start       # serve built output
-npm run lint        # ESLint (next/core-web-vitals + next/typescript)
-npm run type-check  # tsc --noEmit (strict)
+pnpm install        # install dependencies
+pnpm dev            # Next.js dev server (Turbopack) on :3000
+pnpm build          # production build
+pnpm start          # serve built output
+pnpm lint           # ESLint (next/core-web-vitals + next/typescript)
+pnpm type-check     # tsc --noEmit (strict)
 ```
 
 No test runner is configured.
@@ -62,4 +65,4 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 
 ## Deployment
 
-Production target is Vercel (`vercel.json` pins `framework: nextjs`, `installCommand: npm install`, `buildCommand: npm run build`). Turbopack `root` is pinned in [next.config.mjs](next.config.mjs) because parent directories on the dev machine may contain unrelated lockfiles.
+Production target is Vercel (`vercel.json` pins `framework: nextjs`; Vercel auto-detects pnpm from `pnpm-lock.yaml` and the `packageManager` field in `package.json`). Turbopack `root` is pinned in [next.config.mjs](next.config.mjs) because parent directories on the dev machine may contain unrelated lockfiles.

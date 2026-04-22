@@ -1,7 +1,8 @@
 'use client'
 
-import {useEffect, useLayoutEffect} from 'react'
+import {useLayoutEffect} from 'react'
 
+import {getLastPreset, presetDebugEnabled} from '@/lib/debug/presetDebug'
 import {exportCssVariables} from '@/lib/neutral-engine/exportFormats'
 import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
 
@@ -14,8 +15,14 @@ const STYLE_NODE_ID = 'ns-live-tokens'
  * This is the bridge between the workbench inputs (Scale / Custom Brand / Contrast / Theme Table)
  * and everything that reads the alias layer (`--ns-*` chrome, previews, Tailwind `bg-*`/`text-*`).
  *
- * Using `useLayoutEffect` for the stylesheet guarantees the vars exist before the first paint so
- * chrome never flashes the default (pre-theme) colors on mount or on a theme flip.
+ * Scheduling:
+ * - `data-theme` / `color-scheme` flip via `useLayoutEffect` so theme toggles never flash.
+ * - `exportCssVariables` writes via `useLayoutEffect`. `useEffect` is flushed via
+ *   `MessageChannel`/`setTimeout(0)`, both of which Chromium clamps to 1 Hz when the
+ *   browser window is unfocused — that turns a <5ms engine update into a 1000–1700ms
+ *   visible stall. `useLayoutEffect` runs synchronously in the commit phase before the
+ *   browser yields and is NOT subject to that throttle, so preset clicks paint in the
+ *   next frame regardless of focus state.
  */
 export function LiveThemeStyles({
   global,
@@ -30,6 +37,16 @@ export function LiveThemeStyles({
 }) {
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return
+    const root = document.documentElement
+    root.dataset.theme = themeMode
+    root.style.colorScheme = themeMode
+  }, [themeMode])
+
+  useLayoutEffect(() => {
+    if (typeof document === 'undefined') return
+    const debug = presetDebugEnabled()
+    const last = debug ? getLastPreset() : undefined
+    const t0 = debug ? performance.now() : 0
     const css = exportCssVariables({global, light: lightTokens, dark: darkTokens})
     let node = document.getElementById(STYLE_NODE_ID) as HTMLStyleElement | null
     if (!node) {
@@ -37,15 +54,18 @@ export function LiveThemeStyles({
       node.id = STYLE_NODE_ID
       document.head.appendChild(node)
     }
-    if (node.textContent !== css) node.textContent = css
+    const changed = node.textContent !== css
+    if (changed) node.textContent = css
+    if (debug && last?.kind != null) {
+      const dt = performance.now() - t0
+      const perfLabel = last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf'
+      console.log(
+        perfLabel,
+        'exportCssVariables (sync write)',
+        JSON.stringify({ms: Number(dt.toFixed(2)), changed, cssBytes: css.length, kind: last.kind}),
+      )
+    }
   }, [global, lightTokens, darkTokens])
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return
-    const root = document.documentElement
-    root.dataset.theme = themeMode
-    root.style.colorScheme = themeMode
-  }, [themeMode])
 
   return null
 }

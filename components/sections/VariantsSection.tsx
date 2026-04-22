@@ -2,6 +2,7 @@
 
 import {memo} from 'react'
 
+import {logPresetGroup, presetDebugEnabled} from '@/lib/debug/presetDebug'
 import {applyVariantToConfig, VARIANT_PRESETS} from '@/lib/neutral-engine/variants'
 import type {GlobalScaleConfig, NeutralVariantId} from '@/lib/neutral-engine/types'
 
@@ -9,6 +10,25 @@ type Props = {
   config: GlobalScaleConfig
   /** Optional short label for loading toast (e.g. variant preset name). */
   onChange: (next: GlobalScaleConfig, label?: string) => void
+}
+
+function diffConfig(prev: GlobalScaleConfig, next: GlobalScaleConfig) {
+  // Only include fields that actually change — keeps logs readable and highlights what the preset did.
+  const changed: Record<string, [unknown, unknown]> = {}
+  const keys: Array<keyof GlobalScaleConfig> = [
+    'variantId',
+    'hue',
+    'baseChroma',
+    'chromaMode',
+    'steps',
+    'lHigh',
+    'lLow',
+    'namingStyle',
+  ]
+  for (const k of keys) {
+    if (prev[k] !== next[k]) changed[k] = [prev[k], next[k]]
+  }
+  return changed
 }
 
 function VariantsSectionInner({config, onChange}: Props) {
@@ -27,7 +47,16 @@ function VariantsSectionInner({config, onChange}: Props) {
           <button
             key={v.id}
             type="button"
-            onClick={() => onChange(applyVariantToConfig(config, v.id as NeutralVariantId), v.label)}
+            onClick={() => {
+              const t0 = presetDebugEnabled() && typeof performance !== 'undefined' ? performance.now() : 0
+              const next = applyVariantToConfig(config, v.id as NeutralVariantId)
+              logPresetGroup('variant', v.label, diffConfig(config, next))
+              if (presetDebugEnabled()) {
+                const dt = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
+                console.log('PresetPerf', 'applyVariantToConfig(ms)=', dt.toFixed(2))
+              }
+              onChange(next, v.label)
+            }}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               config.variantId === v.id
                 ? 'border-[var(--ns-hairline-strong)] bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]'

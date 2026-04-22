@@ -4,12 +4,15 @@ This file guides **Cursor Agent** and **Composer** when working in this reposito
 
 ## Commands
 
+This repo uses **pnpm** (`pnpm-lock.yaml` is the source of truth; the `packageManager` field in `package.json` pins the version).
+
 ```bash
-npm run dev         # Next.js dev server (Turbopack) on :3000
-npm run build       # production build
-npm run start       # serve built output
-npm run lint        # ESLint (next/core-web-vitals + next/typescript)
-npm run type-check  # tsc --noEmit (strict)
+pnpm install        # install dependencies
+pnpm dev            # Next.js dev server (Turbopack) on :3000
+pnpm build          # production build
+pnpm start          # serve built output
+pnpm lint           # ESLint (next/core-web-vitals + next/typescript)
+pnpm type-check     # tsc --noEmit (strict)
 ```
 
 No test runner is configured.
@@ -61,10 +64,10 @@ Single-page workbench (`app/page.tsx` → `components/workbench/Workbench.tsx`) 
 
 ## Cursor Agent / Composer behavior
 
-- **Verify before claiming done:** run `npm run type-check`; for non-trivial changes, run `npm run build` as well.
+- **Verify before claiming done:** run `pnpm type-check`; for non-trivial changes, run `pnpm build` as well.
 - **Keep diffs focused:** change only what the task requires; avoid drive-by refactors.
 - **Follow existing patterns:** repo-relative paths, same component and hook structure as neighboring files.
 
 ## Deployment
 
-Production on Vercel (`vercel.json`: `framework: nextjs`, `installCommand: npm install`, `buildCommand: npm run build`). `next.config.mjs` pins Turbopack `root` when parent dirs may contain unrelated lockfiles.
+Production on Vercel (`vercel.json`: `framework: nextjs`; Vercel auto-detects pnpm from `pnpm-lock.yaml` + the `packageManager` field in `package.json`). `next.config.mjs` pins Turbopack `root` when parent dirs may contain unrelated lockfiles.

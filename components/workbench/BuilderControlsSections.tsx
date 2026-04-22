@@ -1,5 +1,7 @@
 'use client'
 
+import {memo} from 'react'
+
 import {BrandColorSection} from '@/components/sections/BrandColorSection'
 import {ExportSection} from '@/components/sections/ExportSection'
 import {GlobalScaleSection} from '@/components/sections/GlobalScaleSection'
@@ -16,7 +18,7 @@ type Props = {
 }
 
 /** Grouped controls: Scale → Mapping → Inspect → Export. */
-export function BuilderControlsSections({wb, selectedGlobalIndex}: Props) {
+function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   const steps = clampGlobalScaleSteps(wb.globalConfig.steps)
   return (
     <div className="flex flex-col gap-4 pb-12">
@@ -34,10 +36,13 @@ export function BuilderControlsSections({wb, selectedGlobalIndex}: Props) {
           onSelectSwatch={wb.selectGlobal}
         />
         <div className="mt-6">
-          <VariantsSection
-            config={wb.globalConfig}
-            onChange={(next, label) => wb.setGlobalConfig(next, label)}
-          />
+          {/*
+            Presets are scheduled as a Transition (`setGlobalConfig`), so the click commits
+            the button's selected state instantly while React reconciles heavy downstream
+            derivation off the urgent-update path. Passing the setter directly keeps the
+            `onChange` prop referentially stable so `memo(VariantsSection)` can short-circuit.
+          */}
+          <VariantsSection config={wb.globalConfig} onChange={wb.setGlobalConfig} />
         </div>
       </CollapsibleControlGroup>
 
@@ -84,3 +89,5 @@ export function BuilderControlsSections({wb, selectedGlobalIndex}: Props) {
     </div>
   )
 }
+
+export const BuilderControlsSections = memo(BuilderControlsSectionsInner)

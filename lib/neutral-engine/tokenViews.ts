@@ -84,7 +84,7 @@ export function buildTokenView(tokens: SystemToken[]): TokenView {
   }
   inversePairCategory.sort(sortRole)
 
-  return {
+  const view: TokenView = {
     byRole,
     byGlobalIndex,
     sortedForTable,
@@ -93,6 +93,7 @@ export function buildTokenView(tokens: SystemToken[]): TokenView {
     byLayerPublicNonInverse,
     inversePairCategory,
   }
+  return view
 }
 
 export type SemanticLayer = 'surface' | 'border' | 'text' | 'interactive' | 'emphasis'

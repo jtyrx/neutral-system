@@ -1,30 +1,31 @@
 'use client'
 
-import { memo, useMemo } from 'react'
+import {memo, useDeferredValue, useMemo} from 'react'
 
-import { buildGlobalScale } from '@/lib/neutral-engine/globalScale'
-import type { ChromaMode, GlobalScaleConfig } from '@/lib/neutral-engine/types'
+import {buildGlobalScale} from '@/lib/neutral-engine/globalScale'
+import type {ChromaMode, GlobalScaleConfig} from '@/lib/neutral-engine/types'
 
 const CHROMA_ROWS: readonly { chromaMode: ChromaMode; label: string }[] = [
-  { chromaMode: 'achromatic', label: 'Achromatic' },
-  { chromaMode: 'fixed', label: 'Fixed chroma' },
-  { chromaMode: 'taper_mid', label: 'Taper (mid emphasis)' },
-  { chromaMode: 'taper_ends', label: 'Taper (ends emphasis)' },
+  {chromaMode: 'achromatic', label: 'Achromatic'},
+  {chromaMode: 'fixed', label: 'Fixed chroma'},
+  {chromaMode: 'taper_mid', label: 'Taper (mid emphasis)'},
+  {chromaMode: 'taper_ends', label: 'Taper (ends emphasis)'},
 ] as const
 
 type Props = {
   config: GlobalScaleConfig
 }
 
-function ChromaModeComparisonRailInner({ config }: Props) {
-  const rows = useMemo(
-    () =>
-      CHROMA_ROWS.map((row) => ({
-        ...row,
-        swatches: buildGlobalScale({ ...config, chromaMode: row.chromaMode }),
-      })),
-    [config],
-  )
+function ChromaModeComparisonRailInner({config}: Props) {
+  // Let preset clicks commit immediately; the comparison rail can lag a frame.
+  const deferredConfig = useDeferredValue(config)
+  const rows = useMemo(() => {
+    const out = CHROMA_ROWS.map((row) => ({
+      ...row,
+      swatches: buildGlobalScale({...deferredConfig, chromaMode: row.chromaMode}),
+    }))
+    return out
+  }, [deferredConfig])
 
   const n = rows[0]?.swatches.length ?? 0
   const minStripWidth = Math.max(n * 8, 280)

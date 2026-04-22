@@ -1,7 +1,8 @@
 'use client'
 
+import {memo} from 'react'
+
 import {BuilderControlsSections} from '@/components/workbench/BuilderControlsSections'
-import {SidebarNav} from '@/components/workbench/SidebarNav'
 import type {NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
 }
 
 /** Left column: navigation + grouped controls (desktop); scrollable. */
-export function WorkbenchControlsShell({wb, selectedGlobalIndex}: Props) {
+function WorkbenchControlsShellInner({wb, selectedGlobalIndex}: Props) {
   return (
     <div className="flex max-h-[min(100dvh,100%)] min-h-0 flex-col border-[var(--ns-hairline)] lg:max-h-dvh">
       <div className="shrink-0 border-b border-[var(--ns-hairline)] px-4 py-4 sm:px-5">
@@ -29,3 +30,5 @@ export function WorkbenchControlsShell({wb, selectedGlobalIndex}: Props) {
     </div>
   )
 }
+
+export const WorkbenchControlsShell = memo(WorkbenchControlsShellInner)

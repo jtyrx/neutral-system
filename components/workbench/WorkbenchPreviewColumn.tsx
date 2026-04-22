@@ -1,5 +1,7 @@
 'use client'
 
+import {memo} from 'react'
+
 import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {ContrastPairsPanel} from '@/components/preview/ContrastPairsPanel'
 import {PreviewContextHeader} from '@/components/preview/PreviewContextHeader'
@@ -39,8 +41,11 @@ type Props = {
  * Center column — an inspection-oriented preview workbench.
  *
  * Vertical rhythm: sticky context header → paired semantic blocks → optional contrast matrix → deep inspection tools.
+ *
+ * Wrapped in `memo` so preset/scale transitions that don't touch preview-relevant props (e.g.
+ * `busyInputLabel` rotating) skip the entire center column reconciliation.
  */
-export function WorkbenchPreviewColumn({
+function WorkbenchPreviewColumnInner({
   previewTheme,
   showContrastPairs,
   global,
@@ -105,3 +110,5 @@ export function WorkbenchPreviewColumn({
     </div>
   )
 }
+
+export const WorkbenchPreviewColumn = memo(WorkbenchPreviewColumnInner)

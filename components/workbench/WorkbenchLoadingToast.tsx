@@ -40,9 +40,8 @@ function LoopingEllipsis() {
       ref={ref}
       className="inline-block min-w-[3ch] whitespace-pre font-mono text-[var(--ns-text)]"
       aria-hidden
-    >
-      {ELLIPSIS_FRAMES[0]}
-    </span>
+      suppressHydrationWarning
+    />
   )
 }
 
@@ -84,7 +83,7 @@ export function WorkbenchLoadingToast({busy, label}: Props) {
 
   return createPortal(
     <div
-      className="pointer-events-auto fixed inset-0 z-[10000] flex items-center justify-center bg-[var(--ns-surface-raised)] p-4 backdrop-blur-[1px]"
+      className="pointer-events-auto fixed inset-0 z-[10000] flex items-center justify-center bg-[color-mix(in_oklch,var(--ns-surface-raised)_50%,transparent)] p-4 backdrop-blur-[1px]"
       role="presentation"
     >
       <div

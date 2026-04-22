@@ -39,6 +39,7 @@ export function systemConfigsEqual(a: SystemMappingConfig, b: SystemMappingConfi
     a.themeMode === b.themeMode &&
     a.darkSegmentLength === b.darkSegmentLength &&
     a.altAlpha === b.altAlpha &&
-    a.includeContrastGroups === b.includeContrastGroups
+    a.includeContrastGroups === b.includeContrastGroups &&
+    a.brandOklch === b.brandOklch
   )
 }

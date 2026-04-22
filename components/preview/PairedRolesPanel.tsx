@@ -120,20 +120,20 @@ export function PairedRolesPanel({
 
   const shellClass =
     variant === 'split'
-      ? 'rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5'
-      : 'mt-6 space-y-4 border-t border-white/10 pt-6'
+      ? 'rounded-sm border border-[var(--ns-hairline)] bg-[var(--ns-overlay-soft)] px-4 py-3 sm:px-5 sm:py-4'
+      : 'mt-6 space-y-4 border-t border-[var(--ns-hairline)] pt-6'
 
   return (
     <div className={shellClass}>
       <div className="mb-4">
         <p className="eyebrow">Paired roles</p>
-        <p className="mt-1 text-sm text-white/70">
-          Default: <span className="font-mono text-white/80">Data table</span> — one row per{' '}
-          <span className="font-mono text-white/70">neutral-*</span> primitive (hex, OKLCH, idx) for
+        <p className="mt-1 text-sm text-[var(--ns-text-subtle)]">
+          Default: <span className="font-mono text-[var(--ns-text)]">Data table</span> — one row per{' '}
+          <span className="font-mono text-[var(--ns-text-subtle)]">neutral-*</span> primitive (hex, OKLCH, idx) for
           the current layer filter.{' '}
-          <span className="font-mono text-white/80">Used primitives</span> lists every ramp step
+          <span className="font-mono text-[var(--ns-text)]">Used primitives</span> lists every ramp step
           referenced by the mapping (light + dark).{' '}
-          <span className="font-mono text-white/80">Visual pairs</span> shows side-by-side semantic
+          <span className="font-mono text-[var(--ns-text)]">Visual pairs</span> shows side-by-side semantic
           cards. Inspection can switch to the full neutral scale.
         </p>
       </div>
@@ -156,7 +156,7 @@ export function PairedRolesPanel({
               options={THEME_FOCUS_OPTIONS}
               onChange={onThemeFocus}
             />
-            <p className="mt-2 text-[0.6rem] text-white/35">
+            <p className="mt-2 text-[0.6rem] text-[var(--ns-text-faint)]">
               {inspectionView === 'neutral'
                 ? 'Frames the neutral ladder with Light (amber) or Dark (sky) preview chrome.'
                 : 'Emphasizes Light, Dark, or both columns in paired output.'}
@@ -166,7 +166,7 @@ export function PairedRolesPanel({
 
         {variant === 'focus' && inspectionView === 'neutral' ? (
           <ControlTier label="Preview theme">
-            <p className="text-xs font-medium text-white/75">
+            <p className="text-xs font-medium text-[var(--ns-text-subtle)]">
               {focusTheme === 'light'
                 ? 'Light (amber) — matches toolbar preview'
                 : 'Dark elevated (sky) — matches toolbar preview'}
@@ -176,7 +176,7 @@ export function PairedRolesPanel({
 
         {showPrimitiveTiers && variant === 'focus' ? (
           <ControlTier label="Preview theme">
-            <p className="text-xs font-medium text-white/75">
+            <p className="text-xs font-medium text-[var(--ns-text-subtle)]">
               {focusTheme === 'light'
                 ? 'Light — matches toolbar preview (amber chrome below)'
                 : 'Dark elevated — matches toolbar preview (sky chrome below)'}
@@ -228,7 +228,7 @@ export function PairedRolesPanel({
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'table' ? (
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-amber-200/80">Light</p>
+              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-chrome-amber-text)]">Light</p>
               <SemanticRoleTable
                 tokenView={lightTokenView}
                 global={global}
@@ -237,7 +237,7 @@ export function PairedRolesPanel({
               />
             </div>
             <div className="space-y-2">
-              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-sky-200/80">
+              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-chrome-sky-text)]">
                 Dark elevated
               </p>
               <SemanticRoleTable
@@ -261,7 +261,7 @@ export function PairedRolesPanel({
 
         {inspectionView === 'paired' && variant === 'focus' && displayMode === 'table' ? (
           <div className="space-y-2">
-            <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/45">
+            <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-text-muted)]">
               {focusTitle} · data table
             </p>
             <SemanticRoleTable
@@ -275,7 +275,7 @@ export function PairedRolesPanel({
 
         {inspectionView === 'paired' && variant === 'focus' && displayMode === 'usedPrimitives' ? (
           <div className="space-y-2">
-            <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/45">
+            <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-text-muted)]">
               Used neutral primitives
             </p>
             <UsedNeutralPrimitivesTable

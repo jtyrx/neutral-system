@@ -7,7 +7,8 @@ import type {GlobalScaleConfig, NeutralVariantId} from '@/lib/neutral-engine/typ
 
 type Props = {
   config: GlobalScaleConfig
-  onChange: (next: GlobalScaleConfig) => void
+  /** Optional short label for loading toast (e.g. variant preset name). */
+  onChange: (next: GlobalScaleConfig, label?: string) => void
 }
 
 function VariantsSectionInner({config, onChange}: Props) {
@@ -15,8 +16,8 @@ function VariantsSectionInner({config, onChange}: Props) {
     <section id="variants" className="scroll-mt-6 space-y-4">
       <header>
         <p className="eyebrow">5 · Neutral variants</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Hue & chroma presets</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/55">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Hue & chroma presets</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
           Pure neutral locks chroma to zero. Warm / cool / bluish apply low chroma at a fixed hue.
           Custom keeps your sliders.
         </p>
@@ -26,11 +27,11 @@ function VariantsSectionInner({config, onChange}: Props) {
           <button
             key={v.id}
             type="button"
-            onClick={() => onChange(applyVariantToConfig(config, v.id as NeutralVariantId))}
+            onClick={() => onChange(applyVariantToConfig(config, v.id as NeutralVariantId), v.label)}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               config.variantId === v.id
-                ? 'border-white/40 bg-white/15 text-white'
-                : 'border-white/12 bg-white/5 text-white/75 hover:bg-white/10'
+                ? 'border-[var(--ns-hairline-strong)] bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]'
+                : 'border-[var(--ns-hairline)] bg-[var(--ns-chip)] text-[var(--ns-text-subtle)] hover:bg-[var(--ns-hairline)]'
             }`}
           >
             {v.label}

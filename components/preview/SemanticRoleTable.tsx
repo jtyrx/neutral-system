@@ -38,7 +38,10 @@ type Props = {
  */
 function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}: Props) {
   const primitiveIndices = useMemo(() => {
-    const base = tokenView.sortedForTable.filter((t) => !isOverflowRole(t.role))
+    // Preview-only custom brand must not appear as a neutral primitive row.
+    const base = tokenView.sortedForTable.filter(
+      (t) => !isOverflowRole(t.role) && !(t.role === 'surface.brand' && t.customColor),
+    )
     const filtered =
       layerFilter === 'all' ? base : base.filter((t) => roleMatchesLayerFilter(t.role, layerFilter))
     const seen = new Set<number>()
@@ -63,7 +66,7 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
 
   if (primitiveIndices.length === 0) {
     return (
-      <p className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-white/45">
+      <p className="rounded-lg border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] px-3 py-2 text-xs text-[var(--ns-text-muted)]">
         {layerFilter !== 'all'
           ? 'No tokens for this layer filter.'
           : 'No mapped roles for this theme.'}
@@ -72,14 +75,14 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/20" role="region" aria-label={label}>
+    <div className="overflow-x-auto rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)]" role="region" aria-label={label}>
       <table className="w-full min-w-[28rem] text-left text-[0.65rem]">
-        <thead className="border-b border-white/10 font-mono text-white/45">
+        <thead className="border-b border-[var(--ns-hairline)] font-mono text-[var(--ns-text-muted)]">
           <tr>
             <th className="px-2 py-1.5 font-medium">Primitive</th>
             <th className="w-12 px-2 py-1.5 font-medium">Swatch</th>
-            <th className="px-2 py-1.5 font-medium">Hex</th>
-            <th className="min-w-[10rem] px-2 py-1.5 font-medium">OKLCH</th>
+            <th className="px-2 py-1.5 font-medium hidden sm:table-cell">Hex</th>
+            <th className="min-w-[10rem] px-2 py-1.5 font-medium hidden sm:table-cell">OKLCH</th>
             <th className="px-2 py-1.5 text-right font-medium">Idx</th>
           </tr>
         </thead>
@@ -91,20 +94,20 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
             const oklch = sw?.serialized.oklchCss ?? '—'
             const swatchBg = hex.startsWith('#') ? hex : undefined
             return (
-              <tr key={`prim-${idx}`} className="border-b border-white/[0.06]">
+              <tr key={`prim-${idx}`} className="border-b border-[var(--ns-hairline)]">
                 <td className="px-2 py-1.5 align-middle">
-                  <span className="font-medium text-white/90">{prim}</span>
+                  <span className="font-medium text-[var(--ns-text)]">{prim}</span>
                 </td>
                 <td className="px-2 py-1.5 align-middle">
                   <span
-                    className="inline-block h-9 w-9 shrink-0 rounded border border-white/15 shadow-inner"
+                    className="inline-block h-9 w-9 shrink-0 rounded border border-[var(--ns-hairline-strong)] shadow-inner"
                     style={swatchBg ? {backgroundColor: swatchBg} : undefined}
                     title={`${prim} · ${hex}`}
                   />
                 </td>
-                <td className="px-2 py-1.5 align-middle tabular-nums text-white/75">{hex}</td>
-                <td className="max-w-[min(28rem,55vw)] px-2 py-1.5 align-middle break-all text-white/60">{oklch}</td>
-                <td className="px-2 py-1.5 text-right align-middle tabular-nums text-white/50">{idx}</td>
+                <td className="px-2 py-1.5 align-middle tabular-nums text-[var(--ns-text-subtle)] hidden sm:table-cell">{hex}</td>
+                <td className="max-w-[min(28rem,55vw)] px-2 py-1.5 align-middle break-all text-[var(--ns-text-subtle)] hidden sm:table-cell">{oklch}</td>
+                <td className="px-2 py-1.5 text-right align-middle tabular-nums text-[var(--ns-text-muted)]">{idx}</td>
               </tr>
             )
           })}

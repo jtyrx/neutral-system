@@ -25,19 +25,24 @@ type Props = {
 }
 
 const THEME_TABLE_GROUPS: {section: PairSection; hint: string}[] = [
-  {section: {kind: 'layer', layer: 'surface'}, hint: 'base · subtle · container · elevated'},
-  {section: {kind: 'layer', layer: 'border'}, hint: 'subtle · default · strong'},
-  {section: {kind: 'layer', layer: 'text'}, hint: 'primary · secondary · tertiary · disabled'},
-  {section: {kind: 'inverse'}, hint: 'inverse surface · text on inverse (contrast flip)'},
+  {
+    section: {kind: 'layer', layer: 'surface'},
+    hint: 'sunken · default · subtle · raised · overlay (brand lives in the Custom Brand section)',
+  },
+  {section: {kind: 'layer', layer: 'border'}, hint: 'default · subtle · strong · focus'},
+  {section: {kind: 'layer', layer: 'text'}, hint: 'default · subtle · muted · disabled'},
+  {section: {kind: 'inverse'}, hint: 'surface.inverse · text.on (contrast flip)'},
   {section: {kind: 'layer', layer: 'interactive'}, hint: 'state.hover · overlay.scrim'},
 ]
 
 function tokensForThemeTableBlock(view: TokenView, section: PairSection): SystemToken[] {
   if (section.kind === 'inverse') return tokensForInversePairCategory(view)
-  if (section.layer === 'surface' || section.layer === 'text') {
-    return tokensForSemanticLayerPublicNonInverse(view, section.layer)
-  }
-  return tokensForSemanticLayerPublic(view, section.layer)
+  const base =
+    section.layer === 'surface' || section.layer === 'text'
+      ? tokensForSemanticLayerPublicNonInverse(view, section.layer)
+      : tokensForSemanticLayerPublic(view, section.layer)
+  // Brand is inspected from the Custom Brand section, not as a neutral primitive row.
+  return base.filter((t) => !(t.role === 'surface.brand' && t.customColor))
 }
 
 function RoleTokenTable({
@@ -52,12 +57,12 @@ function RoleTokenTable({
   const sorted = useMemo(() => sortSystemTokensByPrimitiveLadder(tokens, global), [tokens, global])
 
   if (sorted.length === 0) {
-    return <p className="text-[0.65rem] text-white/35">No tokens in this group.</p>
+    return <p className="text-[0.65rem] text-[var(--ns-text-faint)]">No tokens in this group.</p>
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-white/10">
+    <div className="overflow-x-auto rounded-lg border border-[var(--ns-hairline)]">
       <table className="w-full min-w-[18rem] text-left text-[0.65rem]">
-        <thead className="border-b border-white/10 font-mono text-white/45">
+        <thead className="border-b border-[var(--ns-hairline)] font-mono text-[var(--ns-text-muted)]">
           <tr>
             <th className="px-2 py-1.5">Primitive</th>
             <th className="px-2 py-1.5">Semantic role</th>
@@ -69,23 +74,23 @@ function RoleTokenTable({
           {sorted.map((t) => {
             const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex)
             return (
-              <tr key={t.id} className="border-b border-white/[0.06]">
-                <td className="px-2 py-1.5 font-medium text-white/90" title={t.name}>
+              <tr key={t.id} className="border-b border-[var(--ns-hairline)]">
+                <td className="px-2 py-1.5 font-medium text-[var(--ns-text)]" title={t.name}>
                   {prim}
                 </td>
-                <td className="max-w-[11rem] px-2 py-1.5 text-white/55">
+                <td className="max-w-[11rem] px-2 py-1.5 text-[var(--ns-text-muted)]">
                   <span className="block truncate" title={humanizeRole(t.role)}>
                     {humanizeRole(t.role)}
                   </span>
-                  <span className="mt-0.5 block truncate text-[0.6rem] text-white/35" title={t.name}>
+                  <span className="mt-0.5 block truncate text-[0.6rem] text-[var(--ns-text-faint)]" title={t.name}>
                     {t.name}
                   </span>
                 </td>
-                <td className="px-2 py-1.5 text-right tabular-nums text-white/45">{t.sourceGlobalIndex}</td>
+                <td className="px-2 py-1.5 text-right tabular-nums text-[var(--ns-text-muted)]">{t.sourceGlobalIndex}</td>
                 <td className="px-2 py-1.5 align-middle">
                   <button
                     type="button"
-                    className="h-8 w-8 shrink-0 rounded border border-white/10 shadow-inner"
+                    className="h-8 w-8 shrink-0 rounded border border-[var(--ns-hairline)] shadow-inner"
                     style={{backgroundColor: t.serialized.hex}}
                     title={`${prim} · ${humanizeRole(t.role)}`}
                     onClick={() => onSelect(t.id)}
@@ -122,29 +127,34 @@ function ThemeTokenColumn({
 
   const shell =
     variant === 'light'
-      ? 'border-amber-400/25 bg-amber-500/[0.06]'
-      : 'border-sky-400/25 bg-sky-500/[0.06]'
+      ? 'border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)]'
+      : 'border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)]'
   const heading =
-    variant === 'light' ? 'text-amber-100/90' : 'text-sky-100/90'
-  const eyebrowTone = variant === 'light' ? 'text-amber-200/80' : 'text-sky-200/80'
+    variant === 'light'
+      ? 'text-[var(--ns-chrome-amber-text)]'
+      : 'text-[var(--ns-chrome-sky-text)]'
+  const eyebrowTone =
+    variant === 'light'
+      ? 'text-[var(--ns-chrome-amber-text)]'
+      : 'text-[var(--ns-chrome-sky-text)]'
 
   const emphasisToks = tokensForSemanticLayer(tokenView, 'emphasis')
 
   return (
     <div className={`rounded-2xl border p-4 sm:p-5 ${shell}`}>
-      <header className="border-b border-white/10 pb-4">
+      <header className="border-b border-[var(--ns-hairline)] pb-4">
         <p className={`eyebrow ${eyebrowTone}`}>{eyebrow}</p>
-        <h3 className="mt-1 text-lg font-semibold text-white">{title}</h3>
-        <p className="mt-1 text-xs text-white/50">{hint}</p>
+        <h3 className="mt-1 text-lg font-semibold text-[var(--ns-text)]">{title}</h3>
+        <p className="mt-1 text-xs text-[var(--ns-text-muted)]">{hint}</p>
         <button
           type="button"
           onClick={toggle}
-          className="mt-3 rounded-full border border-white/12 px-2.5 py-1 text-[0.65rem] text-white/65 hover:bg-white/8 hover:text-white"
+          className="mt-3 rounded-full border border-[var(--ns-hairline)] px-2.5 py-1 text-[0.65rem] text-[var(--ns-text-subtle)] hover:bg-[var(--ns-chip)] hover:text-[var(--ns-text)]"
         >
           {showTable ? 'Visual view' : 'Data table'}
         </button>
         {showTable ? (
-          <p className="mt-2 text-[0.6rem] leading-snug text-white/35">
+          <p className="mt-2 text-[0.6rem] leading-snug text-[var(--ns-text-faint)]">
             Primitive column uses tier‑1 names from the global ramp (<span className="font-mono">neutral-*</span>
             ). Rows sort by ladder value; semantic role and tier‑2 token name are secondary.
           </p>
@@ -164,15 +174,15 @@ function ThemeTokenColumn({
                   <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
                     {friendlySemanticCategoryLabel(titleKey)}
                   </h4>
-                  <p className="text-[0.65rem] text-white/40">{hint}</p>
+                  <p className="text-[0.65rem] text-[var(--ns-text-faint)]">{hint}</p>
                   <RoleTokenTable tokens={groupTokens} global={global} onSelect={onSelectSystem} />
                 </div>
               )
             })}
             {emphasisToks.length > 0 ? (
-              <div className="space-y-2 border-t border-white/10 pt-6">
+              <div className="space-y-2 border-t border-[var(--ns-hairline)] pt-6">
                 <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Emphasis</h4>
-                <p className="text-[0.65rem] text-white/40">Experimental accessible pairs (higher contrast).</p>
+                <p className="text-[0.65rem] text-[var(--ns-text-faint)]">Experimental accessible pairs (higher contrast).</p>
                 <RoleTokenTable tokens={emphasisToks} global={global} onSelect={onSelectSystem} />
               </div>
             ) : null}
@@ -181,7 +191,7 @@ function ThemeTokenColumn({
           <>
             <SemanticSingleThemeGrid tokenView={tokenView} global={global} />
             {emphasisToks.length > 0 ? (
-              <div className="space-y-2 border-t border-white/10 pt-6">
+              <div className="space-y-2 border-t border-[var(--ns-hairline)] pt-6">
                 <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
                   Emphasis (experimental)
                 </h4>
@@ -200,8 +210,8 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
     <section id="themes" className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">3 · Themes</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Light vs dark elevated</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/55">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Light vs dark elevated</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
           Default view is a primitive-token data table: neutral ladder names, semantic roles, and ramp
           indices. Switch to Visual for the paired layout.
         </p>

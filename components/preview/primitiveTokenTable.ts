@@ -7,7 +7,7 @@ export function primitiveSortKey(sw: GlobalSwatch | undefined): number {
   return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY
 }
 
-/** Tier-1 export name for the ramp swatch at `sourceIndex`. */
+/** Tier-1 export name for the ramp swatch at `sourceIndex` (or `—`). */
 export function primitiveNeutralExportName(global: GlobalSwatch[], sourceIndex: number): string {
   const sw = global[sourceIndex]
   return sw ? `neutral-${sw.label}` : '—'

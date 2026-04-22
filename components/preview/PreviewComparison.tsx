@@ -18,10 +18,11 @@ type Props = {
 }
 
 const GROUP_HINTS: PairedRoleGroupHints = {
-  surface: 'Base → elevated surfaces (hierarchy ladder; inverse pair is grouped separately).',
-  text: 'Content picks follow the text ramp (strongest → weakest) for each theme.',
+  surface:
+    'Elevation ladder: sunken → overlay on the ramp; surface.inverse is a dedicated high-contrast flip (grouped separately).',
+  text: 'Readable hierarchy: default (primary) down to disabled; text.on is for bold / inverse surfaces.',
   inversePair:
-    'Contrast-flip: inverse surface and text on inverse — mirror theme hierarchy, not a normal ladder step.',
+    'Contrast-flip pair: surface.inverse and text.on — ramp mirrors, not normal ladder rungs.',
 }
 
 function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, darkTokenView}: Props) {
@@ -41,18 +42,20 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
         <div
           className={`rounded-xl border p-3 sm:p-4 ${
             isLight
-              ? 'border-amber-400/25 bg-amber-500/[0.06]'
-              : 'border-sky-400/25 bg-sky-500/[0.06]'
+              ? 'border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)]'
+              : 'border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)]'
           }`}
         >
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">{title}</p>
-              <p className="mt-0.5 text-sm font-medium text-white/90">Mapping preview</p>
+              <p className="mt-0.5 text-sm font-medium text-[var(--ns-text)]">Mapping preview</p>
             </div>
             <span
               className={`rounded-full px-2 py-0.5 font-mono text-[0.6rem] ${
-                isLight ? 'bg-amber-500/15 text-amber-100/90' : 'bg-sky-500/15 text-sky-100/90'
+                isLight
+                  ? 'bg-[var(--ns-chrome-amber-pill)] text-[var(--ns-chrome-amber-text)]'
+                  : 'bg-[var(--ns-chrome-sky-pill)] text-[var(--ns-chrome-sky-text)]'
               }`}
             >
               {isLight ? 'themeMode: light' : 'themeMode: darkElevated'}
@@ -65,7 +68,11 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             global={global}
             tokenView={tokenView}
             caption={caption}
-            accentClassName={isLight ? 'ring-1 ring-amber-400/20' : 'ring-1 ring-sky-400/20'}
+            accentClassName={
+              isLight
+                ? 'ring-1 ring-[var(--ns-chrome-amber-ring)]'
+                : 'ring-1 ring-[var(--ns-chrome-sky-ring)]'
+            }
             invertDisplay={!isLight}
             directionHint={directionHint}
           />
@@ -85,13 +92,13 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
   return (
     <div className="space-y-8">
       <div className="grid gap-4 lg:grid-cols-1 lg:gap-4">
-        <div className="rounded-xl border border-amber-400/25 bg-amber-500/[0.06] p-3 sm:p-4">
+        <div className="rounded-xl border border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)] px-4 py-3 sm:px-5 sm:py-4">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">Light</p>
-              <p className="mt-0.5 text-sm font-medium text-white/90">Global ramp</p>
+              <p className="mt-0.5 text-sm font-medium text-[var(--ns-text)]">Global ramp</p>
             </div>
-            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 font-mono text-[0.6rem] text-amber-100/90">
+            <span className="rounded-full bg-[var(--ns-chrome-amber-pill)] px-2 py-0.5 font-mono text-[0.6rem] text-[var(--ns-chrome-amber-text)]">
               themeMode: light
             </span>
           </div>
@@ -102,18 +109,18 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             global={global}
             tokenView={lightTokenView}
             caption="Light · global ramp (low index = lightest)"
-            accentClassName="ring-1 ring-amber-400/15"
+            accentClassName="ring-1 ring-[var(--ns-chrome-amber-ring-soft)]"
             directionHint="Ramp reads light → dark (low → high index)."
           />
         </div>
 
-        <div className="rounded-xl border border-sky-400/25 bg-sky-500/[0.06] p-3 sm:p-4">
+        <div className="rounded-xl border border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)] p-3 sm:p-4">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">Dark elevated</p>
-              <p className="mt-0.5 text-sm font-medium text-white/90">Global ramp</p>
+              <p className="mt-0.5 text-sm font-medium text-[var(--ns-text)]">Global ramp</p>
             </div>
-            <span className="rounded-full bg-sky-500/15 px-2 py-0.5 font-mono text-[0.6rem] text-sky-100/90">
+            <span className="rounded-full bg-[var(--ns-chrome-sky-pill)] px-2 py-0.5 font-mono text-[0.6rem] text-[var(--ns-chrome-sky-text)]">
               themeMode: darkElevated
             </span>
           </div>
@@ -124,7 +131,7 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             global={global}
             tokenView={darkTokenView}
             caption="Dark elevated · global ramp (tail pool)"
-            accentClassName="ring-1 ring-sky-400/15"
+            accentClassName="ring-1 ring-[var(--ns-chrome-sky-ring-soft)]"
             invertDisplay
             directionHint="Surfaces from the dark tail; strip inverted so it reads dark → light left to right."
           />

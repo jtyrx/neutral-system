@@ -1,4 +1,5 @@
 export * from '@/lib/neutral-engine/types'
+export * from '@/lib/neutral-engine/brandColor'
 export * from '@/lib/neutral-engine/effectiveMapping'
 export * from '@/lib/neutral-engine/defaultSystemMapping'
 export * from '@/lib/neutral-engine/globalScale'

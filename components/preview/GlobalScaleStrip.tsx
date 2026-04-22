@@ -46,20 +46,22 @@ function stripRoleBadge(role: string): { text: string; className: string } {
     return { text: 'S?', className: 'bg-emerald-400/90 text-zinc-950' }
   }
   if (cat === 'border') {
+    const amberBadge = 'bg-[var(--ns-chrome-amber-fill-strong)] text-zinc-950'
     const i = BORDER_ROLE_ORDER.findIndex((r) => r === role)
-    if (i >= 0) return { text: `B${i + 1}`, className: 'bg-amber-400/90 text-zinc-950' }
-    const m = /^border\.layer-(\d+)$/.exec(role)
-    if (m) return { text: `B${Number(m[1]) + 1}`, className: 'bg-amber-400/90 text-zinc-950' }
-    return { text: 'B?', className: 'bg-amber-400/90 text-zinc-950' }
+    if (i >= 0) return { text: `B${i + 1}`, className: amberBadge }
+    const m = role.match(/^border\.layer-(\d+)$/)
+    if (m) return { text: `B${Number(m[1]) + 1}`, className: amberBadge }
+    return { text: 'B?', className: amberBadge }
   }
   if (cat === 'text') {
+    const skyBadge = 'bg-[var(--ns-chrome-sky-fill-strong)] text-zinc-950'
     const i = TEXT_ROLE_ORDER.findIndex((r) => r === role)
-    if (i >= 0) return { text: `T${i + 1}`, className: 'bg-sky-400/90 text-zinc-950' }
-    const m = /^text\.layer-(\d+)$/.exec(role)
-    if (m) return { text: `T${Number(m[1]) + 1}`, className: 'bg-sky-400/90 text-zinc-950' }
-    return { text: 'T?', className: 'bg-sky-400/90 text-zinc-950' }
+    if (i >= 0) return { text: `T${i + 1}`, className: skyBadge }
+    const m = role.match(/^text\.layer-(\d+)$/)
+    if (m) return { text: `T${Number(m[1]) + 1}`, className: skyBadge }
+    return { text: 'T?', className: skyBadge }
   }
-  return { text: '·', className: 'bg-white/20 text-white/90 ring-1 ring-white/15' }
+  return { text: '·', className: 'bg-[var(--ns-overlay-strong)] text-[var(--ns-text)] ring-1 ring-white/15' }
 }
 
 function sortMappedForStrip(tokens: SystemToken[]): SystemToken[] {
@@ -82,7 +84,7 @@ function GlobalScaleStripInner({
   const len = global.length
   if (len === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-white/20 p-4 text-center text-xs text-white/45">
+      <div className="rounded-xl border border-dashed border-[var(--ns-hairline-strong)] p-4 text-center text-xs text-[var(--ns-text-muted)]">
         No swatches — check global scale configuration.
       </div>
     )
@@ -92,9 +94,9 @@ function GlobalScaleStripInner({
 
   return (
     <div className="space-y-2">
-      <p className="text-[0.65rem] font-medium tracking-wide text-white/55">{caption}</p>
+      <p className="text-[0.65rem] font-medium tracking-wide text-[var(--ns-text-muted)]">{caption}</p>
       <div
-        className={`w-full overflow-x-auto rounded-xl border border-white/10 bg-black/25 p-2 ${accentClassName ?? ''}`}
+        className={`w-full overflow-x-auto rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-2 ${accentClassName ?? ''}`}
       >
         <div
           className="grid w-full min-w-0 gap-x-1 gap-y-1"
@@ -113,10 +115,10 @@ function GlobalScaleStripInner({
               >
                 {/* Fixed height: no flex-1 so every swatch matches regardless of badge count */}
                 <div
-                  className="h-9 w-full shrink-0 rounded-t border border-white/10 lg:h-11"
+                  className="h-9 w-full shrink-0 rounded-t border border-[var(--ns-hairline)] lg:h-11"
                   style={{ backgroundColor: s.serialized.hex }}
                 />
-                <span className="shrink-0 text-center text-[0.5rem] leading-none text-white/35 py-0.5 px-0.5">
+                <span className="shrink-0 text-center text-[0.5rem] leading-none text-[var(--ns-text-faint)] py-0.5 px-0.5">
                   {s.index}
                 </span>
                 <div className="flex h-14 shrink-0 flex-col flex-wrap justify-start content-start items-start gap-1 overflow-hidden py-0.5">
@@ -133,7 +135,7 @@ function GlobalScaleStripInner({
                     )
                   })}
                   {mapped.length > 3 ? (
-                    <span className="text-[0.5rem] text-white/40">+{mapped.length - 3}</span>
+                    <span className="text-[0.5rem] text-[var(--ns-text-faint)]">+{mapped.length - 3}</span>
                   ) : null}
                 </div>
               </div>

@@ -1,5 +1,8 @@
+import {DEFAULT_BRAND_OKLCH} from '@/lib/neutral-engine/brandColor'
+import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
 import {
+  BORDER_STANDARD_SLOT_COUNT,
   SURFACE_STANDARD_COUNT_MAX,
   SURFACE_STANDARD_COUNT_MIN,
   TEXT_STANDARD_SLOT_COUNT,
@@ -11,15 +14,15 @@ export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   fillStart: 0,                // Index where fill slots start in the palette (light mode)
   strokeStart: 4,              // Index where stroke slots start in the palette (light mode)
   textStart: 34,               // Index where text slots start in the palette (light mode)
-  fillCount: 5,                // Number of fill slots to use (light mode)
-  strokeCount: 3,              // Number of stroke slots to use (light mode)
-  textCount: 5,                // Number of text slots to use (light mode)
-  darkFillStart: 0,            // Index where fill slots start in the palette (dark mode)
+  fillCount: 5,                // Standard surface ladder (sunken → overlay); inverse is separate
+  strokeCount: 3,              // Border ladder: default / subtle / strong; border.focus is separate
+  textCount: 4,                // Standard text ladder (default → disabled); text.on is separate
+  darkFillStart: -1,            // Index where fill slots start in the palette (dark mode)
   darkStrokeStart: 2,          // Index where stroke slots start in the palette (dark mode)
   darkTextStart: 15,           // Index where text slots start in the palette (dark mode)
-  darkFillCount: 4,            // Number of fill slots to use (dark mode)
-  darkStrokeCount: 3,          // Number of stroke slots to use (dark mode)
-  darkTextCount: 4,            // Number of text slots to use (dark mode)
+  darkFillCount: 5,            // Standard surface ladder (dark elevated)
+  darkStrokeCount: 3,          // Border ladder (dark elevated)
+  darkTextCount: 4,            // Standard text ladder (dark elevated)
   altCount: 2,                 // Number of alternative slots/groups to allocate
   lightFillStepInterval: 1,    // Step interval between fills in light mode
   lightStrokeStepInterval: 1,  // Step interval between strokes in light mode
@@ -32,6 +35,7 @@ export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   darkSegmentLength: 8,        // Segment length for dark mode palette linear mappings
   altAlpha: 0.45,              // Alpha value to use for alternative slots
   includeContrastGroups: false,// Whether to include explicit contrast groups in mapping
+  brandOklch: DEFAULT_BRAND_OKLCH,
 }
 
 type PartialSystemWithLegacy = Partial<SystemMappingConfig> & {stepInterval?: number}
@@ -48,9 +52,17 @@ export function migrateSystemMappingConfig(partial: PartialSystemWithLegacy): Sy
   if (partial.darkTextCount === undefined) m.darkTextCount = m.textCount
 
   m.fillCount = Math.min(SURFACE_STANDARD_COUNT_MAX, Math.max(SURFACE_STANDARD_COUNT_MIN, Math.round(m.fillCount)))
+  m.strokeCount = Math.min(BORDER_STANDARD_SLOT_COUNT, Math.max(1, Math.round(m.strokeCount)))
   m.textCount = Math.min(TEXT_STANDARD_SLOT_COUNT, Math.max(1, Math.round(m.textCount)))
   m.darkFillCount = Math.min(SURFACE_STANDARD_COUNT_MAX, Math.max(SURFACE_STANDARD_COUNT_MIN, Math.round(m.darkFillCount)))
+  m.darkStrokeCount = Math.min(BORDER_STANDARD_SLOT_COUNT, Math.max(1, Math.round(m.darkStrokeCount)))
   m.darkTextCount = Math.min(TEXT_STANDARD_SLOT_COUNT, Math.max(1, Math.round(m.darkTextCount)))
+
+  if (typeof m.brandOklch !== 'string' || !m.brandOklch.trim()) {
+    m.brandOklch = DEFAULT_SYSTEM_MAPPING.brandOklch
+  } else {
+    m.brandOklch = trimCssColorValue(m.brandOklch)
+  }
 
   if (legacyStepInterval !== undefined && Number.isFinite(legacyStepInterval)) {
     if (rest.lightFillStepInterval === undefined) m.lightFillStepInterval = legacyStepInterval

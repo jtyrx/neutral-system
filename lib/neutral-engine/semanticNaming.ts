@@ -1,23 +1,22 @@
 /**
- * Dot-path semantic roles (Material / Polaris–style): `surface.base`, `text.primary`, `border.subtle`, …
- * Tier-1 primitives remain `neutral-*`; these are tier-2 roles resolved per theme.
+ * Dot-path semantic roles (tier-2): `surface.default`, `text.muted`, `border.focus`, …
+ * Tier-1 primitives remain `neutral-*`; roles resolve per theme via {@link deriveSystemTokens}.
  */
 
 import type {SystemRole} from '@/lib/neutral-engine/types'
 
 /**
- * Standard surface ladder names (indices 0–7). `inverse` is **not** part of this list — it is a
- * separate contrast-flip token mirrored from the first standard pick.
+ * Standard surface elevation ladder (indices 0–4). `inverse` is **not** part of this list — it is a
+ * dedicated high-contrast flip mirrored from the first standard pick (see {@link resolveSurfaceInverseIndex}).
+ *
+ * Order: deepest well → page base → secondary → cards → overlay (light: low→high index; dark elevated: reversed visually).
  */
 export const SURFACE_STANDARD_NAMES = [
-  'base',
+  'sunken',
+  'default',
   'subtle',
-  'container',
-  'elevated',
-  'rung-5',
-  'rung-6',
-  'rung-7',
-  'rung-8',
+  'raised',
+  'overlay',
 ] as const
 
 /** How many named standard surface roles exist (fill count is clamped to min/max separately). */
@@ -28,28 +27,47 @@ export const SURFACE_STANDARD_COUNT_MIN = 2
 export const SURFACE_STANDARD_COUNT_MAX = SURFACE_STANDARD_SLOT_COUNT
 
 /**
- * All app surface modifiers for contrast matrices: full standard ladder + inverse.
- * (Inverse is listed last; see {@link SURFACE_ROLE_SORT_ORDER}.)
+ * All app surface modifiers for contrast matrices: standard ladder + on-brand plane + inverse.
+ * (See {@link SURFACE_ROLE_SORT_ORDER}.)
  */
-export const SURFACE_SLOTS = [...SURFACE_STANDARD_NAMES, 'inverse'] as const
-export const BORDER_SLOTS = ['subtle', 'default', 'strong'] as const
-/** Content tones: `inverse` mirrors `text.primary` for theme-flip. */
-export const TEXT_SLOTS = ['primary', 'secondary', 'tertiary', 'disabled', 'inverse'] as const
-/** Standard text ladder only (primary → disabled). Inverse is mapped separately, not part of text count. */
+export const SURFACE_SLOTS = [...SURFACE_STANDARD_NAMES, 'brand', 'inverse'] as const
+
+/** Border ramp picks only (strokeCount); `focus` is derived separately — see {@link resolveBorderFocusIndex}. */
+export const BORDER_LADDER_NAMES = ['default', 'subtle', 'strong'] as const
+export const BORDER_STANDARD_SLOT_COUNT = BORDER_LADDER_NAMES.length
+
+/** Full border role set for badges, exports, and docs (ladder + focus). */
+export const BORDER_SLOTS = [...BORDER_LADDER_NAMES, 'focus'] as const
+
+/** Content hierarchy: standard ladder + `on` (contrast flip of `default`, not part of textCount). */
+export const TEXT_SLOTS = ['default', 'subtle', 'muted', 'disabled', 'on'] as const
+/** Standard text ladder only (default → disabled). `on` is mapped separately, not part of text count. */
 export const TEXT_STANDARD_SLOT_COUNT = 4
 
-/** Index of `inverse` in the full **text** slot array (0-based). */
+/** Index of `on` in the full **text** slot array (0-based). */
 export const INVERSE_MODIFIER_INDEX = 4
 
-/** Stable ordering for `surface.*` roles in tables and layer lists (inverse last). */
+/** Stable ordering for `surface.*` roles in tables and layer lists (brand before inverse flip). */
 export const SURFACE_ROLE_SORT_ORDER: readonly string[] = [
   ...SURFACE_STANDARD_NAMES.map((n) => `surface.${n}`),
+  'surface.brand',
   'surface.inverse',
 ]
 
-/** Contrast-flip pair roles (`surface.inverse`, `text.inverse`) — not normal hierarchy steps. */
+/** Stable ordering for `border.*` (ladder then focus). */
+export const BORDER_ROLE_SORT_ORDER: readonly string[] = BORDER_SLOTS.map((n) => `border.${n}`)
+
+/** Stable ordering for `text.*` (ladder then on). */
+export const TEXT_ROLE_SORT_ORDER: readonly string[] = TEXT_SLOTS.map((n) => `text.${n}`)
+
+/** Contrast-flip pair roles (`surface.inverse`, `text.on`) — not normal hierarchy steps. */
 export function isInversePairRole(role: string): boolean {
-  return role === 'surface.inverse' || role === 'text.inverse'
+  return role === 'surface.inverse' || role === 'text.on'
+}
+
+/** Dedicated focus-ring token (max-contrast neutral), not a stroke ladder rung. */
+export function isBorderFocusRole(role: string): boolean {
+  return role === 'border.focus'
 }
 
 /** Contrast emphasis: spacing between resolved ramp picks. */
@@ -69,8 +87,8 @@ export function surfaceRoleForIndex(k: number): SystemRole {
 }
 
 export function borderRoleForIndex(k: number): SystemRole {
-  if (k >= 0 && k < BORDER_SLOTS.length) {
-    return `border.${BORDER_SLOTS[k]}` as SystemRole
+  if (k >= 0 && k < BORDER_LADDER_NAMES.length) {
+    return `border.${BORDER_LADDER_NAMES[k]}` as SystemRole
   }
   return `border.layer-${k}` as SystemRole
 }
@@ -125,6 +143,20 @@ export function compareSemanticRoles(a: string, b: string): number {
   if (ca === 'surface' && a.startsWith('surface.') && b.startsWith('surface.')) {
     const oa = SURFACE_ROLE_SORT_ORDER.indexOf(a)
     const ob = SURFACE_ROLE_SORT_ORDER.indexOf(b)
+    if (oa !== -1 && ob !== -1) return oa - ob
+    if (oa !== -1) return -1
+    if (ob !== -1) return 1
+  }
+  if (ca === 'border' && a.startsWith('border.') && b.startsWith('border.')) {
+    const oa = BORDER_ROLE_SORT_ORDER.indexOf(a)
+    const ob = BORDER_ROLE_SORT_ORDER.indexOf(b)
+    if (oa !== -1 && ob !== -1) return oa - ob
+    if (oa !== -1) return -1
+    if (ob !== -1) return 1
+  }
+  if (ca === 'text' && a.startsWith('text.') && b.startsWith('text.')) {
+    const oa = TEXT_ROLE_SORT_ORDER.indexOf(a)
+    const ob = TEXT_ROLE_SORT_ORDER.indexOf(b)
     if (oa !== -1 && ob !== -1) return oa - ob
     if (oa !== -1) return -1
     if (ob !== -1) return 1

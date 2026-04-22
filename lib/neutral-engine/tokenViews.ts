@@ -11,6 +11,14 @@ export type TokenView = {
   byGlobalIndex: Map<number, SystemToken[]>
   /** Sorted for semantic role tables (category order, then name). */
   sortedForTable: SystemToken[]
+  /** Layer → tokens (pre-sorted) for previews/sections to avoid repeated filter/sort work. */
+  byLayer: Record<SemanticLayer, SystemToken[]>
+  /** Same as {@link byLayer} but excludes overflow `*.layer-*` roles. */
+  byLayerPublic: Record<SemanticLayer, SystemToken[]>
+  /** Public surface/text layers without inverse flip roles (use with inverse-pair category). */
+  byLayerPublicNonInverse: Record<'surface' | 'text', SystemToken[]>
+  /** Inverse surface + text-on-inverse for paired-role “Inverse” category. */
+  inversePairCategory: SystemToken[]
 }
 
 export function buildTokenView(tokens: SystemToken[]): TokenView {
@@ -33,58 +41,87 @@ export function buildTokenView(tokens: SystemToken[]): TokenView {
     return a.name.localeCompare(b.name)
   })
 
-  return {byRole, byGlobalIndex, sortedForTable}
+  const byLayer: Record<SemanticLayer, SystemToken[]> = {
+    surface: [],
+    border: [],
+    text: [],
+    interactive: [],
+    emphasis: [],
+  }
+
+  for (const t of tokens) {
+    if (t.role.startsWith('surface.')) byLayer.surface.push(t)
+    else if (t.role.startsWith('border.')) byLayer.border.push(t)
+    else if (t.role.startsWith('text.')) byLayer.text.push(t)
+    else if (t.role.startsWith('emphasis.')) byLayer.emphasis.push(t)
+    else if (t.role.startsWith('state.') || t.role.startsWith('overlay.')) byLayer.interactive.push(t)
+  }
+
+  const sortRole = (a: SystemToken, b: SystemToken) =>
+    compareSemanticRoles(a.role, b.role) || a.name.localeCompare(b.name)
+
+  ;(Object.keys(byLayer) as SemanticLayer[]).forEach((k) => {
+    byLayer[k] = byLayer[k].sort(sortRole)
+  })
+
+  const byLayerPublic: Record<SemanticLayer, SystemToken[]> = {
+    surface: byLayer.surface.filter((t) => !isOverflowRole(t.role)),
+    border: byLayer.border.filter((t) => !isOverflowRole(t.role)),
+    text: byLayer.text.filter((t) => !isOverflowRole(t.role)),
+    interactive: byLayer.interactive.filter((t) => !isOverflowRole(t.role)),
+    emphasis: byLayer.emphasis.filter((t) => !isOverflowRole(t.role)),
+  }
+
+  const byLayerPublicNonInverse: Record<'surface' | 'text', SystemToken[]> = {
+    surface: byLayerPublic.surface.filter((t) => !isInversePairRole(t.role)),
+    text: byLayerPublic.text.filter((t) => !isInversePairRole(t.role)),
+  }
+
+  const inversePairCategory: SystemToken[] = []
+  for (const role of INVERSE_PAIR_ROLES) {
+    const list = byRole.get(role)
+    if (list) inversePairCategory.push(...list.filter((t) => !isOverflowRole(t.role)))
+  }
+  inversePairCategory.sort(sortRole)
+
+  return {
+    byRole,
+    byGlobalIndex,
+    sortedForTable,
+    byLayer,
+    byLayerPublic,
+    byLayerPublicNonInverse,
+    inversePairCategory,
+  }
 }
 
 export type SemanticLayer = 'surface' | 'border' | 'text' | 'interactive' | 'emphasis'
 
 /** Tokens for a UI layer (surface / border / text / interactive / emphasis). */
 export function tokensForSemanticLayer(view: TokenView, layer: SemanticLayer): SystemToken[] {
-  const out: SystemToken[] = []
-  for (const [role, list] of view.byRole) {
-    if (layer === 'emphasis' && role.startsWith('emphasis.')) {
-      out.push(...list)
-      continue
-    }
-    if (layer === 'interactive' && (role.startsWith('state.') || role.startsWith('overlay.'))) {
-      out.push(...list)
-      continue
-    }
-    if (layer === 'surface' && role.startsWith('surface.')) {
-      out.push(...list)
-      continue
-    }
-    if (layer === 'border' && role.startsWith('border.')) {
-      out.push(...list)
-      continue
-    }
-    if (layer === 'text' && role.startsWith('text.')) {
-      out.push(...list)
-    }
-  }
-  return out.sort((a, b) => compareSemanticRoles(a.role, b.role) || a.name.localeCompare(b.name))
+  return view.byLayer[layer] ?? []
 }
 
 /** Public role tokens only (excludes `*.layer-*` overflow). */
 export function tokensForSemanticLayerPublic(view: TokenView, layer: SemanticLayer): SystemToken[] {
-  return tokensForSemanticLayer(view, layer).filter((t) => !isOverflowRole(t.role))
+  return view.byLayerPublic[layer] ?? []
 }
 
 /**
  * Surface / text layers without contrast-flip inverse slots — use with {@link tokensForInversePairCategory}.
  */
 export function tokensForSemanticLayerPublicNonInverse(view: TokenView, layer: SemanticLayer): SystemToken[] {
-  const toks = tokensForSemanticLayerPublic(view, layer)
   if (layer === 'surface' || layer === 'text') {
-    return toks.filter((t) => !isInversePairRole(t.role))
+    return view.byLayerPublicNonInverse[layer] ?? []
   }
-  return toks
+  return tokensForSemanticLayerPublic(view, layer)
 }
 
-const INVERSE_PAIR_ROLES = ['surface.inverse', 'text.inverse'] as const satisfies readonly SystemRole[]
+const INVERSE_PAIR_ROLES = ['surface.inverse', 'text.on'] as const satisfies readonly SystemRole[]
 
 /** Inverse surface + text-on-inverse for paired-role “Inverse” category. */
 export function tokensForInversePairCategory(view: TokenView): SystemToken[] {
+  if (view.inversePairCategory) return view.inversePairCategory
   const out: SystemToken[] = []
   for (const role of INVERSE_PAIR_ROLES) {
     const list = view.byRole.get(role)

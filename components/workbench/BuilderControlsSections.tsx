@@ -1,5 +1,6 @@
 'use client'
 
+import {BrandColorSection} from '@/components/sections/BrandColorSection'
 import {ExportSection} from '@/components/sections/ExportSection'
 import {GlobalScaleSection} from '@/components/sections/GlobalScaleSection'
 import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
@@ -33,9 +34,14 @@ export function BuilderControlsSections({wb, selectedGlobalIndex}: Props) {
           onSelectSwatch={wb.selectGlobal}
         />
         <div className="mt-6">
-          <VariantsSection config={wb.globalConfig} onChange={wb.setGlobalConfig} />
+          <VariantsSection
+            config={wb.globalConfig}
+            onChange={(next, label) => wb.setGlobalConfig(next, label)}
+          />
         </div>
       </CollapsibleControlGroup>
+
+      <BrandColorSection systemConfig={wb.systemConfig} patchSystem={wb.patchSystem} />
 
       <CollapsibleControlGroup
         id="mapping"

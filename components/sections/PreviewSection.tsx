@@ -64,7 +64,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-white/10 ${pad} min-h-[min(26rem,52vh)] sm:min-h-[min(30rem,58vh)]`}
+      className={`overflow-hidden rounded-2xl border border-[var(--ns-hairline)] ${pad} min-h-[min(26rem,52vh)] sm:min-h-[min(30rem,58vh)]`}
       style={{backgroundColor: f(0)}}
     >
       <div className="mx-auto max-w-3xl">
@@ -217,8 +217,8 @@ function PreviewSectionInner({previewTheme, global, tokenView, hero = false}: Pr
     <section className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">6 · UI preview</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Surfaces in context</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/55">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Surfaces in context</h2>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
           Surface and text tokens from the active theme, layered as a compact validation surface.
         </p>
       </header>

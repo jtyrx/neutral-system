@@ -15,22 +15,26 @@ import {
   buildTokenView,
   clampSystemMappingToLadderLength,
   DEFAULT_SYSTEM_MAPPING,
+  deriveBrandSurfaceToken,
   deriveSystemTokens,
   type ContrastEmphasis,
   type GlobalScaleConfig,
   type GlobalSwatch,
   type SystemMappingConfig,
   type SystemToken,
+  type ThemeMode,
   type TokenView,
   type WorkbenchSelection,
 } from '@/lib/neutral-engine'
 import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
-import {systemConfigsEqual} from '@/lib/neutral-engine/configEquality'
+import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
+import {globalConfigsEqual, systemConfigsEqual} from '@/lib/neutral-engine/configEquality'
+import {labelForGlobalPatchKey, labelForSystemPatchKey} from '@/lib/neutral-engine/workbenchInputLabels'
 
 const DEFAULT_GLOBAL: GlobalScaleConfig = {
   steps: 41,
   lHigh: 0.985,
-  lLow: 0.04,
+  lLow: 0.1615,
   progression: 'linear',
   chromaMode: 'achromatic',
   baseChroma: 0.012,
@@ -45,6 +49,11 @@ export function useNeutralWorkbench() {
   const [globalConfig, setGlobalConfigBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
   const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
+  /**
+   * Global theme mode — drives `<html data-theme>` and the entire workbench chrome via the --ns-* alias layer.
+   * Distinct from `previewTheme`, which stays preview-only (Focus selector for semantic blocks).
+   */
+  const [themeMode, setThemeModeBase] = useState<'light' | 'dark'>('dark')
   const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('default')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
   /**
@@ -54,47 +63,121 @@ export function useNeutralWorkbench() {
    */
   const [comparisonLayout, setComparisonLayout] = useState<ComparisonLayout>('split')
   const [showContrastPairs, setShowContrastPairs] = useState(false)
+  /** Inspection mode highlights semantic annotations and routes clicks to the Inspector. */
+  const [inspectionMode, setInspectionMode] = useState(false)
+  const [busyInputLabel, setBusyInputLabel] = useState('Updating')
 
   const [isPending, startTransition] = useTransition()
 
-  const setGlobalConfig = useCallback((action: SetStateAction<GlobalScaleConfig>) => {
-    startTransition(() => setGlobalConfigBase(action))
+  const touchBusyLabel = useCallback((label: string) => {
+    setBusyInputLabel(label)
   }, [])
 
-  const setSystemConfig = useCallback((action: SetStateAction<SystemMappingConfig>) => {
-    startTransition(() => setSystemConfigBase(action))
+  const setGlobalConfig = useCallback(
+    (action: SetStateAction<GlobalScaleConfig>, label = 'Global scale') => {
+      touchBusyLabel(label)
+      startTransition(() => setGlobalConfigBase(action))
+    },
+    [touchBusyLabel],
+  )
+
+  const setSystemConfig = useCallback(
+    (action: SetStateAction<SystemMappingConfig>, label = 'System mapping') => {
+      touchBusyLabel(label)
+      startTransition(() => setSystemConfigBase(action))
+    },
+    [touchBusyLabel],
+  )
+
+  const setPreviewTheme = useCallback(
+    (value: 'light' | 'dark', label = 'Preview theme') => {
+      touchBusyLabel(label)
+      startTransition(() => setPreviewThemeBase(value))
+    },
+    [touchBusyLabel],
+  )
+
+  /** Global theme toggle — non-deferred so the whole chrome flips immediately. */
+  const setThemeMode = useCallback(
+    (value: 'light' | 'dark', label = 'Theme mode') => {
+      touchBusyLabel(label)
+      setThemeModeBase(value)
+    },
+    [touchBusyLabel],
+  )
+
+  const toggleThemeMode = useCallback(() => {
+    setThemeModeBase((v) => (v === 'light' ? 'dark' : 'light'))
   }, [])
 
-  const setPreviewTheme = useCallback((action: SetStateAction<'light' | 'dark'>) => {
-    startTransition(() => setPreviewThemeBase(action))
+  const emphasisLabel = useCallback((e: ContrastEmphasis): string => {
+    const m: Record<ContrastEmphasis, string> = {
+      subtle: 'Contrast · Subtle',
+      default: 'Contrast · Default',
+      strong: 'Contrast · Strong',
+      inverse: 'Contrast · Inverse',
+    }
+    return m[e]
   }, [])
 
-  const setContrastEmphasis = useCallback((action: SetStateAction<ContrastEmphasis>) => {
-    startTransition(() => setContrastEmphasisBase(action))
-  }, [])
+  const setContrastEmphasis = useCallback(
+    (value: ContrastEmphasis, label?: string) => {
+      touchBusyLabel(label ?? emphasisLabel(value))
+      startTransition(() => setContrastEmphasisBase(value))
+    },
+    [touchBusyLabel, emphasisLabel],
+  )
 
   /** Single-field updates with referential stability when the value is unchanged (avoids redundant transitions). */
-  const patchGlobal = useCallback(<K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K]) => {
-    startTransition(() => {
-      setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
-    })
-  }, [])
+  const patchGlobal = useCallback(
+    <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => {
+      touchBusyLabel(explicitLabel ?? labelForGlobalPatchKey(key))
+      startTransition(() => {
+        setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
+      })
+    },
+    [touchBusyLabel],
+  )
 
-  const patchSystem = useCallback(<K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K]) => {
-    startTransition(() => {
-      setSystemConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
-    })
-  }, [])
+  const patchSystem = useCallback(
+    <K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K], explicitLabel?: string) => {
+      touchBusyLabel(explicitLabel ?? labelForSystemPatchKey(key))
+      startTransition(() => {
+        setSystemConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
+      })
+    },
+    [touchBusyLabel],
+  )
 
   const deferredSystemBase = useDeferredValue(systemConfigBase)
+  const deferredGlobalConfig = useDeferredValue(globalConfig)
+  const deferredContrastEmphasis = useDeferredValue(contrastEmphasis)
+  const deferredPreviewTheme = useDeferredValue(previewTheme)
 
-  const deferredStale = useMemo(
+  const systemDeferredStale = useMemo(
     () => !systemConfigsEqual(systemConfigBase, deferredSystemBase),
     [systemConfigBase, deferredSystemBase],
   )
 
-  /** True while React is applying a transition or deferred values have not caught up to latest input. */
-  const inputBusy = isPending || deferredStale
+  const globalDeferredStale = useMemo(
+    () => !globalConfigsEqual(globalConfig, deferredGlobalConfig),
+    [globalConfig, deferredGlobalConfig],
+  )
+
+  const contrastDeferredStale = contrastEmphasis !== deferredContrastEmphasis
+  const themeDeferredStale = previewTheme !== deferredPreviewTheme
+
+  /**
+   * True while a transition is pending **or** any deferred mirror of controlled inputs has not
+   * caught up (global scale, system mapping, contrast, preview theme). Keeps loading UI visible
+   * for the full deferred window — `isPending` alone often clears in one frame.
+   */
+  const inputBusy =
+    isPending ||
+    globalDeferredStale ||
+    systemDeferredStale ||
+    contrastDeferredStale ||
+    themeDeferredStale
 
   const ladderN = useMemo(() => clampGlobalScaleSteps(globalConfig.steps), [globalConfig.steps])
 
@@ -115,6 +198,25 @@ export function useNeutralWorkbench() {
       ),
     [deferredSystemBase, contrastEmphasis, ladderN],
   )
+
+  /** Same mapping rules as token derivation, but **not** deferred — used for live `surface.brand` OKLCH in semantic preview. */
+  const immediateMappingConfig = useMemo(
+    () =>
+      applyContrastEmphasisToSystemMapping(
+        clampSystemMappingToLadderLength(ladderN, systemConfigBase),
+        contrastEmphasis,
+      ),
+    [systemConfigBase, contrastEmphasis, ladderN],
+  )
+
+  const liveBrandSurfaceOklch = useMemo(() => {
+    const light = deriveBrandSurfaceToken(global, immediateMappingConfig, 'light')
+    const dark = deriveBrandSurfaceToken(global, immediateMappingConfig, 'darkElevated')
+    return {
+      light: trimCssColorValue(light?.serialized.oklchCss ?? 'oklch(0% 0 none)'),
+      dark: trimCssColorValue(dark?.serialized.oklchCss ?? 'oklch(0% 0 none)'),
+    }
+  }, [global, immediateMappingConfig])
 
   const lightTokens = useMemo(
     () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'light'}),
@@ -139,8 +241,12 @@ export function useNeutralWorkbench() {
     setSelection({kind: 'global', index})
   }, [])
 
-  const selectSystem = useCallback((id: string) => {
-    setSelection({kind: 'system', id})
+  const selectSystem = useCallback((id: string, theme?: ThemeMode) => {
+    setSelection({kind: 'system', id, theme})
+  }, [])
+
+  const toggleInspectionMode = useCallback(() => {
+    setInspectionMode((v) => !v)
   }, [])
 
   return {
@@ -152,6 +258,9 @@ export function useNeutralWorkbench() {
     patchSystem,
     /** Deferred + contrast-mode-adjusted; use for any display that must match token derivation. */
     effectiveMappingConfig,
+    /** Non-deferred mapping; `liveBrandSurfaceOklch` tracks Custom Brand without `useDeferredValue` lag. */
+    immediateMappingConfig,
+    liveBrandSurfaceOklch,
     global,
     lightTokens,
     darkTokens,
@@ -161,6 +270,9 @@ export function useNeutralWorkbench() {
     activeSystemTokens,
     previewTheme,
     setPreviewTheme,
+    themeMode,
+    setThemeMode,
+    toggleThemeMode,
     contrastEmphasis,
     setContrastEmphasis,
     selection,
@@ -168,10 +280,14 @@ export function useNeutralWorkbench() {
     selectGlobal,
     selectSystem,
     inputBusy,
+    busyInputLabel,
     comparisonLayout,
     setComparisonLayout,
     showContrastPairs,
     setShowContrastPairs,
+    inspectionMode,
+    setInspectionMode,
+    toggleInspectionMode,
   }
 }
 

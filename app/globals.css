@@ -252,27 +252,10 @@
         transparent 18%,
         transparent 82%,
         color-mix(in oklch, var(--ns-text) 4%, transparent)
-      ),
-      linear-gradient(
-        to right,
-        color-mix(in oklch, var(--ns-text) 4%, transparent) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        color-mix(in oklch, var(--ns-text) 4%, transparent) 1px,
-        transparent 1px
       );
-    background-size:
-      auto,
-      auto;
   }
 
   [data-theme='light'] #preview-workbench-blocks::before {
-    background-size:
-      auto,
-      56px 56px,
-      56px 56px;
     opacity: 0.55;
   }
 
@@ -295,24 +278,10 @@
         transparent 22%,
         transparent 84%,
         color-mix(in oklch, var(--ns-text) 6%, transparent)
-      ),
-      linear-gradient(
-        to right,
-        color-mix(in oklch, var(--ns-text) 6%, transparent) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        color-mix(in oklch, var(--ns-text) 6%, transparent) 1px,
-        transparent 1px
       );
   }
 
   [data-theme='dark'] #preview-workbench-blocks::before {
-    background-size:
-      auto,
-      64px 64px,
-      64px 64px;
     opacity: 0.35;
   }
 

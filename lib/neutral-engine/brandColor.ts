@@ -29,15 +29,14 @@ export function tryParseBrandOklch(raw: string | undefined): Color | null {
 export function resolveBrandColorForTokens(
   brandOklch: string | undefined,
   fallbackSwatch: GlobalSwatch,
-): {color: Color; serialized: SerializedColor; customColor: boolean} {
+): {serialized: SerializedColor; customColor: boolean} {
   const raw = trimCssColorValue(brandOklch ?? '')
   const parsed = tryParseBrandOklch(brandOklch)
   if (parsed) {
     const ser = serializeColor(parsed)
-    return {color: parsed, serialized: {...ser, oklchCss: raw || ser.oklchCss}, customColor: true}
+    return {serialized: {...ser, oklchCss: raw || ser.oklchCss}, customColor: true}
   }
   return {
-    color: fallbackSwatch.color,
     serialized: fallbackSwatch.serialized,
     customColor: false,
   }

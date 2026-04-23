@@ -1,5 +1,6 @@
 import {contrastTextOnBg, wcagLargeText, wcagUi, type WcagLevel} from '@/lib/neutral-engine/contrast'
 import {SURFACE_SLOTS, TEXT_SLOTS} from '@/lib/neutral-engine/semanticNaming'
+import {parseColorFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {SystemToken} from '@/lib/neutral-engine/types'
 
 export type ContrastPairResult = {
@@ -47,7 +48,10 @@ export function buildContrastPairResults(tokens: SystemToken[]): ContrastPairRes
     for (const tr of allowed) {
       const te = tokenByRole(tokens, tr)
       if (!te) continue
-      const ratio = contrastTextOnBg(te.color, bg.color)
+      const ratio = contrastTextOnBg(
+        parseColorFromSerialized(te.serialized),
+        parseColorFromSerialized(bg.serialized),
+      )
       const bodyLevel = wcagLargeText(ratio)
       const uiLevel = wcagUi(ratio)
       out.push({

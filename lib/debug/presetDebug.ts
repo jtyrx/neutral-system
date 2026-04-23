@@ -49,6 +49,10 @@ function w(): PresetDebugWindow | null {
 }
 
 export function presetDebugEnabled(): boolean {
+  // Hard prod gate: never pay the debug cost in a production bundle even if a stale
+  // localStorage flag or URL param is present. Dev opt-in still requires one of the
+  // signals below.
+  if (process.env.NODE_ENV !== 'development') return false
   const win = w()
   if (!win) return false
   try {

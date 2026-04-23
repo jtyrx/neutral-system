@@ -2,6 +2,8 @@
 
 import type {ReactNode} from 'react'
 
+import {cn} from '@/lib/cn'
+
 export type SegmentedOption<T extends string> = {
   value: T
   label: string
@@ -29,7 +31,7 @@ export function SegmentedControl<T extends string>({
 
   return (
     <div
-      className="inline-flex max-w-full flex-wrap rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-0.5"
+      className="ns-control-group bg-(--ns-surface-raised)"
       role="group"
       aria-label={ariaLabel}
     >
@@ -41,11 +43,13 @@ export function SegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(o.value)}
             aria-pressed={active}
-            className={`rounded-full font-medium transition-colors ${pad} ${
+            className={cn(
+              'ns-control-item',
+              pad,
               active
-                ? 'bg-[var(--ns-overlay-strong)] text-[var(--ns-text)] shadow-sm'
-                : 'text-[var(--ns-text-muted)] hover:bg-[var(--ns-chip)] hover:text-[var(--ns-text)]'
-            }`}
+                ? 'bg-(--ns-overlay-strong) text-(--ns-text) shadow-sm'
+                : 'text-(--ns-text-muted) hover:bg-(--ns-chip) hover:text-(--ns-text)',
+            )}
           >
             <span className="sm:hidden">{o.shortLabel ?? o.label}</span>
             <span className="hidden sm:inline">{o.label}</span>
@@ -66,7 +70,7 @@ export function ControlTier({
 }) {
   return (
     <div className="flex flex-col gap-2 sm:gap-4">
-      <p className="shrink-0 text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-text-faint)] sm:min-w-[7.5rem]">
+      <p className="shrink-0 text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-text-faint) sm:min-w-[7.5rem]">
         {label}
       </p>
       <div className="min-w-0 flex-1">{children}</div>

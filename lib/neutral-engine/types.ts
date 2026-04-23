@@ -1,5 +1,3 @@
-import type Color from 'colorjs.io'
-
 export type Progression = 'linear'
 
 export type ChromaMode = 'achromatic' | 'fixed' | 'taper_mid' | 'taper_ends'
@@ -37,7 +35,6 @@ export type SerializedColor = {
 export type GlobalSwatch = {
   index: number
   label: string
-  color: Color
   serialized: SerializedColor
 }
 
@@ -100,7 +97,6 @@ export type SystemToken = {
   role: SystemRole
   theme: ThemeMode
   sourceGlobalIndex: number
-  color: Color
   serialized: SerializedColor
   alpha?: number
   /**

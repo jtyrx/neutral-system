@@ -15,11 +15,28 @@ export function serializeColor(c: Color): SerializedColor {
   const srgb = c.to('srgb')
   const inSrgbGamut = c.inGamut('srgb')
   const clipped = inSrgbGamut ? srgb : c.toGamut('srgb')
+  const clippedSrgb = clipped.to('srgb')
+  const rgbCss = clippedSrgb.toString({format: 'css'})
   return {
     oklchCss: trimCssColorValue(c.to('oklch').toString({format: 'css'})),
-    hex: clipped.to('srgb').toString({format: 'hex'}),
-    rgbCss: clipped.to('srgb').toString({format: 'css'}),
-    srgbCss: clipped.to('srgb').toString({format: 'css'}),
+    hex: clippedSrgb.toString({format: 'hex'}),
+    rgbCss,
+    srgbCss: rgbCss,
     inSrgbGamut,
   }
+}
+
+/**
+ * Rebuild a {@link Color} instance from a {@link SerializedColor}. Used at call sites that
+ * genuinely need Color.js math (WCAG contrast, ΔE) but where the swatch/token surface only
+ * carries serialized strings — keeps `Color` instances out of React props/state so DevTools
+ * snapshots stay cheap even with large token trees.
+ */
+export function parseColorFromSerialized(s: SerializedColor): Color {
+  return new Color(s.oklchCss)
+}
+
+/** Extract OKLCH [L, C, H] from a serialized color without reinstantiating `Color` on the read path. */
+export function oklchCoordsFromSerialized(s: SerializedColor): [number, number, number] {
+  return new Color(s.oklchCss).to('oklch').coords as [number, number, number]
 }

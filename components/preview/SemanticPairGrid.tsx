@@ -67,7 +67,7 @@ function SwatchOrSamePrimitive({
   if (show) {
     return (
       <span
-        className="h-12 w-12 shrink-0 rounded-lg border border-[var(--ns-hairline-strong)] shadow-inner"
+        className="h-12 w-12 shrink-0 rounded-lg border border-hairline-strong shadow-inner"
         style={{backgroundColor: hex}}
         title={label}
       />
@@ -75,7 +75,7 @@ function SwatchOrSamePrimitive({
   }
   return (
     <span
-      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-[var(--ns-hairline-strong)] bg-[var(--ns-overlay-soft)] text-[0.7rem] text-[var(--ns-text-faint)]"
+      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-faint"
       title={`Same primitive as above · ${title}`}
       aria-label="Same color swatch as earlier row"
     >
@@ -101,11 +101,11 @@ const PairRow = memo(function PairRow({
   const lightCard =
     emphasis === 'light'
       ? 'border-[var(--ns-chrome-amber-border-strong)] bg-[var(--ns-chrome-amber-surface-strong)] ring-1 ring-[var(--ns-chrome-amber-ring)]'
-      : 'border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)]'
+      : 'border-hairline bg-[var(--ns-surface-raised)]'
   const darkCard =
     emphasis === 'dark'
       ? 'border-[var(--ns-chrome-sky-border-strong)] bg-[var(--ns-chrome-sky-surface-strong)] ring-1 ring-[var(--ns-chrome-sky-ring)]'
-      : 'border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)]'
+      : 'border-hairline bg-[var(--ns-surface-raised)]'
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
@@ -119,9 +119,9 @@ const PairRow = memo(function PairRow({
           title={`idx ${lt.sourceGlobalIndex}`}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--ns-text)]">{humanizeRole(lt.role)}</p>
-          <p className="mt-0.5 font-mono text-[0.65rem] text-[var(--ns-text-muted)]">{lt.name}</p>
-          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-[var(--ns-text-faint)]">idx {lt.sourceGlobalIndex}</p>
+          <p className="text-sm font-medium text-default">{humanizeRole(lt.role)}</p>
+          <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{lt.name}</p>
+          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-faint">idx {lt.sourceGlobalIndex}</p>
         </div>
       </div>
       <div
@@ -134,9 +134,9 @@ const PairRow = memo(function PairRow({
           title={`idx ${dt.sourceGlobalIndex}`}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--ns-text)]">{humanizeRole(dt.role)}</p>
-          <p className="mt-0.5 font-mono text-[0.65rem] text-[var(--ns-text-muted)]">{dt.name}</p>
-          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-[var(--ns-text-faint)]">idx {dt.sourceGlobalIndex}</p>
+          <p className="text-sm font-medium text-default">{humanizeRole(dt.role)}</p>
+          <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{dt.name}</p>
+          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-faint">idx {dt.sourceGlobalIndex}</p>
         </div>
       </div>
     </div>
@@ -191,20 +191,20 @@ function SemanticPairGridInner({
             key={section.kind === 'inverse' ? 'inverse' : section.layer}
             className={`space-y-3 pb-10 last:pb-0 ${
               isInverse
-                ? 'rounded-xl border border-violet-400/15 bg-violet-500/[0.04] p-4'
-                : 'border-b border-[var(--ns-hairline)]'
+                ? 'rounded-xl border border-violet-400/15 bg-violet-500/4 p-4'
+                : 'border-b border-hairline'
             }`}
           >
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ns-text-muted)]">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-[0.65rem] text-[var(--ns-text-faint)]">{hint}</p> : null}
+              {hint ? <p className="mt-1 text-[0.65rem] text-faint">{hint}</p> : null}
             </div>
             <div className="space-y-3">
               <div className="mb-1 hidden gap-4 sm:grid sm:grid-cols-2">
-                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-chrome-amber-text)]">Light</p>
-                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-[var(--ns-chrome-sky-text)]">
+                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-amber-text)">Light</p>
+                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-sky-text)">
                   Dark elevated
                 </p>
               </div>
@@ -233,7 +233,7 @@ const singleAccentClass = (accent?: 'amber' | 'sky') =>
     ? 'border-[var(--ns-chrome-amber-border-medium)] bg-[var(--ns-chrome-amber-surface-soft)] ring-1 ring-[var(--ns-chrome-amber-ring-soft)]'
     : accent === 'sky'
       ? 'border-[var(--ns-chrome-sky-border-medium)] bg-[var(--ns-chrome-sky-surface-soft)] ring-1 ring-[var(--ns-chrome-sky-ring-soft)]'
-      : 'border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)]'
+      : 'border-hairline bg-[var(--ns-surface-raised)]'
 
 const SingleTokenRow = memo(function SingleTokenRow({
   t,
@@ -251,13 +251,13 @@ const SingleTokenRow = memo(function SingleTokenRow({
     <div className={`flex gap-3 rounded-lg border p-3 ${singleAccentClass(accent)}`}>
       {showSwatch ? (
         <span
-          className="h-12 w-12 shrink-0 rounded-lg border border-[var(--ns-hairline-strong)] shadow-inner"
+          className="h-12 w-12 shrink-0 rounded-lg border border-hairline-strong shadow-inner"
           style={{backgroundColor: t.serialized.hex}}
           title={sw?.label}
         />
       ) : (
         <span
-          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-[var(--ns-hairline-strong)] bg-[var(--ns-overlay-soft)] text-[0.7rem] text-[var(--ns-text-faint)]"
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-faint"
           title={`Same primitive as above · idx ${t.sourceGlobalIndex}`}
           aria-label="Same color swatch as earlier row"
         >
@@ -265,9 +265,9 @@ const SingleTokenRow = memo(function SingleTokenRow({
         </span>
       )}
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-[var(--ns-text)]">{humanizeRole(t.role)}</p>
-        <p className="mt-0.5 font-mono text-[0.65rem] text-[var(--ns-text-muted)]">{t.name}</p>
-        <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-[var(--ns-text-faint)]">idx {t.sourceGlobalIndex}</p>
+        <p className="text-sm font-medium text-default">{humanizeRole(t.role)}</p>
+        <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{t.name}</p>
+        <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-faint">idx {t.sourceGlobalIndex}</p>
       </div>
     </div>
   )
@@ -309,15 +309,15 @@ function SemanticSingleThemeGridInner({
             key={section.kind === 'inverse' ? 'inverse' : section.layer}
             className={`space-y-3 pb-10 last:pb-0 ${
               isInverse
-                ? 'rounded-xl border border-violet-400/15 bg-violet-500/[0.04] p-4'
-                : 'border-b border-[var(--ns-hairline)]'
+                ? 'rounded-xl border border-violet-400/15 bg-violet-500/4 p-4'
+                : 'border-b border-hairline'
             }`}
           >
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ns-text-muted)]">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-[0.65rem] text-[var(--ns-text-faint)]">{hint}</p> : null}
+              {hint ? <p className="mt-1 text-[0.65rem] text-faint">{hint}</p> : null}
             </div>
             <div className="space-y-3">
               {toks.map((t, rowIndex) => (

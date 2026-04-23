@@ -66,7 +66,7 @@ function WorkbenchPreviewColumnInner({
   return (
     <div
       id="preview"
-      className="flex min-h-0 flex-col border-b border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] transition-opacity duration-200 lg:border-b-0"
+      className="flex min-h-0 flex-col border-b border-hairline bg-raised transition-opacity duration-200 lg:border-b-0"
     >
       <PreviewContextHeader
         comparisonLayout={comparisonLayout}

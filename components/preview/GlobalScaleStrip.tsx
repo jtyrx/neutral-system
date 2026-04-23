@@ -61,7 +61,7 @@ function stripRoleBadge(role: string): { text: string; className: string } {
     if (m) return { text: `T${Number(m[1]) + 1}`, className: skyBadge }
     return { text: 'T?', className: skyBadge }
   }
-  return { text: '·', className: 'bg-[var(--ns-overlay-strong)] text-[var(--ns-text)] ring-1 ring-white/15' }
+  return { text: '·', className: 'bg-[var(--ns-overlay-strong)] text-default ring-1 ring-white/15' }
 }
 
 function sortMappedForStrip(tokens: SystemToken[]): SystemToken[] {
@@ -84,7 +84,7 @@ function GlobalScaleStripInner({
   const len = global.length
   if (len === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--ns-hairline-strong)] p-4 text-center text-xs text-[var(--ns-text-muted)]">
+      <div className="rounded-xl border border-dashed border-hairline-strong p-4 text-center text-xs text-muted">
         No swatches — check global scale configuration.
       </div>
     )
@@ -94,9 +94,9 @@ function GlobalScaleStripInner({
 
   return (
     <div className="space-y-2">
-      <p className="text-[0.65rem] font-medium tracking-wide text-[var(--ns-text-muted)]">{caption}</p>
+      <p className="text-[0.65rem] font-medium tracking-wide text-muted">{caption}</p>
       <div
-        className={`w-full overflow-x-auto rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-2 ${accentClassName ?? ''}`}
+        className={`w-full overflow-x-auto rounded-xl border border-hairline bg-raised p-2 ${accentClassName ?? ''}`}
       >
         <div
           className="grid w-full min-w-0 gap-x-1 gap-y-1"
@@ -115,10 +115,10 @@ function GlobalScaleStripInner({
               >
                 {/* Fixed height: no flex-1 so every swatch matches regardless of badge count */}
                 <div
-                  className="h-9 w-full shrink-0 rounded-t border border-[var(--ns-hairline)] lg:h-11"
+                  className="h-9 w-full shrink-0 rounded-t border border-hairline lg:h-11"
                   style={{ backgroundColor: s.serialized.hex }}
                 />
-                <span className="shrink-0 text-center text-[0.5rem] leading-none text-[var(--ns-text-faint)] py-0.5 px-0.5">
+                <span className="shrink-0 text-center text-[0.5rem] leading-none text-faint py-0.5 px-0.5">
                   {s.index}
                 </span>
                 <div className="flex h-14 shrink-0 flex-col flex-wrap justify-start content-start items-start gap-1 overflow-hidden py-0.5">
@@ -135,7 +135,7 @@ function GlobalScaleStripInner({
                     )
                   })}
                   {mapped.length > 3 ? (
-                    <span className="text-[0.5rem] text-[var(--ns-text-faint)]">+{mapped.length - 3}</span>
+                    <span className="text-[0.5rem] text-faint">+{mapped.length - 3}</span>
                   ) : null}
                 </div>
               </div>

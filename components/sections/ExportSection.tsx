@@ -2,6 +2,7 @@
 
 import {memo, useCallback, useMemo, useState} from 'react'
 
+import {cn} from '@/lib/cn'
 import {
   exportCssVariables,
   exportCsv,
@@ -114,8 +115,8 @@ function ExportSectionInner({
     <section id="export" className="scroll-mt-6 space-y-4">
       <header>
         <p className="eyebrow">7 · Export</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Tokens</h2>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-(--ns-text)">Tokens</h2>
+        <p className="mt-2 max-w-2xl text-sm text-(--ns-text-muted)">
           JSON bundles tier-1 primitives + light/dark semantic roles (same shape as before). CSS uses{' '}
           <span className="font-mono">--color-neutral-*</span> primitives and{' '}
           <span className="font-mono">--color-surface-default</span>,{' '}
@@ -130,9 +131,12 @@ function ExportSectionInner({
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize ${
-              tab === t ? 'border-[var(--ns-hairline-strong)] bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]' : 'border-[var(--ns-hairline)] text-[var(--ns-text-subtle)]'
-            }`}
+            className={cn(
+              'ns-control-item border px-3 py-1.5 text-xs capitalize',
+              tab === t
+                ? 'border-(--ns-hairline-strong) bg-(--ns-overlay-strong) text-(--ns-text)'
+                : 'border-(--ns-hairline) text-(--ns-text-subtle)',
+            )}
           >
             {t === 'tailwind' ? '@theme' : t}
           </button>
@@ -140,32 +144,32 @@ function ExportSectionInner({
         <button
           type="button"
           onClick={copy}
-          className="ml-auto rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs text-[var(--ns-text)]"
+          className="ns-control-item ml-auto border border-(--ns-hairline) bg-(--ns-chip) px-3 py-1.5 text-xs text-(--ns-text)"
         >
           {copied ? 'Copied' : 'Copy'}
         </button>
         <button
           type="button"
           onClick={() => download(`neutral-export.${tab === 'tailwind' ? 'css' : tab}`, text, 'text/plain')}
-          className="rounded-full border border-[var(--ns-hairline)] px-3 py-1.5 text-xs text-[var(--ns-text)]"
+          className="ns-control-item border border-(--ns-hairline) px-3 py-1.5 text-xs text-(--ns-text)"
         >
           Download
         </button>
       </div>
 
-      <pre className="max-h-80 overflow-auto rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-4 font-mono text-[0.65rem] leading-relaxed text-[var(--ns-text)]">
+      <pre className="max-h-80 overflow-auto rounded-xl border border-(--ns-hairline) bg-(--ns-surface-raised) p-4 font-mono text-[0.65rem] leading-relaxed text-(--ns-text)">
         {text}
       </pre>
 
-      <div className="flex flex-wrap gap-3 border-t border-[var(--ns-hairline)] pt-4">
+      <div className="flex flex-wrap gap-3 border-t border-(--ns-hairline) pt-4">
         <button
           type="button"
           onClick={downloadPreset}
-          className="rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs text-[var(--ns-text)]"
+          className="ns-control-item border border-(--ns-hairline) bg-(--ns-chip) px-3 py-1.5 text-xs text-(--ns-text)"
         >
           Download preset (config JSON)
         </button>
-        <label className="cursor-pointer rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs text-[var(--ns-text)]">
+        <label className="ns-control-item cursor-pointer border border-(--ns-hairline) bg-(--ns-chip) px-3 py-1.5 text-xs text-(--ns-text)">
           Load preset
           <input
             type="file"

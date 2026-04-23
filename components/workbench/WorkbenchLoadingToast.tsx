@@ -38,7 +38,7 @@ function LoopingEllipsis() {
   return (
     <span
       ref={ref}
-      className="inline-block min-w-[3ch] whitespace-pre font-mono text-[var(--ns-text)]"
+      className="inline-block min-w-[3ch] whitespace-pre font-mono text-default"
       aria-hidden
       suppressHydrationWarning
     />
@@ -96,7 +96,7 @@ export function WorkbenchLoadingToast({busy, label}: Props) {
           className="size-7 shrink-0 animate-spin rounded-full border-2 border-[var(--ns-hairline-strong)] border-t-white"
           aria-hidden
         />
-        <p className="text-base font-medium leading-snug tracking-tight text-[var(--ns-text)]">
+        <p className="text-base font-medium leading-snug tracking-tight text-default">
           <span>{label}</span>
           <LoopingEllipsis key={label} />
         </p>

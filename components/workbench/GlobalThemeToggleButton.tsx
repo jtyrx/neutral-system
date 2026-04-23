@@ -2,6 +2,8 @@
 
 import {memo, useCallback} from 'react'
 
+import {cn} from '@/lib/cn'
+
 type ThemeMode = 'light' | 'dark'
 
 function IconSun({className}: {className?: string}) {
@@ -40,6 +42,8 @@ function IconMoon({className}: {className?: string}) {
 }
 
 const ICON = 'h-4 w-4 shrink-0 sm:h-[1.125rem] sm:w-[1.125rem]'
+const BUTTON_CLASS =
+  'flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--ns-hairline-strong) bg-(--ns-surface-overlay) text-(--ns-text) shadow-sm transition-[color,background-color,transform,box-shadow] duration-150 ease-out hover:bg-(--ns-chip) hover:shadow-md active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ns-border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ns-app-bg)] motion-reduce:transition-none motion-reduce:active:scale-100 sm:size-9'
 
 /**
  * App-wide light/dark toggle (same state as {@link ../providers/LiveThemeStyles} / `html[data-theme]`).
@@ -71,7 +75,7 @@ function GlobalThemeToggleButtonInner({
       onClick={toggle}
       aria-label={label}
       title={mode === 'light' ? 'Switch app to dark theme' : 'Switch app to light theme'}
-      className={`flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--ns-hairline-strong)] bg-[var(--ns-surface-overlay)] text-[var(--ns-text)] shadow-sm transition-[color,background-color,transform,box-shadow] duration-150 ease-out hover:bg-[var(--ns-chip)] hover:shadow-md active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ns-border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ns-app-bg)] motion-reduce:transition-none motion-reduce:active:scale-100 sm:size-9 ${className ?? ''}`}
+      className={cn(BUTTON_CLASS, className)}
     >
       {mode === 'light' ? <IconSun className={ICON} /> : <IconMoon className={ICON} />}
     </button>

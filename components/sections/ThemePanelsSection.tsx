@@ -57,12 +57,12 @@ function RoleTokenTable({
   const sorted = useMemo(() => sortSystemTokensByPrimitiveLadder(tokens, global), [tokens, global])
 
   if (sorted.length === 0) {
-    return <p className="text-[0.65rem] text-[var(--ns-text-faint)]">No tokens in this group.</p>
+    return <p className="text-[0.65rem] text-faint">No tokens in this group.</p>
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-[var(--ns-hairline)]">
+    <div className="overflow-x-auto rounded-lg border border-hairline">
       <table className="w-full min-w-[18rem] text-left text-[0.65rem]">
-        <thead className="border-b border-[var(--ns-hairline)] font-mono text-[var(--ns-text-muted)]">
+        <thead className="border-b border-hairline font-mono text-muted">
           <tr>
             <th className="px-2 py-1.5">Primitive</th>
             <th className="px-2 py-1.5">Semantic role</th>
@@ -74,23 +74,23 @@ function RoleTokenTable({
           {sorted.map((t) => {
             const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex)
             return (
-              <tr key={t.id} className="border-b border-[var(--ns-hairline)]">
-                <td className="px-2 py-1.5 font-medium text-[var(--ns-text)]" title={t.name}>
+              <tr key={t.id} className="border-b border-hairline">
+                <td className="px-2 py-1.5 font-medium text-default" title={t.name}>
                   {prim}
                 </td>
-                <td className="max-w-[11rem] px-2 py-1.5 text-[var(--ns-text-muted)]">
+                <td className="max-w-44 px-2 py-1.5 text-muted">
                   <span className="block truncate" title={humanizeRole(t.role)}>
                     {humanizeRole(t.role)}
                   </span>
-                  <span className="mt-0.5 block truncate text-[0.6rem] text-[var(--ns-text-faint)]" title={t.name}>
+                  <span className="mt-0.5 block truncate text-[0.6rem] text-faint" title={t.name}>
                     {t.name}
                   </span>
                 </td>
-                <td className="px-2 py-1.5 text-right tabular-nums text-[var(--ns-text-muted)]">{t.sourceGlobalIndex}</td>
+                <td className="px-2 py-1.5 text-right tabular-nums text-muted">{t.sourceGlobalIndex}</td>
                 <td className="px-2 py-1.5 align-middle">
                   <button
                     type="button"
-                    className="h-8 w-8 shrink-0 rounded border border-[var(--ns-hairline)] shadow-inner"
+                    className="h-8 w-8 shrink-0 rounded border border-hairline shadow-inner"
                     style={{backgroundColor: t.serialized.hex}}
                     title={`${prim} · ${humanizeRole(t.role)}`}
                     onClick={() => onSelect(t.id)}
@@ -142,19 +142,19 @@ function ThemeTokenColumn({
 
   return (
     <div className={`rounded-2xl border p-4 sm:p-5 ${shell}`}>
-      <header className="border-b border-[var(--ns-hairline)] pb-4">
+      <header className="border-b border-hairline pb-4">
         <p className={`eyebrow ${eyebrowTone}`}>{eyebrow}</p>
-        <h3 className="mt-1 text-lg font-semibold text-[var(--ns-text)]">{title}</h3>
-        <p className="mt-1 text-xs text-[var(--ns-text-muted)]">{hint}</p>
+        <h3 className="mt-1 text-lg font-semibold text-default">{title}</h3>
+        <p className="mt-1 text-xs text-muted">{hint}</p>
         <button
           type="button"
           onClick={toggle}
-          className="mt-3 rounded-full border border-[var(--ns-hairline)] px-2.5 py-1 text-[0.65rem] text-[var(--ns-text-subtle)] hover:bg-[var(--ns-chip)] hover:text-[var(--ns-text)]"
+          className="mt-3 rounded-full border border-hairline px-2.5 py-1 text-[0.65rem] text-subtle hover:bg-(--ns-chip) hover:text-default"
         >
           {showTable ? 'Visual view' : 'Data table'}
         </button>
         {showTable ? (
-          <p className="mt-2 text-[0.6rem] leading-snug text-[var(--ns-text-faint)]">
+          <p className="mt-2 text-[0.6rem] leading-snug text-faint">
             Primitive column uses tier‑1 names from the global ramp (<span className="font-mono">neutral-*</span>
             ). Rows sort by ladder value; semantic role and tier‑2 token name are secondary.
           </p>
@@ -174,15 +174,15 @@ function ThemeTokenColumn({
                   <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
                     {friendlySemanticCategoryLabel(titleKey)}
                   </h4>
-                  <p className="text-[0.65rem] text-[var(--ns-text-faint)]">{hint}</p>
+                  <p className="text-[0.65rem] text-faint">{hint}</p>
                   <RoleTokenTable tokens={groupTokens} global={global} onSelect={onSelectSystem} />
                 </div>
               )
             })}
             {emphasisToks.length > 0 ? (
-              <div className="space-y-2 border-t border-[var(--ns-hairline)] pt-6">
+              <div className="space-y-2 border-t border-hairline pt-6">
                 <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Emphasis</h4>
-                <p className="text-[0.65rem] text-[var(--ns-text-faint)]">Experimental accessible pairs (higher contrast).</p>
+                <p className="text-[0.65rem] text-faint">Experimental accessible pairs (higher contrast).</p>
                 <RoleTokenTable tokens={emphasisToks} global={global} onSelect={onSelectSystem} />
               </div>
             ) : null}
@@ -191,7 +191,7 @@ function ThemeTokenColumn({
           <>
             <SemanticSingleThemeGrid tokenView={tokenView} global={global} />
             {emphasisToks.length > 0 ? (
-              <div className="space-y-2 border-t border-[var(--ns-hairline)] pt-6">
+              <div className="space-y-2 border-t border-hairline pt-6">
                 <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
                   Emphasis (experimental)
                 </h4>
@@ -210,8 +210,8 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
     <section id="themes" className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">3 · Themes</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Light vs dark elevated</h2>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Light vs dark elevated</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
           Default view is a primitive-token data table: neutral ladder names, semantic roles, and ramp
           indices. Switch to Visual for the paired layout.
         </p>

@@ -213,7 +213,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
   return (
     <div className="space-y-3">
       <label className="block space-y-1">
-        <span className="text-[0.65rem] font-medium" style={{color: c.ts}}>
+        <span className="text-[0.65rem] font-medium text-default" style={{color: c.ts}}>
           Company
         </span>
         <div
@@ -231,7 +231,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
         </span>
       </label>
       <label className="block space-y-1">
-        <span className="text-[0.65rem] font-medium" style={{color: c.ts}}>
+        <span className="text-[0.65rem] font-medium text-default " style={{color: c.ts}}>
           Read-only
         </span>
         <input

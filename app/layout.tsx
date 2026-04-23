@@ -1,8 +1,12 @@
 import './globals.css'
 
+import {AppLayoutShell} from '@/components/app-sidebar'
 import {AppProviders} from '@/components/providers/AppProviders'
 import type {Metadata} from 'next'
-import {IBM_Plex_Mono, Inter} from 'next/font/google'
+import {IBM_Plex_Mono, Inter, Geist} from 'next/font/google'
+import {cn} from '@/lib/utils'
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({
   variable: '--font-inter',
@@ -28,9 +32,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
-    <html lang="en" className={`${inter.variable} ${ibm.variable}` } suppressHydrationWarning>
+    <html lang="en" className={cn(inter.variable, ibm.variable, "font-sans", geist.variable)} suppressHydrationWarning>
       <body>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <AppLayoutShell>{children}</AppLayoutShell>
+        </AppProviders>
       </body>
     </html>
   )

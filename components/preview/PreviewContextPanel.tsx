@@ -43,19 +43,19 @@ export function PreviewContextPanel({
 
   return (
     <div
-      className="border-b border-[var(--ns-hairline)] bg-[var(--ns-app-bg)] backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--ns-app-bg)]"
+      className="border-b border-hairline bg-(--ns-app-bg) backdrop-blur-xl supports-backdrop-filter:bg-(--ns-app-bg)"
       role="region"
       aria-label="Preview context — Light versus Dark Elevated comparison"
     >
       <div>
-        <header className="border-b border-[var(--ns-hairline)] px-4 py-4 sm:px-6">
+        <header className="border-b border-hairline px-4 py-4 sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1">
               <p className="eyebrow">Compare themes</p>
-              <h2 className="mt-0.5 text-base font-semibold tracking-tight text-[var(--ns-text)] sm:text-lg">
+              <h2 className="mt-0.5 text-base font-semibold tracking-tight text-default sm:text-lg">
                 Light vs Dark elevated
               </h2>
-              <p className="mt-1 max-w-2xl text-xs text-[var(--ns-text-muted)]">
+              <p className="mt-1 max-w-2xl text-xs text-muted">
                 Ramps and paired roles use the same mapping as exports. Split = both themes; Focus =
                 one at a time. Contrast emphasis changes ladder spacing (see below).
               </p>

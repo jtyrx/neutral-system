@@ -49,7 +49,7 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">{title}</p>
-              <p className="mt-0.5 text-sm font-medium text-[var(--ns-text)]">Mapping preview</p>
+              <p className="mt-0.5 text-sm font-medium text-default">Mapping preview</p>
             </div>
             <span
               className={`rounded-full px-2 py-0.5 font-mono text-[0.6rem] ${
@@ -96,7 +96,7 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">Light</p>
-              <p className="mt-0.5 text-sm font-medium text-[var(--ns-text)]">Global ramp</p>
+              <p className="mt-0.5 text-sm font-medium text-default">Global ramp</p>
             </div>
             <span className="rounded-full bg-[var(--ns-chrome-amber-pill)] px-2 py-0.5 font-mono text-[0.6rem] text-[var(--ns-chrome-amber-text)]">
               themeMode: light
@@ -118,7 +118,7 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">Dark elevated</p>
-              <p className="mt-0.5 text-sm font-medium text-[var(--ns-text)]">Global ramp</p>
+              <p className="mt-0.5 text-sm font-medium text-default">Global ramp</p>
             </div>
             <span className="rounded-full bg-[var(--ns-chrome-sky-pill)] px-2 py-0.5 font-mono text-[0.6rem] text-[var(--ns-chrome-sky-text)]">
               themeMode: darkElevated

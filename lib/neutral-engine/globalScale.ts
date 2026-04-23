@@ -107,7 +107,6 @@ export function buildGlobalScale(config: GlobalScaleConfig): GlobalSwatch[] {
     out.push({
       index: i,
       label,
-      color,
       // Preserve canonical OKLCH strings (with `none` hue when achromatic).
       serialized: {
         oklchCss: css,

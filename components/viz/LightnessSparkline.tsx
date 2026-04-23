@@ -2,6 +2,7 @@
 
 import {memo, useMemo} from 'react'
 
+import {oklchCoordsFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 
 type Props = {
@@ -12,7 +13,7 @@ function LightnessSparklineInner({swatches}: Props) {
   const ls = useMemo(
     () =>
       swatches.map((s) => {
-        const L = s.color.to('oklch').coords[0] ?? 0
+        const L = oklchCoordsFromSerialized(s.serialized)[0] ?? 0
         return L <= 1 ? L * 100 : L
       }),
     [swatches],
@@ -32,9 +33,9 @@ function LightnessSparklineInner({swatches}: Props) {
     .join(' ')
 
   return (
-    <div className="rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-3">
+    <div className="rounded-xl border border-hairline bg-raised p-3">
       <p className="eyebrow">Lightness curve</p>
-      <svg width={w} height={h} className="mt-2 text-[var(--ns-text-subtle)]" aria-hidden>
+      <svg width={w} height={h} className="mt-2 text-subtle" aria-hidden>
         <polyline
           fill="none"
           stroke="currentColor"
@@ -42,7 +43,7 @@ function LightnessSparklineInner({swatches}: Props) {
           points={pts}
         />
       </svg>
-      <p className="mt-1 text-[0.65rem] text-[var(--ns-text-faint)]">
+      <p className="mt-1 text-[0.65rem] text-faint">
         OKLCH L% across the global scale (linear ramp = near-straight line).
       </p>
     </div>

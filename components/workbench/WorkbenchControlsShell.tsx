@@ -13,11 +13,11 @@ type Props = {
 /** Left column: navigation + grouped controls (desktop); scrollable. */
 function WorkbenchControlsShellInner({wb, selectedGlobalIndex}: Props) {
   return (
-    <div className="flex max-h-[min(100dvh,100%)] min-h-0 flex-col border-[var(--ns-hairline)] lg:max-h-dvh">
-      <div className="shrink-0 border-b border-[var(--ns-hairline)] px-4 py-4 sm:px-5">
+    <div className="flex max-h-[min(100dvh,100%)] min-h-0 flex-col border-hairline lg:max-h-dvh">
+      <div className="shrink-0 border-b border-hairline px-4 py-4 sm:px-5">
         <p className="eyebrow">Workbench</p>
-        <h1 className="mt-1 text-lg font-semibold tracking-tight text-[var(--ns-text)]">Neutral System</h1>
-        <p className="mt-2 text-xs text-[var(--ns-text-muted)]">
+        <h1 className="mt-1 text-lg font-semibold tracking-tight text-default">Neutral System</h1>
+        <p className="mt-2 text-xs text-muted">
           Role-first neutrals · OKLCH ramp · Light / Dark elevated from one scale.
         </p>
       </div>

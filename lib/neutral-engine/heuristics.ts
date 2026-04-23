@@ -1,6 +1,7 @@
 import type Color from 'colorjs.io'
 
 import {contrastTextOnBg, wcagLargeText} from '@/lib/neutral-engine/contrast'
+import {parseColorFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 
 export type SwatchAdvice = {
@@ -17,12 +18,13 @@ export function analyzeSwatch(
   bgLight: Color,
   bgDark: Color,
 ): SwatchAdvice {
+  const sColor = parseColorFromSerialized(s.serialized)
   const deltaEOK =
-    next != null ? s.color.deltaEOK(next.color) : null
+    next != null ? sColor.deltaEOK(parseColorFromSerialized(next.serialized)) : null
   const tooClose = deltaEOK != null && deltaEOK < 0.015
 
-  const cw = contrastTextOnBg(s.color, bgLight)
-  const ck = contrastTextOnBg(s.color, bgDark)
+  const cw = contrastTextOnBg(sColor, bgLight)
+  const ck = contrastTextOnBg(sColor, bgDark)
 
   let hint: string | null = null
   if (tooClose) hint = 'Very close to next step (ΔE_OK)'

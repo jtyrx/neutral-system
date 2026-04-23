@@ -12,23 +12,23 @@ export function ThemeRangeBar({steps, darkSegmentLength}: Props) {
   const darkPct = (seg / (n - 1)) * 100
 
   return (
-    <div className="space-y-2 rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] px-4 py-3">
+    <div className="space-y-2 rounded-xl border border-hairline bg-raised px-4 py-3">
       <p className="eyebrow">Theme range</p>
-      <div className="flex h-8 w-full overflow-hidden rounded-lg border border-[var(--ns-hairline)]">
+      <div className="flex h-8 w-full overflow-hidden rounded-lg border border-hairline">
         <div
-          className="flex items-center justify-center bg-gradient-to-r from-white/25 to-white/5 text-[0.6rem] text-black"
+          className="flex items-center justify-center bg-linear-to-r from-white/25 to-white/5 text-[0.6rem] text-black"
           style={{width: `${lightPct}%`}}
         >
           Light UI pool
         </div>
         <div
-          className="flex items-center justify-center bg-gradient-to-r from-zinc-800 to-zinc-950 text-[0.6rem] text-[var(--ns-text)]"
+          className="flex items-center justify-center bg-linear-to-r from-zinc-800 to-zinc-950 text-[0.6rem] text-default"
           style={{width: `${darkPct}%`}}
         >
           Dark segment ({seg})
         </div>
       </div>
-      <p className="text-[0.65rem] text-[var(--ns-text-muted)]">
+      <p className="text-[0.65rem] text-muted">
         Dark elevated mode primarily uses the right-hand segment (last {seg} global steps).
       </p>
     </div>

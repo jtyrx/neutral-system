@@ -16,13 +16,13 @@ export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   textStart: 34,               // Index where text slots start in the palette (light mode)
   fillCount: 5,                // Standard surface ladder (sunken → overlay); inverse is separate
   strokeCount: 4,              // Border ladder: default / subtle / strong; border.focus is separate
-  textCount: 4,                // Standard text ladder (default → disabled); text.on is separate
+  textCount: 5,                // Standard text ladder (default → disabled); text.on is separate
   darkFillStart: -1,            // Index where fill slots start in the palette (dark mode)
   darkStrokeStart: 2,          // Index where stroke slots start in the palette (dark mode)
   darkTextStart: 15,           // Index where text slots start in the palette (dark mode)
   darkFillCount: 5,            // Standard surface ladder (dark elevated)
   darkStrokeCount: 4,          // Border ladder (dark elevated)
-  darkTextCount: 4,            // Standard text ladder (dark elevated)
+  darkTextCount: 5,            // Standard text ladder (dark elevated)
   altCount: 2,                 // Number of alternative slots/groups to allocate
   lightFillStepInterval: 1,    // Step interval between fills in light mode
   lightStrokeStepInterval: 1,  // Step interval between strokes in light mode

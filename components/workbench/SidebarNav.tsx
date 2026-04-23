@@ -18,7 +18,7 @@ function SidebarNavInner() {
         <a
           key={l.id}
           href={`#${l.id}`}
-          className="shrink-0 rounded-lg px-2 py-2 text-sm whitespace-nowrap text-[var(--ns-text-subtle)] transition hover:bg-[var(--ns-chip)] hover:text-[var(--ns-text)] lg:whitespace-normal"
+          className="shrink-0 rounded-lg px-2 py-2 text-sm whitespace-nowrap text-subtle transition hover:bg-[var(--ns-chip)] hover:text-default lg:whitespace-normal"
         >
           {l.label}
         </a>

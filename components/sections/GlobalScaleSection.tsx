@@ -60,7 +60,7 @@ const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisualization(
 
   return (
     <>
-      <div className="overflow-x-auto rounded-2xl border border-[var(--ns-hairline)]">
+      <div className="overflow-x-auto rounded-2xl border border-hairline">
         <div className="flex min-h-[4.5rem]" style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}>
           {global.map((s) => (
             <button
@@ -68,7 +68,7 @@ const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisualization(
               type="button"
               title={s.serialized.oklchCss}
               onClick={() => onSelectSwatch(s.index)}
-              className={`min-w-[8px] flex-1 border-l border-[var(--ns-hairline)] first:border-l-0 ${
+              className={`min-w-[8px] flex-1 border-l border-hairline first:border-l-0 ${
                 ringIndex === s.index ? 'ring-2 ring-inset ring-white/50' : ''
               }`}
               style={{backgroundColor: s.serialized.hex}}
@@ -151,21 +151,21 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
     <section id="global" className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">1 · Global scale</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--ns-text)]">Neutral ladder</h2>
-        <p className="mt-2 max-w-2xl text-sm text-[var(--ns-text-muted)]">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Neutral ladder</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
           Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the
           chroma mode. Tier-1 primitives feed semantic tokens.
         </p>
       </header>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-[var(--ns-text-muted)]">
+        <p className="text-xs text-muted">
           Compare chroma modes side-by-side for the current hue / base chroma.
         </p>
         <button
           type="button"
           onClick={() => setShowComparison((v) => !v)}
-          className="rounded-full border border-[var(--ns-hairline)] bg-[var(--ns-chip)] px-3 py-1.5 text-xs font-medium text-[var(--ns-text-subtle)] transition hover:bg-[var(--ns-hairline)]"
+          className="rounded-full border border-hairline bg-[var(--ns-chip)] px-3 py-1.5 text-xs font-medium text-subtle transition hover:bg-[var(--ns-hairline)]"
           aria-expanded={showComparison}
           aria-controls="chroma-mode-comparison-rail"
         >

@@ -3,6 +3,7 @@
 import {memo, useCallback} from 'react'
 
 import {GlobalThemeToggleButton} from '@/components/workbench/GlobalThemeToggleButton'
+import {cn} from '@/lib/cn'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
 
 type Props = {
@@ -75,9 +76,9 @@ function ThemePreviewControlsInner({
 
   const pad = dense ? 'px-3 py-1' : 'px-4 py-1.5'
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${dense ? '' : 'gap-3'}`}>
+    <div className={cn('flex flex-wrap items-center gap-2', !dense && 'gap-3')}>
       <div
-        className="flex items-center gap-2 border-r border-[var(--ns-hairline)] pr-2 sm:pr-2.5"
+        className="flex items-center gap-2 border-r border-(--ns-hairline) pr-2 sm:pr-2.5"
         role="group"
         aria-label="Application color theme"
       >
@@ -85,50 +86,62 @@ function ThemePreviewControlsInner({
       </div>
       {showThemeToggle ? (
         <div
-          className="flex rounded-full border border-[var(--ns-hairline)] p-0.5"
+          className="ns-control-group"
           role="group"
           aria-label="Preview focus theme"
         >
           <button
             type="button"
             onClick={onLight}
-            className={`rounded-full ${pad} text-xs font-medium ${
-              previewTheme === 'light' ? 'bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]' : 'text-[var(--ns-text-muted)] hover:text-[var(--ns-text)]'
-            }`}
+            className={cn(
+              'ns-control-item text-xs',
+              pad,
+              previewTheme === 'light'
+                ? 'bg-(--ns-overlay-strong) text-(--ns-text)'
+                : 'text-(--ns-text-muted) hover:text-(--ns-text)',
+            )}
           >
             {THEME_LABEL.light}
           </button>
           <button
             type="button"
             onClick={onDark}
-            className={`rounded-full ${pad} text-xs font-medium ${
-              previewTheme === 'dark' ? 'bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]' : 'text-[var(--ns-text-muted)] hover:text-[var(--ns-text)]'
-            }`}
+            className={cn(
+              'ns-control-item text-xs',
+              pad,
+              previewTheme === 'dark'
+                ? 'bg-(--ns-overlay-strong) text-(--ns-text)'
+                : 'text-(--ns-text-muted) hover:text-(--ns-text)',
+            )}
           >
             {THEME_LABEL.dark}
           </button>
         </div>
       ) : null}
       {onShowContrastPairs ? (
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--ns-text-subtle)]">
+        <label className="flex cursor-pointer items-center gap-2 text-xs text-(--ns-text-subtle)">
           <input
             type="checkbox"
-            className="rounded border-[var(--ns-hairline-strong)] bg-[var(--ns-surface-raised)]"
+            className="rounded border-(--ns-hairline-strong) bg-(--ns-surface-raised)"
             checked={showContrastPairs ?? false}
             onChange={(e) => onShowContrastPairs(e.target.checked)}
           />
           Contrast pairs
         </label>
       ) : null}
-      <div className="flex flex-wrap rounded-full border border-[var(--ns-hairline)] p-0.5">
+      <div className="ns-control-group">
         {EMPHASIS_ORDER.map((e) => (
           <button
             key={e}
             type="button"
             onClick={emphasisHandler[e]}
-            className={`rounded-full ${pad} text-xs font-medium capitalize ${
-              contrastEmphasis === e ? 'bg-[var(--ns-overlay-strong)] text-[var(--ns-text)]' : 'text-[var(--ns-text-muted)] hover:text-[var(--ns-text)]'
-            }`}
+            className={cn(
+              'ns-control-item text-xs capitalize',
+              pad,
+              contrastEmphasis === e
+                ? 'bg-(--ns-overlay-strong) text-(--ns-text)'
+                : 'text-(--ns-text-muted) hover:text-(--ns-text)',
+            )}
             aria-pressed={contrastEmphasis === e}
           >
             {EMPHASIS_LABEL[e]}

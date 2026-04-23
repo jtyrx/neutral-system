@@ -35,8 +35,9 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 
 **Workbench — [hooks/useNeutralWorkbench.ts](hooks/useNeutralWorkbench.ts)** is the single state orchestrator. Every control reads/writes through this hook. Important invariants encoded here:
 
-- `globalConfig` is used **directly** (not deferred) when computing `global`, so ladder length and resolved indices stay aligned when `steps` changes.
-- `systemConfigBase`, `contrastEmphasis`, and `previewTheme` are passed through `useDeferredValue` and wrapped in `startTransition`; the `inputBusy` flag stays true until every deferred mirror catches up so the loading toast spans the full update window.
+- **All input changes are synchronous** — one token derivation + CSS write per commit. `useTransition` / `useDeferredValue` were intentionally removed from this hook (see the file-header comment): concurrent scheduling lost to Chromium's 1Hz `rAF` / `useEffect` throttle on unfocused windows, turning one-frame updates into minute-long stalls. Keep this hook synchronous unless that trade-off is revisited.
+- `inputBusy` is retained on the return surface for API compatibility but is **always `false`**. Do not wire new loading UI to it.
+- CSS variable writes live in [components/providers/LiveThemeStyles.tsx](components/providers/LiveThemeStyles.tsx) and use **`useLayoutEffect`** (not `useEffect`) so the paint isn't deferred into the 1Hz throttle window.
 - Both `lightTokens` and `darkTokens` are always derived (export and theme panels need both), even in `focus` comparison mode.
 - `effectiveMappingConfig` is the canonical config for any UI that previews resolved indices — it must match what `deriveSystemTokens` sees.
 
@@ -49,10 +50,13 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 - **Single source of truth for derived state**: never recompute ladder picks ad hoc in a component — import from [systemMap.ts](lib/neutral-engine/systemMap.ts) (`pickLightIndices`, `pickDarkIndices`, `pickDarkStrokeTextIndices`, `previewResolvedRoleIndices`, `mirrorRampIndex`).
 - **Clamping is mandatory** when `steps` changes: call `clampSystemMappingToLadderLength` before consuming a `SystemMappingConfig`, otherwise starts / dark segment can be out of range.
 - **Role ids are dot-paths** (`surface.raised`, `text.muted`) and are used unchanged as `SystemToken.id`/`name`/`role`. CSS-safe form is produced by `tokenCssVarName` / `semanticColorVarName` at export time only — don't pre-flatten them.
-- **Color creation** always via `new Color(...)` from `colorjs.io` + `serializeColor`; don't hand-format hex or sRGB. Rely on `SerializedColor.inSrgbGamut` for out-of-gamut flags rather than re-checking.
+- **Color on the React surface is `SerializedColor` only.** `GlobalSwatch` and `SystemToken` carry `serialized: SerializedColor` (strings + gamut flag); they do **not** carry a live `colorjs.io` `Color` instance. Never add `Color` to a type consumed by components, hooks, or React state — the prototype-heavy graph blows up React DevTools / console snapshot cost in dev.
+- **When Color math is unavoidable** (WCAG contrast, ΔE, OKLCH coord reads), reparse at the call site with `parseColorFromSerialized(s.serialized)` or `oklchCoordsFromSerialized(s.serialized)` from [lib/neutral-engine/serialize.ts](lib/neutral-engine/serialize.ts). Create `Color` instances only inside the engine or at the leaf of a memoized selector, and let them be garbage-collected immediately.
+- **Color creation inside the engine** always via `new Color(...)` + `serializeColor`; don't hand-format hex or sRGB. Rely on `SerializedColor.inSrgbGamut` for out-of-gamut flags rather than re-checking.
 - **OKLCH strings** use `oklch(L% C H)` with `none` for hue when achromatic (`buildOklchString`). Match that form in any new CSS output.
 - **Code style**: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports. Files default to `'use client'` because the whole workbench is interactive; server-side files (`app/layout.tsx`, engine modules) deliberately omit it.
 - **Tailwind v4 only** — no `tailwind.config.*`. Theme tokens live in `@theme` blocks inside [app/globals.css](app/globals.css). PostCSS plugin is `@tailwindcss/postcss`.
+- **Debug instrumentation** lives in [lib/debug/presetDebug.ts](lib/debug/presetDebug.ts). `presetDebugEnabled()` is **hard-gated to `process.env.NODE_ENV === 'development'`** — stale opt-ins (URL param, localStorage, window flag) cannot leak cost into prod builds. Keep new debug log sites funneled through `presetDebugEnabled()` so this gate remains the single kill-switch.
 
 ## Token taxonomy (portfolio / governance)
 

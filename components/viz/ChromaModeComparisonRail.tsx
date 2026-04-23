@@ -41,7 +41,7 @@ function ChromaModeComparisonRailInner({config}: Props) {
       <p
         id="neutral-ladder-comparison-rail-description"
         aria-hidden="true"
-        className="text-xs text-[var(--ns-text-muted)]"
+        className="text-xs text-muted"
       >
         Four engine modes side by side: same step count, lightness ramp, hue, and base chroma —
         only chroma distribution changes per row.
@@ -53,13 +53,13 @@ function ChromaModeComparisonRailInner({config}: Props) {
             className="grid gap-2 sm:grid-cols-1 sm:items-stretch sm:gap-2"
           >
             <div className="flex items-center ">
-              <p className="text-left text-[0.65rem] font-medium font-mono uppercase tracking-wide text-[var(--ns-text-faint)]">
+              <p className="text-left text-[0.65rem] font-medium font-mono uppercase tracking-wide text-faint">
                 {label}
               </p>
             </div>
-            <div className="min-w-0 overflow-x-auto rounded-lg border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)]">
+            <div className="min-w-0 overflow-x-auto rounded-lg border border-hairline bg-raised">
               <div
-                className="flex min-h-[4.5rem]"
+                className="flex min-h-18"
                 style={{ minWidth: `${minStripWidth}px` }}
                 role="img"
                 aria-label={`${label}: ${swatches.length} steps`}
@@ -67,7 +67,7 @@ function ChromaModeComparisonRailInner({config}: Props) {
                 {swatches.map((s) => (
                   <div
                     key={s.index}
-                    className="min-w-[8px] flex-1 border-l border-[var(--ns-hairline)] first:border-l-0"
+                    className="min-w-[8px] flex-1 border-l border-hairline first:border-l-0"
                     style={{ backgroundColor: s.serialized.hex }}
                     title={`${s.label} · ${s.serialized.oklchCss}`}
                   />

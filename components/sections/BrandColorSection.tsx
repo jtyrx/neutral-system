@@ -150,7 +150,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          className="rounded-lg border border-[var(--ns-chrome-amber-border-strong)] bg-[var(--ns-chrome-amber-surface-bold)] px-3 py-1.5 text-xs font-semibold text-[var(--ns-chrome-amber-text)] transition hover:bg-[var(--ns-chrome-amber-hover)]"
+          className="rounded-lg border border-(--ns-chrome-amber-border-strong) bg-(--ns-chrome-amber-surface-bold) px-3 py-1.5 text-xs font-semibold text-(--ns-chrome-amber-text) transition hover:bg-(--ns-chrome-amber-hover)"
           onClick={() => {
             setControlsOpen((o) => {
               const next = !o
@@ -162,7 +162,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
           Custom Brand
         </button>
         <span
-          className="inline-block h-8 w-8 shrink-0 rounded-md border border-[var(--ns-hairline-strong)] shadow-inner"
+          className="inline-block h-8 w-8 shrink-0 rounded-md border border-hairline-strong shadow-inner"
           style={{background: previewCss}}
           title={committed}
           aria-label="Brand color preview"
@@ -173,7 +173,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
         <div className="mt-4 space-y-4">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label htmlFor="brand-color-input" className="block text-[0.65rem] font-medium uppercase tracking-wide text-[var(--ns-text-muted)]">
+              <label htmlFor="brand-color-input" className="block text-[0.65rem] font-medium uppercase tracking-wide text-muted">
                 Brand color
               </label>
               <SegmentedControl
@@ -190,7 +190,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
               type="text"
               spellCheck={false}
               autoComplete="off"
-              className="w-full rounded-lg border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] px-3 py-2 font-mono text-xs text-[var(--ns-text)] outline-none transition focus:border-[var(--ns-chrome-amber-border-bold)] focus:ring-2 focus:ring-[var(--ns-chrome-amber-ring-strong)]"
+              className="w-full rounded-lg border border-hairline bg-raised px-3 py-2 font-mono text-xs text-default outline-none transition focus:border-(--ns-chrome-amber-border-bold) focus:ring-2 focus:ring-(--ns-chrome-amber-ring-strong)"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onBlur={commitDraftIfValid}
@@ -203,14 +203,14 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
               aria-invalid={draft.trim() !== '' && !isDraftValid}
             />
             {draft.trim() !== '' && !isDraftValid ? (
-              <p className="mt-1 text-[0.65rem] text-[var(--ns-chrome-amber-text)]">
+              <p className="mt-1 text-[0.65rem] text-(--ns-chrome-amber-text)">
                 Supported formats: OKLCH, Hex, RGB, Display-P3. Invalid values are not applied.
               </p>
             ) : null}
           </div>
 
           {wcReady ? (
-            <div className="overflow-hidden rounded-xl border border-[var(--ns-hairline)] bg-[var(--ns-surface-raised)] p-2">
+            <div className="overflow-hidden rounded-xl border border-hairline bg-raised p-2">
               {/* Hide Color.js space picker & freeform swatch input: this section only exposes OKLCH/Hex/RGB/P3 via our inputs. */}
               <color-picker ref={pickerRef} space="oklch" className="w-full max-w-full">
                 <span slot="color-space" />
@@ -218,7 +218,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
               </color-picker>
             </div>
           ) : (
-            <p className="text-xs text-[var(--ns-text-faint)]">Loading color picker…</p>
+            <p className="text-xs text-faint">Loading color picker…</p>
           )}
         </div>
       ) : null}

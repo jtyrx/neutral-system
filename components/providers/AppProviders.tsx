@@ -1,6 +1,7 @@
 'use client'
 
 import {useEffect, useState, type ReactNode} from 'react'
+import {TooltipProvider} from '@/components/ui/tooltip'
 import {Toaster} from 'sonner'
 
 type Props = {
@@ -32,7 +33,7 @@ function useHtmlTheme(): 'light' | 'dark' {
 export function AppProviders({children}: Props) {
   const theme = useHtmlTheme()
   return (
-    <>
+    <TooltipProvider>
       {children}
       <Toaster
         position="top-center"
@@ -48,6 +49,6 @@ export function AppProviders({children}: Props) {
           },
         }}
       />
-    </>
+    </TooltipProvider>
   )
 }

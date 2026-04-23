@@ -38,18 +38,18 @@ export function CollapsibleControlGroup({
   return (
     <details
       open={defaultOpen}
-      className="group rounded-sm border border-[var(--ns-hairline)] bg-[var(--ns-surface-default)]"
+      className="group rounded-sm border border-hairline bg-default"
     >
       <summary className="cursor-pointer list-none px-4 py-3 sm:px-4 sm:py-3 [&::-webkit-details-marker]:hidden">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold tracking-tight text-[var(--ns-text)]">{title}</p>
-            {subtitle ? <p className="mt-1 text-xs text-[var(--ns-text-muted)]">{subtitle}</p> : null}
+            <p className="text-sm font-semibold tracking-tight text-default">{title}</p>
+            {subtitle ? <p className="mt-1 text-xs text-muted">{subtitle}</p> : null}
           </div>
-          <ChevronDownIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ns-text-faint)] transition-transform duration-200 group-open:rotate-180" />
+          <ChevronDownIcon className="mt-0.5 h-4 w-4 shrink-0 text-faint transition-transform duration-200 group-open:rotate-180" />
         </div>
       </summary>
-      <div id={id} className="border-t border-[var(--ns-hairline)] px-4 pb-5 pt-2 sm:px-5">
+      <div id={id} className="border-t border-hairline px-4 pb-5 pt-2 sm:px-5">
         {children}
       </div>
     </details>

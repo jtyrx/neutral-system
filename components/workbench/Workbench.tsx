@@ -45,7 +45,7 @@ export function Workbench() {
   }, [setSelection])
 
   return (
-    <div className="ns-workbench flex min-h-dvh flex-col bg-[var(--ns-app-bg)] text-[var(--ns-text)] lg:grid lg:min-h-dvh grid-cols-[minmax(0,1fr)_minmax(0,36rem)]  xl:grid-cols-[minmax(0,1fr)_minmax(0,48rem)] lg:grid-rows-1">
+    <div className="ns-workbench bg-(--ns-app-bg) text-(--ns-text)">
       <LiveThemeStyles
         global={wb.global}
         lightTokens={wb.lightTokens}
@@ -54,11 +54,11 @@ export function Workbench() {
       />
       <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 
-      <div className="ns-workbench__mob-toolbar ns-panel border-b border-[var(--ns-hairline)] lg:hidden">
+      <div className="ns-workbench__mob-toolbar ns-panel border-b border-hairline">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="eyebrow">Neutral System</p>
-            <p className="text-sm font-semibold tracking-tight text-[var(--ns-text)]">Builder</p>
+            <p className="text-sm font-semibold tracking-tight text-default">Builder</p>
           </div>
           <ThemePreviewControls
             globalThemeMode={wb.themeMode}
@@ -74,11 +74,11 @@ export function Workbench() {
         </div>
       </div>
 
-      {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-[var(--ns-hairline)] lg:order-none lg:border-r lg:bg-[var(--ns-surface-raised)]">
+      {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-hairline lg:order-0 lg:border-r lg:bg-raised">
          <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} /> 
       </aside> */}
 
-      <main className="ns-workbench__preview-col order-1 min-h-0 min-w-0 lg:order-none">
+      <main className="ns-workbench__preview-col min-h-0 min-w-0">
         <WorkbenchPreviewColumn
           previewTheme={wb.previewTheme}
           showContrastPairs={wb.showContrastPairs}
@@ -99,7 +99,7 @@ export function Workbench() {
         />
       </main>
 
-      <aside className="ns-workbench__inspector-col order-3 h-full min-w-0 border-t border-[var(--ns-hairline)] lg:order-none lg:border-l lg:border-t-0">
+      <aside className="ns-workbench__inspector-col h-full min-w-0 border-t border-hairline lg:border-l lg:border-t-0">
         <div className="sticky top-0 max-h-dvh overflow-y-auto p-4">
           <div className="mb-4 hidden items-center justify-between gap-2 lg:flex">
             <p className="eyebrow">Preview</p>

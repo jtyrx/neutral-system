@@ -1,5 +1,5 @@
 import {resolveBrandColorForTokens} from '@/lib/neutral-engine/brandColor'
-import {serializeColor} from '@/lib/neutral-engine/serialize'
+import {parseColorFromSerialized, serializeColor} from '@/lib/neutral-engine/serialize'
 import {
   altRoleForIndex,
   borderRoleForIndex,
@@ -201,7 +201,6 @@ export function deriveBrandSurfaceToken(
     role: 'surface.brand',
     theme,
     sourceGlobalIndex: brandIdx,
-    color: brandResolved.color,
     serialized: brandResolved.serialized,
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
   }
@@ -270,7 +269,7 @@ function makeToken(
   alpha?: number,
 ): SystemToken {
   if (alpha != null && alpha < 1) {
-    const c = swatch.color.clone()
+    const c = parseColorFromSerialized(swatch.serialized)
     c.alpha = alpha
     return {
       id,
@@ -278,7 +277,6 @@ function makeToken(
       role,
       theme,
       sourceGlobalIndex: sourceIndex,
-      color: c,
       serialized: serializeColor(c),
       alpha,
     }
@@ -289,7 +287,6 @@ function makeToken(
     role,
     theme,
     sourceGlobalIndex: sourceIndex,
-    color: swatch.color,
     serialized: swatch.serialized,
   }
 }
@@ -354,7 +351,6 @@ export function deriveSystemTokens(
     role: 'surface.brand',
     theme,
     sourceGlobalIndex: brandIdx,
-    color: brandResolved.color,
     serialized: brandResolved.serialized,
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
   })

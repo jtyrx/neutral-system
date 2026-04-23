@@ -24,7 +24,7 @@ type Props = {
  */
 function SemanticTokenAnnotationInner({role, label, inspection, theme, onSelect, className = ''}: Props) {
   const text = label ?? `--${semanticColorVarName(role)}`
-  const base = 'font-mono text-[0.55rem] text-[var(--ns-text-muted)]'
+  const base = 'font-mono text-[0.55rem] text-muted'
 
   if (inspection && onSelect) {
     return (
@@ -34,7 +34,7 @@ function SemanticTokenAnnotationInner({role, label, inspection, theme, onSelect,
           e.stopPropagation()
           onSelect(role, theme)
         }}
-        className={`${base} cursor-pointer rounded px-1 py-0.5 transition hover:bg-[var(--ns-chip)] hover:text-[var(--ns-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${className}`}
+        className={`${base} cursor-pointer rounded px-1 py-0.5 transition hover:bg-[var(--ns-chip)] hover:text-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${className}`}
         aria-label={`Inspect ${role}`}
         data-role={role}
       >

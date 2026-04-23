@@ -219,6 +219,6 @@ pnpm start        # serve the built output
 
 ## About
 
-Built by [Jayson Acorda](https://jaysonacorda.com) as a working case study in neutral-system design — the kind of tool I wanted while building design systems in-house and couldn't find. It's opinionated on purpose, and it's still being pushed forward.
+Built by [Jayson](https://jaysonacorda.com) as a working case study in neutral-system design — the kind of tool I wanted while building design systems in-house and couldn't find. It's opinionated on purpose, and it's still being pushed forward.
 
 If any of this resonates, or you're wrestling with neutrals in your own system, I'd like to hear about it.

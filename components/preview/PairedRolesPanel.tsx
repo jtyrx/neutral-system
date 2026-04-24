@@ -185,7 +185,7 @@ export function PairedRolesPanel({
         ) : null}
 
         {showPrimitiveTiers ? (
-          <div className="grid gap-4 lg:grid-cols-1 lg:items-end">
+          <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:items-end">
             <ControlTier label="Semantic layer">
               <SegmentedControl
                 aria-label="Semantic token layer"
@@ -226,7 +226,7 @@ export function PairedRolesPanel({
         ) : null}
 
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'table' ? (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-6 nsb-lg:grid-cols-2">
             <div className="space-y-2">
               <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-amber-text)">Light</p>
               <SemanticRoleTable

@@ -1,6 +1,6 @@
-import {DEFAULT_BRAND_OKLCH} from '@/lib/neutral-engine/brandColor'
-import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
-import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
+import { DEFAULT_BRAND_OKLCH } from '@/lib/neutral-engine/brandColor'
+import { trimCssColorValue } from '@/lib/neutral-engine/serialize'
+import type { SystemMappingConfig } from '@/lib/neutral-engine/types'
 import {
   BORDER_STANDARD_SLOT_COUNT,
   SURFACE_STANDARD_COUNT_MAX,
@@ -17,7 +17,7 @@ export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   fillCount: 5,                // Standard surface ladder (sunken → overlay); inverse is separate
   strokeCount: 4,              // Border ladder: default / subtle / strong; border.focus is separate
   textCount: 5,                // Standard text ladder (default → disabled); text.on is separate
-  darkFillStart: -1,            // Index where fill slots start in the palette (dark mode)
+  darkFillStart: 0,            // Index where fill slots start from the dark edge of the palette
   darkStrokeStart: 2,          // Index where stroke slots start in the palette (dark mode)
   darkTextStart: 15,           // Index where text slots start in the palette (dark mode)
   darkFillCount: 5,            // Standard surface ladder (dark elevated)
@@ -38,12 +38,12 @@ export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   brandOklch: DEFAULT_BRAND_OKLCH,
 }
 
-type PartialSystemWithLegacy = Partial<SystemMappingConfig> & {stepInterval?: number}
+type PartialSystemWithLegacy = Partial<SystemMappingConfig> & { stepInterval?: number }
 
 /** Merge partial config (e.g. imported JSON) with defaults and legacy dark-field migration. */
 export function migrateSystemMappingConfig(partial: PartialSystemWithLegacy): SystemMappingConfig {
-  const {stepInterval: legacyStepInterval, ...rest} = partial
-  const m: SystemMappingConfig = {...DEFAULT_SYSTEM_MAPPING, ...rest}
+  const { stepInterval: legacyStepInterval, ...rest } = partial
+  const m: SystemMappingConfig = { ...DEFAULT_SYSTEM_MAPPING, ...rest }
   if (partial.darkFillStart === undefined) m.darkFillStart = m.fillStart
   if (partial.darkStrokeStart === undefined) m.darkStrokeStart = m.strokeStart
   if (partial.darkTextStart === undefined) m.darkTextStart = m.textStart + 2

@@ -17,6 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarResizer,
   SidebarSeparator,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
@@ -25,8 +26,6 @@ import { cn } from '@/lib/utils'
 type AppLayoutShellProps = {
   children: ReactNode
 }
-
-const FRACTION_SLASH = '\u2044'
 
 /**
  * Collapsible icon rail + inset main: keeps canvas space while a draft nav loads.
@@ -38,17 +37,26 @@ export function AppLayoutShell({ children }: AppLayoutShellProps) {
     <SidebarProvider defaultOpen>
       <AppSidebar />
       <SidebarInset
+        id="nsb-inset"
         className={cn(
           'min-h-0 min-h-svh flex-1 flex-col bg-[var(--ns-app-bg)] text-[var(--ns-text)]',
         )}
       >
-        <header className="border-b border-(--ns-hairline) bg-(--ns-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl">
+        <header
+          id="nsb-chrome-header"
+          className="border-b border-(--ns-hairline) bg-(--ns-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl"
+        >
           <div className="mx-auto flex h-9 items-center gap-2 sm:px-0">
             <SidebarTrigger />
             <p className="eyebrow hidden text-default sm:block">Builder</p>
           </div>
         </header>
-        <div className="min-h-0 flex-1">{children}</div>
+        <div
+          id="nsb-viewport"
+          className="@container/nsb-workbench min-h-0 min-w-0 flex-1"
+        >
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )
@@ -56,7 +64,7 @@ export function AppLayoutShell({ children }: AppLayoutShellProps) {
 
 export function AppSidebar() {
   return (
-    <Sidebar variant="inset" collapsible="icon" side="left">
+    <Sidebar id="nsb-nav" variant="inset" collapsible="icon" side="left">
       <SidebarHeader>
         <div className="flex items-center gap-2 py-1">
           <div className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground text-trim-both">
@@ -120,6 +128,8 @@ export function AppSidebar() {
           Placeholder items expand here—presets, docs, and exports.
         </p>
       </SidebarFooter>
+
+      <SidebarResizer />
     </Sidebar>
   )
 }

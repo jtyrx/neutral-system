@@ -1,27 +1,36 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
+/** Workbench inset: respond to `#nsb-viewport` width (not viewport), for resizable sidebar. */
+@custom-variant nsb-lg (@container nsb-workbench (width >= 56rem));
+@custom-variant nsb-xl (@container nsb-workbench (width >= 72rem));
+
 @theme {
-  --animate-inspector-enter: inspector-enter 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-inspector-enter: inspector-enter 220ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
   --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
 
-  --ease-in-cubic: cubic-bezier(0.32, 0.00, 0.67, 0.00);
-  --ease-out-cubic: cubic-bezier(0.33, 1.00, 0.68, 1.00);
-  --ease-in-quad: cubic-bezier(0.11, 0.00, 0.50, 0.00);
-  --ease-out-quad: cubic-bezier(0.50, 1.00, 0.89, 1.00);
+  --ease-in-cubic: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-quad: cubic-bezier(0.11, 0, 0.5, 0);
+  --ease-out-quad: cubic-bezier(0.5, 1, 0.89, 1);
 
   --ease-out-quart: cubic-bezier(0.17, 0.84, 0.44, 1);
   --ease-in-quart: cubic-bezier(0.9, 0.03, 0.69, 0.22);
-  --ease-in-out-quart: cubic-bezier(0.77,0,0.18,1);
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.18, 1);
 
-  --ease-in-quint: cubic-bezier(0.76,0.05,0.86,0.06);
-  --ease-out-quint: cubic-bezier(0.23,1,0.32,1);
+  --ease-in-quint: cubic-bezier(0.76, 0.05, 0.86, 0.06);
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
 
-  --ease-in-out-circ: cubic-bezier(0.79,0.14,0.15,0.86);
+  --ease-in-out-circ: cubic-bezier(0.79, 0.14, 0.15, 0.86);
+
+  --sidebar-width-default: 16rem;
+  --sidebar-width-min: 12rem;
+  --sidebar-width-max: 28rem;
 }
 
 @keyframes inspector-enter {
@@ -43,7 +52,7 @@
      * the live `[data-theme="light|dark"] { --color-*: … }` stylesheet). They match the
      * current dark feel so there is no flash.
      */
-    --color-surface-sunken: oklch(16.150% 0 none);
+    --color-surface-sunken: oklch(16.15% 0 none);
     --color-surface-default: oklch(18.209% 0 none);
     --color-surface-subtle: oklch(20.268% 0 none);
     --color-surface-raised: oklch(22.326% 0 none);
@@ -97,7 +106,11 @@
     --ns-overlay-strong: color-mix(in oklch, var(--ns-text) 15%, transparent);
 
     /* Overlays that must remain Tailwind-arbitrary-value-safe (no commas). */
-    --ns-toaster-bg: color-mix(in oklch, var(--ns-surface-overlay) 95%, transparent);
+    --ns-toaster-bg: color-mix(
+      in oklch,
+      var(--ns-surface-overlay) 95%,
+      transparent
+    );
 
     /**
      * Fixed support families — not part of the engine `[data-theme]` remapping.
@@ -124,46 +137,198 @@
     --ns-chrome-sky-text: var(--color-sky-light);
 
     /* Amber borders, surfaces, rings, and fills. */
-    --ns-chrome-amber-border-faint: color-mix(in oklch, var(--ns-chrome-amber) 15%, transparent);
-    --ns-chrome-amber-border-soft: color-mix(in oklch, var(--ns-chrome-amber) 20%, transparent);
-    --ns-chrome-amber-border: color-mix(in oklch, var(--ns-chrome-amber) 25%, transparent);
-    --ns-chrome-amber-border-medium: color-mix(in oklch, var(--ns-chrome-amber) 30%, transparent);
-    --ns-chrome-amber-border-strong: color-mix(in oklch, var(--ns-chrome-amber) 35%, transparent);
-    --ns-chrome-amber-border-bold: color-mix(in oklch, var(--ns-chrome-amber) 40%, transparent);
-    --ns-chrome-amber-surface-faint: color-mix(in oklch, var(--ns-chrome-amber) 5%, transparent);
-    --ns-chrome-amber-surface: color-mix(in oklch, var(--ns-chrome-amber) 6%, transparent);
-    --ns-chrome-amber-surface-soft: color-mix(in oklch, var(--ns-chrome-amber) 7%, transparent);
-    --ns-chrome-amber-surface-strong: color-mix(in oklch, var(--ns-chrome-amber) 8%, transparent);
-    --ns-chrome-amber-surface-bold: color-mix(in oklch, var(--ns-chrome-amber) 10%, transparent);
-    --ns-chrome-amber-pill: color-mix(in oklch, var(--ns-chrome-amber) 15%, transparent);
-    --ns-chrome-amber-hover: color-mix(in oklch, var(--ns-chrome-amber) 20%, transparent);
-    --ns-chrome-amber-fill: color-mix(in oklch, var(--ns-chrome-amber) 80%, transparent);
-    --ns-chrome-amber-fill-strong: color-mix(in oklch, var(--ns-chrome-amber) 90%, transparent);
-    --ns-chrome-amber-ring-faint: color-mix(in oklch, var(--ns-chrome-amber) 12%, transparent);
-    --ns-chrome-amber-ring-soft: color-mix(in oklch, var(--ns-chrome-amber) 15%, transparent);
-    --ns-chrome-amber-ring: color-mix(in oklch, var(--ns-chrome-amber) 20%, transparent);
-    --ns-chrome-amber-ring-strong: color-mix(in oklch, var(--ns-chrome-amber) 25%, transparent);
+    --ns-chrome-amber-border-faint: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 15%,
+      transparent
+    );
+    --ns-chrome-amber-border-soft: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 20%,
+      transparent
+    );
+    --ns-chrome-amber-border: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 25%,
+      transparent
+    );
+    --ns-chrome-amber-border-medium: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 30%,
+      transparent
+    );
+    --ns-chrome-amber-border-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 35%,
+      transparent
+    );
+    --ns-chrome-amber-border-bold: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 40%,
+      transparent
+    );
+    --ns-chrome-amber-surface-faint: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 5%,
+      transparent
+    );
+    --ns-chrome-amber-surface: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 6%,
+      transparent
+    );
+    --ns-chrome-amber-surface-soft: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 7%,
+      transparent
+    );
+    --ns-chrome-amber-surface-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 8%,
+      transparent
+    );
+    --ns-chrome-amber-surface-bold: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 10%,
+      transparent
+    );
+    --ns-chrome-amber-pill: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 15%,
+      transparent
+    );
+    --ns-chrome-amber-hover: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 20%,
+      transparent
+    );
+    --ns-chrome-amber-fill: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 80%,
+      transparent
+    );
+    --ns-chrome-amber-fill-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 90%,
+      transparent
+    );
+    --ns-chrome-amber-ring-faint: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 12%,
+      transparent
+    );
+    --ns-chrome-amber-ring-soft: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 15%,
+      transparent
+    );
+    --ns-chrome-amber-ring: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 20%,
+      transparent
+    );
+    --ns-chrome-amber-ring-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-amber) 25%,
+      transparent
+    );
 
     /* Sky borders, surfaces, rings, and fills. */
-    --ns-chrome-sky-border-faint: color-mix(in oklch, var(--ns-chrome-sky) 15%, transparent);
-    --ns-chrome-sky-border-soft: color-mix(in oklch, var(--ns-chrome-sky) 20%, transparent);
-    --ns-chrome-sky-border: color-mix(in oklch, var(--ns-chrome-sky) 25%, transparent);
-    --ns-chrome-sky-border-medium: color-mix(in oklch, var(--ns-chrome-sky) 30%, transparent);
-    --ns-chrome-sky-border-strong: color-mix(in oklch, var(--ns-chrome-sky) 35%, transparent);
-    --ns-chrome-sky-border-bold: color-mix(in oklch, var(--ns-chrome-sky) 40%, transparent);
-    --ns-chrome-sky-surface-faint: color-mix(in oklch, var(--ns-chrome-sky) 5%, transparent);
-    --ns-chrome-sky-surface: color-mix(in oklch, var(--ns-chrome-sky) 6%, transparent);
-    --ns-chrome-sky-surface-soft: color-mix(in oklch, var(--ns-chrome-sky) 7%, transparent);
-    --ns-chrome-sky-surface-strong: color-mix(in oklch, var(--ns-chrome-sky) 8%, transparent);
-    --ns-chrome-sky-surface-bold: color-mix(in oklch, var(--ns-chrome-sky) 10%, transparent);
-    --ns-chrome-sky-pill: color-mix(in oklch, var(--ns-chrome-sky) 15%, transparent);
-    --ns-chrome-sky-hover: color-mix(in oklch, var(--ns-chrome-sky) 20%, transparent);
-    --ns-chrome-sky-fill: color-mix(in oklch, var(--ns-chrome-sky) 80%, transparent);
-    --ns-chrome-sky-fill-strong: color-mix(in oklch, var(--ns-chrome-sky) 90%, transparent);
-    --ns-chrome-sky-ring-faint: color-mix(in oklch, var(--ns-chrome-sky) 12%, transparent);
-    --ns-chrome-sky-ring-soft: color-mix(in oklch, var(--ns-chrome-sky) 15%, transparent);
-    --ns-chrome-sky-ring: color-mix(in oklch, var(--ns-chrome-sky) 20%, transparent);
-    --ns-chrome-sky-ring-strong: color-mix(in oklch, var(--ns-chrome-sky) 25%, transparent);
+    --ns-chrome-sky-border-faint: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 15%,
+      transparent
+    );
+    --ns-chrome-sky-border-soft: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 20%,
+      transparent
+    );
+    --ns-chrome-sky-border: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 25%,
+      transparent
+    );
+    --ns-chrome-sky-border-medium: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 30%,
+      transparent
+    );
+    --ns-chrome-sky-border-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 35%,
+      transparent
+    );
+    --ns-chrome-sky-border-bold: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 40%,
+      transparent
+    );
+    --ns-chrome-sky-surface-faint: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 5%,
+      transparent
+    );
+    --ns-chrome-sky-surface: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 6%,
+      transparent
+    );
+    --ns-chrome-sky-surface-soft: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 7%,
+      transparent
+    );
+    --ns-chrome-sky-surface-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 8%,
+      transparent
+    );
+    --ns-chrome-sky-surface-bold: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 10%,
+      transparent
+    );
+    --ns-chrome-sky-pill: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 15%,
+      transparent
+    );
+    --ns-chrome-sky-hover: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 20%,
+      transparent
+    );
+    --ns-chrome-sky-fill: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 80%,
+      transparent
+    );
+    --ns-chrome-sky-fill-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 90%,
+      transparent
+    );
+    --ns-chrome-sky-ring-faint: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 12%,
+      transparent
+    );
+    --ns-chrome-sky-ring-soft: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 15%,
+      transparent
+    );
+    --ns-chrome-sky-ring: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 20%,
+      transparent
+    );
+    --ns-chrome-sky-ring-strong: color-mix(
+      in oklch,
+      var(--ns-chrome-sky) 25%,
+      transparent
+    );
   }
 
   /* When the whole app is in light mode, amber/sky labels need the darker endpoint
@@ -221,9 +386,9 @@
   grid-area: inspector;
 }
 
-@media (min-width: 1024px) {
+@container nsb-workbench (width >= 56rem) {
   .ns-workbench {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 36rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(36rem, 50cqi));
     grid-template-rows: auto;
     grid-template-areas: 'main inspector';
     align-items: start;
@@ -234,121 +399,193 @@
   }
 }
 
-@media (min-width: 1280px) {
+@container nsb-workbench (width >= 72rem) {
   .ns-workbench {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 48rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(48rem, 52cqi));
   }
 }
 
 /* Preview workbench canvas */
-#preview-workbench-blocks {
+#nsb-preview-blocks {
   position: relative;
+  isolation: isolate;
+  /* Defaults match dark theme so vars are always valid (SSR / before [data-theme] or LiveTheme). */
+  --ns-preview-blocks-bg:
+    radial-gradient(
+      1200px 600px at 15% 0%,
+      color-mix(in oklch, var(--ns-surface-overlay) 85%, var(--ns-accent) 15%),
+      transparent 62%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--ns-surface-subtle) 92%, transparent),
+      color-mix(in oklch, var(--ns-app-bg) 100%, transparent)
+    );
+  --ns-preview-blocks-overlay: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--ns-text) 5%, transparent),
+    transparent 22%,
+    transparent 84%,
+    color-mix(in oklch, var(--ns-text) 6%, transparent)
+  );
+  --ns-preview-dot-grid: 1rem;
+  /* ≥1px avoids subpixel collapse of the dot in some engines at non-1 DPR. */
+  --ns-preview-dot-size: 1px;
+  --ns-preview-dot-offset-x: -0.5px;
+  --ns-preview-dot-offset-y: -0.5px;
+  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 34%, transparent);
+  --ns-preview-dot-opacity: 0.22;
+  --ns-preview-dot-mask: radial-gradient(
+    90% 75% at 50% 40%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 55%,
+    rgba(0, 0, 0, 0.25) 74%,
+    rgba(0, 0, 0, 0) 100%
+  );
   border-top: 1px solid var(--ns-hairline);
   background: var(--ns-preview-blocks-bg);
 }
 
-#preview-workbench-blocks::before {
+#nsb-preview-blocks::before {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
+  /* Behind in-flow content (z-index:0/1 fights with flex; -1 is the reliable decorative layer). */
+  z-index: -1;
   pointer-events: none;
   background: var(--ns-preview-blocks-overlay);
   mix-blend-mode: normal;
 }
 
-/* Square guide grid on top of the vignette — token-aware line color. */
-#preview-workbench-blocks::after {
+/* Dot blueprint on top of the vignette, still *below* real children (z-index: -1). */
+#nsb-preview-blocks::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
-  mix-blend-mode: normal;
-  background-image:
-    repeating-linear-gradient(
-      to right,
-      transparent 0,
-      transparent calc(24px - 1px),
-      var(--ns-preview-blocks-grid-line) calc(24px - 1px),
-      var(--ns-preview-blocks-grid-line) 24px
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent calc(24px - 1px),
-      var(--ns-preview-blocks-grid-line) calc(24px - 1px),
-      var(--ns-preview-blocks-grid-line) 24px
-    );
+
+  background-image: radial-gradient(
+    circle,
+    var(--ns-preview-dot-color) var(--ns-preview-dot-size),
+    transparent calc(var(--ns-preview-dot-size) + 0.5px)
+  );
+  background-repeat: repeat;
+  background-size: var(--ns-preview-dot-grid) var(--ns-preview-dot-grid);
+  background-position: var(--ns-preview-dot-offset-x) var(--ns-preview-dot-offset-y);
+
+  -webkit-mask-image: var(--ns-preview-dot-mask);
+  mask-image: var(--ns-preview-dot-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  opacity: var(--ns-preview-dot-opacity);
+  transition: opacity 200ms ease;
 }
 
-#preview-workbench-blocks > * {
+#nsb-preview-blocks > * {
   position: relative;
-  z-index: 1;
+  z-index: 0;
 }
 
 /* Light: soft paper field + faint grid for “workbench surface”. */
-[data-theme='light'] #preview-workbench-blocks {
+[data-theme='light'] #nsb-preview-blocks {
   --ns-preview-blocks-bg:
-    radial-gradient(1400px 700px at 10% 0%,
+    radial-gradient(
+      1400px 700px at 10% 0%,
       color-mix(in oklch, var(--ns-surface-raised) 85%, var(--ns-accent) 15%),
-      transparent 60%),
+      transparent 60%
+    ),
     linear-gradient(
       to bottom,
       color-mix(in oklch, var(--ns-surface-raised) 100%, transparent),
       color-mix(in oklch, var(--ns-surface-default) 92%, transparent)
     );
 
-  --ns-preview-blocks-overlay:
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--ns-text) 3%, transparent),
-      transparent 18%,
-      transparent 82%,
-      color-mix(in oklch, var(--ns-text) 4%, transparent)
-    );
+  --ns-preview-blocks-overlay: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--ns-text) 3%, transparent),
+    transparent 18%,
+    transparent 82%,
+    color-mix(in oklch, var(--ns-text) 4%, transparent)
+  );
 
-  --ns-preview-blocks-grid-line: color-mix(in oklch, var(--ns-text) 4%, transparent);
+  --ns-preview-blocks-grid-line: color-mix(
+    in oklch,
+    var(--ns-text) 4%,
+    transparent
+  );
+
+  /* Dot pattern (light) */
+  --ns-preview-dot-grid: 1rem;
+  --ns-preview-dot-size: 1px;
+  --ns-preview-dot-offset-x: -0.5px;
+  --ns-preview-dot-offset-y: -0.5px;
+  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 67%, transparent);
+  --ns-preview-dot-opacity: 0.35;
+  --ns-preview-dot-mask: radial-gradient(
+    85% 70% at 50% 45%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 52%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
-[data-theme='light'] #preview-workbench-blocks::before {
-  opacity: 0.55;
-}
-
-[data-theme='light'] #preview-workbench-blocks::after {
+[data-theme='light'] #nsb-preview-blocks::before {
   opacity: 0.55;
 }
 
 /* Dark: deeper neutral field with restrained top glow and quieter grid. */
-[data-theme='dark'] #preview-workbench-blocks {
+[data-theme='dark'] #nsb-preview-blocks {
   --ns-preview-blocks-bg:
-    radial-gradient(1200px 600px at 15% 0%,
+    radial-gradient(
+      1200px 600px at 15% 0%,
       color-mix(in oklch, var(--ns-surface-overlay) 85%, var(--ns-accent) 15%),
-      transparent 62%),
+      transparent 62%
+    ),
     linear-gradient(
       to bottom,
       color-mix(in oklch, var(--ns-surface-subtle) 92%, transparent),
       color-mix(in oklch, var(--ns-app-bg) 100%, transparent)
     );
 
-  --ns-preview-blocks-overlay:
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--ns-text) 5%, transparent),
-      transparent 22%,
-      transparent 84%,
-      color-mix(in oklch, var(--ns-text) 6%, transparent)
-    );
+  --ns-preview-blocks-overlay: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--ns-text) 5%, transparent),
+    transparent 22%,
+    transparent 84%,
+    color-mix(in oklch, var(--ns-text) 6%, transparent)
+  );
 
-  --ns-preview-blocks-grid-line: color-mix(in oklch, var(--ns-text) 7%, transparent);
+  --ns-preview-blocks-grid-line: color-mix(
+    in oklch,
+    var(--ns-text) 7%,
+    transparent
+  );
+
+  /* Dot pattern (dark) */
+  --ns-preview-dot-grid: 1rem;
+  --ns-preview-dot-size: 1px;
+  --ns-preview-dot-offset-x: -0.5px;
+  --ns-preview-dot-offset-y: -0.5px;
+  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 34%, transparent);
+  --ns-preview-dot-opacity: 0.22;
+  --ns-preview-dot-mask: radial-gradient(
+    90% 75% at 50% 40%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 55%,
+    rgba(0, 0, 0, 0.25) 74%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
-[data-theme='dark'] #preview-workbench-blocks::before {
+[data-theme='dark'] #nsb-preview-blocks::before {
   opacity: 0.35;
-}
-
-[data-theme='dark'] #preview-workbench-blocks::after {
-  opacity: 0.4;
 }
 
 /* Surface and container utilities */
@@ -360,12 +597,35 @@
 @utility ns-overlay-card {
   position: relative;
   display: block;
+  inset: 0;
+  overflow: hidden;
   border-radius: 0.75rem;
-  border: 1px solid var(--ns-hairline);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.06));
   padding: 0.75rem 1rem;
   background-color: var(--ns-overlay-soft);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  /* Modifier for Glass UI effect */
+  /* -webkit-backdrop-filter: blur(8px) saturate(180%); */
+  backdrop-filter: blur(8px) saturate(50%);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+
+  /* TODO: Uncomment this when we have a dark mode */
+  /* background: linear-gradient(137deg, rgba(17, 18, 20, .75) 4.87%, rgba(12, 13, 15, .9) 75.88%); */
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    /* your styles */
+    /* -webkit-box-shadow:
+      inset 1px 1px 0px -1px rgba(255, 255, 255, 0.7),
+      inset 0 0 1px 1px rgba(255, 255, 255, 0.7); */
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
+    /* inset 0 1px 1px 0 rgba(255, 255, 255, 0.95); */
+  }
+
 }
 
 /* Text and typography utilities */
@@ -376,7 +636,9 @@
 }
 
 @utility eyebrow {
-  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
   font-size: 0.65rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -421,7 +683,8 @@
   border-radius: 9999px;
   font-weight: 500;
   white-space: nowrap;
-  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-property:
+    color, background-color, border-color, box-shadow, transform;
   transition-duration: 150ms;
   transition-timing-function: ease-out;
 }

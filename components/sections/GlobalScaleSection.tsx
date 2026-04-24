@@ -77,7 +77,7 @@ const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisualization(
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_14rem]">
+      <div className="grid gap-4 nsb-lg:grid-cols-[1fr_14rem]">
         <LightnessLadder swatches={global} onSelect={onSelectSwatch} selectedIndex={ringIndex} />
         <LightnessSparkline swatches={global} />
       </div>
@@ -181,7 +181,7 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
 
       <GlobalScaleRampVisualization global={global} selectedIndex={selectedIndex} onSelectSwatch={onSelectSwatch} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 nsb-lg:grid-cols-3">
         <label className="space-y-1">
           <span className="ns-label">Steps</span>
           <select
@@ -251,7 +251,7 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
             ))}
           </select>
         </label>
-        <label className="space-y-1 sm:col-span-2 lg:col-span-3">
+        <label className="space-y-1 sm:col-span-2 nsb-lg:col-span-3">
           <span className="ns-label">Chroma mode</span>
           <select
             className="ns-input"

@@ -91,7 +91,7 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 lg:grid-cols-1 lg:gap-4">
+      <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:gap-4">
         <div className="rounded-xl border border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)] px-4 py-3 sm:px-5 sm:py-4">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
@@ -130,10 +130,10 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             aria-label="Dark elevated global ramp"
             global={global}
             tokenView={darkTokenView}
-            caption="Dark elevated · global ramp (tail pool)"
+            caption="Dark elevated · global ramp (dark edge)"
             accentClassName="ring-1 ring-[var(--ns-chrome-sky-ring-soft)]"
             invertDisplay
-            directionHint="Surfaces from the dark tail; strip inverted so it reads dark → light left to right."
+            directionHint="Dark strip is visually inverted to read dark → light left to right; resolved indices remain absolute."
           />
         </div>
       </div>

@@ -27,14 +27,10 @@ function clampIntToRange(v: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, r))
 }
 
-/**
- * Dark surface start offset: **−1** is a valid explicit sentinel (see {@link pickDarkIndices});
- * it must not be coerced to 0. Range is [−1, n−1] for ladder length n.
- */
 function clampDarkFillStart(v: number, maxStart: number): number {
   const r = Math.round(v)
   if (!Number.isFinite(r)) return 0
-  return Math.max(-1, Math.min(maxStart, r))
+  return Math.max(0, Math.min(maxStart, r))
 }
 
 function clampStepInterval(v: number): number {
@@ -45,8 +41,7 @@ function clampStepInterval(v: number): number {
 
 /**
  * Pins ladder-bound fields when the global step count changes so starts and dark segment length
- * stay within valid UI/engine bounds. **Exception:** `darkFillStart` may be **−1** (see
- * {@link clampDarkFillStart}); other role starts use [0, n−1]; dark segment length [3, n].
+ * stay within valid UI/engine bounds. Role starts use [0, n−1]; dark segment length [3, n].
  */
 export function clampSystemMappingToLadderLength(
   n: number,
@@ -220,12 +215,13 @@ export function pickLightIndices(
   return out
 }
 
-/** Dark elevated: index N-1 = background (darkest); surfaces use lower indices (lighter). */
+/** Dark elevated: index N-1 is the dark-edge surface anchor; higher start offsets walk inward. */
 export function pickDarkIndices(startOffset: number, count: number, step: number, n: number): number[] {
   const out: number[] = []
   const base = n - 1
+  const normalizedStart = Math.max(0, Math.round(startOffset))
   for (let k = 0; k < count; k++) {
-    const idx = clampIndex(base - 1 - startOffset * step - k * step, n)
+    const idx = clampIndex(base - normalizedStart - k * step, n)
     out.push(idx)
   }
   return out

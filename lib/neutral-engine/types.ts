@@ -54,9 +54,8 @@ export type SystemMappingConfig = {
   strokeCount: number
   textCount: number
   /**
-   * Dark elevated: independent role controls (passed to inverted tail-based pickers).
+   * Dark elevated: independent role controls (passed to dark-edge pickers).
    * Legacy presets without these fields migrate from light fields (+2 for text start).
-   * **−1** is valid: one step before offset 0 in {@link pickDarkIndices} (see engine).
    */
   darkFillStart: number
   darkStrokeStart: number

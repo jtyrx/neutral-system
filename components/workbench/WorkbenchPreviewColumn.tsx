@@ -64,10 +64,7 @@ function WorkbenchPreviewColumnInner({
   steps,
 }: Props) {
   return (
-    <div
-      id="preview"
-      className="flex min-h-0 flex-col border-b border-hairline bg-raised transition-opacity duration-200 lg:border-b-0"
-    >
+    <div className="flex min-h-0 flex-col border-b border-hairline bg-raised transition-opacity duration-200 nsb-lg:border-b-0">
       <PreviewContextHeader
         comparisonLayout={comparisonLayout}
         previewTheme={previewTheme}
@@ -78,9 +75,9 @@ function WorkbenchPreviewColumnInner({
       />
 
       <div
-        id="preview-workbench-blocks"
+        id="nsb-preview-blocks"
         aria-label="Semantic preview blocks"
-        className="flex flex-col gap-10 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+        className="flex flex-col gap-10 px-4 py-6 sm:px-6 sm:py-8 nsb-lg:px-8"
       >
         <section aria-label="Semantic preview blocks" className="mx-auto w-full">
           <SemanticPreviewWorkbench

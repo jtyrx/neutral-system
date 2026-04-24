@@ -122,7 +122,7 @@ function GlobalSwatchInspector({
         className="h-20 w-full rounded-xl border border-hairline"
         style={{backgroundColor: s.serialized.hex}}
       />
-      <dl className="grid grid-cols-1 gap-2 font-mono text-[0.65rem] text-default lg:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-2 font-mono text-[0.65rem] text-default nsb-lg:grid-cols-2">
         <div>
           <dt className="text-muted">Label</dt>
           <dd>{s.label}</dd>

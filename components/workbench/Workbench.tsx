@@ -45,7 +45,7 @@ export function Workbench() {
   }, [setSelection])
 
   return (
-    <div className="ns-workbench bg-(--ns-app-bg) text-(--ns-text)">
+    <div id="nsb-workbench" className="ns-workbench bg-(--ns-app-bg) text-(--ns-text)">
       <LiveThemeStyles
         global={wb.global}
         lightTokens={wb.lightTokens}
@@ -54,7 +54,7 @@ export function Workbench() {
       />
       <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 
-      <div className="ns-workbench__mob-toolbar ns-panel border-b border-hairline">
+      <div id="nsb-mob-toolbar" className="ns-workbench__mob-toolbar ns-panel border-b border-hairline">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <p className="eyebrow">Neutral System</p>
@@ -78,7 +78,7 @@ export function Workbench() {
          <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} /> 
       </aside> */}
 
-      <main className="ns-workbench__preview-col min-h-0 min-w-0">
+      <main id="nsb-preview-column" className="ns-workbench__preview-col min-h-0 min-w-0">
         <WorkbenchPreviewColumn
           previewTheme={wb.previewTheme}
           showContrastPairs={wb.showContrastPairs}
@@ -99,9 +99,12 @@ export function Workbench() {
         />
       </main>
 
-      <aside className="ns-workbench__inspector-col h-full min-w-0 border-t border-hairline lg:border-l lg:border-t-0">
+      <aside
+        id="nsb-inspector"
+        className="ns-workbench__inspector-col h-full min-w-0 border-t border-hairline nsb-lg:border-l nsb-lg:border-t-0"
+      >
         <div className="sticky top-0 max-h-dvh overflow-y-auto p-4">
-          <div className="mb-4 hidden items-center justify-between gap-2 lg:flex">
+          <div className="mb-4 hidden items-center justify-between gap-2 nsb-lg:flex">
             <p className="eyebrow">Preview</p>
             <ThemePreviewControls
               globalThemeMode={wb.themeMode}

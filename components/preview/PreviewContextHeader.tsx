@@ -48,8 +48,11 @@ export function PreviewContextHeader({
   const themeLabel = previewTheme === 'light' ? 'Light' : 'Dark elevated'
 
   return (
-    <div className="sticky top-0 z-20 border-b border-(--ns-hairline) bg-(--ns-surface-raised) backdrop-blur supports-[backdrop-filter]:bg-(--ns-surface-raised)">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+    <div
+      id="nsb-preview-context"
+      className="sticky top-0 z-20 border-b border-(--ns-hairline) bg-(--ns-surface-raised) backdrop-blur supports-[backdrop-filter]:bg-(--ns-surface-raised)"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 nsb-lg:px-8">
         <div className="flex min-w-0 flex-col">
           <p className="text-[0.8125rem] font-mono uppercase text-(--ns-text-muted) text-default">
             <span className="mx-1.25 inline-block text-trim-both font-bold">{FRACTION_SLASH}</span>Workbench

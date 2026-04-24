@@ -51,6 +51,8 @@ Single-page workbench (`app/page.tsx` → `components/workbench/Workbench.tsx`) 
 
 **UI:** `Workbench.tsx` — preview + inspector. `WorkbenchControlsShell.tsx` + `BuilderControlsSections.tsx` — Scale → Contrast & role mapping → Inspect → Export. `components/sections/*` — section bodies; `components/preview/*` — palettes/tables; `components/viz/*` — ladders and offset diagrams.
 
+**Responsive breakpoints (hybrid):** `#nsb-viewport` is a Tailwind **named container** (`@container/nsb-workbench`). Workbench grid (`.ns-workbench` in `app/globals.css`) and workbench-scoped utilities use **`nsb-lg:`** / **`nsb-xl:`** (`@custom-variant` → `@container nsb-workbench (width ≥ …)`), so preview + inspector layout tracks **inset width** after the **resizable sidebar**. Coarse shell behavior (e.g. mobile nav sheet) still uses **viewport** via `useIsMobile` (~768px). For layout inside the workbench, prefer **`nsb-lg:`** over **`lg:`** so breakpoints match available content width, not the full viewport.
+
 **Presets:** dispatch `neutral-system:load-preset` with `detail: { globalConfig, systemConfig }`. Workbench applies `migrateSystemMappingConfig` and `clampGlobalScaleSteps`.
 
 ## Conventions

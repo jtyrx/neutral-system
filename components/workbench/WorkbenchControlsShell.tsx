@@ -13,7 +13,7 @@ type Props = {
 /** Left column: navigation + grouped controls (desktop); scrollable. */
 function WorkbenchControlsShellInner({wb, selectedGlobalIndex}: Props) {
   return (
-    <div className="flex max-h-[min(100dvh,100%)] min-h-0 flex-col border-hairline lg:max-h-dvh">
+    <div className="flex max-h-[min(100dvh,100%)] min-h-0 flex-col border-hairline nsb-lg:max-h-dvh">
       <div className="shrink-0 border-b border-hairline px-4 py-4 sm:px-5">
         <p className="eyebrow">Workbench</p>
         <h1 className="mt-1 text-lg font-semibold tracking-tight text-default">Neutral System</h1>

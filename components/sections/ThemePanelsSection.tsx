@@ -217,7 +217,7 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
         </p>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-2 lg:gap-4">
+      <div className="grid gap-4 nsb-lg:grid-cols-2 nsb-lg:gap-4">
         <ThemeTokenColumn
           eyebrow="Light theme"
           title="Primitive tokens"

@@ -49,7 +49,7 @@ export function PreviewContextPanel({
     >
       <div>
         <header className="border-b border-hairline px-4 py-4 sm:px-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-4 nsb-lg:flex-row nsb-lg:items-start nsb-lg:justify-between">
             <div className="min-w-0 flex-1">
               <p className="eyebrow">Compare themes</p>
               <h2 className="mt-0.5 text-base font-semibold tracking-tight text-default sm:text-lg">
@@ -60,7 +60,7 @@ export function PreviewContextPanel({
                 one at a time. Contrast emphasis changes ladder spacing (see below).
               </p>
               <div className="mt-4 max-w-full" id="offset-mapping-diagrams">
-                <div className="grid gap-4 lg:grid-cols-1">
+                <div className="grid gap-4 nsb-lg:grid-cols-1">
                   <OffsetMapDiagram
                     steps={steps}
                     themeLabel="Light"

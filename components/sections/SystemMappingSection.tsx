@@ -110,7 +110,7 @@ function SystemMappingSectionInner({
           interval is set per theme and role in each ladder group below. Alt overlays and dark segment
           length are global.
         </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 nsb-lg:grid-cols-4">
           <NumField
             label="Contrast distance"
             hint="Widens spacing (both themes)"
@@ -144,7 +144,7 @@ function SystemMappingSectionInner({
             value={config.darkSegmentLength}
             onChange={(v) => patchSystem('darkSegmentLength', v)}
           />
-          <label className="flex items-center gap-2 pt-6 sm:col-span-2 lg:col-span-4">
+          <label className="flex items-center gap-2 pt-6 sm:col-span-2 nsb-lg:col-span-4">
             <input
               type="checkbox"
               checked={config.includeContrastGroups}
@@ -158,7 +158,7 @@ function SystemMappingSectionInner({
 
       <div
         id="light-theme-role-ladders"
-        className="grid gap-4 lg:grid-cols-2 lg:gap-6"
+        className="grid gap-4 nsb-lg:grid-cols-2 nsb-lg:gap-6"
       >
         <div className="rounded-2xl border border-(--ns-chrome-amber-border) bg-(--ns-chrome-amber-surface) p-4 sm:p-5 flex flex-col justify-between">
           <div className="border-b border-(--ns-chrome-amber-border-soft) pb-3">
@@ -280,8 +280,8 @@ function SystemMappingSectionInner({
             <p className="eyebrow text-(--ns-chrome-sky-text)">Dark elevated</p>
             <h3 className="mt-1 text-base font-semibold text-default">Role ladders</h3>
             <p className="mt-1 text-xs text-muted">
-              Independent controls; the engine maps from the dark tail using the same inverted
-              index rules as before (surface, border, and text each use their own start inputs).
+              Independent controls; surfaces anchor from the dark edge of the shared ramp, while
+              border and text keep their own dark-theme start inputs and resolved global indices.
             </p>
           </div>
 
@@ -289,7 +289,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-sky-text)">Surface</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Tail-anchored surface ramp</p>
+                <p className="mt-0.5 text-[0.65rem] text-muted">Dark-edge anchored surface ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -302,8 +302,8 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Surface start index"
-                  hint="Offset into dark tail pool. Use −1 for one step before index 0 (valid; not “missing”)."
-                  min={-1}
+                  hint="0 starts at the dark-edge swatch; higher values walk inward along the shared ramp."
+                  min={0}
                   max={steps - 1}
                   value={config.darkFillStart}
                   onChange={(v) => patchSystem('darkFillStart', v)}
@@ -390,7 +390,7 @@ function SystemMappingSectionInner({
       </div>
 
       <div className="space-y-4">
-        <div className="grid gap-4 lg:grid-cols-1">
+        <div className="grid gap-4 nsb-lg:grid-cols-1">
           <OffsetMapDiagram
             steps={steps}
             themeLabel="Light"

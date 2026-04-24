@@ -115,7 +115,7 @@ function GlobalScaleStripInner({
               >
                 {/* Fixed height: no flex-1 so every swatch matches regardless of badge count */}
                 <div
-                  className="h-9 w-full shrink-0 rounded-t border border-hairline lg:h-11"
+                  className="h-9 w-full shrink-0 rounded-t border border-hairline nsb-lg:h-11"
                   style={{ backgroundColor: s.serialized.hex }}
                 />
                 <span className="shrink-0 text-center text-[0.5rem] leading-none text-faint py-0.5 px-0.5">

@@ -10,14 +10,12 @@ const STYLE_NODE_ID = 'ns-live-tokens'
 
 /**
  * Mounts the engine's resolved `--color-*` variables as a single `<style id="ns-live-tokens">`
- * in `document.head`, and mirrors `themeMode` onto `<html>` via `data-theme` + `color-scheme`.
+ * in `document.head`.
  *
  * This is the bridge between the workbench inputs (Scale / Custom Brand / Contrast / Theme Table)
  * and everything that reads the alias layer (`--ns-*` chrome, previews, Tailwind `bg-*`/`text-*`).
  *
- * Scheduling:
- * - `data-theme` / `color-scheme` flip via `useLayoutEffect` so theme toggles never flash.
- * - `exportCssVariables` writes via `useLayoutEffect`. `useEffect` is flushed via
+ * Scheduling: `exportCssVariables` writes via `useLayoutEffect`. `useEffect` is flushed via
  *   `MessageChannel`/`setTimeout(0)`, both of which Chromium clamps to 1 Hz when the
  *   browser window is unfocused — that turns a <5ms engine update into a 1000–1700ms
  *   visible stall. `useLayoutEffect` runs synchronously in the commit phase before the
@@ -28,20 +26,11 @@ export function LiveThemeStyles({
   global,
   lightTokens,
   darkTokens,
-  themeMode,
 }: {
   global: GlobalSwatch[]
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
-  themeMode: 'light' | 'dark'
 }) {
-  useLayoutEffect(() => {
-    if (typeof document === 'undefined') return
-    const root = document.documentElement
-    root.dataset.theme = themeMode
-    root.style.colorScheme = themeMode
-  }, [themeMode])
-
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return
     const debug = presetDebugEnabled()

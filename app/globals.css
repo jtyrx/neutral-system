@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /** Workbench inset: respond to `#nsb-viewport` width (not viewport), for resizable sidebar. */
 @custom-variant nsb-lg (@container nsb-workbench (width >= 56rem));
@@ -28,7 +28,7 @@
 
   --ease-in-out-circ: cubic-bezier(0.79, 0.14, 0.15, 0.86);
 
-  --sidebar-width-default: 16rem;
+  --sidebar-width-default: 14rem;
   --sidebar-width-min: 12rem;
   --sidebar-width-max: 28rem;
 }
@@ -76,6 +76,7 @@
     --ns-app-bg: var(--color-surface-sunken);
     --ns-surface: var(--color-surface-default);
     /** Symmetric with `--ns-surface-subtle` / `--ns-surface-raised` — the “default” canvas surface. */
+    --ns-surface-sunken: var(--color-surface-sunken);
     --ns-surface-default: var(--ns-surface);
     --ns-surface-subtle: var(--color-surface-subtle);
     --ns-surface-raised: var(--color-surface-raised);
@@ -335,8 +336,43 @@
      to stay readable against light surfaces. Borders/surfaces/rings keep using the
      dark anchor because alpha mixes over any background stay balanced. */
   [data-theme='light'] {
+    --color-surface-sunken: oklch(98.5% 0 none);
+    --color-surface-default: oklch(96.441% 0 none);
+    --color-surface-subtle: oklch(94.383% 0 none);
+    --color-surface-raised: oklch(92.324% 0 none);
+    --color-surface-overlay: oklch(90.265% 0 none);
+    --color-surface-brand: oklch(69.3% 0.2546 37.91);
+    --color-border-subtle: oklch(88.206% 0 none);
+    --color-border-default: oklch(90.265% 0 none);
+    --color-border-strong: oklch(86.148% 0 none);
+    --color-border-focus: oklch(18.209% 0 none);
+    --color-text-default: oklch(16.15% 0 none);
+    --color-text-subtle: oklch(20.268% 0 none);
+    --color-text-muted: oklch(24.385% 0 none);
+    --color-text-disabled: oklch(28.502% 0 none);
+    --color-text-on: oklch(98.5% 0 none);
+    --color-overlay-scrim: oklch(0% 0 0 / 0.6);
     --ns-chrome-amber-text: var(--color-amber-dark);
     --ns-chrome-sky-text: var(--color-sky-dark);
+  }
+
+  [data-theme='dark'] {
+    --color-surface-sunken: oklch(16.15% 0 none);
+    --color-surface-default: oklch(18.209% 0 none);
+    --color-surface-subtle: oklch(20.268% 0 none);
+    --color-surface-raised: oklch(22.326% 0 none);
+    --color-surface-overlay: oklch(24.385% 0 none);
+    --color-surface-brand: oklch(69.3% 0.2546 37.91);
+    --color-border-subtle: oklch(28.502% 0 none);
+    --color-border-default: oklch(26.444% 0 none);
+    --color-border-strong: oklch(40% 0.02 285);
+    --color-border-focus: oklch(78% 0.14 55);
+    --color-text-default: oklch(96.441% 0 none);
+    --color-text-subtle: oklch(92.324% 0 none);
+    --color-text-muted: oklch(88.206% 0 none);
+    --color-text-disabled: oklch(84.089% 0 none);
+    --color-text-on: oklch(98% 0.005 285);
+    --color-overlay-scrim: oklch(0% 0 0 / 0.6);
   }
 
   body {
@@ -405,12 +441,47 @@
   }
 }
 
-/* Preview workbench canvas */
+/*
+  #nsb-preview-blocks — workbench surface decoration (temporarily off)
+
+  GRADIENT LAYER: `--ns-preview-blocks-bg` (radial + linear stack), `background` on
+  the host; `--ns-preview-blocks-overlay` + `#nsb-preview-blocks::before` (vignette).
+  THEME: `[data-theme='light'|'dark'] #nsb-preview-blocks` override those vars.
+
+  MAP / “BLUEPRINT” LAYER: repeated `radial-gradient` dot grid and masks on
+  `#nsb-preview-blocks::after` (below in-flow content). Dot custom properties
+  (defaults on the host, then per `[data-theme='light'|'dark']` overrides):
+  `--ns-preview-dot-grid`, `--ns-preview-dot-size`, `--ns-preview-dot-offset-x`,
+  `--ns-preview-dot-offset-y`, `--ns-preview-dot-color`, `--ns-preview-dot-opacity`,
+  `--ns-preview-dot-mask`. The pseudo uses them via `background-image`,
+  `background-size`, `background-position`, `mask-image` (incl. `-webkit-`),
+  `mask-size`, `mask-repeat`, `mask-position`, and `opacity`.
+
+  Restore: uncomment the `LEGACY: …` block below and remove/trim the active
+  `#nsb-preview-blocks` fallback background if you want the full treatment back.
+
+  When editing the LEGACY block, do not insert block-comment delimiters inside it: CSS
+  does not nest comments, and a spurious close (asterisk + slash) would end the
+  block early and the rules below would apply as real styles.
+*/
 #nsb-preview-blocks {
   position: relative;
   isolation: isolate;
-  /* Defaults match dark theme so vars are always valid (SSR / before [data-theme] or LiveTheme). */
-  --ns-preview-blocks-bg:
+  border-top: 1px solid var(--ns-hairline);
+  /* Flat fallback while gradients + pseudo-layers are disabled */
+  background: var(--ns-app-bg);
+}
+
+#nsb-preview-blocks > * {
+  position: relative;
+  z-index: 0;
+}
+
+#nsb-preview-blocks {
+  position: relative;
+  isolation: isolate;
+  /* (Default to dark: vars valid before [data-theme] / LiveTheme — no inner `/*` here, see top note.) */
+  /* --ns-preview-blocks-bg:
     radial-gradient(
       1200px 600px at 15% 0%,
       color-mix(in oklch, var(--ns-surface-overlay) 85%, var(--ns-accent) 15%),
@@ -420,44 +491,44 @@
       to bottom,
       color-mix(in oklch, var(--ns-surface-subtle) 92%, transparent),
       color-mix(in oklch, var(--ns-app-bg) 100%, transparent)
-    );
-  --ns-preview-blocks-overlay: linear-gradient(
+    ); */
+  /* --ns-preview-blocks-overlay: linear-gradient(
     to bottom,
     color-mix(in oklch, var(--ns-text) 5%, transparent),
     transparent 22%,
     transparent 84%,
     color-mix(in oklch, var(--ns-text) 6%, transparent)
-  );
+  ); */
   --ns-preview-dot-grid: 1rem;
-  /* ≥1px avoids subpixel collapse of the dot in some engines at non-1 DPR. */
+  /* (Dot size ≥1px: avoids subpixel collapse in some engines at non-1 DPR.) */
   --ns-preview-dot-size: 1px;
   --ns-preview-dot-offset-x: -0.5px;
   --ns-preview-dot-offset-y: -0.5px;
-  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 34%, transparent);
+  /* --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 34%, transparent); */
   --ns-preview-dot-opacity: 0.22;
-  --ns-preview-dot-mask: radial-gradient(
+  /* --ns-preview-dot-mask: radial-gradient(
     90% 75% at 50% 40%,
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 1) 55%,
     rgba(0, 0, 0, 0.25) 74%,
     rgba(0, 0, 0, 0) 100%
-  );
+  ); */
   border-top: 1px solid var(--ns-hairline);
-  background: var(--ns-preview-blocks-bg);
+  /* background: var(--ns-preview-blocks-bg); */
 }
 
 #nsb-preview-blocks::before {
   content: '';
   position: absolute;
   inset: 0;
-  /* Behind in-flow content (z-index:0/1 fights with flex; -1 is the reliable decorative layer). */
+  /* Behind in-flow: z-index -1 is the reliable decorative layer under flex children. */
   z-index: -1;
   pointer-events: none;
-  background: var(--ns-preview-blocks-overlay);
+  background: var(--color-surface-sunken);
   mix-blend-mode: normal;
 }
 
-/* Dot blueprint on top of the vignette, still *below* real children (z-index: -1). */
+/* ::after: dot “blueprint” on the vignette, still below real children, z -1. */
 #nsb-preview-blocks::after {
   content: '';
   position: absolute;
@@ -472,29 +543,26 @@
   );
   background-repeat: repeat;
   background-size: var(--ns-preview-dot-grid) var(--ns-preview-dot-grid);
-  background-position: var(--ns-preview-dot-offset-x) var(--ns-preview-dot-offset-y);
-
+  background-position: var(--ns-preview-dot-offset-x)
+    var(--ns-preview-dot-offset-y);
+  /* 
   -webkit-mask-image: var(--ns-preview-dot-mask);
   mask-image: var(--ns-preview-dot-mask);
   -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
+  mask-size: 100% 100%; */
+  /* -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
 
-  opacity: var(--ns-preview-dot-opacity);
+  opacity: var(--ns-preview-dot-opacity); */
   transition: opacity 200ms ease;
 }
 
-#nsb-preview-blocks > * {
-  position: relative;
-  z-index: 0;
-}
-
-/* Light: soft paper field + faint grid for “workbench surface”. */
+/* [data-theme=light] field: paper + faint grid, workbench surface. */
 [data-theme='light'] #nsb-preview-blocks {
-  --ns-preview-blocks-bg:
+  --ns-preview-blocks-bg: var(--ns-surface-default);
+  /* --ns-preview-blocks-bg:
     radial-gradient(
       1400px 700px at 10% 0%,
       color-mix(in oklch, var(--ns-surface-raised) 85%, var(--ns-accent) 15%),
@@ -518,31 +586,31 @@
     in oklch,
     var(--ns-text) 4%,
     transparent
-  );
+  ); */
 
-  /* Dot pattern (light) */
+  /* Dot pattern, light theme. */
   --ns-preview-dot-grid: 1rem;
-  --ns-preview-dot-size: 1px;
+  --ns-preview-dot-size: 0.5px;
   --ns-preview-dot-offset-x: -0.5px;
   --ns-preview-dot-offset-y: -0.5px;
-  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 67%, transparent);
-  --ns-preview-dot-opacity: 0.35;
-  --ns-preview-dot-mask: radial-gradient(
+  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 37%, transparent);
+  --ns-preview-dot-opacity: 0.25;
+  /* --ns-preview-dot-mask: radial-gradient(
     85% 70% at 50% 45%,
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 1) 52%,
     rgba(0, 0, 0, 0.35) 72%,
     rgba(0, 0, 0, 0) 100%
-  );
+  ); */
 }
 
 [data-theme='light'] #nsb-preview-blocks::before {
   opacity: 0.55;
 }
 
-/* Dark: deeper neutral field with restrained top glow and quieter grid. */
+/* [data-theme=dark] field: deeper neutral, restrained top glow, quieter grid. */
 [data-theme='dark'] #nsb-preview-blocks {
-  --ns-preview-blocks-bg:
+  /* --ns-preview-blocks-bg:
     radial-gradient(
       1200px 600px at 15% 0%,
       color-mix(in oklch, var(--ns-surface-overlay) 85%, var(--ns-accent) 15%),
@@ -566,22 +634,22 @@
     in oklch,
     var(--ns-text) 7%,
     transparent
-  );
+  ); */
 
-  /* Dot pattern (dark) */
+  /* Dot pattern, dark theme. */
   --ns-preview-dot-grid: 1rem;
-  --ns-preview-dot-size: 1px;
+  --ns-preview-dot-size: 0.75px;
   --ns-preview-dot-offset-x: -0.5px;
   --ns-preview-dot-offset-y: -0.5px;
-  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 34%, transparent);
+  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 11%, transparent);
   --ns-preview-dot-opacity: 0.22;
-  --ns-preview-dot-mask: radial-gradient(
+  /* --ns-preview-dot-mask: radial-gradient(
     90% 75% at 50% 40%,
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 1) 55%,
     rgba(0, 0, 0, 0.25) 74%,
     rgba(0, 0, 0, 0) 100%
-  );
+  ); */
 }
 
 [data-theme='dark'] #nsb-preview-blocks::before {
@@ -625,7 +693,6 @@
     box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
     /* inset 0 1px 1px 0 rgba(255, 255, 255, 0.95); */
   }
-
 }
 
 /* Text and typography utilities */
@@ -715,6 +782,7 @@
   --text-color-scrim: var(--ns-text-scrim);
   --text-color-overlay-scrim: var(--ns-text-overlay-scrim);
 
+  --background-color-sunken: var(--ns-surface-sunken);
   --background-color-default: var(--ns-surface-default);
   --background-color-subtle: var(--ns-surface-subtle);
   --background-color-raised: var(--ns-surface-raised);
@@ -725,6 +793,7 @@
   --background-color-inverse: var(--ns-surface-inverse);
   --background-color-sidebar-primary: var(--ns-surface-brand);
   --background-color-sidebar-border: var(--ns-hairline);
+  --bg-sidebar: var(--ns-app-bg);
 
   --border-color-default: var(--ns-border-default);
   --border-color-focus: var(--ns-border-focus);
@@ -815,7 +884,7 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: var(--ns-surface-default);
+  --sidebar: var(--ns-app-bg);
   --sidebar-foreground: var(--ns-text-default);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -825,7 +894,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
+[data-theme='dark'] {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

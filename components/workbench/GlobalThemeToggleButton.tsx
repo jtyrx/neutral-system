@@ -1,84 +1,92 @@
 'use client'
 
-import {memo, useCallback} from 'react'
+import {memo, useSyncExternalStore} from 'react'
+import {Monitor, Moon, Sun} from 'lucide-react'
+import {useTheme} from 'next-themes'
 
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {cn} from '@/lib/cn'
 
-type ThemeMode = 'light' | 'dark'
+type ThemeChoice = 'system' | 'dark' | 'light'
 
-function IconSun({className}: {className?: string}) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      aria-hidden={true}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v1.75M12 20.25V22M4.22 4.22l1.24 1.24M18.54 18.54l1.24 1.24M2 12h1.75M20.25 12H22M4.22 19.78l1.24-1.24M18.54 5.46l1.24-1.24" />
-    </svg>
+const OPTIONS: {
+  value: ThemeChoice
+  label: string
+  shortLabel: string
+  icon: typeof Monitor
+}[] = [
+  {value: 'system', label: 'Use system theme', shortLabel: 'System', icon: Monitor},
+  {value: 'dark', label: 'Use dark theme', shortLabel: 'Dark', icon: Moon},
+  {value: 'light', label: 'Use light theme', shortLabel: 'Light', icon: Sun},
+]
+
+function GlobalThemeToggleButtonInner({className}: {className?: string}) {
+  const {theme, setTheme, resolvedTheme} = useTheme()
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
   )
-}
 
-function IconMoon({className}: {className?: string}) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      aria-hidden={true}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  )
-}
+  if (!mounted) {
+    return (
+      <div
+        aria-hidden={true}
+        className={cn(
+          'flex h-7 w-20 shrink-0 rounded-full border border-(--ns-hairline) bg-(--ns-surface-overlay) sm:w-[5.75rem]',
+          className,
+        )}
+      />
+    )
+  }
 
-const ICON = 'h-4 w-4 shrink-0 sm:h-[1.125rem] sm:w-[1.125rem]'
-const BUTTON_CLASS =
-  'flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-(--ns-hairline-strong) bg-(--ns-surface-overlay) text-(--ns-text) shadow-sm transition-[color,background-color,transform,box-shadow] duration-150 ease-out hover:bg-(--ns-chip) hover:shadow-md active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ns-border-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ns-app-bg)] motion-reduce:transition-none motion-reduce:active:scale-100 sm:size-9'
-
-/**
- * App-wide light/dark toggle (same state as {@link ../providers/LiveThemeStyles} / `html[data-theme]`).
- * Toolbar-sized for embedding in {@link ThemePreviewControls}.
- */
-function GlobalThemeToggleButtonInner({
-  mode,
-  onChange,
-  className,
-}: {
-  mode: ThemeMode
-  onChange: (value: ThemeMode, label?: string) => void
-  className?: string
-}) {
-  const next: ThemeMode = mode === 'light' ? 'dark' : 'light'
-  const toggle = useCallback(() => {
-    onChange(next, next === 'light' ? 'Theme · Light' : 'Theme · Dark')
-  }, [onChange, next])
-
-  const label =
-    mode === 'light'
-      ? 'App color theme: light. Activate to switch to dark mode.'
-      : 'App color theme: dark. Activate to switch to light mode.'
+  const activeTheme: ThemeChoice =
+    theme === 'light' || theme === 'dark' || theme === 'system'
+      ? theme
+      : 'system'
+  const resolved = resolvedTheme === 'light' ? 'light' : 'dark'
 
   return (
-    <button
-      type="button"
+    <RadioGroup
+      value={activeTheme}
+      onValueChange={(value) => setTheme(value as ThemeChoice)}
       data-ns-theme-toggle
-      onClick={toggle}
-      aria-label={label}
-      title={mode === 'light' ? 'Switch app to dark theme' : 'Switch app to light theme'}
-      className={cn(BUTTON_CLASS, className)}
+      aria-label={`Application color theme. Current selection: ${activeTheme}. Resolved theme: ${resolved}.`}
+      className={cn(
+        'inline-flex h-7  items-center gap-0.5 rounded-full border border-(--ns-hairline) bg-(--ns-surface-overlay) p-0.5 text-(--ns-text) shadow-sm',
+        // Icon radio: hide the default dot indicator from the base shadcn item.
+        '[&_[data-slot=radio-group-indicator]]:hidden',
+        className,
+      )}
     >
-      {mode === 'light' ? <IconSun className={ICON} /> : <IconMoon className={ICON} />}
-    </button>
+      {OPTIONS.map((option) => {
+        const Icon = option.icon
+        const selected = activeTheme === option.value
+        return (
+          <Tooltip key={option.value}>
+            <TooltipTrigger asChild>
+              <RadioGroupItem
+                value={option.value}
+                aria-label={option.label}
+                className={cn(
+                  'inline-flex size-6 cursor-pointer items-center justify-center rounded-full border border-transparent text-(--ns-text-muted) transition-colors outline-none',
+                  'hover:bg-(--ns-chip) hover:text-(--ns-text)',
+                  'focus-visible:border-[var(--ns-border-focus)] focus-visible:ring-2 focus-visible:ring-[var(--ns-border-focus)]/30',
+                  selected && 'bg-(--ns-overlay-strong) text-(--ns-text)',
+                )}
+              >
+                <Icon className="size-3.5" aria-hidden={true} />
+                <span className="sr-only">{option.label}</span>
+              </RadioGroupItem>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={8}>
+              {option.shortLabel}
+            </TooltipContent>
+          </Tooltip>
+        )
+      })}
+    </RadioGroup>
   )
 }
 

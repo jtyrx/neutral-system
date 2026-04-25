@@ -1,6 +1,9 @@
 'use client'
 
-import {useEffect, useState, type ReactNode} from 'react'
+import {useSyncExternalStore, type ReactNode} from 'react'
+import {useTheme} from 'next-themes'
+
+import {ThemeProvider} from '@/components/providers/ThemeProvider'
 import {TooltipProvider} from '@/components/ui/tooltip'
 import {Toaster} from 'sonner'
 
@@ -8,30 +11,21 @@ type Props = {
   children: ReactNode
 }
 
-/**
- * Reads the current global theme off `<html data-theme>` (written by {@link LiveThemeStyles}).
- * Using a MutationObserver means the Toaster follows the toggle without prop-drilling from the
- * workbench down through the layout tree.
- */
-function useHtmlTheme(): 'light' | 'dark' {
-  const [mode, setMode] = useState<'light' | 'dark'>('dark')
-  useEffect(() => {
-    if (typeof document === 'undefined') return
-    const root = document.documentElement
-    const read = () => {
-      const value = root.dataset.theme
-      setMode(value === 'light' ? 'light' : 'dark')
-    }
-    read()
-    const observer = new MutationObserver(read)
-    observer.observe(root, {attributes: true, attributeFilter: ['data-theme']})
-    return () => observer.disconnect()
-  }, [])
-  return mode
+function useResolvedTheme(): 'light' | 'dark' {
+  const {resolvedTheme} = useTheme()
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
+
+  if (!mounted) return 'dark'
+  return resolvedTheme === 'light' ? 'light' : 'dark'
 }
 
-export function AppProviders({children}: Props) {
-  const theme = useHtmlTheme()
+function AppProviderContent({children}: Props) {
+  const theme = useResolvedTheme()
+
   return (
     <TooltipProvider>
       {children}
@@ -50,5 +44,20 @@ export function AppProviders({children}: Props) {
         }}
       />
     </TooltipProvider>
+  )
+}
+
+export function AppProviders({children}: Props) {
+  return (
+    <ThemeProvider
+      attribute="data-theme"
+      defaultTheme="system"
+      enableSystem
+      enableColorScheme
+      disableTransitionOnChange
+      storageKey="neutral-system-theme"
+    >
+      <AppProviderContent>{children}</AppProviderContent>
+    </ThemeProvider>
   )
 }

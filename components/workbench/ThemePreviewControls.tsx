@@ -7,9 +7,6 @@ import {cn} from '@/lib/cn'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
 
 type Props = {
-  /** App-wide `html[data-theme]` — same source as {@link LiveThemeStyles}. */
-  globalThemeMode: 'light' | 'dark'
-  onGlobalThemeMode: (value: 'light' | 'dark', label?: string) => void
   previewTheme: 'light' | 'dark'
   onPreviewTheme: (t: 'light' | 'dark', label?: string) => void
   contrastEmphasis: ContrastEmphasis
@@ -37,8 +34,6 @@ const EMPHASIS_LABEL: Record<ContrastEmphasis, string> = {
 }
 
 function ThemePreviewControlsInner({
-  globalThemeMode,
-  onGlobalThemeMode,
   previewTheme,
   onPreviewTheme,
   contrastEmphasis,
@@ -82,7 +77,7 @@ function ThemePreviewControlsInner({
         role="group"
         aria-label="Application color theme"
       >
-        <GlobalThemeToggleButton mode={globalThemeMode} onChange={onGlobalThemeMode} />
+        <GlobalThemeToggleButton />
       </div>
       {showThemeToggle ? (
         <div

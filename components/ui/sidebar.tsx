@@ -22,16 +22,36 @@ import {ChevronLeftIcon, ChevronRightIcon, PanelLeftIcon} from 'lucide-react'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH_MOBILE = '18rem'
+const SIDEBAR_WIDTH_MOBILE = '14rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
 const SIDEBAR_WIDTH_MIN_PX = 192
 const SIDEBAR_WIDTH_MAX_PX = 448
-const SIDEBAR_WIDTH_DEFAULT_PX = 256
+/** Default rail width — `14rem` at a 16px root (kept in px for storage + inline `--sidebar-width`). */
+const SIDEBAR_WIDTH_DEFAULT_PX = 224
 const SIDEBAR_WIDTH_STORAGE_KEY = 'sidebar_width'
 
 const clampWidth = (w: number) =>
   Math.min(SIDEBAR_WIDTH_MAX_PX, Math.max(SIDEBAR_WIDTH_MIN_PX, Math.round(w)))
+
+function readStoredSidebarWidth(): number | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY)
+    if (raw == null || raw === '') return null
+    const parsed = Number(raw)
+    if (
+      !Number.isFinite(parsed) ||
+      parsed < SIDEBAR_WIDTH_MIN_PX ||
+      parsed > SIDEBAR_WIDTH_MAX_PX
+    ) {
+      return null
+    }
+    return clampWidth(parsed)
+  } catch {
+    return null
+  }
+}
 
 type SidebarContextProps = {
   state: 'expanded' | 'collapsed'
@@ -43,6 +63,8 @@ type SidebarContextProps = {
   toggleSidebar: () => void
   width: number
   setWidth: (width: number) => void
+  /** Clamped width only — no `localStorage`. Used during pointer drag so `--sidebar-width` stays single-sourced from React state. */
+  setWidthLive: (width: number) => void
   resizing: boolean
   setResizing: (resizing: boolean) => void
   wrapperRef: React.RefObject<HTMLDivElement | null>
@@ -78,28 +100,40 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
   const wrapperRef = React.useRef<HTMLDivElement | null>(null)
+  /**
+   * SSR + first client paint use code default so the shell matches the server.
+   * Persisted width is applied after paint (double rAF) so `transition-[width]` can run
+   * from default → stored on reload.
+   */
   const [width, setWidthState] = React.useState<number>(SIDEBAR_WIDTH_DEFAULT_PX)
   const [resizing, setResizing] = React.useState(false)
 
-  // Hydrate width from localStorage post-mount so SSR + first client render both
-  // use the default value. Syncing an external system into React state is exactly
-  // what effects are for — the generic lint rule is a false-positive here.
   React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY)
-      if (!raw) return
-      const parsed = Number(raw)
-      if (
-        Number.isFinite(parsed) &&
-        parsed >= SIDEBAR_WIDTH_MIN_PX &&
-        parsed <= SIDEBAR_WIDTH_MAX_PX &&
-        Math.round(parsed) !== SIDEBAR_WIDTH_DEFAULT_PX
-      ) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setWidthState(Math.round(parsed))
+    const stored = readStoredSidebarWidth()
+    if (stored == null) {
+      setWidthState(SIDEBAR_WIDTH_DEFAULT_PX)
+      try {
+        localStorage.removeItem(SIDEBAR_WIDTH_STORAGE_KEY)
+      } catch {
+        // non-fatal
       }
-    } catch {
-      // localStorage may be disabled; stay on default
+      return
+    }
+
+    if (stored === SIDEBAR_WIDTH_DEFAULT_PX) {
+      return
+    }
+
+    let raf1 = 0
+    let raf2 = 0
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        setWidthState(stored)
+      })
+    })
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
     }
   }, [])
 
@@ -111,6 +145,10 @@ function SidebarProvider({
     } catch {
       // non-fatal
     }
+  }, [])
+
+  const setWidthLive = React.useCallback((next: number) => {
+    setWidthState(clampWidth(next))
   }, [])
 
   // This is the internal state of the sidebar.
@@ -168,6 +206,7 @@ function SidebarProvider({
       toggleSidebar,
       width,
       setWidth,
+      setWidthLive,
       resizing,
       setResizing,
       wrapperRef,
@@ -185,6 +224,7 @@ function SidebarProvider({
       toggleSidebar,
       width,
       setWidth,
+      setWidthLive,
       resizing,
     ],
   )
@@ -290,7 +330,6 @@ function Sidebar({
           'transition-[width]',
           // Open duration
           'group-data-[state=expanded]:duration-550 group-data-[state=expanded]:ease-out-quart',
-          // Close duration
           'group-data-[state=collapsed]:duration-250 group-data-[state=collapsed]:ease-in-quart',
           // Drag is instant — no transition while user is resizing
           'group-data-[resizing=true]/sidebar-wrapper:transition-none',
@@ -306,12 +345,10 @@ function Sidebar({
         data-side={side}
         className={cn(
           'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:-left-(--sidebar-width) data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:-right-(--sidebar-width) md:flex',
-          // Transition
+          'bg-sunken',
+          // Transition — was: transition-[left,right,width] duration-500 ease-in-out
           'transition-[left,right,width]',
-          // "transition-[left,right,width] duration-500 ease-in-out",
-          // Open duration
           'group-data-[state=expanded]:duration-550 group-data-[state=expanded]:ease-out-quart',
-          // Close duration
           'group-data-[state=collapsed]:duration-250 group-data-[state=collapsed]:ease-in-quart',
           // Drag is instant — no transition while user is resizing
           'group-data-[resizing=true]/sidebar-wrapper:transition-none',
@@ -374,7 +411,7 @@ function SidebarRail({className, ...props}: React.ComponentProps<'button'>) {
       onClick={toggleSidebar}
       title="Toggle Sidebar"
       className={cn(
-        'absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2',
+        'absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:inset-s-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2',
         'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
         '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
         'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-sidebar',
@@ -387,17 +424,14 @@ function SidebarRail({className, ...props}: React.ComponentProps<'button'>) {
   )
 }
 
-function SidebarResizer({
-  className,
-  ...props
-}: React.ComponentProps<'div'>) {
+function SidebarResizer({className, ...props}: React.ComponentProps<'div'>) {
   const {
     isMobile,
     state,
     width,
     setWidth,
+    setWidthLive,
     setResizing,
-    wrapperRef,
     minWidth,
     maxWidth,
     defaultWidth,
@@ -406,14 +440,16 @@ function SidebarResizer({
   const startXRef = React.useRef(0)
   const startWRef = React.useRef(0)
   const rafRef = React.useRef<number | null>(null)
+  const lastDragWidthRef = React.useRef(width)
 
   const writeLiveWidth = React.useCallback(
     (px: number) => {
       const clamped = Math.min(maxWidth, Math.max(minWidth, px))
-      wrapperRef.current?.style.setProperty('--sidebar-width', `${clamped}px`)
+      lastDragWidthRef.current = clamped
+      setWidthLive(clamped)
       return clamped
     },
-    [minWidth, maxWidth, wrapperRef],
+    [minWidth, maxWidth, setWidthLive],
   )
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -423,6 +459,7 @@ function SidebarResizer({
     e.currentTarget.setPointerCapture(e.pointerId)
     startXRef.current = e.clientX
     startWRef.current = width
+    lastDragWidthRef.current = width
     setResizing(true)
     document.body.style.cursor = 'col-resize'
     document.body.style.userSelect = 'none'
@@ -444,9 +481,7 @@ function SidebarResizer({
       cancelAnimationFrame(rafRef.current)
       rafRef.current = null
     }
-    const live = wrapperRef.current?.style.getPropertyValue('--sidebar-width')
-    const parsed = live ? parseFloat(live) : width
-    setWidth(Number.isFinite(parsed) ? parsed : width)
+    setWidth(lastDragWidthRef.current)
     setResizing(false)
     document.body.style.cursor = ''
     document.body.style.userSelect = ''
@@ -493,6 +528,7 @@ function SidebarResizer({
     <div
       data-slot="sidebar-resizer"
       data-sidebar="resizer"
+      data-sidebar-resizer=""
       role="separator"
       aria-orientation="vertical"
       aria-label="Resize sidebar"
@@ -511,7 +547,7 @@ function SidebarResizer({
         // invisible hit area — generous, desktop-only; hover scope for the toggle
         'group/sidebar-edge absolute inset-y-0 z-20 hidden w-3 touch-none select-none sm:block',
         // cursor reflects state — drag when expanded, pointer when collapsed (drag is a no-op)
-        'group-data-[state=expanded]:cursor-col-resize group-data-[state=collapsed]:cursor-pointer',
+        'group-data-[state=collapsed]:cursor-pointer group-data-[state=expanded]:cursor-col-resize',
         'group-data-[side=left]:-right-1.5 group-data-[side=right]:-left-1.5',
         // hide entirely when offcanvas; keep visible in icon mode so the toggle can expand
         'group-data-[collapsible=offcanvas]:hidden',
@@ -531,6 +567,9 @@ function SidebarResizer({
         aria-label={toggleLabel}
         onClick={(e) => {
           e.stopPropagation()
+          if (!collapsed) {
+            setWidth(defaultWidth)
+          }
           toggleSidebar()
         }}
         onPointerDown={(e) => e.stopPropagation()}
@@ -550,7 +589,7 @@ function SidebarResizer({
           'group-data-[resizing=true]/sidebar-wrapper:opacity-0',
           // hover + focus polish
           'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:ring-sidebar-ring',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+          'focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none',
         )}
       >
         {collapsed ? (
@@ -568,7 +607,7 @@ function SidebarInset({className, ...props}: React.ComponentProps<'main'>) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        'relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2',
+        'relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ms-0',
         className,
       )}
       {...props}

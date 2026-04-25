@@ -53,7 +53,7 @@ export function AppLayoutShell({ children }: AppLayoutShellProps) {
         </header>
         <div
           id="nsb-viewport"
-          className="@container/nsb-workbench min-h-0 min-w-0 flex-1"
+          className="@container/nsb-workbench min-h-0 min-w-0 flex-1 z-0"
         >
           {children}
         </div>

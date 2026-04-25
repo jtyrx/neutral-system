@@ -61,11 +61,6 @@ export function useNeutralWorkbench() {
   const [globalConfig, setGlobalConfigBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
   const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
-  /**
-   * Global theme mode — drives `<html data-theme>` and the entire workbench chrome via the --ns-* alias layer.
-   * Distinct from `previewTheme`, which stays preview-only (Focus selector for semantic blocks).
-   */
-  const [themeMode, setThemeModeBase] = useState<'light' | 'dark'>('dark')
   const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('default')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
   /**
@@ -113,19 +108,6 @@ export function useNeutralWorkbench() {
     },
     [touchBusyLabel],
   )
-
-  /** Global theme toggle — synchronous so the whole chrome flips immediately. */
-  const setThemeMode = useCallback(
-    (value: 'light' | 'dark', label = 'Theme mode') => {
-      touchBusyLabel(label)
-      setThemeModeBase(value)
-    },
-    [touchBusyLabel],
-  )
-
-  const toggleThemeMode = useCallback(() => {
-    setThemeModeBase((v) => (v === 'light' ? 'dark' : 'light'))
-  }, [])
 
   const emphasisLabel = useCallback((e: ContrastEmphasis): string => {
     const m: Record<ContrastEmphasis, string> = {
@@ -315,9 +297,6 @@ export function useNeutralWorkbench() {
       activeSystemTokens,
       previewTheme,
       setPreviewTheme,
-      themeMode,
-      setThemeMode,
-      toggleThemeMode,
       contrastEmphasis,
       setContrastEmphasis,
       selection,
@@ -353,9 +332,6 @@ export function useNeutralWorkbench() {
       activeSystemTokens,
       previewTheme,
       setPreviewTheme,
-      themeMode,
-      setThemeMode,
-      toggleThemeMode,
       contrastEmphasis,
       setContrastEmphasis,
       selection,

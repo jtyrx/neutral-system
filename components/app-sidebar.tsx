@@ -39,12 +39,12 @@ export function AppLayoutShell({ children }: AppLayoutShellProps) {
       <SidebarInset
         id="nsb-inset"
         className={cn(
-          'min-h-0 min-h-svh flex-1 flex-col bg-[var(--ns-app-bg)] text-[var(--ns-text)]',
+          'min-h-svh flex-1 flex-col bg-(--ns-app-bg) text-(--ns-text)',
         )}
       >
         <header
           id="nsb-chrome-header"
-          className="border-b border-(--ns-hairline) bg-(--ns-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl"
+          className="border-b border-hairline bg-(--ns-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl"
         >
           <div className="mx-auto flex h-9 items-center gap-2 sm:px-0">
             <SidebarTrigger />

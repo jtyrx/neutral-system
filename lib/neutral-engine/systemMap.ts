@@ -1,4 +1,5 @@
 import {resolveBrandColorForTokens} from '@/lib/neutral-engine/brandColor'
+import {contrastTextOnBg} from '@/lib/neutral-engine/contrast'
 import {parseColorFromSerialized, serializeColor} from '@/lib/neutral-engine/serialize'
 import {
   altRoleForIndex,
@@ -201,6 +202,33 @@ export function deriveBrandSurfaceToken(
   }
 }
 
+/**
+ * Searches for the nearest ramp index (walking from `againstIndex` in `direction`) that achieves
+ * at least `targetRatio` WCAG 2.1 contrast against the swatch at `againstIndex`.
+ * Returns the extreme end of the ramp when no index in the search range meets the target.
+ */
+export function findIndexForContrast(
+  global: GlobalSwatch[],
+  againstIndex: number,
+  targetRatio: number,
+  direction: 'lower' | 'higher',
+): number {
+  const n = global.length
+  if (n < 2) return 0
+  const against = global[clampIndex(againstIndex, n)]
+  if (!against) return 0
+  const bgColor = parseColorFromSerialized(against.serialized)
+  const step = direction === 'higher' ? 1 : -1
+  const start = clampIndex(againstIndex + step, n)
+  for (let i = start; direction === 'higher' ? i < n : i >= 0; i += step) {
+    const sw = global[i]
+    if (!sw) continue
+    const c = parseColorFromSerialized(sw.serialized)
+    if (contrastTextOnBg(c, bgColor) >= targetRatio) return i
+  }
+  return direction === 'higher' ? n - 1 : 0
+}
+
 export function pickLightIndices(
   start: number,
   count: number,
@@ -329,7 +357,18 @@ export function deriveSystemTokens(
   const textIndicesRaw = isLight
     ? pickLightIndices(cfg.textStart, textStandardCount, stepText, n)
     : pickDarkStrokeTextIndices(cfg.darkTextStart, textStandardCount, stepText, n)
-  const textOrdered = orderTextIndicesForSemanticRoles(textIndicesRaw)
+  let textOrdered = orderTextIndicesForSemanticRoles(textIndicesRaw)
+
+  if (cfg.roleMappingMode === 'contrast') {
+    // surface.default is the second fill slot (index 1), falling back to the first.
+    const surfaceDefaultIdx = fillIndices[1] ?? fillIndices[0] ?? 0
+    const dir = isLight ? 'higher' : 'lower'
+    // Targets per slot: text.default(4.5), text.subtle(3.0), text.muted(2.0), text.disabled(1.5)
+    const targets = [4.5, 3.0, 2.0, 1.5]
+    textOrdered = targets
+      .slice(0, textStandardCount)
+      .map((ratio) => findIndexForContrast(global, surfaceDefaultIdx, ratio, dir))
+  }
 
   const surfaceInverseIdx = resolveSurfaceInverseIndex(fillIndices, n)
   const textOnIdx = resolveTextInverseIndex(textOrdered, n)

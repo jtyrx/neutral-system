@@ -68,10 +68,14 @@
     --color-text-disabled: oklch(84.089% 0 none);
     --color-text-on: oklch(98% 0.005 285);
     --color-overlay-scrim: oklch(0% 0 0 / 0.6);
+    /** High-contrast flip surface (first-paint fallback; live value from workbench tokens). */
+    --color-surface-inverse: oklch(96.441% 0 none);
 
     /**
      * Chrome alias layer — every workbench surface reads from these, so a theme flip
      * (or any live token update from the engine) repaints the entire site.
+     * Missing `--ns-*` keys break `@theme inline` utilities; keep in sync with `chromeAliases.ts`
+     * (`NS_CHROME_ROLE_PEERS`). Tier-2 `--color-*` above are approximate until `LiveThemeStyles` runs.
      */
     --ns-app-bg: var(--color-surface-sunken);
     --ns-surface: var(--color-surface-default);
@@ -89,11 +93,21 @@
     --ns-text: var(--color-text-default);
     --ns-text-subtle: var(--color-text-subtle);
     --ns-text-muted: var(--color-text-muted);
-    --ns-text-faint: var(--color-text-disabled);
+    --ns-text-disabled: var(--color-text-disabled);
     --ns-text-on: var(--color-text-on);
     --ns-accent: var(--color-surface-brand);
     --ns-scrim: var(--color-overlay-scrim);
     --ns-surface-brand: var(--color-surface-brand);
+    --ns-surface-inverse: var(--color-surface-inverse);
+    --ns-text-faint: var(--color-text-disabled);
+    --ns-text-brand: var(--color-text-on);
+    --ns-text-scrim: var(--color-text-default);
+    --ns-text-overlay-scrim: var(--color-text-default);
+    --ns-border-brand: var(--color-border-strong);
+    --ns-border-inverse: var(--color-border-focus);
+    --ns-border-scrim: var(--color-border-subtle);
+    --ns-border-overlay-scrim: var(--color-border-default);
+    --ns-overlay-scrim: var(--color-overlay-scrim);
 
     /**
      * Chrome opacity ramp — replaces the old `bg-white/5`, `border-white/10` etc. alpha
@@ -105,8 +119,6 @@
     --ns-field: color-mix(in oklch, var(--ns-text) 4%, transparent);
     --ns-overlay-soft: color-mix(in oklch, var(--ns-text) 3%, transparent);
     --ns-overlay-strong: color-mix(in oklch, var(--ns-text) 15%, transparent);
-
-    /* Overlays that must remain Tailwind-arbitrary-value-safe (no commas). */
     --ns-toaster-bg: color-mix(
       in oklch,
       var(--ns-surface-overlay) 95%,
@@ -352,27 +364,9 @@
     --color-text-disabled: oklch(28.502% 0 none);
     --color-text-on: oklch(98.5% 0 none);
     --color-overlay-scrim: oklch(0% 0 0 / 0.6);
+    --color-surface-inverse: oklch(16.15% 0 none);
     --ns-chrome-amber-text: var(--color-amber-dark);
     --ns-chrome-sky-text: var(--color-sky-dark);
-  }
-
-  [data-theme='dark'] {
-    --color-surface-sunken: oklch(16.15% 0 none);
-    --color-surface-default: oklch(18.209% 0 none);
-    --color-surface-subtle: oklch(20.268% 0 none);
-    --color-surface-raised: oklch(22.326% 0 none);
-    --color-surface-overlay: oklch(24.385% 0 none);
-    --color-surface-brand: oklch(69.3% 0.2546 37.91);
-    --color-border-subtle: oklch(28.502% 0 none);
-    --color-border-default: oklch(26.444% 0 none);
-    --color-border-strong: oklch(40% 0.02 285);
-    --color-border-focus: oklch(78% 0.14 55);
-    --color-text-default: oklch(96.441% 0 none);
-    --color-text-subtle: oklch(92.324% 0 none);
-    --color-text-muted: oklch(88.206% 0 none);
-    --color-text-disabled: oklch(84.089% 0 none);
-    --color-text-on: oklch(98% 0.005 285);
-    --color-overlay-scrim: oklch(0% 0 0 / 0.6);
   }
 
   body {
@@ -399,19 +393,31 @@
 
 /* Workbench layout */
 .ns-workbench {
+  --ns-workbench-header-height: 0px;
   display: grid;
   min-height: 100dvh;
   width: 100%;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto auto;
   grid-template-areas:
-    'mob-toolbar'
+    'header'
     'main'
     'inspector';
 }
 
-.ns-workbench__mob-toolbar {
-  grid-area: mob-toolbar;
+.ns-workbench__header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--ns-hairline);
+  background-color: color-mix(
+    in oklch,
+    var(--ns-surface-raised) 94%,
+    transparent
+  );
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  backdrop-filter: blur(16px) saturate(120%);
 }
 
 .ns-workbench__preview-col {
@@ -422,16 +428,21 @@
   grid-area: inspector;
 }
 
+.ns-workbench__inspector-scroll {
+  position: sticky;
+  top: var(--ns-workbench-header-height);
+  max-height: calc(100dvh - var(--ns-workbench-header-height));
+  overflow-y: auto;
+}
+
 @container nsb-workbench (width >= 56rem) {
   .ns-workbench {
     grid-template-columns: minmax(0, 1fr) minmax(0, min(36rem, 50cqi));
-    grid-template-rows: auto;
-    grid-template-areas: 'main inspector';
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'header header'
+      'main inspector';
     align-items: start;
-  }
-
-  .ns-workbench__mob-toolbar {
-    display: none;
   }
 }
 
@@ -467,7 +478,6 @@
 #nsb-preview-blocks {
   position: relative;
   isolation: isolate;
-  border-top: 1px solid var(--ns-hairline);
   /* Flat fallback while gradients + pseudo-layers are disabled */
   background: var(--ns-app-bg);
 }
@@ -513,7 +523,6 @@
     rgba(0, 0, 0, 0.25) 74%,
     rgba(0, 0, 0, 0) 100%
   ); */
-  border-top: 1px solid var(--ns-hairline);
   /* background: var(--ns-preview-blocks-bg); */
 }
 
@@ -772,6 +781,7 @@
 }
 
 @theme inline {
+  /* `--ns-*` peers: tier-2 `--color-*` + chrome block from `chromeAliases.ts` / LiveThemeStyles. */
   --text-color-default: var(--ns-text-default);
   --text-color-subtle: var(--ns-text-subtle);
   --text-color-muted: var(--ns-text-muted);
@@ -808,14 +818,6 @@
   --border-color-field: var(--ns-field);
   --border-color-overlay-soft: var(--ns-overlay-soft);
   --border-color-overlay-strong: var(--ns-overlay-strong);
-  --border-color-inverse: var(--ns-border-inverse);
-  --border-color-brand: var(--ns-border-brand);
-  --border-color-scrim: var(--ns-border-scrim);
-  --border-color-overlay-scrim: var(--ns-border-overlay-scrim);
-  --border-color-inverse: var(--ns-border-inverse);
-  --border-color-brand: var(--ns-border-brand);
-  --border-color-scrim: var(--ns-border-scrim);
-  --border-color-overlay-scrim: var(--ns-border-overlay-scrim);
 
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
@@ -860,24 +862,27 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  /**
+   * shadcn/ui — bridged to neutral tier-2 (`--color-*` in @layer base) where possible.
+   */
+  --background: var(--color-surface-default);
+  --foreground: var(--color-text-default);
+  --card: var(--color-surface-raised);
+  --card-foreground: var(--color-text-default);
+  --popover: var(--color-surface-overlay);
+  --popover-foreground: var(--color-text-default);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: var(--color-surface-subtle);
+  --secondary-foreground: var(--color-text-default);
+  --muted: var(--color-surface-subtle);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-surface-subtle);
+  --accent-foreground: var(--color-text-default);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: var(--color-border-subtle);
+  --input: var(--color-border-default);
+  --ring: var(--color-border-focus);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -888,31 +893,17 @@
   --sidebar-foreground: var(--ns-text-default);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-accent: var(--color-surface-subtle);
+  --sidebar-accent-foreground: var(--color-text-default);
+  --sidebar-border: var(--color-border-subtle);
+  --sidebar-ring: var(--color-border-focus);
 }
 
 [data-theme='dark'] {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  /* Surface / border / text shadcn keys inherit neutral tier-2 from `:root` aliases above. */
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -922,8 +913,4 @@
   --sidebar-foreground: var(--ns-text-default);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }

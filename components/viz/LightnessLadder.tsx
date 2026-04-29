@@ -15,7 +15,7 @@ function LightnessLadderInner({swatches, onSelect, selectedIndex}: Props) {
   return (
     <div className="space-y-2">
       <p className="eyebrow">Lightness ladder</p>
-      <div className="flex h-28 w-full gap-px overflow-hidden rounded-xl border border-hairline bg-[var(--ns-surface-raised)]">
+      <div className="flex h-28 w-full gap-px overflow-hidden rounded-xl border border-hairline bg-raised">
         {swatches.map((s) => (
           <button
             key={s.index}

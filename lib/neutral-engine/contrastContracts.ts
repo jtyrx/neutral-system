@@ -1,12 +1,12 @@
 import {contrastTextOnBg, wcagLargeText, wcagUi, type WcagLevel} from '@/lib/neutral-engine/contrast'
 import {SURFACE_SLOTS, TEXT_SLOTS} from '@/lib/neutral-engine/semanticNaming'
 import {parseColorFromSerialized} from '@/lib/neutral-engine/serialize'
-import type {SystemToken} from '@/lib/neutral-engine/types'
+import type {SystemRole, SystemToken} from '@/lib/neutral-engine/types'
 
 export type ContrastPairResult = {
   id: string
-  surfaceRole: string
-  textRole: string
+  surfaceRole: SystemRole
+  textRole: SystemRole
   label: string
   ratio: number
   /** WCAG for normal body text (4.5:1 AA). */
@@ -21,7 +21,7 @@ export type ContrastPairResult = {
  * Recommended text roles per surface for product validation (not exhaustive).
  * `surface.inverse` prefers `text.on` and high-contrast neutrals.
  */
-export const SURFACE_TEXT_CONTRACTS: Record<string, readonly string[]> = {
+export const SURFACE_TEXT_CONTRACTS: Record<string, readonly SystemRole[]> = {
   'surface.sunken': ['text.default', 'text.subtle', 'text.muted'],
   'surface.default': ['text.default', 'text.subtle', 'text.muted', 'text.disabled'],
   'surface.subtle': ['text.default', 'text.subtle', 'text.muted'],
@@ -31,7 +31,7 @@ export const SURFACE_TEXT_CONTRACTS: Record<string, readonly string[]> = {
   'surface.inverse': ['text.on', 'text.default'],
 }
 
-function tokenByRole(tokens: SystemToken[], role: string): SystemToken | undefined {
+function tokenByRole(tokens: SystemToken[], role: SystemRole): SystemToken | undefined {
   return tokens.find((t) => t.role === role)
 }
 
@@ -41,10 +41,11 @@ function tokenByRole(tokens: SystemToken[], role: string): SystemToken | undefin
 export function buildContrastPairResults(tokens: SystemToken[]): ContrastPairResult[] {
   const out: ContrastPairResult[] = []
   for (const surface of SURFACE_SLOTS) {
-    const sRole = `surface.${surface}`
+    const sRole = `surface.${surface}` as SystemRole
     const bg = tokenByRole(tokens, sRole)
     if (!bg) continue
-    const allowed = SURFACE_TEXT_CONTRACTS[sRole] ?? TEXT_SLOTS.map((x) => `text.${x}`)
+    const allowed: readonly SystemRole[] =
+      SURFACE_TEXT_CONTRACTS[sRole] ?? TEXT_SLOTS.map((x) => `text.${x}` as SystemRole)
     for (const tr of allowed) {
       const te = tokenByRole(tokens, tr)
       if (!te) continue

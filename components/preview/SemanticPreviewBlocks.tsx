@@ -7,10 +7,6 @@ import {semanticColorVarName} from '@/lib/neutral-engine/exportFormats'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import {tokensForSemanticLayerPublic} from '@/lib/neutral-engine/tokenViews'
 
-// #region agent log
-fetch('http://127.0.0.1:7417/ingest/ca6743d4-acdd-4cff-9a82-a67a2391f3e8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'2dc026'},body:JSON.stringify({sessionId:'2dc026',runId:'pre-fix',hypothesisId:'H1',location:'components/preview/SemanticPreviewBlocks.tsx:10',message:'module_loaded',data:{hasSemanticColorVarName:typeof semanticColorVarName==='function'},timestamp:Date.now()})}).catch(()=>{});
-// #endregion
-
 function hexByRole(tokens: {role: string; serialized: {hex: string}}[], role: string, fb: string) {
   return tokens.find((t) => t.role === role)?.serialized.hex ?? fb
 }
@@ -100,7 +96,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
         intent="Layered shell: recessed nav well, primary canvas, grouped workspace. Quiet nav vs active selection."
       >
         <div
-          className="flex min-h-[11rem] overflow-hidden rounded-md border"
+          className="flex min-h-44 overflow-hidden rounded-md border"
           style={{backgroundColor: page, borderColor: bs}}
         >
           <aside
@@ -208,7 +204,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
               Company
             </span>
             <div
-              className="flex min-h-[2.25rem] items-center rounded-md border px-2 py-1.5 text-sm"
+              className="flex min-h-9 items-center rounded-md border px-2 py-1.5 text-sm"
               style={{borderColor: bStr}}
             >
               <span style={{color: tm}}>Search accounts…</span>
@@ -282,7 +278,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
         title="Action menu overlay"
         intent="Overlay = top elevation plane for ephemeral UI. Scrim dims the canvas; menu uses overlay + default border."
       >
-        <div className="relative min-h-[7rem] rounded-md border p-3" style={{backgroundColor: page, borderColor: bs}}>
+        <div className="relative min-h-28 rounded-md border p-3" style={{backgroundColor: page, borderColor: bs}}>
           <p className="text-xs" style={{color: ts}}>
             Anchor region
           </p>
@@ -292,7 +288,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
             aria-hidden
           />
           <div
-            className="absolute left-3 top-10 z-10 min-w-[11rem] rounded-md border py-1 shadow-xl"
+            className="absolute left-3 top-10 z-10 min-w-44 rounded-md border py-1 shadow-xl"
             style={{backgroundColor: overlay, borderColor: bd, boxShadow: '0 16px 40px rgba(0,0,0,0.18)'}}
           >
             <button type="button" className="block w-full px-3 py-2 text-left text-xs" style={{color: td}}>

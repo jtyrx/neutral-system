@@ -4,8 +4,8 @@ import {useCallback, useEffect} from 'react'
 
 import {LiveThemeStyles} from '@/components/providers/LiveThemeStyles'
 import {Inspector} from '@/components/workbench/Inspector'
-import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
 import {WorkbenchControlsShell} from '@/components/workbench/WorkbenchControlsShell'
+import {WorkbenchHeader} from '@/components/workbench/WorkbenchHeader'
 import {WorkbenchLoadingToast} from '@/components/workbench/WorkbenchLoadingToast'
 import {WorkbenchPreviewColumn} from '@/components/workbench/WorkbenchPreviewColumn'
 import {useNeutralWorkbench} from '@/hooks/useNeutralWorkbench'
@@ -70,28 +70,18 @@ export function Workbench() {
       />
       <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 
-      <div
-        id="nsb-mob-toolbar"
-        className="ns-workbench__mob-toolbar border-b border-hairline ns-panel"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <div>
-            <p className="eyebrow">Neutral System</p>
-            <p className="text-sm font-semibold tracking-tight text-default">
-              Builder
-            </p>
-          </div>
-          <ThemePreviewControls
-            previewTheme={wb.previewTheme}
-            onPreviewTheme={wb.setPreviewTheme}
-            contrastEmphasis={wb.contrastEmphasis}
-            onContrastEmphasis={wb.setContrastEmphasis}
-            showContrastPairs={wb.showContrastPairs}
-            onShowContrastPairs={wb.setShowContrastPairs}
-            dense
-          />
-        </div>
-      </div>
+      <WorkbenchHeader
+        previewTheme={wb.previewTheme}
+        onPreviewTheme={wb.setPreviewTheme}
+        contrastEmphasis={wb.contrastEmphasis}
+        onContrastEmphasis={wb.setContrastEmphasis}
+        showContrastPairs={wb.showContrastPairs}
+        onShowContrastPairs={wb.setShowContrastPairs}
+        comparisonLayout={wb.comparisonLayout}
+        onComparisonLayoutChange={wb.setComparisonLayout}
+        inspectionMode={wb.inspectionMode}
+        onToggleInspection={wb.toggleInspectionMode}
+      />
 
       {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-hairline lg:order-0 lg:border-r lg:bg-raised">
          <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} /> 
@@ -111,10 +101,7 @@ export function Workbench() {
           darkTokenView={wb.darkTokenView}
           liveBrandSurfaceOklch={wb.liveBrandSurfaceOklch}
           comparisonLayout={wb.comparisonLayout}
-          onComparisonLayoutChange={wb.setComparisonLayout}
-          contrastEmphasis={wb.contrastEmphasis}
           inspectionMode={wb.inspectionMode}
-          onToggleInspection={wb.toggleInspectionMode}
           onSelectSystem={wb.selectSystem}
           derivationConfig={wb.effectiveMappingConfig}
           steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
@@ -125,19 +112,7 @@ export function Workbench() {
         id="nsb-inspector"
         className="ns-workbench__inspector-col h-full min-w-0 border-t border-hairline bg-sunken nsb-lg:border-t-0 nsb-lg:border-l"
       >
-        <div className="sticky top-0 max-h-dvh overflow-y-auto bg-sunken p-4">
-          <div className="mb-4 hidden items-center justify-between gap-2 bg-sunken nsb-lg:flex">
-            <p className="eyebrow">Preview</p>
-            <ThemePreviewControls
-              previewTheme={wb.previewTheme}
-              onPreviewTheme={wb.setPreviewTheme}
-              contrastEmphasis={wb.contrastEmphasis}
-              onContrastEmphasis={wb.setContrastEmphasis}
-              showContrastPairs={wb.showContrastPairs}
-              onShowContrastPairs={wb.setShowContrastPairs}
-              dense
-            />
-          </div>
+        <div className="ns-workbench__inspector-scroll bg-sunken p-4">
           <Inspector
             selection={wb.selection}
             global={wb.global}

@@ -42,8 +42,8 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
         <div
           className={`rounded-xl border p-3 sm:p-4 ${
             isLight
-              ? 'border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)]'
-              : 'border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)]'
+              ? 'border-(--ns-chrome-amber-border) bg-(--ns-chrome-amber-surface)'
+              : 'border-(--ns-chrome-sky-border) bg-(--ns-chrome-sky-surface)'
           }`}
         >
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -54,8 +54,8 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
             <span
               className={`rounded-full px-2 py-0.5 font-mono text-[0.6rem] ${
                 isLight
-                  ? 'bg-[var(--ns-chrome-amber-pill)] text-[var(--ns-chrome-amber-text)]'
-                  : 'bg-[var(--ns-chrome-sky-pill)] text-[var(--ns-chrome-sky-text)]'
+                  ? 'bg-(--ns-chrome-amber-pill) text-(--ns-chrome-amber-text)'
+                  : 'bg-(--ns-chrome-sky-pill) text-(--ns-chrome-sky-text)'
               }`}
             >
               {isLight ? 'themeMode: light' : 'themeMode: darkElevated'}
@@ -92,13 +92,13 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
   return (
     <div className="space-y-8">
       <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:gap-4">
-        <div className="rounded-xl border border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)] px-4 py-3 sm:px-5 sm:py-4">
+        <div className="rounded-xl border border-(--ns-chrome-amber-border) bg-(--ns-chrome-amber-surface) px-4 py-3 sm:px-5 sm:py-4">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">Light</p>
               <p className="mt-0.5 text-sm font-medium text-default">Global ramp</p>
             </div>
-            <span className="rounded-full bg-[var(--ns-chrome-amber-pill)] px-2 py-0.5 font-mono text-[0.6rem] text-[var(--ns-chrome-amber-text)]">
+            <span className="rounded-full bg-(--ns-chrome-amber-pill) px-2 py-0.5 font-mono text-[0.6rem] text-(--ns-chrome-amber-text)">
               themeMode: light
             </span>
           </div>
@@ -114,13 +114,13 @@ function PreviewComparisonInner({layout, focusTheme, global, lightTokenView, dar
           />
         </div>
 
-        <div className="rounded-xl border border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)] p-3 sm:p-4">
+        <div className="rounded-xl border border-(--ns-chrome-sky-border) bg-(--ns-chrome-sky-surface) p-3 sm:p-4">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="eyebrow">Dark elevated</p>
               <p className="mt-0.5 text-sm font-medium text-default">Global ramp</p>
             </div>
-            <span className="rounded-full bg-[var(--ns-chrome-sky-pill)] px-2 py-0.5 font-mono text-[0.6rem] text-[var(--ns-chrome-sky-text)]">
+            <span className="rounded-full bg-(--ns-chrome-sky-pill) px-2 py-0.5 font-mono text-[0.6rem] text-(--ns-chrome-sky-text)">
               themeMode: darkElevated
             </span>
           </div>

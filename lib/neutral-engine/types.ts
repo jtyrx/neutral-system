@@ -2,9 +2,11 @@ export type Progression = 'linear'
 
 export type ChromaMode = 'achromatic' | 'fixed' | 'taper_mid' | 'taper_ends'
 
+export type LCurve = 'linear' | 'ease-in-dark' | 'ease-out-light' | 's-curve'
+
 export type NamingStyle = 'numeric_desc' | 'semantic' | 'token_ladder'
 
-export type ThemeMode = 'light' | 'darkElevated' | 'darkDeep'
+export type ThemeMode = 'light' | 'darkElevated'
 
 export type NeutralVariantId = 'pure' | 'warm' | 'cool' | 'bluish' | 'custom'
 
@@ -22,6 +24,22 @@ export type GlobalScaleConfig = {
   hue: number
   namingStyle: NamingStyle
   variantId: NeutralVariantId
+  /** Lightness distribution curve. Defaults to `'linear'` when omitted. */
+  lCurve?: LCurve
+  /**
+   * Per-end chroma override. When both are set, chroma is interpolated from `chromaLight`
+   * (t=0, light end) to `chromaDark` (t=1, dark end), then shaped by `chromaMode`.
+   * When either is absent, `baseChroma` is used for both ends (current behaviour).
+   */
+  chromaLight?: number
+  chromaDark?: number
+  /**
+   * Hue at the light and dark ends (degrees). When both are set and unequal, hue is
+   * interpolated via Oklab `range()` so the drift is perceptually smooth. Requires
+   * `chromaMode !== 'achromatic'`; ignored otherwise.
+   */
+  hueLight?: number
+  hueDark?: number
 }
 
 export type SerializedColor = {
@@ -39,13 +57,48 @@ export type GlobalSwatch = {
 }
 
 /**
+ * Roles emitted by `deriveSystemTokens` (stable dot paths). Overflow ladders use `*.layer-*`;
+ * emphasis uses `emphasis.{surface|border|text}.*`.
+ */
+export type KnownSystemRole =
+  | 'surface.sunken'
+  | 'surface.default'
+  | 'surface.subtle'
+  | 'surface.raised'
+  | 'surface.overlay'
+  | 'surface.brand'
+  | 'surface.inverse'
+  | 'border.default'
+  | 'border.subtle'
+  | 'border.strong'
+  | 'border.focus'
+  | 'text.default'
+  | 'text.subtle'
+  | 'text.muted'
+  | 'text.disabled'
+  | 'text.on'
+  | 'overlay.scrim'
+  | 'state.hover'
+
+export type EmphasisSystemRole =
+  | `emphasis.surface.${string}`
+  | `emphasis.border.${string}`
+  | `emphasis.text.${string}`
+
+export type OverflowSystemRole =
+  | `surface.layer-${string}`
+  | `border.layer-${string}`
+  | `text.layer-${string}`
+  | `state.layer-${string}`
+
+/**
  * Semantic role id (same as `SystemToken.name`): dot-path roles, e.g. `surface.default`, `text.muted`,
  * `border.focus`, `state.hover`, `emphasis.surface.0`.
  */
-export type SystemRole = string
+export type SystemRole = KnownSystemRole | EmphasisSystemRole | OverflowSystemRole
 
 export type SystemMappingConfig = {
-  /** Light theme: surface / border / text ladder starts (low index = light end). Internal field name `fill*` is legacy. */
+  /** Light theme: `fill*` = **surface** ladder on the global ramp (legacy field name); `stroke*` = **border** ladder. */
   fillStart: number
   strokeStart: number
   textStart: number
@@ -83,6 +136,13 @@ export type SystemMappingConfig = {
   /** Alpha for alt / overlay tokens (0–1). */
   altAlpha: number
   includeContrastGroups: boolean
+  /**
+   * Text role picking strategy.
+   * - `'arithmetic'` (default): deterministic step-interval walks — current behaviour.
+   * - `'contrast'`: each text slot finds the nearest index meeting its WCAG target against
+   *   `surface.default`. Surface and border picks are unaffected.
+   */
+  roleMappingMode?: 'arithmetic' | 'contrast'
   /**
    * Custom OKLCH for `surface.brand` (user-editable). Invalid strings fall back to ramp-derived brand
    * in the engine while keeping this field as typed by the user.

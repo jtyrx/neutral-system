@@ -24,15 +24,19 @@ import {
 } from '@/lib/debug/presetDebug'
 import {
   applyContrastEmphasisToSystemMapping,
+  applyOkhslEdit,
   buildGlobalScale,
   buildTokenView,
   clampSystemMappingToLadderLength,
   DEFAULT_SYSTEM_MAPPING,
   deriveBrandSurfaceToken,
   deriveSystemTokens,
+  okhslViewFromConfig,
   type ContrastEmphasis,
   type GlobalScaleConfig,
   type GlobalSwatch,
+  type OkhslEdit,
+  type OkhslView,
   type SystemMappingConfig,
   type SystemToken,
   type ThemeMode,
@@ -73,6 +77,7 @@ export function useNeutralWorkbench() {
   /** Inspection mode highlights semantic annotations and routes clicks to the Inspector. */
   const [inspectionMode, setInspectionMode] = useState(false)
   const [busyInputLabel, setBusyInputLabel] = useState('Updating')
+  const [okhslEnabled, setOkhslEnabled] = useState(false)
 
   const touchBusyLabel = useCallback((label: string) => {
     setBusyInputLabel(label)
@@ -134,6 +139,13 @@ export function useNeutralWorkbench() {
       setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
     },
     [touchBusyLabel],
+  )
+
+  const setGlobalConfigFromOkhsl = useCallback(
+    (edit: OkhslEdit, label = 'OKHSL') => {
+      setGlobalConfig((cfg) => applyOkhslEdit(cfg, edit), label)
+    },
+    [setGlobalConfig],
   )
 
   const patchSystem = useCallback(
@@ -249,6 +261,11 @@ export function useNeutralWorkbench() {
     )
   }, [lightTokens, darkTokens])
 
+  const okhslView: OkhslView = useMemo(
+    () => okhslViewFromConfig(globalConfig),
+    [globalConfig],
+  )
+
   const lightTokenView = useMemo(() => buildTokenView(lightTokens), [lightTokens])
   const darkTokenView = useMemo(() => buildTokenView(darkTokens), [darkTokens])
 
@@ -312,6 +329,10 @@ export function useNeutralWorkbench() {
       inspectionMode,
       setInspectionMode,
       toggleInspectionMode,
+      okhslEnabled,
+      setOkhslEnabled,
+      okhslView,
+      setGlobalConfigFromOkhsl,
     }),
     [
       globalConfig,
@@ -343,6 +364,10 @@ export function useNeutralWorkbench() {
       showContrastPairs,
       inspectionMode,
       toggleInspectionMode,
+      okhslEnabled,
+      setOkhslEnabled,
+      okhslView,
+      setGlobalConfigFromOkhsl,
     ],
   )
 }

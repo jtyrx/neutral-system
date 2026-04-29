@@ -8,6 +8,7 @@ import {
   exportCsv,
   exportJson,
   exportTailwindV4ThemeInline,
+  isEmphasisToken,
   isPreviewOnlyBrandToken,
 } from '@/lib/neutral-engine/exportFormats'
 import type {GlobalScaleConfig, GlobalSwatch, SystemMappingConfig, SystemToken} from '@/lib/neutral-engine/types'
@@ -32,8 +33,7 @@ function ExportSectionInner({
   const [tab, setTab] = useState<Tab>('json')
   const [copied, setCopied] = useState(false)
 
-  // Brand is preview-only: strip it from downloadable JSON/CSS/Tailwind payloads. Live chrome still
-  // receives `--color-surface-brand` via LiveThemeStyles, which consumes tokens unfiltered.
+  // Brand: strip from all downloadable payloads. Emphasis: strip from token JSON only.
   const exportLight = useMemo(
     () => lightTokens.filter((t) => !isPreviewOnlyBrandToken(t)),
     [lightTokens],
@@ -42,11 +42,19 @@ function ExportSectionInner({
     () => darkTokens.filter((t) => !isPreviewOnlyBrandToken(t)),
     [darkTokens],
   )
+  const exportLightJson = useMemo(
+    () => exportLight.filter((t) => !isEmphasisToken(t)),
+    [exportLight],
+  )
+  const exportDarkJson = useMemo(
+    () => exportDark.filter((t) => !isEmphasisToken(t)),
+    [exportDark],
+  )
 
   const text = useMemo(() => {
     switch (tab) {
       case 'json':
-        return exportJson({global, light: exportLight, dark: exportDark})
+        return exportJson({global, light: exportLightJson, dark: exportDarkJson})
       case 'css':
         return exportCssVariables({global, light: exportLight, dark: exportDark})
       case 'csv':
@@ -56,7 +64,7 @@ function ExportSectionInner({
       default:
         return ''
     }
-  }, [tab, global, exportLight, exportDark])
+  }, [tab, global, exportLight, exportDark, exportLightJson, exportDarkJson])
 
   const copy = useCallback(async () => {
     try {

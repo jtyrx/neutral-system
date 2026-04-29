@@ -2,18 +2,50 @@ import Color from 'colorjs.io'
 
 import {bumpBuildGlobalScaleCalls, getLastPreset, presetDebugEnabled} from '@/lib/debug/presetDebug'
 import {labelsForNamingStyle} from '@/lib/neutral-engine/naming'
-import type {ChromaMode, GlobalScaleConfig, GlobalSwatch} from '@/lib/neutral-engine/types'
+import type {ChromaMode, GlobalScaleConfig, GlobalSwatch, LCurve} from '@/lib/neutral-engine/types'
 
-function chromaAtT(mode: ChromaMode, baseChroma: number, t: number): number {
+/**
+ * Maps t ∈ [0,1] through a lightness easing curve and returns the interpolated L value.
+ *
+ * - `linear` (default): uniform steps, identical to pre-refactor behaviour.
+ * - `ease-in-dark`: quadratic t² — more L spread in dark region, corrects dark-tail compression.
+ * - `ease-out-light`: quadratic ease-out — more L spread in light region.
+ * - `s-curve`: smooth-step S — more spread at both extremes, compressed in the mid-range.
+ */
+export function easeL(lHigh: number, lLow: number, t: number, curve?: LCurve): number {
+  let mapped: number
+  switch (curve ?? 'linear') {
+    case 'ease-in-dark':
+      mapped = t * t
+      break
+    case 'ease-out-light':
+      mapped = 1 - (1 - t) * (1 - t)
+      break
+    case 's-curve':
+      mapped = t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t)
+      break
+    default:
+      mapped = t
+  }
+  return lHigh + mapped * (lLow - lHigh)
+}
+
+/**
+ * Chroma at parameter t. `chromaAtLight` and `chromaAtDark` are interpolated linearly
+ * before the chroma mode shapes the envelope — pass the same value for both to get the
+ * original single-knob behaviour.
+ */
+function chromaAtT(mode: ChromaMode, t: number, chromaAtLight: number, chromaAtDark: number): number {
+  const base = chromaAtLight + t * (chromaAtDark - chromaAtLight)
   switch (mode) {
     case 'achromatic':
       return 0
     case 'fixed':
-      return baseChroma
+      return base
     case 'taper_mid':
-      return baseChroma * Math.sin(Math.PI * t)
+      return base * Math.sin(Math.PI * t)
     case 'taper_ends':
-      return baseChroma * (1 - Math.sin(Math.PI * t))
+      return base * (1 - Math.sin(Math.PI * t))
     default:
       return 0
   }
@@ -61,6 +93,11 @@ function cacheKeyForGlobalScale(config: GlobalScaleConfig): string {
     config.baseChroma,
     config.hue,
     config.namingStyle,
+    config.lCurve ?? 'linear',
+    config.chromaLight ?? '',
+    config.chromaDark ?? '',
+    config.hueLight ?? '',
+    config.hueDark ?? '',
   ].join('|')
 }
 
@@ -82,22 +119,46 @@ export function buildGlobalScale(config: GlobalScaleConfig): GlobalSwatch[] {
   const lHigh = Math.min(1, Math.max(0, finiteOr(config.lHigh, 0.985)))
   const lLow = Math.min(1, Math.max(0, finiteOr(config.lLow, 0.04)))
   const n = clampGlobalScaleSteps(steps)
+  const safeBase = finiteOr(baseChroma, 0)
+  /** Chroma ceiling at each end; falls back to `baseChroma` when per-end overrides are absent. */
+  const chromaAtLight = finiteOr(config.chromaLight ?? safeBase, safeBase)
+  const chromaAtDark = finiteOr(config.chromaDark ?? safeBase, safeBase)
   /** Hue applies only when chroma can be non-zero; achromatic uses `oklch(L 0 none)` via {@link buildOklchString}. */
   const useHue = chromaMode === 'achromatic' ? null : finiteOr(hue, 260)
+
+  /**
+   * Oklab hue-drift range. Active when `hueLight` ≠ `hueDark` and the ramp is chromatic.
+   * Anchors are built at the lightness endpoints; hue is extracted per-step from the range.
+   * L and C are still governed by `easeL` / `chromaAtT` — only H comes from the Oklab path.
+   */
+  const hueLight = config.hueLight ?? null
+  const hueDark = config.hueDark ?? null
+  const isHueDrift =
+    useHue !== null && hueLight !== null && hueDark !== null && hueLight !== hueDark
+  const hueDriftRange = isHueDrift
+    ? new Color('oklch', [lHigh, chromaAtLight, hueLight!]).range(
+        new Color('oklch', [lLow, chromaAtDark, hueDark!]),
+        {space: 'oklab'},
+      )
+    : null
+
   const out: GlobalSwatch[] = []
   const labels = labelsForNamingStyle(namingStyle, n)
 
   for (let i = 0; i < n; i++) {
     const t = n === 1 ? 0 : i / (n - 1)
-    const L = lHigh + t * (lLow - lHigh)
-    const C = chromaAtT(chromaMode, finiteOr(baseChroma, 0), t)
+    const L = easeL(lHigh, lLow, t, config.lCurve)
+    const C = chromaAtT(chromaMode, t, chromaAtLight, chromaAtDark)
+    // When hue drift is active, extract H from the Oklab range at linear t.
+    // The range is sampled at linear t (not eased) so the hue shift is time-uniform.
+    const stepHue = hueDriftRange ? (hueDriftRange(t).to('oklch').coords[2] ?? useHue) : useHue
     // Avoid parsing CSS strings on the hot path. Color.js accepts numeric coords:
     // `new Color('oklch', [L, C, h])`. This is dramatically faster than `new Color("oklch(...)")`
     // when recomputing ramps (e.g. preset selection + comparison rails).
-    const h = useHue ?? 0
+    const h = stepHue ?? 0
     const color = new Color('oklch', [L, C, h]).to('srgb')
     const label = labels[i] ?? String(i)
-    const css = buildOklchString(L, C, useHue)
+    const css = buildOklchString(L, C, stepHue)
     // Hot path: avoid `serializeColor()` (multiple conversions + stringification per swatch).
     // We already have sRGB; compute a clipped variant once and format strings once.
     const inSrgbGamut = color.inGamut('srgb')

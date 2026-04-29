@@ -13,13 +13,25 @@ pnpm build          # production build
 pnpm start          # serve built output
 pnpm lint           # ESLint (next/core-web-vitals + next/typescript)
 pnpm type-check     # tsc --noEmit (strict)
+pnpm test           # vitest run (engine unit tests)
+pnpm test:watch     # vitest watch mode
 ```
 
-No test runner is configured.
+Vitest covers `lib/**/*.test.ts` (any engine or lib subdirectory).
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind CSS v4 (`@import "tailwindcss"` in `app/globals.css`) · `colorjs.io` for all color math · `sonner` for toasts. Path alias `@/*` resolves from repo root.
+Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind CSS v4 (`@import "tailwindcss"` in `app/globals.css`) · `colorjs.io` for all color math · `@base-ui/react` for UI primitives · `sonner` for toasts. Path alias `@/*` resolves from repo root.
+
+## UI Components
+
+Use **shadcn with Base UI** (not Radix UI) for all new interactive primitives.
+
+- Install via: `pnpm dlx shadcn@latest add --base-color neutral <component-name>`
+- The `--base-color neutral` flag keeps generated tokens consistent with this project's neutral system palette.
+- Prefer shadcn Base UI variants over hand-rolling Radix primitives directly — the generated files land in `components/ui/` and are owned by this repo (edit freely).
+- Do **not** mix Radix UI and Base UI primitives in the same component; pick one primitive layer per component family.
+- For components not yet in shadcn's catalog, compose from existing `components/ui/` primitives before reaching for a raw Radix or third-party package.
 
 ## Architecture
 
@@ -31,7 +43,8 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 2. [systemMap.ts](lib/neutral-engine/systemMap.ts) — `deriveSystemTokens(global, SystemMappingConfig)` resolves ladder indices into semantic tokens for a single `themeMode`. Light and dark elevated use separate `*Start` / `*Count` / `*StepInterval` fields. Picks are always `clampSystemMappingToLadderLength`-ed first so nothing escapes `[0, n−1]` (except `darkFillStart`, which may be `−1`). `resolveBorderFocusIndex` emits `border.focus` as a ramp flip of `surface.default` (not a stroke-count rung).
 3. [effectiveMapping.ts](lib/neutral-engine/effectiveMapping.ts) — `applyContrastEmphasisToSystemMapping` multiplies `contrastDistance` (`subtle`/`default`/`strong`/`inverse`). This must run **before** token derivation so preview, UI, and exports all see the same resolved spacing.
 4. [semanticNaming.ts](lib/neutral-engine/semanticNaming.ts) — dot-path roles for a **governed neutral system**: surface elevation (`surface.sunken` → `surface.overlay`, then `surface.brand` and `surface.inverse`), readable text (`text.default` → `text.disabled` + `text.on`), border structure (`border.default` / `subtle` / `strong` + `border.focus`), plus `state.hover`, `overlay.scrim`, `emphasis.*`. `isInversePairRole` / `isBorderFocusRole` separate flip tokens from ladder counts.
-5. [exportFormats.ts](lib/neutral-engine/exportFormats.ts) — JSON / CSS variables / CSV / Tailwind v4 `@theme inline`. Tier-1 primitives export as `--color-neutral-<label>`; tier-2 semantics as `--color-surface-default`, `--color-border-focus`, etc. (`semanticColorVarName` handles the dot → hyphen rewrite). Designed for **CSS-first** `@theme` consumption in Tailwind v4.
+5. [exportFormats.ts](lib/neutral-engine/exportFormats.ts) — JSON / CSS variables / CSV / Tailwind v4 `@theme inline`. Tier-1 primitives export as `--color-neutral-<label>`; tier-2 semantics as `--color-surface-default`, `--color-border-focus`, etc. (`semanticColorVarName` handles the dot → hyphen rewrite). [chromeAliases.ts](lib/neutral-engine/chromeAliases.ts) defines `--ns-*` peers injected after tier-2 in each `[data-theme]` block. Designed for **CSS-first** `@theme` consumption in Tailwind v4.
+6. [okhsl.ts](lib/neutral-engine/okhsl.ts) — `okhslViewFromConfig(cfg)` projects the canonical OKLCH config into an OKHSL authoring view; `applyOkhslEdit(cfg, edit)` commits slider edits back to OKLCH fields. Pure functions — no React, no state. OKHSL is a **view**, not parallel state.
 
 **Workbench — [hooks/useNeutralWorkbench.ts](hooks/useNeutralWorkbench.ts)** is the single state orchestrator. Every control reads/writes through this hook. Important invariants encoded here:
 
@@ -40,6 +53,7 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 - CSS variable writes live in [components/providers/LiveThemeStyles.tsx](components/providers/LiveThemeStyles.tsx) and use **`useLayoutEffect`** (not `useEffect`) so the paint isn't deferred into the 1Hz throttle window.
 - Both `lightTokens` and `darkTokens` are always derived (export and theme panels need both), even in `focus` comparison mode.
 - `effectiveMappingConfig` is the canonical config for any UI that previews resolved indices — it must match what `deriveSystemTokens` sees.
+- `okhslEnabled` / `okhslView` / `setGlobalConfigFromOkhsl` expose the OKHSL overlay on the hook surface. `okhslView` is memoized from `okhslViewFromConfig(globalConfig)`; edits flow through `setGlobalConfig` — no second state atom.
 
 **UI layout.** [Workbench.tsx](components/workbench/Workbench.tsx) renders preview + inspector columns; [WorkbenchControlsShell.tsx](components/workbench/WorkbenchControlsShell.tsx) + [BuilderControlsSections.tsx](components/workbench/BuilderControlsSections.tsx) group controls into **Scale → Contrast & role mapping → Inspect → Export**. `components/sections/*` are the section bodies; `components/preview/*` renders palette/token tables; `components/viz/*` renders OKLCH ladders and offset diagrams.
 
@@ -57,6 +71,8 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 - **Code style**: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports. Files default to `'use client'` because the whole workbench is interactive; server-side files (`app/layout.tsx`, engine modules) deliberately omit it.
 - **Tailwind v4 only** — no `tailwind.config.*`. Theme tokens live in `@theme` blocks inside [app/globals.css](app/globals.css). PostCSS plugin is `@tailwindcss/postcss`.
 - **Debug instrumentation** lives in [lib/debug/presetDebug.ts](lib/debug/presetDebug.ts). `presetDebugEnabled()` is **hard-gated to `process.env.NODE_ENV === 'development'`** — stale opt-ins (URL param, localStorage, window flag) cannot leak cost into prod builds. Keep new debug log sites funneled through `presetDebugEnabled()` so this gate remains the single kill-switch.
+- **`cn()` for class merging**: all `components/ui/` components use `cn(...inputs)` from [lib/utils.ts](lib/utils.ts) (`clsx` + `tailwind-merge`). Use it whenever conditionally merging Tailwind classes — never string-concatenate class names.
+- **Prettier**: installed as a devDep with `prettier-plugin-tailwindcss` for Tailwind class ordering. No `.prettierrc` — runs with defaults. The plugin auto-sorts `className` props on save if your editor is configured to run prettier on save.
 
 ## Token taxonomy (portfolio / governance)
 

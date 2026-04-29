@@ -4,12 +4,10 @@ import { memo } from 'react'
 
 import type { ComparisonLayout } from '@/components/preview/PreviewComparison'
 import { ContrastPairsPanel } from '@/components/preview/ContrastPairsPanel'
-import { PreviewContextHeader } from '@/components/preview/PreviewContextHeader'
 import { PreviewContextPanel } from '@/components/preview/PreviewContextPanel'
 import { SemanticPreviewWorkbench } from '@/components/preview/SemanticPreviewWorkbench'
 import type { TokenSelectTheme } from '@/components/preview/SemanticTokenAnnotation'
 import type {
-  ContrastEmphasis,
   GlobalSwatch,
   SystemMappingConfig,
   SystemToken,
@@ -27,10 +25,7 @@ type Props = {
   /** `surface.brand` OKLCH from immediate mapping (no defer) — callout updates with Custom Brand. */
   liveBrandSurfaceOklch: { light: string; dark: string }
   comparisonLayout: ComparisonLayout
-  onComparisonLayoutChange: (l: ComparisonLayout) => void
-  contrastEmphasis: ContrastEmphasis
   inspectionMode: boolean
-  onToggleInspection: () => void
   onSelectSystem: (role: string, theme?: TokenSelectTheme) => void
   /** Mapping + contrast emphasis — matches token derivation and system mapping diagrams. */
   derivationConfig: SystemMappingConfig
@@ -40,7 +35,7 @@ type Props = {
 /**
  * Center column — an inspection-oriented preview workbench.
  *
- * Vertical rhythm: sticky context header → paired semantic blocks → optional contrast matrix → deep inspection tools.
+ * Vertical rhythm: paired semantic blocks → optional contrast matrix → deep inspection tools.
  *
  * Wrapped in `memo` so preset/scale transitions that don't touch preview-relevant props (e.g.
  * `busyInputLabel` rotating) skip the entire center column reconciliation.
@@ -55,25 +50,13 @@ function WorkbenchPreviewColumnInner({
   darkTokenView,
   liveBrandSurfaceOklch,
   comparisonLayout,
-  onComparisonLayoutChange,
-  contrastEmphasis,
   inspectionMode,
-  onToggleInspection,
   onSelectSystem,
   derivationConfig,
   steps,
 }: Props) {
   return (
     <div className="flex min-h-0 flex-col border-b border-hairline bg-raised transition-opacity duration-200 nsb-lg:border-b-0">
-      <PreviewContextHeader
-        comparisonLayout={comparisonLayout}
-        previewTheme={previewTheme}
-        contrastEmphasis={contrastEmphasis}
-        inspectionMode={inspectionMode}
-        onToggleInspection={onToggleInspection}
-        onComparisonLayoutChange={onComparisonLayoutChange}
-      />
-
       <div
         id="nsb-preview-blocks"
         aria-label="Semantic preview blocks"

@@ -2,6 +2,7 @@
 
 import {memo, useCallback, useEffect, useRef, useState} from 'react'
 
+import {ResponsiveSelect} from '@/components/ui/responsive-select'
 import {ChromaModeComparisonRail} from '@/components/viz/ChromaModeComparisonRail'
 import {LightnessLadder} from '@/components/viz/LightnessLadder'
 import {LightnessSparkline} from '@/components/viz/LightnessSparkline'
@@ -11,7 +12,7 @@ import {
   GLOBAL_SCALE_STEP_MAX,
   GLOBAL_SCALE_STEP_MIN,
 } from '@/lib/neutral-engine/globalScale'
-import type {GlobalScaleConfig, GlobalSwatch, NamingStyle} from '@/lib/neutral-engine/types'
+import type {GlobalScaleConfig, GlobalSwatch, LCurve, NamingStyle} from '@/lib/neutral-engine/types'
 
 type Props = {
   config: GlobalScaleConfig
@@ -29,6 +30,13 @@ const namingOptions: {id: NamingStyle; label: string}[] = [
   {id: 'token_ladder', label: 'Token Ladder'},
   {id: 'semantic', label: '0 … n−1'},
   {id: 'numeric_desc', label: '100 → 4'},
+]
+
+const curveOptions: {id: LCurve; label: string}[] = [
+  {id: 'linear', label: 'Linear'},
+  {id: 'ease-in-dark', label: 'Ease into dark'},
+  {id: 'ease-out-light', label: 'Ease out light'},
+  {id: 's-curve', label: 'S-curve'},
 ]
 
 const chromaOptions: {id: GlobalScaleConfig['chromaMode']; label: string}[] = [
@@ -148,7 +156,7 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
   const [showComparison, setShowComparison] = useState(false)
 
   return (
-    <section id="global" className="scroll-mt-6 space-y-6">
+    <section id="global-scale-section" className="scroll-mt-6 space-y-6">
       <header>
         <p className="eyebrow">1 · Global scale</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Neutral ladder</h2>
@@ -165,7 +173,7 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
         <button
           type="button"
           onClick={() => setShowComparison((v) => !v)}
-          className="rounded-full border border-hairline bg-[var(--ns-chip)] px-3 py-1.5 text-xs font-medium text-subtle transition hover:bg-[var(--ns-hairline)]"
+          className="rounded-full border border-hairline bg-(--ns-chip) px-3 py-1.5 text-xs font-medium text-subtle transition hover:bg-sidebar-border"
           aria-expanded={showComparison}
           aria-controls="chroma-mode-comparison-rail"
         >
@@ -181,20 +189,18 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
 
       <GlobalScaleRampVisualization global={global} selectedIndex={selectedIndex} onSelectSwatch={onSelectSwatch} />
 
-      <div className="grid gap-4 sm:grid-cols-2 nsb-lg:grid-cols-3">
+      <div 
+      id="global-scale-controls"
+      className="grid gap-4 sm:grid-cols-2 nsb-lg:grid-cols-3">
         <label className="space-y-1">
           <span className="ns-label">Steps</span>
-          <select
-            className="ns-input font-mono"
-            value={clampGlobalScaleSteps(config.steps)}
-            onChange={(e) => patch('steps', Number(e.target.value), 'Steps')}
-          >
-            {stepOptions.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+          <ResponsiveSelect
+            id="global-scale-controls-steps"
+            className="font-mono"
+            value={String(clampGlobalScaleSteps(config.steps))}
+            options={stepOptions.map((n) => ({value: String(n), label: String(n)}))}
+            onValueChange={(v) => patch('steps', Number(v), 'Steps')}
+          />
         </label>
         <label className="space-y-1">
           <span className="ns-label">Lightest L (0–1)</span>
@@ -238,35 +244,85 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
           />
         </label>
         <label className="space-y-1">
-          <span className="ns-label">Naming</span>
-          <select
-            className="ns-input"
+          <span 
+          className="ns-label">Naming</span>
+          <ResponsiveSelect
+            id="global-scale-controls-naming"
             value={config.namingStyle}
-            onChange={(e) => patch('namingStyle', e.target.value as NamingStyle, 'Naming')}
-          >
-            {namingOptions.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+            options={namingOptions.map((o) => ({value: o.id, label: o.label}))}
+            onValueChange={(v) => patch('namingStyle', v as NamingStyle, 'Naming')}
+          />
         </label>
-        <label className="space-y-1 sm:col-span-2 nsb-lg:col-span-3">
+        <label className="space-y-1">
           <span className="ns-label">Chroma mode</span>
-          <select
-            className="ns-input"
+          <ResponsiveSelect
+            id="global-scale-controls-chroma-mode"
             value={config.chromaMode}
-            onChange={(e) =>
-              patch('chromaMode', e.target.value as GlobalScaleConfig['chromaMode'], 'Chroma mode')
+            options={chromaOptions.map((o) => ({value: o.id, label: o.label}))}
+            onValueChange={(v) =>
+              patch('chromaMode', v as GlobalScaleConfig['chromaMode'], 'Chroma mode')
             }
-          >
-            {chromaOptions.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          />
         </label>
+        <label className="space-y-1">
+          <span className="ns-label">L curve</span>
+          <ResponsiveSelect
+            id="global-scale-controls-l-curve"
+            value={config.lCurve ?? 'linear'}
+            options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
+            onValueChange={(v) => patch('lCurve', v as LCurve, 'L curve')}
+          />
+        </label>
+        {config.chromaMode !== 'achromatic' ? (
+          <>
+            <label className="space-y-1">
+              <span className="ns-label">Chroma (light end)</span>
+              <input
+                type="number"
+                step={0.001}
+                className="ns-input font-mono"
+                value={config.chromaLight ?? config.baseChroma}
+                onChange={(e) =>
+                  patch('chromaLight', numOr(config.chromaLight ?? config.baseChroma, e.target.value), 'Chroma light')
+                }
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="ns-label">Chroma (dark end)</span>
+              <input
+                type="number"
+                step={0.001}
+                className="ns-input font-mono"
+                value={config.chromaDark ?? config.baseChroma}
+                onChange={(e) =>
+                  patch('chromaDark', numOr(config.chromaDark ?? config.baseChroma, e.target.value), 'Chroma dark')
+                }
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="ns-label">Hue light end (°)</span>
+              <input
+                type="number"
+                className="ns-input font-mono"
+                value={config.hueLight ?? config.hue}
+                onChange={(e) =>
+                  patch('hueLight', numOr(config.hueLight ?? config.hue, e.target.value), 'Hue light')
+                }
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="ns-label">Hue dark end (°)</span>
+              <input
+                type="number"
+                className="ns-input font-mono"
+                value={config.hueDark ?? config.hue}
+                onChange={(e) =>
+                  patch('hueDark', numOr(config.hueDark ?? config.hue, e.target.value), 'Hue dark')
+                }
+              />
+            </label>
+          </>
+        ) : null}
       </div>
     </section>
   )

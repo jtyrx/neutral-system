@@ -137,6 +137,24 @@ function GlobalSwatchInspector({
           <dt className="text-muted">OKLCH</dt>
           <dd className="break-all">{s.serialized.oklchCss}</dd>
         </div>
+        {(() => {
+          const coords = sColor.to('oklch').coords
+          const C = coords[1]
+          const H = coords[2]
+          if (C == null || C === 0) return null
+          return (
+            <>
+              <div>
+                <dt className="text-muted">C (chroma)</dt>
+                <dd>{C.toFixed(5)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted">H (hue °)</dt>
+                <dd>{H != null ? H.toFixed(2) : 'none'}</dd>
+              </div>
+            </>
+          )
+        })()}
         <div>
           <dt className="text-muted">HEX</dt>
           <dd>{s.serialized.hex}</dd>

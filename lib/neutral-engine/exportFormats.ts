@@ -1,3 +1,4 @@
+import {linesLiveThemeNsChromeBlock} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 import type {SystemToken} from '@/lib/neutral-engine/types'
 
@@ -13,6 +14,11 @@ export function tokenCssVarName(name: string): string {
  */
 export function isPreviewOnlyBrandToken(t: SystemToken): boolean {
   return t.role === 'surface.brand' && t.customColor === true
+}
+
+/** Optional `emphasis.*` ladder — omitted from downloadable token JSON only (see ExportSection). */
+export function isEmphasisToken(t: SystemToken): boolean {
+  return t.role.startsWith('emphasis.')
 }
 
 /**
@@ -34,46 +40,10 @@ function semanticCssValue(t: SystemToken, global: GlobalSwatch[]): string {
 }
 
 /**
- * Re-declares the `globals.css` `--ns-*` → `--color-*` mapping **inside** each
- * `[data-theme="..."]` block in the live stylesheet. Without this, the tier-1
- * `--color-*` from `exportCssVariables` is unlayered and wins over
- * `globals.css`’s `@layer base` `:root` rules, so `--color-surface-default` (etc.)
- * updates on the engine while the `--ns-surface*`, `--ns-text`, and `color-mix`
- * hairline/field aliases are still the **static** `globals` fallbacks — the
- * `var(--ns-surface-default)` on `.ns-panel` then stays wrong or invisible
- * (same L as background) until a hard refresh. Mirroring the chrome here keeps
- * every `--ns-*` tied to the live token stream.
+ * Re-declares `globals.css` `--ns-*` → tier-2 `--color-*` inside each `[data-theme]` block from
+ * the live stylesheet. Without this, injected `--color-*` updates while `--ns-*` stay static until
+ * refresh. See `linesLiveThemeNsChromeBlock` in `chromeAliases.ts`.
  */
-function linesLiveThemeNsChromeBlock(): string[] {
-  const peer = (ns: string, role: string) =>
-    `  ${ns}: var(--${semanticColorVarName(role)});`
-  return [
-    peer('--ns-app-bg', 'surface.sunken'),
-    peer('--ns-surface', 'surface.default'),
-    peer('--ns-surface-default', 'surface.default'),
-    peer('--ns-surface-subtle', 'surface.subtle'),
-    peer('--ns-surface-raised', 'surface.raised'),
-    peer('--ns-surface-overlay', 'surface.overlay'),
-    peer('--ns-border-subtle', 'border.subtle'),
-    peer('--ns-border-default', 'border.default'),
-    peer('--ns-border-strong', 'border.strong'),
-    peer('--ns-border-focus', 'border.focus'),
-    peer('--ns-text', 'text.default'),
-    peer('--ns-text-subtle', 'text.subtle'),
-    peer('--ns-text-muted', 'text.muted'),
-    peer('--ns-text-faint', 'text.disabled'),
-    peer('--ns-text-on', 'text.on'),
-    peer('--ns-accent', 'surface.brand'),
-    peer('--ns-scrim', 'overlay.scrim'),
-    '  --ns-hairline: color-mix(in oklch, var(--ns-text) 10%, transparent);',
-    '  --ns-hairline-strong: color-mix(in oklch, var(--ns-text) 18%, transparent);',
-    '  --ns-chip: color-mix(in oklch, var(--ns-text) 6%, transparent);',
-    '  --ns-field: color-mix(in oklch, var(--ns-text) 4%, transparent);',
-    '  --ns-overlay-soft: color-mix(in oklch, var(--ns-text) 3%, transparent);',
-    '  --ns-overlay-strong: color-mix(in oklch, var(--ns-text) 15%, transparent);',
-  ]
-}
-
 export function exportJson(params: {
   global: GlobalSwatch[]
   light: SystemToken[]

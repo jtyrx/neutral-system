@@ -16,7 +16,12 @@ const OPTIONS: {
   shortLabel: string
   icon: typeof Monitor
 }[] = [
-  {value: 'system', label: 'Use system theme', shortLabel: 'System', icon: Monitor},
+  {
+    value: 'system',
+    label: 'Use system theme',
+    shortLabel: 'System',
+    icon: Monitor,
+  },
   {value: 'dark', label: 'Use dark theme', shortLabel: 'Dark', icon: Moon},
   {value: 'light', label: 'Use light theme', shortLabel: 'Light', icon: Sun},
 ]
@@ -34,7 +39,7 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
       <div
         aria-hidden={true}
         className={cn(
-          'flex h-7 w-20 shrink-0 rounded-full border border-(--ns-hairline) bg-(--ns-surface-overlay) sm:w-[5.75rem]',
+          'flex h-7 w-20 shrink-0 rounded-full border border-hairline bg-overlay sm:w-23',
           className,
         )}
       />
@@ -49,14 +54,16 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
 
   return (
     <RadioGroup
+      id="nsb-theme-toggle"
+      variant="scrim"
       value={activeTheme}
       onValueChange={(value) => setTheme(value as ThemeChoice)}
       data-ns-theme-toggle
       aria-label={`Application color theme. Current selection: ${activeTheme}. Resolved theme: ${resolved}.`}
       className={cn(
-        'inline-flex h-7  items-center gap-0.5 rounded-full border border-(--ns-hairline) bg-(--ns-surface-overlay) p-0.5 text-(--ns-text) shadow-sm',
+        'inline-flex items-center gap-0.5 rounded-full',
         // Icon radio: hide the default dot indicator from the base shadcn item.
-        '[&_[data-slot=radio-group-indicator]]:hidden',
+        '**:data-[slot=radio-group-indicator]:hidden',
         className,
       )}
     >
@@ -70,17 +77,17 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
                 value={option.value}
                 aria-label={option.label}
                 className={cn(
-                  'inline-flex size-6 cursor-pointer items-center justify-center rounded-full border border-transparent text-(--ns-text-muted) transition-colors outline-none',
+                  'inline-flex size-6 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
                   'hover:bg-(--ns-chip) hover:text-(--ns-text)',
-                  'focus-visible:border-[var(--ns-border-focus)] focus-visible:ring-2 focus-visible:ring-[var(--ns-border-focus)]/30',
-                  selected && 'bg-(--ns-overlay-strong) text-(--ns-text)',
+                  'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-(--ns-border-focus)/30',
+                  selected && 'bg-(--ns-overlay-strong) text-primary',
                 )}
               >
                 <Icon className="size-3.5" aria-hidden={true} />
                 <span className="sr-only">{option.label}</span>
               </RadioGroupItem>
             </TooltipTrigger>
-            <TooltipContent side="top" sideOffset={8}>
+            <TooltipContent side="bottom" sideOffset={8}>
               {option.shortLabel}
             </TooltipContent>
           </Tooltip>

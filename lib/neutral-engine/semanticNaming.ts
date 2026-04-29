@@ -1,6 +1,17 @@
 /**
  * Dot-path semantic roles (tier-2): `surface.default`, `text.muted`, `border.focus`, …
  * Tier-1 primitives remain `neutral-*`; roles resolve per theme via {@link deriveSystemTokens}.
+ *
+ * **Lexicon (intent):**
+ * - **Surface** `surface.*` — elevation: `sunken` (well) → `default` (page) → `subtle` → `raised` → `overlay`;
+ *   `brand` (accent plane); `inverse` (high-contrast ramp flip vs `sunken`).
+ * - **Text** `text.*` — hierarchy: `default` → `subtle` → `muted` → `disabled`; `on` for copy on inverse/brand.
+ * - **Border** `border.*` — stroke ladder `default` / `subtle` / `strong` (mapping order is engine-defined);
+ *   `focus` is max-contrast vs page base, not a stroke rung.
+ * - **Interactive** — `overlay.scrim`, `state.hover` (alt pool); `emphasis.*` optional widen contrast (see exports).
+ *
+ * **Config names:** `SystemMappingConfig` still uses legacy `fill*` / `stroke*` for surface / border ladder
+ * field names; UI labels map these in `workbenchInputLabels`.
  */
 
 import type {SystemRole} from '@/lib/neutral-engine/types'

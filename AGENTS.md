@@ -13,13 +13,14 @@ pnpm build          # production build
 pnpm start          # serve built output
 pnpm lint           # ESLint (next/core-web-vitals + next/typescript)
 pnpm type-check     # tsc --noEmit (strict)
+pnpm test           # vitest run (engine unit tests)
 ```
 
-No test runner is configured.
+Vitest covers `lib/neutral-engine/*.test.ts`. Prefer `pnpm test` after engine changes.
 
 ## Stack
 
-Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4 (`@import "tailwindcss"` in `app/globals.css`), `colorjs.io` for color math, `sonner` for toasts. Path alias `@/*` resolves from repo root.
+Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4 (`@import "tailwindcss"` in `app/globals.css`), `colorjs.io` for color math, `sonner` for toasts. **UI:** shadcn/ui-style components live under `@/components/ui` and wrap **`@base-ui/react`** primitives (not Radix). Path alias `@/*` resolves from repo root.
 
 ## CMS and data
 
@@ -39,7 +40,13 @@ Single-page workbench (`app/page.tsx` → `components/workbench/Workbench.tsx`) 
 2. `systemMap.ts` — `deriveSystemTokens(global, SystemMappingConfig)` per `themeMode`. Light and dark elevated use separate `*Start` / `*Count` / `*StepInterval`. Always `clampSystemMappingToLadderLength` first so picks stay in `[0, n−1]` (exception: `darkFillStart` may be `−1`).
 3. `effectiveMapping.ts` — `applyContrastEmphasisToSystemMapping` scales `contrastDistance` (`subtle` / `default` / `strong` / `inverse`). Must run **before** token derivation so preview, UI, and exports match.
 4. `semanticNaming.ts` — design-system dot-path roles: **surface** elevation (`surface.sunken` … `surface.overlay`, plus `surface.brand` for on-brand planes and `surface.inverse`); **text** hierarchy (`text.default` … `text.disabled`, plus `text.on` on inverse/bold/brand surfaces); **border** (`border.default` / `subtle` / `strong` from stroke count, plus auto `border.focus` = max-contrast flip vs `surface.default`); `state.hover`, `overlay.scrim`, `emphasis.*`. `isInversePairRole` gates `surface.inverse` + `text.on` out of “standard ladder” UIs; `isBorderFocusRole` identifies `border.focus`.
-5. `exportFormats.ts` — JSON, CSS variables, CSV, Tailwind v4 `@theme inline`. Primitives as `--color-neutral-*`; tier-2 semantics as `--color-surface-default`, `--color-text-on`, `--color-border-focus`, etc. (dot → hyphen via `semanticColorVarName` / `tokenCssVarName`). Tokens are **runtime-swappable** via `[data-theme="light"]` / `[data-theme="dark"]` in the CSS export.
+5. `exportFormats.ts` — JSON, CSS variables, CSV, Tailwind v4 `@theme inline`. Primitives as `--color-neutral-*`; tier-2 semantics as `--color-surface-default`, `--color-text-on`, `--color-border-focus`, etc. (dot → hyphen via `semanticColorVarName` / `tokenCssVarName`). Tokens are **runtime-swappable** via `[data-theme="light"]` / `[data-theme="dark"]` in the CSS export. **`chromeAliases.ts`** is the single table of `--ns-*` workbench chrome peers (and static `color-mix` hairlines) appended inside each theme block by `exportCssVariables` — keep `@theme inline` `--ns-*` references aligned with `NS_CHROME_ROLE_PEERS`. **`SystemRole`** (`types.ts`) is a union of known tier-2 ids plus `emphasis.*` / `*.layer-*` overflow patterns. **`ThemeMode`** is `light` \| `darkElevated` only.
+
+**Token sources of truth**
+
+- **Tier-1 / tier-2 colors:** resolved in the workbench by `LiveThemeStyles` → `exportCssVariables` (authoritative after load). `app/globals.css` `@layer base` keeps **approximate** tier-2 OKLCH for first paint and `[data-theme='light']` overrides; do not duplicate a full dark `[data-theme='dark']` tier-2 block (defaults come from `:root`).
+- **`--ns-*`:** static fallbacks in `globals.css` must mirror `chromeAliases.ts` keys; live peers are injected with each theme.
+- **Exports:** downloadable **JSON** strips preview-only custom `surface.brand` (`isPreviewOnlyBrandToken`) and optional `emphasis.*` (`isEmphasisToken`). CSS / Tailwind export tabs still omit custom brand only; shadcn **`--background` / `--foreground` / `--card` / `--border` / `--ring`** etc. in `globals.css` bridge to `--color-*` where possible (see Conventions: **UI components (shadcn + Base UI)**).
 
 **Workbench (`hooks/useNeutralWorkbench.ts`)** — single state orchestrator; all controls go through this hook.
 
@@ -66,6 +73,11 @@ Single-page workbench (`app/page.tsx` → `components/workbench/Workbench.tsx`) 
 - **OKLCH strings:** `oklch(L% C H)` with `none` for achromatic hue (`buildOklchString`); match in new CSS output.
 - **Style:** single quotes, no semicolons, trailing commas, 2-space indent, `type` imports. Prefer `'use client'` for interactive workbench code; omit on `app/layout.tsx` and engine modules.
 - **Tailwind v4 only** — no `tailwind.config.*`. Theme in `@theme` in `app/globals.css`. PostCSS: `@tailwindcss/postcss`.
+- **UI components (shadcn + Base UI):**
+  - **Primitive layer:** keep using **`@base-ui/react`** subpaths, matching `components/ui/*`. Do **not** add **`@radix-ui/*`** for workbench UI unless there is an explicit, repo-wide migration decision.
+  - **CLI:** add or refresh components via the **shadcn CLI** with this repo’s `components.json` (pnpm-first: `pnpm exec shadcn add …`). After generation, **verify** imports stay Base UI–aligned with neighboring files; reconcile if a template defaults to a different primitive layer.
+  - **Styles:** keep `app/globals.css` `@import 'shadcn/tailwind.css'` and preserve the shadcn **→** `--color-*` bridge described under Token sources of truth.
+  - **Patterns:** extend existing wrappers (`cn`, `class-variance-authority`, slot / `useRender` where present) rather than introducing parallel component libraries.
 - **Debug instrumentation** lives in `lib/debug/presetDebug.ts`. `presetDebugEnabled()` is hard-gated to `process.env.NODE_ENV === 'development'` so a stale URL param, localStorage flag, or window flag can never cost a prod user. Route new debug log sites through `presetDebugEnabled()` to preserve the single kill-switch.
 
 ## Cursor Agent / Composer behavior

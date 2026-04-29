@@ -72,16 +72,13 @@
     --color-surface-inverse: oklch(96.441% 0 none);
 
     /**
-     * Chrome alias layer — every workbench surface reads from these, so a theme flip
-     * (or any live token update from the engine) repaints the entire site.
-     * Missing `--ns-*` keys break `@theme inline` utilities; keep in sync with `chromeAliases.ts`
-     * (`NS_CHROME_ROLE_PEERS`). Tier-2 `--color-*` above are approximate until `LiveThemeStyles` runs.
+     * Legacy `--ns-*` aliases — thin `var(--color-*)` peers for incremental migration.
+     * Canonical semantics are `--color-*`; see `semanticPolicy.ts` for intent → role.
+     * Chrome mixers use `--chrome-*`; live + export append the same mixers in `[data-theme]`.
      */
     --ns-app-bg: var(--color-surface-sunken);
-    --ns-surface: var(--color-surface-default);
-    /** Symmetric with `--ns-surface-subtle` / `--ns-surface-raised` — the “default” canvas surface. */
     --ns-surface-sunken: var(--color-surface-sunken);
-    --ns-surface-default: var(--ns-surface);
+    --ns-surface-default: var(--color-surface-default);
     --ns-surface-subtle: var(--color-surface-subtle);
     --ns-surface-raised: var(--color-surface-raised);
     --ns-surface-overlay: var(--color-surface-overlay);
@@ -95,11 +92,21 @@
     --ns-text-muted: var(--color-text-muted);
     --ns-text-disabled: var(--color-text-disabled);
     --ns-text-on: var(--color-text-on);
+
+    /**
+     * Icon semantic tokens — mirror text hierarchy.
+     * Icons pair with adjacent text; use the same token as surrounding copy.
+     */
+    --color-icon-default: var(--color-text-default);
+    --color-icon-subtle: var(--color-text-subtle);
+    --color-icon-subtlest: var(--color-text-muted);
+    --color-icon-disabled: var(--color-text-disabled);
+    --color-icon-inverse: var(--color-text-on);
+
     --ns-accent: var(--color-surface-brand);
     --ns-scrim: var(--color-overlay-scrim);
     --ns-surface-brand: var(--color-surface-brand);
     --ns-surface-inverse: var(--color-surface-inverse);
-    --ns-text-faint: var(--color-text-disabled);
     --ns-text-brand: var(--color-text-on);
     --ns-text-scrim: var(--color-text-default);
     --ns-text-overlay-scrim: var(--color-text-default);
@@ -110,236 +117,237 @@
     --ns-overlay-scrim: var(--color-overlay-scrim);
 
     /**
-     * Chrome opacity ramp — replaces the old `bg-white/5`, `border-white/10` etc. alpha
-     * ladder with tokens that follow the live theme text color.
+     * Chrome utility ramp (`--chrome-*`) — alpha ladders from body text. Legacy `--ns-*`
+     * names alias `--chrome-*` for existing classnames; prefer `border-hairline`, etc.
      */
-    --ns-hairline: color-mix(in oklch, var(--ns-text) 10%, transparent);
-    --ns-hairline-strong: color-mix(in oklch, var(--ns-text) 18%, transparent);
-    --ns-chip: color-mix(in oklch, var(--ns-text) 6%, transparent);
-    --ns-field: color-mix(in oklch, var(--ns-text) 4%, transparent);
-    --ns-overlay-soft: color-mix(in oklch, var(--ns-text) 3%, transparent);
-    --ns-overlay-strong: color-mix(in oklch, var(--ns-text) 15%, transparent);
-    --ns-toaster-bg: color-mix(
-      in oklch,
-      var(--ns-surface-overlay) 95%,
-      transparent
-    );
+    --chrome-hairline: color-mix(in oklch, var(--color-text-default) 10%, transparent);
+    --chrome-hairline-strong: color-mix(in oklch, var(--color-text-default) 18%, transparent);
+    --chrome-chip: color-mix(in oklch, var(--color-text-default) 6%, transparent);
+    --chrome-field: color-mix(in oklch, var(--color-text-default) 4%, transparent);
+    --chrome-overlay-soft: color-mix(in oklch, var(--color-text-default) 3%, transparent);
+    --chrome-overlay-strong: color-mix(in oklch, var(--color-text-default) 15%, transparent);
+    --chrome-toaster-bg: color-mix(in oklch, var(--color-surface-overlay) 95%, transparent);
+    --ns-hairline: var(--chrome-hairline);
+    --ns-hairline-strong: var(--chrome-hairline-strong);
+    --ns-chip: var(--chrome-chip);
+    --ns-field: var(--chrome-field);
+    --ns-overlay-soft: var(--chrome-overlay-soft);
+    --ns-overlay-strong: var(--chrome-overlay-strong);
+    --ns-toaster-bg: var(--chrome-toaster-bg);
 
     /**
      * Fixed support families — not part of the engine `[data-theme]` remapping.
      * These are the canonical OKLCH endpoints for the Amber (Light-theme indicator)
      * and Sky (Dark-theme indicator) families. Components never consume these raw;
-     * they read the `--ns-chrome-{family}-*` alias layer below, which precomputes
-     * every `color-mix(...)` in CSS (where commas are safe) so Tailwind arbitrary
-     * utilities stay comma-free. Extend with new families by adding a parallel
-     * pair of `--color-{family}-light|dark` tokens and matching chrome aliases.
+     * they read the `--chrome-{family}-*` mix grid below. Extend with new families by
+     * adding `--chrome-{name}-light|dark` endpoints and parallel mix aliases.
      */
-    --color-amber-light: oklch(90% 0.12 92);
-    --color-amber-dark: oklch(72% 0.17 70);
-    --color-sky-light: oklch(88% 0.08 230);
-    --color-sky-dark: oklch(70% 0.14 235);
+    --chrome-amber-light: oklch(90% 0.12 92);
+    --chrome-amber-dark: oklch(72% 0.17 70);
+    --chrome-sky-light: oklch(88% 0.08 230);
+    --chrome-sky-dark: oklch(70% 0.14 235);
 
     /* Chrome anchor — every mix is built off the darker endpoint for stable alpha. */
-    --ns-chrome-amber: var(--color-amber-dark);
-    --ns-chrome-sky: var(--color-sky-dark);
+    --chrome-amber: var(--chrome-amber-dark);
+    --chrome-sky: var(--chrome-sky-dark);
 
     /* Theme-aware readable text. Defaults target dark UI chrome (light variant reads
        on dark backgrounds); the `[data-theme="light"]` rule below flips to the dark
        variant so labels stay legible when the whole app is in light mode. */
-    --ns-chrome-amber-text: var(--color-amber-light);
-    --ns-chrome-sky-text: var(--color-sky-light);
+    --chrome-amber-text: var(--chrome-amber-light);
+    --chrome-sky-text: var(--chrome-sky-light);
 
     /* Amber borders, surfaces, rings, and fills. */
-    --ns-chrome-amber-border-faint: color-mix(
+    --chrome-amber-border-faint: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 15%,
+      var(--chrome-amber) 15%,
       transparent
     );
-    --ns-chrome-amber-border-soft: color-mix(
+    --chrome-amber-border-soft: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 20%,
+      var(--chrome-amber) 20%,
       transparent
     );
-    --ns-chrome-amber-border: color-mix(
+    --chrome-amber-border: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 25%,
+      var(--chrome-amber) 25%,
       transparent
     );
-    --ns-chrome-amber-border-medium: color-mix(
+    --chrome-amber-border-medium: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 30%,
+      var(--chrome-amber) 30%,
       transparent
     );
-    --ns-chrome-amber-border-strong: color-mix(
+    --chrome-amber-border-strong: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 35%,
+      var(--chrome-amber) 35%,
       transparent
     );
-    --ns-chrome-amber-border-bold: color-mix(
+    --chrome-amber-border-bold: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 40%,
+      var(--chrome-amber) 40%,
       transparent
     );
-    --ns-chrome-amber-surface-faint: color-mix(
+    --chrome-amber-surface-faint: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 5%,
+      var(--chrome-amber) 5%,
       transparent
     );
-    --ns-chrome-amber-surface: color-mix(
+    --chrome-amber-surface: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 6%,
+      var(--chrome-amber) 6%,
       transparent
     );
-    --ns-chrome-amber-surface-soft: color-mix(
+    --chrome-amber-surface-soft: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 7%,
+      var(--chrome-amber) 7%,
       transparent
     );
-    --ns-chrome-amber-surface-strong: color-mix(
+    --chrome-amber-surface-strong: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 8%,
+      var(--chrome-amber) 8%,
       transparent
     );
-    --ns-chrome-amber-surface-bold: color-mix(
+    --chrome-amber-surface-bold: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 10%,
+      var(--chrome-amber) 10%,
       transparent
     );
-    --ns-chrome-amber-pill: color-mix(
+    --chrome-amber-pill: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 15%,
+      var(--chrome-amber) 15%,
       transparent
     );
-    --ns-chrome-amber-hover: color-mix(
+    --chrome-amber-hover: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 20%,
+      var(--chrome-amber) 20%,
       transparent
     );
-    --ns-chrome-amber-fill: color-mix(
+    --chrome-amber-fill: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 80%,
+      var(--chrome-amber) 80%,
       transparent
     );
-    --ns-chrome-amber-fill-strong: color-mix(
+    --chrome-amber-fill-strong: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 90%,
+      var(--chrome-amber) 90%,
       transparent
     );
-    --ns-chrome-amber-ring-faint: color-mix(
+    --chrome-amber-ring-faint: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 12%,
+      var(--chrome-amber) 12%,
       transparent
     );
-    --ns-chrome-amber-ring-soft: color-mix(
+    --chrome-amber-ring-soft: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 15%,
+      var(--chrome-amber) 15%,
       transparent
     );
-    --ns-chrome-amber-ring: color-mix(
+    --chrome-amber-ring: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 20%,
+      var(--chrome-amber) 20%,
       transparent
     );
-    --ns-chrome-amber-ring-strong: color-mix(
+    --chrome-amber-ring-strong: color-mix(
       in oklch,
-      var(--ns-chrome-amber) 25%,
+      var(--chrome-amber) 25%,
       transparent
     );
 
     /* Sky borders, surfaces, rings, and fills. */
-    --ns-chrome-sky-border-faint: color-mix(
+    --chrome-sky-border-faint: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 15%,
+      var(--chrome-sky) 15%,
       transparent
     );
-    --ns-chrome-sky-border-soft: color-mix(
+    --chrome-sky-border-soft: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 20%,
+      var(--chrome-sky) 20%,
       transparent
     );
-    --ns-chrome-sky-border: color-mix(
+    --chrome-sky-border: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 25%,
+      var(--chrome-sky) 25%,
       transparent
     );
-    --ns-chrome-sky-border-medium: color-mix(
+    --chrome-sky-border-medium: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 30%,
+      var(--chrome-sky) 30%,
       transparent
     );
-    --ns-chrome-sky-border-strong: color-mix(
+    --chrome-sky-border-strong: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 35%,
+      var(--chrome-sky) 35%,
       transparent
     );
-    --ns-chrome-sky-border-bold: color-mix(
+    --chrome-sky-border-bold: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 40%,
+      var(--chrome-sky) 40%,
       transparent
     );
-    --ns-chrome-sky-surface-faint: color-mix(
+    --chrome-sky-surface-faint: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 5%,
+      var(--chrome-sky) 5%,
       transparent
     );
-    --ns-chrome-sky-surface: color-mix(
+    --chrome-sky-surface: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 6%,
+      var(--chrome-sky) 6%,
       transparent
     );
-    --ns-chrome-sky-surface-soft: color-mix(
+    --chrome-sky-surface-soft: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 7%,
+      var(--chrome-sky) 7%,
       transparent
     );
-    --ns-chrome-sky-surface-strong: color-mix(
+    --chrome-sky-surface-strong: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 8%,
+      var(--chrome-sky) 8%,
       transparent
     );
-    --ns-chrome-sky-surface-bold: color-mix(
+    --chrome-sky-surface-bold: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 10%,
+      var(--chrome-sky) 10%,
       transparent
     );
-    --ns-chrome-sky-pill: color-mix(
+    --chrome-sky-pill: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 15%,
+      var(--chrome-sky) 15%,
       transparent
     );
-    --ns-chrome-sky-hover: color-mix(
+    --chrome-sky-hover: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 20%,
+      var(--chrome-sky) 20%,
       transparent
     );
-    --ns-chrome-sky-fill: color-mix(
+    --chrome-sky-fill: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 80%,
+      var(--chrome-sky) 80%,
       transparent
     );
-    --ns-chrome-sky-fill-strong: color-mix(
+    --chrome-sky-fill-strong: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 90%,
+      var(--chrome-sky) 90%,
       transparent
     );
-    --ns-chrome-sky-ring-faint: color-mix(
+    --chrome-sky-ring-faint: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 12%,
+      var(--chrome-sky) 12%,
       transparent
     );
-    --ns-chrome-sky-ring-soft: color-mix(
+    --chrome-sky-ring-soft: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 15%,
+      var(--chrome-sky) 15%,
       transparent
     );
-    --ns-chrome-sky-ring: color-mix(
+    --chrome-sky-ring: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 20%,
+      var(--chrome-sky) 20%,
       transparent
     );
-    --ns-chrome-sky-ring-strong: color-mix(
+    --chrome-sky-ring-strong: color-mix(
       in oklch,
-      var(--ns-chrome-sky) 25%,
+      var(--chrome-sky) 25%,
       transparent
     );
   }
@@ -365,8 +373,8 @@
     --color-text-on: oklch(98.5% 0 none);
     --color-overlay-scrim: oklch(0% 0 0 / 0.6);
     --color-surface-inverse: oklch(16.15% 0 none);
-    --ns-chrome-amber-text: var(--color-amber-dark);
-    --ns-chrome-sky-text: var(--color-sky-dark);
+    --chrome-amber-text: var(--chrome-amber-dark);
+    --chrome-sky-text: var(--chrome-sky-dark);
   }
 
   /**
@@ -739,7 +747,7 @@
   outline: none;
 
   &::placeholder {
-    color: var(--ns-text-faint);
+    color: var(--color-text-disabled);
   }
 
   &:focus {
@@ -786,43 +794,42 @@
 }
 
 @theme inline {
-  /* `--ns-*` peers: tier-2 `--color-*` + chrome block from `chromeAliases.ts` / LiveThemeStyles. */
-  --text-color-default: var(--ns-text-default);
-  --text-color-subtle: var(--ns-text-subtle);
-  --text-color-muted: var(--ns-text-muted);
-  --text-color-faint: var(--ns-text-faint);
-  --text-color-on: var(--ns-text-on);
-  --text-color-disabled: var(--ns-text-disabled);
-  --text-color-brand: var(--ns-text-brand);
-  --text-color-scrim: var(--ns-text-scrim);
-  --text-color-overlay-scrim: var(--ns-text-overlay-scrim);
+  /* Tier-2 `--color-*` + `--chrome-*` mixers; `--ns-*` remains as legacy aliases in `@layer base`. */
+  --text-color-default: var(--color-text-default);
+  --text-color-subtle: var(--color-text-subtle);
+  --text-color-muted: var(--color-text-muted);
+  --text-color-on: var(--color-text-on);
+  --text-color-disabled: var(--color-text-disabled);
+  --text-color-brand: var(--color-text-on);
+  --text-color-scrim: var(--color-text-default);
+  --text-color-overlay-scrim: var(--color-text-default);
 
-  --background-color-sunken: var(--ns-surface-sunken);
-  --background-color-default: var(--ns-surface-default);
-  --background-color-subtle: var(--ns-surface-subtle);
-  --background-color-raised: var(--ns-surface-raised);
-  --background-color-overlay: var(--ns-surface-overlay);
-  --background-color-brand: var(--ns-surface-brand);
-  --background-color-scrim: var(--ns-scrim);
-  --background-color-overlay-scrim: var(--ns-overlay-scrim);
-  --background-color-inverse: var(--ns-surface-inverse);
-  --background-color-sidebar-primary: var(--ns-surface-brand);
-  --background-color-sidebar-border: var(--ns-hairline);
-  --bg-sidebar: var(--ns-app-bg);
+  --background-color-sunken: var(--color-surface-sunken);
+  --background-color-default: var(--color-surface-default);
+  --background-color-subtle: var(--color-surface-subtle);
+  --background-color-raised: var(--color-surface-raised);
+  --background-color-overlay: var(--color-surface-overlay);
+  --background-color-brand: var(--color-surface-brand);
+  --background-color-scrim: var(--color-overlay-scrim);
+  --background-color-overlay-scrim: var(--color-overlay-scrim);
+  --background-color-inverse: var(--color-surface-inverse);
+  --background-color-sidebar-primary: var(--color-surface-brand);
+  --background-color-sidebar-border: var(--chrome-hairline);
+  --bg-sidebar: var(--color-surface-sunken);
 
-  --border-color-default: var(--ns-border-default);
-  --border-color-focus: var(--ns-border-focus);
-  --border-color-subtle: var(--ns-border-subtle);
-  --border-color-brand: var(--ns-border-brand);
-  --border-color-scrim: var(--ns-border-scrim);
-  --border-color-overlay-scrim: var(--ns-border-overlay-scrim);
-  --border-color-inverse: var(--ns-border-inverse);
-  --border-color-hairline: var(--ns-hairline);
-  --border-color-hairline-strong: var(--ns-hairline-strong);
-  --border-color-chip: var(--ns-chip);
-  --border-color-field: var(--ns-field);
-  --border-color-overlay-soft: var(--ns-overlay-soft);
-  --border-color-overlay-strong: var(--ns-overlay-strong);
+  --border-color-default: var(--color-border-default);
+  --border-color-focus: var(--color-border-focus);
+  --border-color-subtle: var(--color-border-subtle);
+  --border-color-brand: var(--color-border-strong);
+  --border-color-scrim: var(--color-border-subtle);
+  --border-color-overlay-scrim: var(--color-border-default);
+  --border-color-inverse: var(--color-border-focus);
+  --border-color-hairline: var(--chrome-hairline);
+  --border-color-hairline-strong: var(--chrome-hairline-strong);
+  --border-color-chip: var(--chrome-chip);
+  --border-color-field: var(--chrome-field);
+  --border-color-overlay-soft: var(--chrome-overlay-soft);
+  --border-color-overlay-strong: var(--chrome-overlay-strong);
 
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
@@ -876,8 +883,8 @@
   --card-foreground: var(--color-text-default);
   --popover: var(--color-surface-overlay);
   --popover-foreground: var(--color-text-default);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: var(--color-surface-brand);
+  --primary-foreground: var(--color-text-on);
   --secondary: var(--color-surface-subtle);
   --secondary-foreground: var(--color-text-default);
   --muted: var(--color-surface-subtle);
@@ -896,8 +903,8 @@
   --radius: 0.625rem;
   --sidebar: var(--ns-app-bg);
   --sidebar-foreground: var(--ns-text-default);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--color-surface-brand);
+  --sidebar-primary-foreground: var(--color-text-on);
   --sidebar-accent: var(--color-surface-subtle);
   --sidebar-accent-foreground: var(--color-text-default);
   --sidebar-border: var(--color-border-subtle);
@@ -905,17 +912,17 @@
 }
 
 [data-theme='dark'] {
-  /* Surface / border / text shadcn keys inherit neutral tier-2 from `:root` aliases above. */
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  /* Neutral tier-2 inherits from `:root` / live tokens; keep destructive + charts as static accents. */
+  --primary: var(--color-surface-brand);
+  --primary-foreground: var(--color-text-on);
   --destructive: oklch(0.704 0.191 22.216);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: var(--ns-surface-default);
-  --sidebar-foreground: var(--ns-text-default);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar: var(--color-surface-default);
+  --sidebar-foreground: var(--color-text-default);
+  --sidebar-primary: var(--color-surface-brand);
+  --sidebar-primary-foreground: var(--color-text-on);
 }

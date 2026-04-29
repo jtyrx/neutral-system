@@ -8,63 +8,106 @@ import {
   exportCsv,
   exportJson,
   exportTailwindV4ThemeInline,
-  isEmphasisToken,
-  isPreviewOnlyBrandToken,
 } from '@/lib/neutral-engine/exportFormats'
-import type {GlobalScaleConfig, GlobalSwatch, SystemMappingConfig, SystemToken} from '@/lib/neutral-engine/types'
+import {tokensForExportChannel} from '@/lib/neutral-engine/exportTokens'
+import type {
+  AlphaNeutralConfig,
+  ArchitectureRamps,
+  GlobalScaleConfig,
+  NeutralArchitectureMode,
+  SystemMappingConfig,
+  SystemToken,
+} from '@/lib/neutral-engine/types'
 
 type Props = {
-  globalConfig: GlobalScaleConfig
+  architecture: NeutralArchitectureMode
+  architectureRamps: ArchitectureRamps
+  globalScale: GlobalScaleConfig
+  lightScale: GlobalScaleConfig
+  darkScale: GlobalScaleConfig
   systemConfig: SystemMappingConfig
-  global: GlobalSwatch[]
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
+  alphaConfig: AlphaNeutralConfig
 }
 
 type Tab = 'json' | 'css' | 'csv' | 'tailwind'
 
 function ExportSectionInner({
-  globalConfig,
+  architecture,
+  architectureRamps,
+  globalScale,
+  lightScale,
+  darkScale,
   systemConfig,
-  global,
   lightTokens,
   darkTokens,
+  alphaConfig,
 }: Props) {
   const [tab, setTab] = useState<Tab>('json')
   const [copied, setCopied] = useState(false)
 
-  // Brand: strip from all downloadable payloads. Emphasis: strip from token JSON only.
+  const exportLightJson = useMemo(
+    () => tokensForExportChannel(lightTokens, 'json'),
+    [lightTokens],
+  )
+  const exportDarkJson = useMemo(
+    () => tokensForExportChannel(darkTokens, 'json'),
+    [darkTokens],
+  )
   const exportLight = useMemo(
-    () => lightTokens.filter((t) => !isPreviewOnlyBrandToken(t)),
+    () => tokensForExportChannel(lightTokens, 'css'),
     [lightTokens],
   )
   const exportDark = useMemo(
-    () => darkTokens.filter((t) => !isPreviewOnlyBrandToken(t)),
+    () => tokensForExportChannel(darkTokens, 'css'),
     [darkTokens],
   )
-  const exportLightJson = useMemo(
-    () => exportLight.filter((t) => !isEmphasisToken(t)),
-    [exportLight],
-  )
-  const exportDarkJson = useMemo(
-    () => exportDark.filter((t) => !isEmphasisToken(t)),
-    [exportDark],
+  const exportLightTailwind = useMemo(
+    () => tokensForExportChannel(lightTokens, 'tailwind'),
+    [lightTokens],
   )
 
   const text = useMemo(() => {
     switch (tab) {
       case 'json':
-        return exportJson({global, light: exportLightJson, dark: exportDarkJson})
+        return exportJson({
+          architecture,
+          global:
+            architecture === 'simple' && architectureRamps.architecture === 'simple'
+              ? architectureRamps.global
+              : undefined,
+          lightRamp:
+            architecture === 'advanced' && architectureRamps.architecture === 'advanced'
+              ? architectureRamps.light
+              : undefined,
+          darkRamp:
+            architecture === 'advanced' && architectureRamps.architecture === 'advanced'
+              ? architectureRamps.dark
+              : undefined,
+          light: exportLightJson,
+          dark: exportDarkJson,
+        })
       case 'css':
-        return exportCssVariables({global, light: exportLight, dark: exportDark})
+        return exportCssVariables({
+          architecture,
+          ramps: architectureRamps,
+          light: exportLight,
+          dark: exportDark,
+          alphaConfig,
+        })
       case 'csv':
-        return exportCsv(global)
+        return exportCsv(architectureRamps)
       case 'tailwind':
-        return exportTailwindV4ThemeInline({global, light: exportLight})
+        return exportTailwindV4ThemeInline({
+          architecture,
+          ramps: architectureRamps,
+          light: exportLightTailwind,
+        })
       default:
         return ''
     }
-  }, [tab, global, exportLight, exportDark, exportLightJson, exportDarkJson])
+  }, [tab, architecture, architectureRamps, exportLight, exportDark, exportLightJson, exportDarkJson, exportLightTailwind, alphaConfig])
 
   const copy = useCallback(async () => {
     try {
@@ -90,9 +133,19 @@ function ExportSectionInner({
   )
 
   const downloadPreset = useCallback(() => {
-    const body = JSON.stringify({globalConfig, systemConfig}, null, 2)
+    const body = JSON.stringify(
+      {
+        architecture,
+        globalScale,
+        lightScale,
+        darkScale,
+        systemConfig,
+      },
+      null,
+      2,
+    )
     download('neutral-system-preset.json', body, 'application/json')
-  }, [globalConfig, systemConfig, download])
+  }, [architecture, globalScale, lightScale, darkScale, systemConfig, download])
 
   const loadPreset = useCallback(
     (file: File) => {
@@ -100,16 +153,32 @@ function ExportSectionInner({
       reader.onload = () => {
         try {
           const data = JSON.parse(String(reader.result)) as {
+            architecture?: NeutralArchitectureMode
             globalConfig?: GlobalScaleConfig
+            globalScale?: GlobalScaleConfig
+            lightScale?: GlobalScaleConfig
+            darkScale?: GlobalScaleConfig
             systemConfig?: SystemMappingConfig
           }
-          if (data.globalConfig && data.systemConfig) {
-            window.dispatchEvent(
-              new CustomEvent('neutral-system:load-preset', {
-                detail: {globalConfig: data.globalConfig, systemConfig: data.systemConfig},
-              }),
-            )
+          if (!data.systemConfig) return
+
+          const detail: {
+            architecture?: NeutralArchitectureMode
+            globalConfig?: GlobalScaleConfig
+            globalScale?: GlobalScaleConfig
+            lightScale?: GlobalScaleConfig
+            darkScale?: GlobalScaleConfig
+            systemConfig: SystemMappingConfig
+          } = {
+            systemConfig: data.systemConfig,
           }
+          if (data.architecture != null) detail.architecture = data.architecture
+          if (data.globalScale != null) detail.globalScale = data.globalScale
+          if (data.lightScale != null) detail.lightScale = data.lightScale
+          if (data.darkScale != null) detail.darkScale = data.darkScale
+          if (data.globalConfig != null && data.globalScale == null) detail.globalConfig = data.globalConfig
+
+          window.dispatchEvent(new CustomEvent('neutral-system:load-preset', {detail}))
         } catch {
           /* ignore */
         }
@@ -126,7 +195,7 @@ function ExportSectionInner({
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-(--ns-text)">Tokens</h2>
         <p className="mt-2 max-w-2xl text-sm text-(--ns-text-muted)">
           JSON bundles tier-1 primitives + light/dark semantic roles (same shape as before). CSS uses{' '}
-          <span className="font-mono">--color-neutral-*</span> primitives and{' '}
+          <span className="font-mono">--color-neutral-*</span> tier‑1 primitives (literal OKLCH) and{' '}
           <span className="font-mono">--color-surface-default</span>,{' '}
           <span className="font-mono">--color-text-default</span>,{' '}
           <span className="font-mono">--color-border-focus</span>, etc. for Tailwind-style utilities.

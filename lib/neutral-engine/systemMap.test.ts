@@ -3,9 +3,43 @@ import {expect, test} from 'vitest'
 import {
   clampSystemMappingToLadderLength,
   DEFAULT_SYSTEM_MAPPING,
+  migrateSystemMappingConfig,
   pickDarkIndices,
   previewResolvedRoleIndices,
+  resolveDarkTextStartOffset,
+  resolveLightTextStartIndex,
 } from '@/lib/neutral-engine'
+
+test('dynamic text fitting preserves legacy 41-step light/dark text seeds', () => {
+  const cfg = migrateSystemMappingConfig({})
+  expect(resolveLightTextStartIndex(41, 4, 2)).toBe(34)
+  expect(resolveDarkTextStartOffset(41, 4, 2)).toBe(16)
+
+  const clamped = clampSystemMappingToLadderLength(41, cfg)
+  expect(clamped.textStart).toBe(34)
+  expect(clamped.darkTextStart).toBe(15)
+  expect(clamped.textCount).toBe(4)
+  expect(clamped.darkTextCount).toBe(4)
+
+  const lightText = previewResolvedRoleIndices(clamped, 41, 'light').text.slice(0, 4)
+  const darkText = previewResolvedRoleIndices(clamped, 41, 'darkElevated').text.slice(0, 4)
+  expect(lightText).toEqual([40, 38, 36, 34])
+  expect(darkText).toEqual([1, 3, 5, 7])
+})
+
+test('16-step ladder edge-fits text without duplicate clamped picks', () => {
+  const cfg = migrateSystemMappingConfig({})
+  const clamped = clampSystemMappingToLadderLength(16, cfg)
+  expect(clamped.textStart).toBe(9)
+  expect(clamped.darkTextStart).toBe(resolveDarkTextStartOffset(16, clamped.darkTextCount, 2))
+
+  const lightPickRaw = previewResolvedRoleIndices(clamped, 16, 'light').text.slice(0, 4)
+  expect(lightPickRaw).toEqual([15, 13, 11, 9])
+  expect(new Set(lightPickRaw).size).toBe(lightPickRaw.length)
+
+  const darkPickRaw = previewResolvedRoleIndices(clamped, 16, 'darkElevated').text.slice(0, 4)
+  expect(new Set(darkPickRaw).size).toBe(darkPickRaw.length)
+})
 
 test('pickDarkIndices starts dark surfaces at the dark edge when start offset is 0', () => {
   expect(pickDarkIndices(0, 5, 1, 41)).toEqual([40, 39, 38, 37, 36])

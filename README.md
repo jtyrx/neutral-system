@@ -22,7 +22,7 @@ Neutral System Builder is a single-page workbench that generates a full neutral 
 
 The product models four layers:
 
-1. **A primitive OKLCH ramp** — the numeric source of truth (`--color-neutral-*`).
+1. **A primitive OKLCH ramp** — the numeric source of truth (`--color-neutral-*` tier‑1 variables).
 2. **A semantic token layer** — `surface.default`, `text.muted`, `border.focus`, and so on.
 3. **Theme resolution** — the same roles resolve independently for light and dark elevated.
 4. **A live preview workbench** — actual UI compositions rendering against the tokens as you build.
@@ -66,7 +66,7 @@ Both themes render side-by-side in realistic UI blocks — surfaces at each elev
 
 Once the system looks right, export it as:
 
-- **Tailwind v4 `@theme inline`** — primitives as `--color-neutral-*`, semantics as `--color-surface-default`, `--color-text-on`, `--color-border-focus`, runtime-swappable via `[data-theme="light"]` / `[data-theme="dark"]`.
+- **Tailwind v4 `@theme inline`** — primitives as `--color-neutral-*`, semantics as `--color-surface-default`, `--color-text-on`, `--color-border-focus`, chrome mixers as `--chrome-*`, runtime-swappable via `[data-theme="light"]` / `[data-theme="dark"]`.
 - **CSS custom properties** — same variables without the `@theme` wrapper.
 - **JSON** — for design tools, documentation, or programmatic consumers.
 - **CSV** — for spreadsheets, audits, and anyone who needs to diff a system across versions.
@@ -81,7 +81,7 @@ A few ideas that the whole product rests on:
 
 ### Primitive vs semantic
 
-Primitives are **values** — a specific OKLCH color at a specific ramp index. Semantics are **decisions** — "this is the page background; this is body text." The export keeps both: tier-1 `--color-neutral-*` for direct access, tier-2 `--color-surface-default` / `--color-text-default` for the tokens consumers should actually read from. The contract between designers and engineers lives at tier-2.
+Primitives are **values** — a specific OKLCH color at a specific ramp index. Semantics are **decisions** — "this is the page background; this is body text." The export keeps both: tier-1 `--color-neutral-*` for direct ramp access, tier-2 `--color-surface-default` / `--color-text-default` for the tokens consumers should actually read from. The contract between designers and engineers lives at tier-2.
 
 ### Light vs dark-elevated
 

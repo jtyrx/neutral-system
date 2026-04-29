@@ -12,12 +12,12 @@ type Props = {
 
 const ACCENT: Record<Theme, {dot: string; text: string}> = {
   light: {
-    dot: 'bg-[var(--ns-chrome-amber-fill)]',
-    text: 'text-[var(--ns-chrome-amber-text)]',
+    dot: 'bg-[var(--chrome-amber-fill)]',
+    text: 'text-[var(--chrome-amber-text)]',
   },
   dark: {
-    dot: 'bg-[var(--ns-chrome-sky-fill)]',
-    text: 'text-[var(--ns-chrome-sky-text)]',
+    dot: 'bg-[var(--chrome-sky-fill)]',
+    text: 'text-[var(--chrome-sky-text)]',
   },
 }
 

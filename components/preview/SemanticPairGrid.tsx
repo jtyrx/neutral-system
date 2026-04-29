@@ -46,7 +46,8 @@ function tokensForPairSection(view: TokenView, section: PairSection): SystemToke
 
 type PairRowProps = {
   pair: {light: SystemToken; dark: SystemToken}
-  global: GlobalSwatch[]
+  globalLight: GlobalSwatch[]
+  globalDark: GlobalSwatch[]
   emphasis: PairEmphasis
   /** Only first row per source index shows the filled swatch (per column). */
   showLightSwatch: boolean
@@ -75,7 +76,7 @@ function SwatchOrSamePrimitive({
   }
   return (
     <span
-      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-faint"
+      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-disabled"
       title={`Same primitive as above · ${title}`}
       aria-label="Same color swatch as earlier row"
     >
@@ -86,25 +87,26 @@ function SwatchOrSamePrimitive({
 
 const PairRow = memo(function PairRow({
   pair,
-  global,
+  globalLight,
+  globalDark,
   emphasis,
   showLightSwatch,
   showDarkSwatch,
 }: PairRowProps) {
   const {light: lt, dark: dt} = pair
-  const swL = global[lt.sourceGlobalIndex]
-  const swD = global[dt.sourceGlobalIndex]
+  const swL = globalLight[lt.sourceGlobalIndex]
+  const swD = globalDark[dt.sourceGlobalIndex]
 
   const lightMuted = emphasis === 'dark'
   const darkMuted = emphasis === 'light'
 
   const lightCard =
     emphasis === 'light'
-      ? 'border-[var(--ns-chrome-amber-border-strong)] bg-[var(--ns-chrome-amber-surface-strong)] ring-1 ring-[var(--ns-chrome-amber-ring)]'
+      ? 'border-[var(--chrome-amber-border-strong)] bg-[var(--chrome-amber-surface-strong)] ring-1 ring-[var(--chrome-amber-ring)]'
       : 'border-hairline bg-[var(--ns-surface-raised)]'
   const darkCard =
     emphasis === 'dark'
-      ? 'border-[var(--ns-chrome-sky-border-strong)] bg-[var(--ns-chrome-sky-surface-strong)] ring-1 ring-[var(--ns-chrome-sky-ring)]'
+      ? 'border-[var(--chrome-sky-border-strong)] bg-[var(--chrome-sky-surface-strong)] ring-1 ring-[var(--chrome-sky-ring)]'
       : 'border-hairline bg-[var(--ns-surface-raised)]'
 
   return (
@@ -121,7 +123,7 @@ const PairRow = memo(function PairRow({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-default">{humanizeRole(lt.role)}</p>
           <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{lt.name}</p>
-          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-faint">idx {lt.sourceGlobalIndex}</p>
+          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {lt.sourceGlobalIndex}</p>
         </div>
       </div>
       <div
@@ -136,7 +138,7 @@ const PairRow = memo(function PairRow({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-default">{humanizeRole(dt.role)}</p>
           <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{dt.name}</p>
-          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-faint">idx {dt.sourceGlobalIndex}</p>
+          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {dt.sourceGlobalIndex}</p>
         </div>
       </div>
     </div>
@@ -146,7 +148,8 @@ const PairRow = memo(function PairRow({
 type Props = {
   lightTokenView: TokenView
   darkTokenView: TokenView
-  global: GlobalSwatch[]
+  globalLight: GlobalSwatch[]
+  globalDark: GlobalSwatch[]
   /** Optional notes under each layer group (e.g. text ramp) and the Inverse category. */
   groupHints?: PairedRoleGroupHints
   /** Section order; default separates inverse roles into their own category. */
@@ -161,7 +164,8 @@ type Props = {
 function SemanticPairGridInner({
   lightTokenView,
   darkTokenView,
-  global,
+  globalLight,
+  globalDark,
   groupHints,
   pairSections = DEFAULT_PAIR_SECTIONS,
   pairEmphasis = 'both',
@@ -199,12 +203,12 @@ function SemanticPairGridInner({
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-[0.65rem] text-faint">{hint}</p> : null}
+              {hint ? <p className="mt-1 text-[0.65rem] text-disabled">{hint}</p> : null}
             </div>
             <div className="space-y-3">
               <div className="mb-1 hidden gap-4 sm:grid sm:grid-cols-2">
-                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-amber-text)">Light</p>
-                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-sky-text)">
+                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">Light</p>
+                <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                   Dark elevated
                 </p>
               </div>
@@ -212,7 +216,8 @@ function SemanticPairGridInner({
                 <PairRow
                   key={pair.light.id}
                   pair={pair}
-                  global={global}
+                  globalLight={globalLight}
+                  globalDark={globalDark}
                   emphasis={pairEmphasis}
                   showLightSwatch={firstLightIdx.get(pair.light.sourceGlobalIndex) === pairIndex}
                   showDarkSwatch={firstDarkIdx.get(pair.dark.sourceGlobalIndex) === pairIndex}
@@ -230,9 +235,9 @@ export const SemanticPairGrid = memo(SemanticPairGridInner)
 
 const singleAccentClass = (accent?: 'amber' | 'sky') =>
   accent === 'amber'
-    ? 'border-[var(--ns-chrome-amber-border-medium)] bg-[var(--ns-chrome-amber-surface-soft)] ring-1 ring-[var(--ns-chrome-amber-ring-soft)]'
+    ? 'border-[var(--chrome-amber-border-medium)] bg-[var(--chrome-amber-surface-soft)] ring-1 ring-[var(--chrome-amber-ring-soft)]'
     : accent === 'sky'
-      ? 'border-[var(--ns-chrome-sky-border-medium)] bg-[var(--ns-chrome-sky-surface-soft)] ring-1 ring-[var(--ns-chrome-sky-ring-soft)]'
+      ? 'border-[var(--chrome-sky-border-medium)] bg-[var(--chrome-sky-surface-soft)] ring-1 ring-[var(--chrome-sky-ring-soft)]'
       : 'border-hairline bg-[var(--ns-surface-raised)]'
 
 const SingleTokenRow = memo(function SingleTokenRow({
@@ -257,7 +262,7 @@ const SingleTokenRow = memo(function SingleTokenRow({
         />
       ) : (
         <span
-          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-faint"
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-disabled"
           title={`Same primitive as above · idx ${t.sourceGlobalIndex}`}
           aria-label="Same color swatch as earlier row"
         >
@@ -267,7 +272,7 @@ const SingleTokenRow = memo(function SingleTokenRow({
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-default">{humanizeRole(t.role)}</p>
         <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{t.name}</p>
-        <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-faint">idx {t.sourceGlobalIndex}</p>
+        <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {t.sourceGlobalIndex}</p>
       </div>
     </div>
   )
@@ -317,7 +322,7 @@ function SemanticSingleThemeGridInner({
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-[0.65rem] text-faint">{hint}</p> : null}
+              {hint ? <p className="mt-1 text-[0.65rem] text-disabled">{hint}</p> : null}
             </div>
             <div className="space-y-3">
               {toks.map((t, rowIndex) => (

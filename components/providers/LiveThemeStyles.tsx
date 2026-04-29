@@ -4,39 +4,35 @@ import {useLayoutEffect} from 'react'
 
 import {getLastPreset, presetDebugEnabled} from '@/lib/debug/presetDebug'
 import {exportCssVariables} from '@/lib/neutral-engine/exportFormats'
-import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
+import type {AlphaNeutralConfig, ArchitectureRamps, NeutralArchitectureMode, SystemToken} from '@/lib/neutral-engine/types'
 
 const STYLE_NODE_ID = 'ns-live-tokens'
 
-/**
- * Mounts the engine's resolved `--color-*` variables as a single `<style id="ns-live-tokens">`
- * in `document.head`.
- *
- * This is the bridge between the workbench inputs (Scale / Custom Brand / Contrast / Theme Table)
- * and everything that reads the alias layer (`--ns-*` chrome, previews, Tailwind `bg-*`/`text-*`).
- *
- * Scheduling: `exportCssVariables` writes via `useLayoutEffect`. `useEffect` is flushed via
- *   `MessageChannel`/`setTimeout(0)`, both of which Chromium clamps to 1 Hz when the
- *   browser window is unfocused — that turns a <5ms engine update into a 1000–1700ms
- *   visible stall. `useLayoutEffect` runs synchronously in the commit phase before the
- *   browser yields and is NOT subject to that throttle, so preset clicks paint in the
- *   next frame regardless of focus state.
- */
 export function LiveThemeStyles({
-  global,
+  ramps,
+  architecture,
   lightTokens,
   darkTokens,
+  alphaConfig,
 }: {
-  global: GlobalSwatch[]
+  ramps: ArchitectureRamps
+  architecture: NeutralArchitectureMode
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
+  alphaConfig?: AlphaNeutralConfig
 }) {
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return
     const debug = presetDebugEnabled()
     const last = debug ? getLastPreset() : undefined
     const t0 = debug ? performance.now() : 0
-    const css = exportCssVariables({global, light: lightTokens, dark: darkTokens})
+    const css = exportCssVariables({
+      architecture,
+      ramps,
+      light: lightTokens,
+      dark: darkTokens,
+      alphaConfig,
+    })
     let node = document.getElementById(STYLE_NODE_ID) as HTMLStyleElement | null
     if (!node) {
       node = document.createElement('style')
@@ -54,7 +50,7 @@ export function LiveThemeStyles({
         JSON.stringify({ms: Number(dt.toFixed(2)), changed, cssBytes: css.length, kind: last.kind}),
       )
     }
-  }, [global, lightTokens, darkTokens])
+  }, [architecture, ramps, lightTokens, darkTokens, alphaConfig])
 
   return null
 }

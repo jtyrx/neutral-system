@@ -15,6 +15,7 @@ import {
   textRoleForIndex,
 } from '@/lib/neutral-engine/semanticNaming'
 import type {
+  ArchitectureRamps,
   GlobalSwatch,
   SystemMappingConfig,
   SystemRole,
@@ -43,6 +44,10 @@ function clampStepInterval(v: number): number {
 /**
  * Pins ladder-bound fields when the global step count changes so starts and dark segment length
  * stay within valid UI/engine bounds. Role starts use [0, n−1]; dark segment length [3, n].
+ *
+ * Text starts (`textStart`, `darkTextStart`) and effective text counts are **edge-fitted** from
+ * ladder length, count, and text step interval so short ramps (e.g. 16 steps) avoid repeated
+ * clamped indices. User starts are kept only when they still produce distinct text picks.
  */
 export function clampSystemMappingToLadderLength(
   n: number,
@@ -50,29 +55,55 @@ export function clampSystemMappingToLadderLength(
 ): SystemMappingConfig {
   const ladderN = Math.max(2, Math.floor(n))
   const maxStart = ladderN - 1
+
+  const lightTextStepRaw = clampStepInterval(cfg.lightTextStepInterval)
+  const darkTextStepRaw = clampStepInterval(cfg.darkTextStepInterval)
+  const effLightText = effectiveStepFromInterval(lightTextStepRaw, cfg.contrastDistance)
+  const effDarkText = effectiveStepFromInterval(darkTextStepRaw, cfg.contrastDistance)
+
+  let textCountFit = clampStandardCount(cfg.textCount, TEXT_STANDARD_SLOT_COUNT)
+  textCountFit = fitStandardTextCountForLightLadder(ladderN, effLightText, textCountFit)
+
+  let darkTextCountFit = clampStandardCount(cfg.darkTextCount, TEXT_STANDARD_SLOT_COUNT)
+  darkTextCountFit = fitStandardTextCountForDarkLadder(ladderN, effDarkText, darkTextCountFit)
+
+  let textStart = clampIntToRange(cfg.textStart, 0, maxStart)
+  if (!lightTextRunDistinct(textStart, ladderN, textCountFit, effLightText)) {
+    textStart = resolveLightTextStartIndex(ladderN, textCountFit, effLightText)
+  }
+
+  let darkTextStart = clampIntToRange(cfg.darkTextStart, 0, maxStart)
+  if (!darkTextRunDistinct(darkTextStart, ladderN, darkTextCountFit, effDarkText)) {
+    darkTextStart = resolveDarkTextStartOffset(ladderN, darkTextCountFit, effDarkText)
+  }
+
   const next: SystemMappingConfig = {
     ...cfg,
     fillStart: clampIntToRange(cfg.fillStart, 0, maxStart),
     strokeStart: clampIntToRange(cfg.strokeStart, 0, maxStart),
-    textStart: clampIntToRange(cfg.textStart, 0, maxStart),
+    textStart,
+    textCount: textCountFit,
     darkFillStart: clampDarkFillStart(cfg.darkFillStart, maxStart),
     darkStrokeStart: clampIntToRange(cfg.darkStrokeStart, 0, maxStart),
-    darkTextStart: clampIntToRange(cfg.darkTextStart, 0, maxStart),
+    darkTextStart,
+    darkTextCount: darkTextCountFit,
     darkSegmentLength: clampIntToRange(cfg.darkSegmentLength, 3, ladderN),
     lightFillStepInterval: clampStepInterval(cfg.lightFillStepInterval),
     lightStrokeStepInterval: clampStepInterval(cfg.lightStrokeStepInterval),
-    lightTextStepInterval: clampStepInterval(cfg.lightTextStepInterval),
+    lightTextStepInterval: lightTextStepRaw,
     darkFillStepInterval: clampStepInterval(cfg.darkFillStepInterval),
     darkStrokeStepInterval: clampStepInterval(cfg.darkStrokeStepInterval),
-    darkTextStepInterval: clampStepInterval(cfg.darkTextStepInterval),
+    darkTextStepInterval: darkTextStepRaw,
   }
   if (
     next.fillStart === cfg.fillStart &&
     next.strokeStart === cfg.strokeStart &&
     next.textStart === cfg.textStart &&
+    next.textCount === cfg.textCount &&
     next.darkFillStart === cfg.darkFillStart &&
     next.darkStrokeStart === cfg.darkStrokeStart &&
     next.darkTextStart === cfg.darkTextStart &&
+    next.darkTextCount === cfg.darkTextCount &&
     next.darkSegmentLength === cfg.darkSegmentLength &&
     next.lightFillStepInterval === cfg.lightFillStepInterval &&
     next.lightStrokeStepInterval === cfg.lightStrokeStepInterval &&
@@ -268,6 +299,71 @@ export function pickDarkStrokeTextIndices(
     out.push(idx)
   }
   return out
+}
+
+/**
+ * Edge-fit light text start: anchor the run so the strongest readable tone targets the dark end
+ * (`n−1`) when count and step allow.
+ */
+export function resolveLightTextStartIndex(n: number, count: number, step: number): number {
+  const ladderN = Math.max(2, Math.floor(n))
+  const c = Math.max(1, Math.round(count))
+  const s = Math.max(1, Math.round(step))
+  return Math.max(0, ladderN - 1 - (c - 1) * s)
+}
+
+function lightTextRunDistinct(start: number, n: number, count: number, step: number): boolean {
+  const picks = pickLightIndices(start, count, step, n)
+  return new Set(picks).size === picks.length
+}
+
+/** Reduce standard text slots until picks stay pairwise distinct after clamping. */
+export function fitStandardTextCountForLightLadder(
+  n: number,
+  step: number,
+  desired: number,
+): number {
+  const ladderN = Math.max(2, Math.floor(n))
+  const capped = clampStandardCount(desired, TEXT_STANDARD_SLOT_COUNT)
+  for (let c = capped; c >= 1; c--) {
+    const start = resolveLightTextStartIndex(ladderN, c, step)
+    if (lightTextRunDistinct(start, ladderN, c, step)) return c
+  }
+  return 1
+}
+
+function darkTextRunDistinct(offset: number, n: number, count: number, step: number): boolean {
+  const picks = pickDarkStrokeTextIndices(offset, count, step, n)
+  return new Set(picks).size === picks.length
+}
+
+/**
+ * Dark elevated: pick the **largest** start offset where text stroke picks stay distinct
+ * (edge toward the light end). Snap target when stored offsets collide after ladder shrink.
+ */
+export function resolveDarkTextStartOffset(n: number, count: number, step: number): number {
+  const ladderN = Math.max(2, Math.floor(n))
+  const maxStart = ladderN - 1
+  let best = 0
+  for (let start = 0; start <= maxStart; start++) {
+    if (darkTextRunDistinct(start, ladderN, count, step)) best = start
+  }
+  return best
+}
+
+export function fitStandardTextCountForDarkLadder(
+  n: number,
+  step: number,
+  desired: number,
+): number {
+  const ladderN = Math.max(2, Math.floor(n))
+  const capped = clampStandardCount(desired, TEXT_STANDARD_SLOT_COUNT)
+  for (let c = capped; c >= 1; c--) {
+    for (let start = 0; start <= ladderN - 1; start++) {
+      if (darkTextRunDistinct(start, ladderN, c, step)) return c
+    }
+  }
+  return 1
 }
 
 /**
@@ -507,12 +603,18 @@ export function previewResolvedRoleIndices(
   }
 }
 
-/** Tokens for both light and dark for export / comparison. */
+/** Tokens for both light and dark for export / comparison — each theme consumes its own ramp when {@link ArchitectureRamps} is `advanced`. */
 export function deriveAllThemeTokens(
-  global: GlobalSwatch[],
+  ramps: ArchitectureRamps,
   base: SystemMappingConfig,
 ): {light: SystemToken[]; dark: SystemToken[]} {
-  const light = deriveSystemTokens(global, {...base, themeMode: 'light'})
-  const dark = deriveSystemTokens(global, {...base, themeMode: 'darkElevated'})
+  if (ramps.architecture === 'simple') {
+    const g = ramps.global
+    const light = deriveSystemTokens(g, {...base, themeMode: 'light'})
+    const dark = deriveSystemTokens(g, {...base, themeMode: 'darkElevated'})
+    return {light, dark}
+  }
+  const light = deriveSystemTokens(ramps.light, {...base, themeMode: 'light'})
+  const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'})
   return {light, dark}
 }

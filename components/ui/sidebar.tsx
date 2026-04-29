@@ -88,6 +88,8 @@ function SidebarProvider({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
+  closeOnLoad = true,
+  closeOnLoadDelayMs = 500,
   className,
   style,
   children,
@@ -96,6 +98,8 @@ function SidebarProvider({
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  closeOnLoad?: boolean
+  closeOnLoadDelayMs?: number
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
@@ -105,7 +109,9 @@ function SidebarProvider({
    * Persisted width is applied after paint (double rAF) so `transition-[width]` can run
    * from default → stored on reload.
    */
-  const [width, setWidthState] = React.useState<number>(SIDEBAR_WIDTH_DEFAULT_PX)
+  const [width, setWidthState] = React.useState<number>(
+    SIDEBAR_WIDTH_DEFAULT_PX,
+  )
   const [resizing, setResizing] = React.useState(false)
 
   React.useEffect(() => {
@@ -168,6 +174,20 @@ function SidebarProvider({
     },
     [setOpenProp, open],
   )
+
+  const setOpenRef = React.useRef(setOpen)
+  React.useLayoutEffect(() => {
+    setOpenRef.current = setOpen
+  })
+
+  React.useEffect(() => {
+    if (!closeOnLoad) return
+    const id = window.setTimeout(
+      () => setOpenRef.current(false),
+      closeOnLoadDelayMs,
+    )
+    return () => clearTimeout(id)
+  }, [closeOnLoad, closeOnLoadDelayMs])
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
@@ -353,7 +373,7 @@ function Sidebar({
           'group-data-[resizing=true]/sidebar-wrapper:transition-none',
           // Adjust the padding for floating and inset variants.
           variant === 'floating' || variant === 'inset'
-            ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
+            ? 'py-2 ps-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
             : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
           className,
         )}
@@ -363,7 +383,11 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+          className={cn(
+            'border-r border-hairline',
+            'flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border',
+            className,
+          )}
         >
           {children}
         </div>
@@ -697,7 +721,9 @@ function SidebarGroupLabel({
   const {children, ...rest} = props
   return useRender({
     defaultTagName: 'div',
-    render: asChild ? React.Children.only(children as React.ReactElement) : undefined,
+    render: asChild
+      ? React.Children.only(children as React.ReactElement)
+      : undefined,
     props: {
       ...rest,
       ...(!asChild ? {children} : {}),
@@ -719,7 +745,9 @@ function SidebarGroupAction({
   const {children, ...rest} = props
   return useRender({
     defaultTagName: 'button',
-    render: asChild ? React.Children.only(children as React.ReactElement) : undefined,
+    render: asChild
+      ? React.Children.only(children as React.ReactElement)
+      : undefined,
     props: {
       ...rest,
       ...(!asChild ? {children} : {}),
@@ -853,7 +881,9 @@ function SidebarMenuAction({
   const {children, ...rest} = props
   return useRender({
     defaultTagName: 'button',
-    render: asChild ? React.Children.only(children as React.ReactElement) : undefined,
+    render: asChild
+      ? React.Children.only(children as React.ReactElement)
+      : undefined,
     props: {
       ...rest,
       ...(!asChild ? {children} : {}),
@@ -960,7 +990,9 @@ function SidebarMenuSubButton({
   const {children, ...rest} = props
   return useRender({
     defaultTagName: 'a',
-    render: asChild ? React.Children.only(children as React.ReactElement) : undefined,
+    render: asChild
+      ? React.Children.only(children as React.ReactElement)
+      : undefined,
     props: {
       ...rest,
       ...(!asChild ? {children} : {}),

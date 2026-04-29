@@ -159,7 +159,7 @@ function AdditionalInfoPreviewCard({
           <button
             type="button"
             className={cn(
-              'inline cursor-pointer border-0 bg-transparent p-0 text-xs font-medium text-(--ns-chrome-sky-text) underline decoration-transparent underline-offset-2 transition hover:decoration-current',
+              'inline cursor-pointer border-0 bg-transparent p-0 text-xs font-medium text-(--chrome-sky-text) underline decoration-transparent underline-offset-2 transition hover:decoration-current',
               triggerClassName,
             )}
             onClick={(e) => e.stopPropagation()}

@@ -1,77 +1,66 @@
 /**
- * Single source for workbench `--ns-*` → tier-2 `--color-*` (semantic role) wiring
- * inside `exportCssVariables` (`exportFormats.ts`). Keeps live `[data-theme]` chrome in sync with
- * `app/globals.css` `@theme inline` expectations.
+ * Chrome **mixers** (utility tokens): `color-mix` ladders and toaster backdrop.
+ * Injected inside each `[data-theme]` block by `exportCssVariables` so they track
+ * live tier-2 `--color-*` semantics.
  *
- * Policy for roles with no 1:1 engine name:
- * - `--ns-border-brand` → `border.strong` (emphasized stroke on brand chrome)
- * - `--ns-border-inverse` → `border.focus` (high-contrast, pairs with inverse surfaces)
- * - `--ns-border-scrim` / `--ns-border-overlay-scrim` → subtle / default borders on overlays
- * - `--ns-text-brand` → `text.on` (copy on saturated / brand planes)
- * - `--ns-text-scrim` / `--ns-text-overlay-scrim` → `text.default` (body on dimmed layers)
+ * Role peers (`--ns-app-bg` → `surface.sunken`, etc.) live only in `app/globals.css`
+ * as thin `var(--color-*)` aliases — they are not re-declared in the live stylesheet.
+ * See `semanticPolicy.ts` for the typed intent → role registry.
  */
 
-/** Dots → hyphens: `surface.default` → `surface-default` (must match `tokenCssVarName` in `exportFormats.ts`). */
-function tier2ColorVarName(role: string): string {
+import type {ThemeMode} from '@/lib/neutral-engine/types'
+
+/**
+ * Tier-1 primitive naming — Simple Mode uses `--color-neutral-{label}`.
+ * Advanced Mode uses sibling namespaces `--color-neutral-light-{label}` / `--color-neutral-dark-{label}`.
+ */
+export type Tier1NeutralExportMode =
+  | {architecture: 'simple'}
+  | {architecture: 'advanced'; scale: 'light' | 'dark'}
+
+export function tier1NeutralCssVarName(label: string): string
+export function tier1NeutralCssVarName(label: string, exportMode: Tier1NeutralExportMode): string
+export function tier1NeutralCssVarName(label: string, exportMode?: Tier1NeutralExportMode): string {
+  if (exportMode == null || exportMode.architecture === 'simple') {
+    return `color-neutral-${label}`
+  }
+  return exportMode.scale === 'light'
+    ? `color-neutral-light-${label}`
+    : `color-neutral-dark-${label}`
+}
+
+/** Advanced tier-1 mode from semantic token theme (light sibling vs dark sibling ramp). */
+export function tier1ExportModeFromTheme(theme: ThemeMode): Exclude<Tier1NeutralExportMode, {architecture: 'simple'}> {
+  return {
+    architecture: 'advanced',
+    scale: theme === 'light' ? 'light' : 'dark',
+  }
+}
+
+/** Dots → hyphens for `--color-*` semantic vars (matches `tokenCssVarName` in `exportFormats.ts`). */
+export function tier2SemanticCssVarFromRole(role: string): string {
   return `color-${role.replace(/\./g, '-')}`
 }
 
-export type ChromeNsRolePeer = {
-  ns: `--${string}`
-  /** Engine semantic role id (e.g. `surface.default`). */
-  role: string
+/**
+ * Utility / mixer tokens (not engine roles). Appended after tier-2 `--color-*` lines
+ * in each `[data-theme]` block.
+ */
+export const CHROME_MIXER_LINES: readonly string[] = [
+  '  --chrome-hairline: color-mix(in oklch, var(--color-text-default) 10%, transparent);',
+  '  --chrome-hairline-strong: color-mix(in oklch, var(--color-text-default) 18%, transparent);',
+  '  --chrome-chip: color-mix(in oklch, var(--color-text-default) 6%, transparent);',
+  '  --chrome-field: color-mix(in oklch, var(--color-text-default) 4%, transparent);',
+  '  --chrome-overlay-soft: color-mix(in oklch, var(--color-text-default) 3%, transparent);',
+  '  --chrome-overlay-strong: color-mix(in oklch, var(--color-text-default) 15%, transparent);',
+  '  --chrome-toaster-bg: color-mix(in oklch, var(--color-surface-overlay) 95%, transparent);',
+]
+
+export function linesLiveThemeChromeBlock(): string[] {
+  return [...CHROME_MIXER_LINES]
 }
 
-/** Role-backed aliases: emitted as `${ns}: var(--${semanticColorVarName(role)});` */
-export const NS_CHROME_ROLE_PEERS: readonly ChromeNsRolePeer[] = [
-  {ns: '--ns-app-bg', role: 'surface.sunken'},
-  {ns: '--ns-surface', role: 'surface.default'},
-  {ns: '--ns-surface-sunken', role: 'surface.sunken'},
-  {ns: '--ns-surface-default', role: 'surface.default'},
-  {ns: '--ns-surface-subtle', role: 'surface.subtle'},
-  {ns: '--ns-surface-raised', role: 'surface.raised'},
-  {ns: '--ns-surface-overlay', role: 'surface.overlay'},
-  {ns: '--ns-surface-inverse', role: 'surface.inverse'},
-  {ns: '--ns-surface-brand', role: 'surface.brand'},
-  {ns: '--ns-border-subtle', role: 'border.subtle'},
-  {ns: '--ns-border-default', role: 'border.default'},
-  {ns: '--ns-border-strong', role: 'border.strong'},
-  {ns: '--ns-border-focus', role: 'border.focus'},
-  {ns: '--ns-border-brand', role: 'border.strong'},
-  {ns: '--ns-border-inverse', role: 'border.focus'},
-  {ns: '--ns-border-scrim', role: 'border.subtle'},
-  {ns: '--ns-border-overlay-scrim', role: 'border.default'},
-  {ns: '--ns-text', role: 'text.default'},
-  {ns: '--ns-text-default', role: 'text.default'},
-  {ns: '--ns-text-subtle', role: 'text.subtle'},
-  {ns: '--ns-text-muted', role: 'text.muted'},
-  {ns: '--ns-text-faint', role: 'text.disabled'},
-  {ns: '--ns-text-disabled', role: 'text.disabled'},
-  {ns: '--ns-text-on', role: 'text.on'},
-  {ns: '--ns-text-brand', role: 'text.on'},
-  {ns: '--ns-text-scrim', role: 'text.default'},
-  {ns: '--ns-text-overlay-scrim', role: 'text.default'},
-  {ns: '--ns-accent', role: 'surface.brand'},
-  {ns: '--ns-scrim', role: 'overlay.scrim'},
-  {ns: '--ns-overlay-scrim', role: 'overlay.scrim'},
-]
-
-/**
- * Static lines (color-mix and derived aliases) appended after role peers.
- * `var(--ns-text)` must resolve first — keep peers that define `--ns-text` above these.
- */
-export const NS_CHROME_STATIC_LINES: readonly string[] = [
-  '  --ns-hairline: color-mix(in oklch, var(--ns-text) 10%, transparent);',
-  '  --ns-hairline-strong: color-mix(in oklch, var(--ns-text) 18%, transparent);',
-  '  --ns-chip: color-mix(in oklch, var(--ns-text) 6%, transparent);',
-  '  --ns-field: color-mix(in oklch, var(--ns-text) 4%, transparent);',
-  '  --ns-overlay-soft: color-mix(in oklch, var(--ns-text) 3%, transparent);',
-  '  --ns-overlay-strong: color-mix(in oklch, var(--ns-text) 15%, transparent);',
-]
-
+/** @deprecated Use {@link linesLiveThemeChromeBlock}. Kept for grep / external docs during migration. */
 export function linesLiveThemeNsChromeBlock(): string[] {
-  const roleLines = NS_CHROME_ROLE_PEERS.map(
-    ({ns, role}) => `  ${ns}: var(--${tier2ColorVarName(role)});`,
-  )
-  return [...roleLines, ...NS_CHROME_STATIC_LINES]
+  return linesLiveThemeChromeBlock()
 }

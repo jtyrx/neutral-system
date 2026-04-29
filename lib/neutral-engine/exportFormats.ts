@@ -1,5 +1,16 @@
-import {linesLiveThemeNsChromeBlock} from '@/lib/neutral-engine/chromeAliases'
-import type {GlobalSwatch} from '@/lib/neutral-engine/types'
+import {
+  linesLiveThemeChromeBlock,
+  tier1ExportModeFromTheme,
+  tier1NeutralCssVarName,
+} from '@/lib/neutral-engine/chromeAliases'
+import {
+  DEFAULT_ALPHA_NEUTRAL_CONFIG,
+  deriveAlphaNeutralCssLines,
+} from '@/lib/neutral-engine/alphaNeutralTokens'
+import {rampForTheme} from '@/lib/neutral-engine/architectureRamps'
+import {buildDtcgTokenTree, renderDtcgTokenJson} from '@/lib/neutral-engine/dtcgTokens'
+import type {AlphaNeutralConfig, ArchitectureRamps, GlobalSwatch} from '@/lib/neutral-engine/types'
+import type {NeutralArchitectureMode} from '@/lib/neutral-engine/types'
 import type {SystemToken} from '@/lib/neutral-engine/types'
 
 /** Safe fragment for CSS fragments (dots → hyphens): `surface.default` → `surface-default`. */
@@ -22,128 +33,174 @@ export function isEmphasisToken(t: SystemToken): boolean {
 }
 
 /**
- * Theme variable for Tailwind v4 `bg-*` / `text-*` utilities: `--color-surface-default`, `--color-text-muted`, …
+ * Theme variable for Tailwind v4 `bg-*` / `text-*` utilities: `--color-surface-default`, …
  */
 export function semanticColorVarName(name: string): string {
   return `color-${tokenCssVarName(name)}`
 }
 
-function semanticCssValue(t: SystemToken, global: GlobalSwatch[]): string {
+function semanticCssValue(
+  t: SystemToken,
+  architecture: NeutralArchitectureMode,
+  ramps: ArchitectureRamps,
+): string {
   if (t.alpha != null && t.alpha < 1) {
     return `color-mix(in oklch, ${t.serialized.oklchCss} ${Math.round(t.alpha * 100)}%, transparent)`
   }
   if (t.customColor) {
     return t.serialized.oklchCss
   }
-  const sw = global[t.sourceGlobalIndex]
-  return sw ? `var(--color-neutral-${sw.label})` : t.serialized.oklchCss
+  const ramp = rampForTheme(ramps, t.theme)
+  const sw = ramp[t.sourceGlobalIndex]
+  if (!sw) return t.serialized.oklchCss
+  const name =
+    architecture === 'simple'
+      ? tier1NeutralCssVarName(sw.label)
+      : tier1NeutralCssVarName(sw.label, tier1ExportModeFromTheme(t.theme))
+  return `var(--${name})`
+}
+
+function cssVarTier1Fragment(
+  s: GlobalSwatch,
+  architecture: NeutralArchitectureMode,
+  sibling?: 'light' | 'dark',
+): string {
+  if (architecture === 'simple') {
+    return tier1NeutralCssVarName(s.label)
+  }
+  const scale = sibling === 'light' ? 'light' : 'dark'
+  return tier1NeutralCssVarName(s.label, {architecture: 'advanced', scale})
+}
+
+function emitTier1Block(
+  lines: string[],
+  swatches: GlobalSwatch[],
+  architecture: NeutralArchitectureMode,
+  sibling?: 'light' | 'dark',
+): void {
+  swatches.forEach((s) => {
+    lines.push(`  --${cssVarTier1Fragment(s, architecture, sibling)}: ${s.serialized.oklchCss};`)
+  })
 }
 
 /**
- * Re-declares `globals.css` `--ns-*` → tier-2 `--color-*` inside each `[data-theme]` block from
- * the live stylesheet. Without this, injected `--color-*` updates while `--ns-*` stay static until
- * refresh. See `linesLiveThemeNsChromeBlock` in `chromeAliases.ts`.
+ * Injects tier-1 neutral primitives, per-theme `--color-*` semantics, and `--chrome-*` mixers.
  */
 export function exportJson(params: {
-  global: GlobalSwatch[]
+  architecture: NeutralArchitectureMode
+  global?: GlobalSwatch[]
+  lightRamp?: GlobalSwatch[]
+  darkRamp?: GlobalSwatch[]
   light: SystemToken[]
   dark: SystemToken[]
 }): string {
-  const {global, light, dark} = params
-  const glob: Record<string, {oklch: string; hex: string}> = {}
-  global.forEach((s) => {
-    glob[`neutral-${s.label}`] = {oklch: s.serialized.oklchCss, hex: s.serialized.hex}
-  })
-  const pack = (tokens: SystemToken[], prefix: string) => {
-    const o: Record<string, {oklch: string; hex: string; sourceIndex?: number; alpha?: number}> =
-      {}
-    tokens.forEach((t) => {
-      o[`${prefix}-${tokenCssVarName(t.name)}`] = {
-        oklch: t.serialized.oklchCss,
-        hex: t.serialized.hex,
-        sourceIndex: t.sourceGlobalIndex,
-        ...(t.alpha != null ? {alpha: t.alpha} : {}),
-      }
-    })
-    return o
-  }
-  return JSON.stringify(
-    {
-      global: glob,
-      system: {
-        light: pack(light, 'light'),
-        dark: pack(dark, 'dark'),
-      },
-    },
-    null,
-    2,
-  )
+  return renderDtcgTokenJson(buildDtcgTokenTree(params))
 }
 
 export function exportCssVariables(params: {
-  global: GlobalSwatch[]
+  architecture: NeutralArchitectureMode
+  ramps: ArchitectureRamps
   light: SystemToken[]
   dark: SystemToken[]
+  alphaConfig?: AlphaNeutralConfig
 }): string {
   const lines: string[] = [':root {']
-  params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: ${s.serialized.oklchCss};`)
+  const alphaConfig = params.alphaConfig ?? DEFAULT_ALPHA_NEUTRAL_CONFIG
+  const alphaBlock = deriveAlphaNeutralCssLines(params.ramps, params.light, params.dark, alphaConfig)
+  const {architecture, ramps} = params
+
+  if (ramps.architecture === 'simple') {
+    emitTier1Block(lines, ramps.global, architecture)
+  } else {
+    emitTier1Block(lines, ramps.light, architecture, 'light')
+    emitTier1Block(lines, ramps.dark, architecture, 'dark')
+  }
+
+  lines.push('}')
+  lines.push('')
+  lines.push(':root {')
+  params.dark.forEach((t) => {
+    lines.push(
+      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
+    )
   })
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="light"] {')
   params.light.forEach((t) => {
-    lines.push(`  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, params.global)};`)
+    lines.push(
+      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
+    )
   })
-  lines.push(...linesLiveThemeNsChromeBlock())
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="dark"] {')
   params.dark.forEach((t) => {
-    lines.push(`  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, params.global)};`)
+    lines.push(
+      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
+    )
   })
-  lines.push(...linesLiveThemeNsChromeBlock())
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   return lines.join('\n')
 }
 
-export function exportCsv(global: GlobalSwatch[]): string {
-  const header = ['index', 'label', 'oklch', 'hex', 'rgb']
-  const rows = global.map((s) =>
-    [String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(
-      ',',
-    ),
+export function exportCsv(ramps: ArchitectureRamps): string {
+  if (ramps.architecture === 'simple') {
+    const header = ['index', 'label', 'oklch', 'hex', 'rgb']
+    const rows = ramps.global.map((s) =>
+      [String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(
+        ',',
+      ),
+    )
+    return [header.join(','), ...rows].join('\n')
+  }
+
+  const header = ['scale', 'index', 'label', 'oklch', 'hex', 'rgb']
+  const lightRows = ramps.light.map((s) =>
+    ['light', String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(','),
   )
-  return [header.join(','), ...rows].join('\n')
+  const darkRows = ramps.dark.map((s) =>
+    ['dark', String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(','),
+  )
+  return [header.join(','), ...lightRows, ...darkRows].join('\n')
 }
 
 /**
- * Tailwind CSS v4: primitives + light semantic aliases in `@theme inline` (references tier-1 vars).
- * Pair with `[data-theme="dark"]` from {@link exportCssVariables} for full theming.
+ * Tailwind CSS v4: tier-1 primitives in `:root`; light semantic aliases in `@theme inline`.
  */
 export function exportTailwindV4ThemeInline(params: {
-  global: GlobalSwatch[]
+  architecture: NeutralArchitectureMode
+  ramps: ArchitectureRamps
   light: SystemToken[]
 }): string {
   const lines: string[] = [
     '/* Neutral primitives — tier 1 (paste after @import "tailwindcss";) */',
     ':root {',
   ]
-  params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: ${s.serialized.oklchCss};`)
-  })
+  const {architecture, ramps} = params
+
+  if (ramps.architecture === 'simple') {
+    emitTier1Block(lines, ramps.global, architecture)
+  } else {
+    emitTier1Block(lines, ramps.light, architecture, 'light')
+    emitTier1Block(lines, ramps.dark, architecture, 'dark')
+  }
+
   lines.push('}')
   lines.push('')
   lines.push('@theme inline {')
-  params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: var(--color-neutral-${s.label});`)
-  })
   lines.push(
     '  /* Tier 2 semantics (light): --color-* maps to bg-surface-default, text-default, border-focus, etc. */',
   )
   params.light.forEach((t) => {
     const name = semanticColorVarName(t.name)
-    lines.push(`  --${name}: ${semanticCssValue(t, params.global)};`)
+    lines.push(`  --${name}: ${semanticCssValue(t, architecture, ramps)};`)
   })
   lines.push('}')
   lines.push('')
@@ -159,7 +216,8 @@ export function exportTailwindThemeSnippet(params: {
 }): string {
   const lines: string[] = ['// tailwind @theme extension (primitives only)', '@theme inline {']
   params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: ${s.serialized.oklchCss};`)
+    const t1 = tier1NeutralCssVarName(s.label)
+    lines.push(`  --${t1}: ${s.serialized.oklchCss};`)
   })
   lines.push('}')
   return lines.join('\n')

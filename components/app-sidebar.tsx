@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { BookOpen, Home, Layers, Sliders } from 'lucide-react'
+import { BookOpen, Home, Layers, Settings, Sliders } from 'lucide-react'
 
 import {
   Sidebar,
@@ -22,9 +22,21 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 type AppLayoutShellProps = {
   children: ReactNode
+  /** After mount, delay then collapse the desktop sidebar. When omitted, `SidebarProvider` defaults apply. */
+  sidebarCloseOnLoad?: boolean
+  /** When omitted, `SidebarProvider` uses its default delay (500ms). */
+  sidebarCloseOnLoadDelayMs?: number
 }
 
 /**
@@ -32,9 +44,21 @@ type AppLayoutShellProps = {
  * `inset` matches shadcn’s “card” main region; swap `collapsible` to `offcanvas` if you
  * want the bar to fully hide instead of icon-only.
  */
-export function AppLayoutShell({ children }: AppLayoutShellProps) {
+export function AppLayoutShell({
+  children,
+  sidebarCloseOnLoad,
+  sidebarCloseOnLoadDelayMs,
+}: AppLayoutShellProps) {
   return (
-    <SidebarProvider defaultOpen>
+    <SidebarProvider
+      defaultOpen
+      {...(sidebarCloseOnLoad !== undefined
+        ? {closeOnLoad: sidebarCloseOnLoad}
+        : {})}
+      {...(sidebarCloseOnLoadDelayMs !== undefined
+        ? {closeOnLoadDelayMs: sidebarCloseOnLoadDelayMs}
+        : {})}
+    >
       <AppSidebar />
       <SidebarInset
         id="nsb-inset"
@@ -124,9 +148,26 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-2">
-        <p className="line-clamp-2 text-[0.7rem] leading-snug text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
-          Placeholder items expand here—presets, docs, and exports.
-        </p>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<SidebarMenuButton tooltip="Settings" />}
+              >
+                <Settings />
+                <span>Settings</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="end">
+                <DropdownMenuLabel>Settings</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Preferences</DropdownMenuItem>
+                <DropdownMenuItem>Keyboard shortcuts</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>About</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
 
       <SidebarResizer />

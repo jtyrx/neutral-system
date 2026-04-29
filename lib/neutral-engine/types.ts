@@ -8,6 +8,11 @@ export type NamingStyle = 'numeric_desc' | 'semantic' | 'token_ladder'
 
 export type ThemeMode = 'light' | 'darkElevated'
 
+/**
+ * Neutral palette architecture — independent ramps (advanced, default) vs one global flipped ramp (legacy).
+ */
+export type NeutralArchitectureMode = 'advanced' | 'simple'
+
 export type NeutralVariantId = 'pure' | 'warm' | 'cool' | 'bluish' | 'custom'
 
 export type GlobalScaleConfig = {
@@ -26,6 +31,11 @@ export type GlobalScaleConfig = {
   variantId: NeutralVariantId
   /** Lightness distribution curve. Defaults to `'linear'` when omitted. */
   lCurve?: LCurve
+  /**
+   * Blend from linear lightness spacing into the curve from `lCurve`.
+   * `0` = fully linear ramp; `1` = full selected curve. Defaults to `1` when omitted.
+   */
+  lCurveStrength?: number
   /**
    * Per-end chroma override. When both are set, chroma is interpolated from `chromaLight`
    * (t=0, light end) to `chromaDark` (t=1, dark end), then shaped by `chromaMode`.
@@ -55,6 +65,11 @@ export type GlobalSwatch = {
   label: string
   serialized: SerializedColor
 }
+
+/** Engine-resolved ramps for derivation and export (immutable shape). */
+export type ArchitectureRamps =
+  | {architecture: 'simple'; global: GlobalSwatch[]}
+  | {architecture: 'advanced'; light: GlobalSwatch[]; dark: GlobalSwatch[]}
 
 /**
  * Roles emitted by `deriveSystemTokens` (stable dot paths). Overflow ladders use `*.layer-*`;
@@ -159,7 +174,7 @@ export type SystemToken = {
   serialized: SerializedColor
   alpha?: number
   /**
-   * When true, exports use `serialized.oklchCss` directly (not `var(--color-neutral-*)` from ramp).
+   * When true, exports use `serialized.oklchCss` directly (not `var(--color-neutral-*)` from the ramp).
    * Used for `surface.brand` when `brandOklch` parses successfully.
    */
   customColor?: boolean
@@ -170,3 +185,15 @@ export type PreviewTheme = 'light' | 'dark'
 export type WorkbenchSelection =
   | { kind: 'global'; index: number }
   | { kind: 'system'; id: string; theme?: ThemeMode }
+
+/**
+ * Configuration for alpha neutral token derivation.
+ * Base indices are resolved from `text.default` per theme by default.
+ * `lightIndexOffset` / `darkIndexOffset` nudge the base index ±N steps on the ramp.
+ * `alphaStops` are the four opacity levels [alpha-100, 200, 300, 400].
+ */
+export interface AlphaNeutralConfig {
+  lightIndexOffset: number
+  darkIndexOffset: number
+  alphaStops: readonly [number, number, number, number]
+}

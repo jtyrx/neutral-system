@@ -18,7 +18,7 @@ function PairTable({label, tokens}: {label: string; tokens: SystemToken[]}) {
       <p className="text-[0.65rem] font-medium uppercase tracking-[0.12em] text-muted">{label}</p>
       <div className="overflow-x-auto rounded-xl border border-hairline">
         <table className="w-full min-w-[20rem] text-left text-[0.65rem]">
-          <thead className="border-b border-hairline text-faint">
+          <thead className="border-b border-hairline text-disabled">
             <tr>
               <th className="px-2 py-1.5 font-medium">Pair</th>
               <th className="px-2 py-1.5 font-medium">Ratio</th>

@@ -274,6 +274,32 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
             onValueChange={(v) => patch('lCurve', v as LCurve, 'L curve')}
           />
         </label>
+        <label
+          className={`space-y-1 ${(config.lCurve ?? 'linear') === 'linear' ? 'opacity-50' : ''}`}
+        >
+          <span className="ns-label">
+            L curve strength{' '}
+            <span className="font-mono text-muted">
+              {Math.round((config.lCurveStrength ?? 1) * 100)}%
+            </span>
+          </span>
+          <input
+            type="range"
+            aria-label="L curve strength"
+            disabled={(config.lCurve ?? 'linear') === 'linear'}
+            min={0}
+            max={100}
+            step={1}
+            value={Math.round((config.lCurveStrength ?? 1) * 100)}
+            className="w-full accent-current"
+            onChange={(e) =>
+              patch('lCurveStrength', Number(e.target.value) / 100, 'L curve strength')
+            }
+          />
+          <p className="text-[0.65rem] text-muted">
+            0% = linear spacing · 100% = full selected curve
+          </p>
+        </label>
         {config.chromaMode !== 'achromatic' ? (
           <>
             <label className="space-y-1">

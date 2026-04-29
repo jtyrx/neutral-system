@@ -41,7 +41,7 @@ function UsedNeutralPrimitivesTableInner({global, usedIndices, label}: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-[0.6rem] leading-snug text-faint">
+      <p className="text-[0.6rem] leading-snug text-disabled">
         Every global index referenced by light or dark system tokens (including emphasis). Semantic
         layer filter does not apply.
       </p>

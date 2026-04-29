@@ -180,7 +180,7 @@ function GlobalSwatchInspector({
           </dd>
         </div>
         {advice.tooCloseToNext ? (
-          <p className="text-(--ns-chrome-amber-text)">
+          <p className="text-(--chrome-amber-text)">
             Steps may be too close for distinct UI roles.
           </p>
         ) : null}

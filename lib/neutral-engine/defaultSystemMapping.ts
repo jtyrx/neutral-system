@@ -13,13 +13,13 @@ import {
 export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   fillStart: 0,                // Index where fill slots start in the palette (light mode)
   strokeStart: 4,              // Index where stroke slots start in the palette (light mode)
-  textStart: 34,               // Index where text slots start in the palette (light mode)
+  textStart: 34,               // Legacy 41-step seed; ladder clamp recomputes from steps × count × interval
   fillCount: 5,                // Standard surface ladder (sunken → overlay); inverse is separate
   strokeCount: 4,              // Saved presets may use 4; engine clamps border ladder to max 3 (`BORDER_STANDARD_SLOT_COUNT`). `border.focus` is separate.
   textCount: 5,                // Standard text ladder (default → disabled); text.on is separate
   darkFillStart: 0,            // Index where fill slots start from the dark edge of the palette
   darkStrokeStart: 2,          // Index where stroke slots start in the palette (dark mode)
-  darkTextStart: 15,           // Index where text slots start in the palette (dark mode)
+  darkTextStart: 15,           // Legacy 41-step seed; ladder clamp recomputes from steps × count × interval
   darkFillCount: 5,            // Standard surface ladder (dark elevated)
   darkStrokeCount: 4,          // Same clamp as `strokeCount`: max effective border ladder is 3. `border.focus` is separate.
   darkTextCount: 5,            // Standard text ladder (dark elevated)
@@ -40,13 +40,12 @@ export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
 
 type PartialSystemWithLegacy = Partial<SystemMappingConfig> & { stepInterval?: number }
 
-/** Merge partial config (e.g. imported JSON) with defaults and legacy dark-field migration. */
+/** Merge partial config (e.g. imported JSON) with defaults and legacy dark-field migration. Text starts are ladder‑fitted in {@link clampSystemMappingToLadderLength} — there is no `darkTextStart = textStart + 2` fallback. */
 export function migrateSystemMappingConfig(partial: PartialSystemWithLegacy): SystemMappingConfig {
   const { stepInterval: legacyStepInterval, ...rest } = partial
   const m: SystemMappingConfig = { ...DEFAULT_SYSTEM_MAPPING, ...rest }
   if (partial.darkFillStart === undefined) m.darkFillStart = m.fillStart
   if (partial.darkStrokeStart === undefined) m.darkStrokeStart = m.strokeStart
-  if (partial.darkTextStart === undefined) m.darkTextStart = m.textStart + 2
   if (partial.darkFillCount === undefined) m.darkFillCount = m.fillCount
   if (partial.darkStrokeCount === undefined) m.darkStrokeCount = m.strokeCount
   if (partial.darkTextCount === undefined) m.darkTextCount = m.textCount

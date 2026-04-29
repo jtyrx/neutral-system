@@ -9,6 +9,7 @@ import {OkhslSection} from '@/components/sections/OkhslSection'
 import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
 import {ThemePanelsSection} from '@/components/sections/ThemePanelsSection'
 import {VariantsSection} from '@/components/sections/VariantsSection'
+import {AdditionalInfoPreviewCard} from '@/components/ui/preview-card'
 import {CollapsibleControlGroup} from '@/components/workbench/CollapsibleControlGroup'
 import {DEFAULT_GLOBAL} from '@/hooks/useNeutralWorkbench'
 import type {NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
@@ -25,9 +26,16 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   return (
     <div className="flex flex-col gap-4 pb-12">
       <CollapsibleControlGroup
-        id="scale"
-        title="Scale"
+        id="neutral-workbench-controls-scale"
+        title="Global neutral scale ladder"
         subtitle="Steps, lightness range, chroma shaping, and hue variants."
+        additionalInfo={
+          <AdditionalInfoPreviewCard additionalInfo="How this ladder works">
+            <p className="max-w-2xl text-sm text-muted">
+              Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
+            </p>
+          </AdditionalInfoPreviewCard>
+        }
         defaultOpen
       >
         <GlobalScaleSection

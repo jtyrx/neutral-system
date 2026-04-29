@@ -46,7 +46,7 @@ function ChromaModeComparisonRailInner({config}: Props) {
         Four engine modes side by side: same step count, lightness ramp, hue, and base chroma —
         only chroma distribution changes per row.
       </p>
-      <div className="space-y-3">
+      <div className="space-y-3 px-2 py-2 bg-sunken rounded-lg border border-hairline">
         {rows.map(({ chromaMode, label, swatches }) => (
           <div
             key={chromaMode}

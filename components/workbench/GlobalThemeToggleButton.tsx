@@ -1,11 +1,12 @@
 'use client'
 
-import {memo, useSyncExternalStore} from 'react'
+import {Fragment, memo, useSyncExternalStore} from 'react'
 import {Monitor, Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {useFinePointerHover} from '@/hooks/use-fine-pointer-hover'
 import {cn} from '@/lib/cn'
 
 type ThemeChoice = 'system' | 'dark' | 'light'
@@ -28,6 +29,7 @@ const OPTIONS: {
 
 function GlobalThemeToggleButtonInner({className}: {className?: string}) {
   const {theme, setTheme, resolvedTheme} = useTheme()
+  const showTooltips = useFinePointerHover()
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -70,23 +72,29 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
       {OPTIONS.map((option) => {
         const Icon = option.icon
         const selected = activeTheme === option.value
+        const item = (
+          <RadioGroupItem
+            value={option.value}
+            aria-label={option.label}
+            className={cn(
+              'inline-flex size-6 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
+              'hover:bg-(--ns-chip) hover:text-(--ns-text)',
+              'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-(--ns-border-focus)/30',
+              selected && 'bg-(--ns-overlay-strong) text-primary',
+            )}
+          >
+            <Icon className="size-3.5" aria-hidden={true} />
+            <span className="sr-only">{option.label}</span>
+          </RadioGroupItem>
+        )
+
+        if (!showTooltips) {
+          return <Fragment key={option.value}>{item}</Fragment>
+        }
+
         return (
           <Tooltip key={option.value}>
-            <TooltipTrigger asChild>
-              <RadioGroupItem
-                value={option.value}
-                aria-label={option.label}
-                className={cn(
-                  'inline-flex size-6 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
-                  'hover:bg-(--ns-chip) hover:text-(--ns-text)',
-                  'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-(--ns-border-focus)/30',
-                  selected && 'bg-(--ns-overlay-strong) text-primary',
-                )}
-              >
-                <Icon className="size-3.5" aria-hidden={true} />
-                <span className="sr-only">{option.label}</span>
-              </RadioGroupItem>
-            </TooltipTrigger>
+            <TooltipTrigger asChild>{item}</TooltipTrigger>
             <TooltipContent side="bottom" sideOffset={8}>
               {option.shortLabel}
             </TooltipContent>

@@ -34,9 +34,12 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
   return (
     <html lang="en" className={cn(inter.variable, ibm.variable, "font-sans", geist.variable)} suppressHydrationWarning>
       <body>
-        <AppProviders>
-          <AppLayoutShell>{children}</AppLayoutShell>
-        </AppProviders>
+        {/* Base UI Quick Start: isolation stacking context for portaled popups (tooltips, dialogs). */}
+        <div className="isolate min-h-screen">
+          <AppProviders>
+            <AppLayoutShell>{children}</AppLayoutShell>
+          </AppProviders>
+        </div>
       </body>
     </html>
   )

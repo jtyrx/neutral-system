@@ -69,7 +69,7 @@ const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisualization(
   return (
     <>
       <div className="overflow-x-auto rounded-2xl border border-hairline">
-        <div className="flex min-h-[4.5rem]" style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}>
+        <div className="flex min-h-18" style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}>
           {global.map((s) => (
             <button
               key={s.index}
@@ -156,15 +156,16 @@ function GlobalScaleSectionInner({config, patchGlobal, global, selectedIndex, on
   const [showComparison, setShowComparison] = useState(false)
 
   return (
-    <section id="global-scale-section" className="scroll-mt-6 space-y-6">
+    <section id="global-scale-section" className="scroll-mt-4 space-y-4">
       <header>
-        <p className="eyebrow">1 · Global scale</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Neutral ladder</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the
-          chroma mode. Tier-1 primitives feed semantic tokens.
-        </p>
+        {/* <p className="eyebrow">1 · Global neutral scale</p> */}
+        <h2 className="mt-1 text-sm font-semibold text-default">Neutral ladder</h2>
+        {/* <p className="mt-2 max-w-2xl text-sm text-muted">
+          Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
+        </p> */}
       </header>
+
+      {/* <GlobalScaleRampVisualization global={global} selectedIndex={selectedIndex} onSelectSwatch={onSelectSwatch} /> */}
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted">

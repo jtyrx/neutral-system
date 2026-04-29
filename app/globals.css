@@ -369,7 +369,12 @@
     --ns-chrome-sky-text: var(--color-sky-dark);
   }
 
+  /**
+   * `position: relative` — Base UI Quick Start (iOS 26+ Safari): containing block for
+   * portaled `position: absolute` backdrops so overlays track the visual viewport after scroll.
+   */
   body {
+    position: relative;
     min-height: 100vh;
     background: var(--ns-app-bg);
     color: var(--ns-text);

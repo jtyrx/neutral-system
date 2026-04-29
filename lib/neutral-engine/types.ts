@@ -159,7 +159,7 @@ export type SystemToken = {
   serialized: SerializedColor
   alpha?: number
   /**
-   * When true, exports use `serialized.oklchCss` directly (not `var(--color-neutral-*)` from ramp).
+   * When true, exports use `serialized.oklchCss` directly (not `var(--neutral-*)` / legacy `var(--color-neutral-*)` from ramp).
    * Used for `surface.brand` when `brandOklch` parses successfully.
    */
   customColor?: boolean
@@ -170,3 +170,15 @@ export type PreviewTheme = 'light' | 'dark'
 export type WorkbenchSelection =
   | { kind: 'global'; index: number }
   | { kind: 'system'; id: string; theme?: ThemeMode }
+
+/**
+ * Configuration for alpha neutral token derivation.
+ * Base indices are resolved from `text.default` per theme by default.
+ * `lightIndexOffset` / `darkIndexOffset` nudge the base index ±N steps on the ramp.
+ * `alphaStops` are the four opacity levels [alpha-100, 200, 300, 400].
+ */
+export interface AlphaNeutralConfig {
+  lightIndexOffset: number
+  darkIndexOffset: number
+  alphaStops: readonly [number, number, number, number]
+}

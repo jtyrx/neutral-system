@@ -22,6 +22,8 @@ type Props = {
    * Used for dark-theme ramps so the visual reads dark→light alongside light-theme light→dark.
    */
   invertDisplay?: boolean
+  /** Global index of the alpha base swatch — renders a violet “Aα” badge when set. */
+  alphaBaseIndex?: number
 }
 
 /**
@@ -46,7 +48,7 @@ function stripRoleBadge(role: string): { text: string; className: string } {
     return { text: 'S?', className: 'bg-emerald-400/90 text-zinc-950' }
   }
   if (cat === 'border') {
-    const amberBadge = 'bg-[var(--ns-chrome-amber-fill-strong)] text-zinc-950'
+    const amberBadge = 'bg-[var(--chrome-amber-fill-strong)] text-zinc-950'
     const i = BORDER_ROLE_ORDER.findIndex((r) => r === role)
     if (i >= 0) return { text: `B${i + 1}`, className: amberBadge }
     const m = role.match(/^border\.layer-(\d+)$/)
@@ -54,7 +56,7 @@ function stripRoleBadge(role: string): { text: string; className: string } {
     return { text: 'B?', className: amberBadge }
   }
   if (cat === 'text') {
-    const skyBadge = 'bg-[var(--ns-chrome-sky-fill-strong)] text-zinc-950'
+    const skyBadge = 'bg-[var(--chrome-sky-fill-strong)] text-zinc-950'
     const i = TEXT_ROLE_ORDER.findIndex((r) => r === role)
     if (i >= 0) return { text: `T${i + 1}`, className: skyBadge }
     const m = role.match(/^text\.layer-(\d+)$/)
@@ -78,6 +80,7 @@ function GlobalScaleStripInner({
   caption,
   accentClassName,
   invertDisplay = false,
+  alphaBaseIndex,
 }: Props) {
   const rolesByIndex = tokenView.byGlobalIndex
 
@@ -118,7 +121,7 @@ function GlobalScaleStripInner({
                   className="h-9 w-full shrink-0 rounded-t border border-hairline nsb-lg:h-11"
                   style={{ backgroundColor: s.serialized.hex }}
                 />
-                <span className="shrink-0 text-center text-[0.5rem] leading-none text-faint py-0.5 px-0.5">
+                <span className="shrink-0 text-center text-[0.5rem] leading-none text-disabled py-0.5 px-0.5">
                   {s.index}
                 </span>
                 <div className="flex h-14 shrink-0 flex-col flex-wrap justify-start content-start items-start gap-1 overflow-hidden py-0.5">
@@ -134,8 +137,16 @@ function GlobalScaleStripInner({
                       </span>
                     )
                   })}
+                  {alphaBaseIndex != null && s.index === alphaBaseIndex && (
+                    <span
+                      className="inline-flex max-w-full min-w-[1.1rem] justify-center rounded px-0.5 py-0.5 text-[0.5rem] font-semibold leading-none bg-violet-400/90 text-zinc-950"
+                      title="Alpha neutral token base"
+                    >
+                      Aα
+                    </span>
+                  )}
                   {mapped.length > 3 ? (
-                    <span className="text-[0.5rem] text-faint">+{mapped.length - 3}</span>
+                    <span className="text-[0.5rem] text-disabled">+{mapped.length - 3}</span>
                   ) : null}
                 </div>
               </div>

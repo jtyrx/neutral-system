@@ -30,6 +30,7 @@ type Props = {
   /** Mapping + contrast emphasis — matches token derivation and system mapping diagrams. */
   derivationConfig: SystemMappingConfig
   steps: number
+  alphaBaseIndices?: {lightBase: number; darkBase: number}
 }
 
 /**
@@ -54,6 +55,7 @@ function WorkbenchPreviewColumnInner({
   onSelectSystem,
   derivationConfig,
   steps,
+  alphaBaseIndices,
 }: Props) {
   return (
     <div className="flex min-h-0 flex-col border-b border-hairline bg-raised transition-opacity duration-200 nsb-lg:border-b-0">
@@ -90,6 +92,7 @@ function WorkbenchPreviewColumnInner({
         comparisonLayout={comparisonLayout}
         derivationConfig={derivationConfig}
         steps={steps}
+        alphaBaseIndices={alphaBaseIndices}
       />
     </div>
   )

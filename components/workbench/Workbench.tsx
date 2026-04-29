@@ -106,6 +106,7 @@ export function Workbench() {
           onSelectSystem={wb.selectSystem}
           derivationConfig={wb.effectiveMappingConfig}
           steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
+          alphaBaseIndices={wb.alphaBaseIndices}
         />
       </main>
 

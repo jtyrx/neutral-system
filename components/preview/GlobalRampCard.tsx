@@ -13,6 +13,8 @@ type Props = {
   invertDisplay?: boolean
   /** Short directional hint — not mapping logic. */
   directionHint: string
+  /** Global index of the alpha base swatch — passed through to GlobalScaleStrip. */
+  alphaBaseIndex?: number
 } & Pick<HTMLAttributes<HTMLDivElement>, 'id' | 'role' | 'aria-label'>
 
 /**
@@ -25,6 +27,7 @@ function GlobalRampCardInner({
   accentClassName,
   invertDisplay,
   directionHint,
+  alphaBaseIndex,
   id,
   role,
   'aria-label': ariaLabel,
@@ -37,8 +40,9 @@ function GlobalRampCardInner({
         caption={caption}
         accentClassName={accentClassName}
         invertDisplay={invertDisplay}
+        alphaBaseIndex={alphaBaseIndex}
       />
-      <p className="text-[0.6rem] leading-snug text-[var(--ns-text-faint)]">{directionHint}</p>
+      <p className="text-[0.6rem] leading-snug text-[var(--ns-text-disabled)]">{directionHint}</p>
     </div>
   )
 }

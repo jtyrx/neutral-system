@@ -16,6 +16,7 @@ type Props = {
   /** Same derivation as system mapping / exports (contrast emphasis applied). */
   derivationConfig: SystemMappingConfig
   steps: number
+  alphaBaseIndices?: {lightBase: number; darkBase: number}
 }
 
 /**
@@ -29,6 +30,7 @@ export function PreviewContextPanel({
   comparisonLayout,
   derivationConfig,
   steps,
+  alphaBaseIndices,
 }: Props) {
   const n = Math.max(2, steps)
 
@@ -68,6 +70,7 @@ export function PreviewContextPanel({
                     surfaceIndices={lightIdx.surface}
                     borderIndices={lightIdx.border}
                     textIndices={lightIdx.text}
+                    alphaBaseIndex={alphaBaseIndices?.lightBase}
                   />
                   <OffsetMapDiagram
                     steps={steps}
@@ -76,6 +79,7 @@ export function PreviewContextPanel({
                     surfaceIndices={darkIdx.surface}
                     borderIndices={darkIdx.border}
                     textIndices={darkIdx.text}
+                    alphaBaseIndex={alphaBaseIndices?.darkBase}
                   />
                 </div>
               </div>
@@ -90,6 +94,7 @@ export function PreviewContextPanel({
             global={global}
             lightTokenView={lightTokenView}
             darkTokenView={darkTokenView}
+            alphaBaseIndices={alphaBaseIndices}
           />
         </div>
       </div>

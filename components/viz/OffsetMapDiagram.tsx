@@ -12,6 +12,8 @@ type Props = {
   surfaceIndices: number[]
   borderIndices: number[]
   textIndices: number[]
+  /** Global index of the alpha base swatch — renders a violet "Alpha" row when set. */
+  alphaBaseIndex?: number
 }
 
 /** Same linear scale as role markers: index 0 at left, last index at right. */
@@ -68,6 +70,7 @@ function OffsetMapDiagramInner({
   surfaceIndices,
   borderIndices,
   textIndices,
+  alphaBaseIndex,
 }: Props) {
   const n = Math.max(2, steps)
 
@@ -78,8 +81,17 @@ function OffsetMapDiagramInner({
       <p className="eyebrow">Offset mapping · {themeLabel}</p>
       <p className="text-[0.7rem] text-muted">{description}</p>
       <OffsetMapRow label="Surface" indices={surfaceIndices} tone="bg-emerald-400/90" steps={steps} tickIndices={tickIndices} />
-      <OffsetMapRow label="Border" indices={borderIndices} tone="bg-[var(--ns-chrome-amber-fill-strong)]" steps={steps} tickIndices={tickIndices} />
-      <OffsetMapRow label="Text" indices={textIndices} tone="bg-[var(--ns-chrome-sky-fill-strong)]" steps={steps} tickIndices={tickIndices} />
+      <OffsetMapRow label="Border" indices={borderIndices} tone="bg-[var(--chrome-amber-fill-strong)]" steps={steps} tickIndices={tickIndices} />
+      <OffsetMapRow label="Text" indices={textIndices} tone="bg-[var(--chrome-sky-fill-strong)]" steps={steps} tickIndices={tickIndices} />
+      {alphaBaseIndex != null && (
+        <OffsetMapRow
+          label="Alpha"
+          indices={[alphaBaseIndex]}
+          tone="bg-violet-400/90"
+          steps={steps}
+          tickIndices={tickIndices}
+        />
+      )}
     </div>
   )
 }

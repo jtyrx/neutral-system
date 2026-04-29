@@ -26,6 +26,7 @@ type Props = {
     label?: string,
   ) => void
   steps: number
+  alphaBaseIndices?: {lightBase: number; darkBase: number}
 }
 
 function NumField({
@@ -48,7 +49,7 @@ function NumField({
   return (
     <label className="space-y-1">
       <span className="ns-label">{label}</span>
-      {hint ? <span className="block text-[0.65rem] leading-snug text-faint">{hint}</span> : null}
+      {hint ? <span className="block text-[0.65rem] leading-snug text-disabled">{hint}</span> : null}
       <input
         type="number"
         min={min}
@@ -77,6 +78,7 @@ function SystemMappingSectionInner({
   contrastEmphasis,
   patchSystem,
   steps,
+  alphaBaseIndices,
 }: Props) {
   const n = Math.max(2, steps)
 
@@ -160,9 +162,9 @@ function SystemMappingSectionInner({
         id="light-theme-role-ladders"
         className="grid gap-4 nsb-lg:grid-cols-2 nsb-lg:gap-6"
       >
-        <div className="rounded-2xl border border-(--ns-chrome-amber-border) bg-(--ns-chrome-amber-surface) p-4 sm:p-5 flex flex-col justify-between">
-          <div className="border-b border-(--ns-chrome-amber-border-soft) pb-3">
-            <p className="eyebrow text-(--ns-chrome-amber-text)">Light theme</p>
+        <div className="rounded-2xl border border-(--chrome-amber-border) bg-(--chrome-amber-surface) p-4 sm:p-5 flex flex-col justify-between">
+          <div className="border-b border-(--chrome-amber-border-soft) pb-3">
+            <p className="eyebrow text-(--chrome-amber-text)">Light theme</p>
             <h3 className="mt-1 text-base font-semibold text-default">Role ladders</h3>
             <p className="mt-1 text-xs text-muted">
               Picks step along the global ramp from the light end (low index = lightest).
@@ -172,7 +174,7 @@ function SystemMappingSectionInner({
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-amber-text)">Surface</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Surface</h4>
                 <p className="mt-0.5 text-[0.65rem] text-muted">Surface / background ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
@@ -204,9 +206,9 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={lightIdx.surface} />
             </div>
 
-            <div className="space-y-3 border-t border-(--ns-chrome-amber-border-faint) pt-5">
+            <div className="space-y-3 border-t border-(--chrome-amber-border-faint) pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-amber-text)">Border</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Border</h4>
                 <p className="mt-0.5 text-[0.65rem] text-muted">Borders & dividers</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
@@ -237,9 +239,9 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={lightIdx.border} />
             </div>
 
-            <div className="space-y-3 border-t border-(--ns-chrome-amber-border-faint) pt-5">
+            <div className="space-y-3 border-t border-(--chrome-amber-border-faint) pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-amber-text)">Text</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Text</h4>
                 <p className="mt-0.5 text-[0.65rem] text-muted">Foreground & secondary type</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
@@ -274,10 +276,10 @@ function SystemMappingSectionInner({
 
         <div
           id="dark-theme-role-ladders"
-          className="rounded-2xl border border-(--ns-chrome-sky-border) bg-(--ns-chrome-sky-surface) p-4 sm:p-5 flex flex-col justify-between"
+          className="rounded-2xl border border-(--chrome-sky-border) bg-(--chrome-sky-surface) p-4 sm:p-5 flex flex-col justify-between"
         >
-          <div className="border-b border-(--ns-chrome-sky-border-soft) pb-3">
-            <p className="eyebrow text-(--ns-chrome-sky-text)">Dark elevated</p>
+          <div className="border-b border-(--chrome-sky-border-soft) pb-3">
+            <p className="eyebrow text-(--chrome-sky-text)">Dark elevated</p>
             <h3 className="mt-1 text-base font-semibold text-default">Role ladders</h3>
             <p className="mt-1 text-xs text-muted">
               Independent controls; surfaces anchor from the dark edge of the shared ramp, while
@@ -288,7 +290,7 @@ function SystemMappingSectionInner({
           <div className="mt-4 space-y-6">
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-sky-text)">Surface</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Surface</h4>
                 <p className="mt-0.5 text-[0.65rem] text-muted">Dark-edge anchored surface ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
@@ -320,9 +322,9 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={darkIdx.surface} />
             </div>
 
-            <div className="space-y-3 border-t border-(--ns-chrome-sky-border-faint) pt-5">
+            <div className="space-y-3 border-t border-(--chrome-sky-border-faint) pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-sky-text)">Border</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Border</h4>
                 <p className="mt-0.5 text-[0.65rem] text-muted">Hairline / divider ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
@@ -353,9 +355,9 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={darkIdx.border} />
             </div>
 
-            <div className="space-y-3 border-t border-(--ns-chrome-sky-border-faint) pt-5">
+            <div className="space-y-3 border-t border-(--chrome-sky-border-faint) pt-5">
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--ns-chrome-sky-text)">Text</h4>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Text</h4>
                 <p className="mt-0.5 text-[0.65rem] text-muted">Type ramp (stroke-text picker)</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
@@ -398,6 +400,7 @@ function SystemMappingSectionInner({
             surfaceIndices={lightIdx.surface}
             borderIndices={lightIdx.border}
             textIndices={lightIdx.text}
+            alphaBaseIndex={alphaBaseIndices?.lightBase}
           />
           <OffsetMapDiagram
             steps={steps}
@@ -406,6 +409,7 @@ function SystemMappingSectionInner({
             surfaceIndices={darkIdx.surface}
             borderIndices={darkIdx.border}
             textIndices={darkIdx.text}
+            alphaBaseIndex={alphaBaseIndices?.darkBase}
           />
         </div>
         <ThemeRangeBar steps={steps} darkSegmentLength={config.darkSegmentLength} />

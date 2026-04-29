@@ -139,6 +139,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           contrastEmphasis={wb.contrastEmphasis}
           patchSystem={wb.patchSystem}
           steps={steps}
+          alphaBaseIndices={wb.alphaBaseIndices}
         />
       </CollapsibleControlGroup>
 

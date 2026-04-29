@@ -1,5 +1,13 @@
-import {linesLiveThemeNsChromeBlock} from '@/lib/neutral-engine/chromeAliases'
-import type {GlobalSwatch} from '@/lib/neutral-engine/types'
+import {
+  legacyNeutralColorCssVarName,
+  linesLiveThemeChromeBlock,
+  neutralPrimitiveCssVarName,
+} from '@/lib/neutral-engine/chromeAliases'
+import {
+  DEFAULT_ALPHA_NEUTRAL_CONFIG,
+  deriveAlphaNeutralCssLines,
+} from '@/lib/neutral-engine/alphaNeutralTokens'
+import type {AlphaNeutralConfig, GlobalSwatch} from '@/lib/neutral-engine/types'
 import type {SystemToken} from '@/lib/neutral-engine/types'
 
 /** Safe fragment for CSS fragments (dots → hyphens): `surface.default` → `surface-default`. */
@@ -36,13 +44,13 @@ function semanticCssValue(t: SystemToken, global: GlobalSwatch[]): string {
     return t.serialized.oklchCss
   }
   const sw = global[t.sourceGlobalIndex]
-  return sw ? `var(--color-neutral-${sw.label})` : t.serialized.oklchCss
+  return sw ? `var(--${neutralPrimitiveCssVarName(sw.label)})` : t.serialized.oklchCss
 }
 
 /**
- * Re-declares `globals.css` `--ns-*` → tier-2 `--color-*` inside each `[data-theme]` block from
- * the live stylesheet. Without this, injected `--color-*` updates while `--ns-*` stay static until
- * refresh. See `linesLiveThemeNsChromeBlock` in `chromeAliases.ts`.
+ * Injects tier-1 `--neutral-*`, legacy `--color-neutral-*`, per-theme `--color-*` semantics,
+ * and `--chrome-*` mixers. Legacy `--ns-*` role aliases are **not** duplicated here — they
+ * resolve via `var(--color-*)` in `app/globals.css`.
  */
 export function exportJson(params: {
   global: GlobalSwatch[]
@@ -84,25 +92,42 @@ export function exportCssVariables(params: {
   global: GlobalSwatch[]
   light: SystemToken[]
   dark: SystemToken[]
+  alphaConfig?: AlphaNeutralConfig
 }): string {
   const lines: string[] = [':root {']
+  const alphaConfig = params.alphaConfig ?? DEFAULT_ALPHA_NEUTRAL_CONFIG
+  const alphaBlock = deriveAlphaNeutralCssLines(params.global, params.light, params.dark, alphaConfig)
   params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: ${s.serialized.oklchCss};`)
+    const prim = neutralPrimitiveCssVarName(s.label)
+    const legacy = legacyNeutralColorCssVarName(s.label)
+    lines.push(`  --${prim}: ${s.serialized.oklchCss};`)
+    lines.push(`  --${legacy}: var(--${prim});`)
   })
+  lines.push('}')
+  lines.push('')
+  // Dark-elevated tier-2 + chrome on `:root` so `var(--color-*)` resolves before `data-theme` is set (SSR / FOUC).
+  lines.push(':root {')
+  params.dark.forEach((t) => {
+    lines.push(`  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, params.global)};`)
+  })
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="light"] {')
   params.light.forEach((t) => {
     lines.push(`  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, params.global)};`)
   })
-  lines.push(...linesLiveThemeNsChromeBlock())
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="dark"] {')
   params.dark.forEach((t) => {
     lines.push(`  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, params.global)};`)
   })
-  lines.push(...linesLiveThemeNsChromeBlock())
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   return lines.join('\n')
 }
@@ -130,13 +155,19 @@ export function exportTailwindV4ThemeInline(params: {
     ':root {',
   ]
   params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: ${s.serialized.oklchCss};`)
+    const prim = neutralPrimitiveCssVarName(s.label)
+    const legacy = legacyNeutralColorCssVarName(s.label)
+    lines.push(`  --${prim}: ${s.serialized.oklchCss};`)
+    lines.push(`  --${legacy}: var(--${prim});`)
   })
   lines.push('}')
   lines.push('')
   lines.push('@theme inline {')
   params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: var(--color-neutral-${s.label});`)
+    const prim = neutralPrimitiveCssVarName(s.label)
+    const legacy = legacyNeutralColorCssVarName(s.label)
+    lines.push(`  --${prim}: var(--${prim});`)
+    lines.push(`  --${legacy}: var(--${prim});`)
   })
   lines.push(
     '  /* Tier 2 semantics (light): --color-* maps to bg-surface-default, text-default, border-focus, etc. */',
@@ -159,7 +190,8 @@ export function exportTailwindThemeSnippet(params: {
 }): string {
   const lines: string[] = ['// tailwind @theme extension (primitives only)', '@theme inline {']
   params.global.forEach((s) => {
-    lines.push(`  --color-neutral-${s.label}: ${s.serialized.oklchCss};`)
+    const prim = neutralPrimitiveCssVarName(s.label)
+    lines.push(`  --${prim}: ${s.serialized.oklchCss};`)
   })
   lines.push('}')
   return lines.join('\n')

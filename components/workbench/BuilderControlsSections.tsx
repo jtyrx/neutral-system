@@ -141,6 +141,43 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           steps={steps}
           alphaBaseIndices={wb.alphaBaseIndices}
         />
+        <div className="mt-6 border-t border-hairline pt-6 space-y-3">
+          <div>
+            <p className="text-xs font-medium text-default">Alpha neutral base offset</p>
+            <p className="text-xs text-muted">
+              Nudge the alpha token anchor from <code className="font-mono">text.default</code> resolved index.
+              Light base: {wb.alphaBaseIndices.lightBase} · Dark base: {wb.alphaBaseIndices.darkBase}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">Light offset</span>
+              <input
+                type="number"
+                min={-10}
+                max={10}
+                value={wb.alphaConfig.lightIndexOffset}
+                onChange={(e) =>
+                  wb.setAlphaConfig((prev) => ({...prev, lightIndexOffset: Number(e.target.value)}))
+                }
+                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right text-xs font-mono"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">Dark offset</span>
+              <input
+                type="number"
+                min={-10}
+                max={10}
+                value={wb.alphaConfig.darkIndexOffset}
+                onChange={(e) =>
+                  wb.setAlphaConfig((prev) => ({...prev, darkIndexOffset: Number(e.target.value)}))
+                }
+                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right text-xs font-mono"
+              />
+            </label>
+          </div>
+        </div>
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup

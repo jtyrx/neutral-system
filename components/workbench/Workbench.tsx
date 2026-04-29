@@ -67,6 +67,7 @@ export function Workbench() {
         global={wb.global}
         lightTokens={wb.lightTokens}
         darkTokens={wb.darkTokens}
+        alphaConfig={wb.alphaConfig}
       />
       <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 

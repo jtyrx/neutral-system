@@ -28,10 +28,13 @@ import {
   buildGlobalScale,
   buildTokenView,
   clampSystemMappingToLadderLength,
+  DEFAULT_ALPHA_NEUTRAL_CONFIG,
   DEFAULT_SYSTEM_MAPPING,
   deriveBrandSurfaceToken,
+  deriveAlphaBaseIndices,
   deriveSystemTokens,
   okhslViewFromConfig,
+  type AlphaNeutralConfig,
   type ContrastEmphasis,
   type GlobalScaleConfig,
   type GlobalSwatch,
@@ -43,21 +46,12 @@ import {
   type TokenView,
   type WorkbenchSelection,
 } from '@/lib/neutral-engine'
+import {DEFAULT_GLOBAL_SCALE_CONFIG} from '@/lib/neutral-engine/defaultGlobalScaleConfig'
 import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import {labelForGlobalPatchKey, labelForSystemPatchKey} from '@/lib/neutral-engine/workbenchInputLabels'
 
-const DEFAULT_GLOBAL: GlobalScaleConfig = {
-  steps: 41,
-  lHigh: 0.985,
-  lLow: 0.1615,
-  progression: 'linear',
-  chromaMode: 'achromatic',
-  baseChroma: 0.012,
-  hue: 260,
-  namingStyle: 'token_ladder',
-  variantId: 'pure',
-}
+const DEFAULT_GLOBAL: GlobalScaleConfig = DEFAULT_GLOBAL_SCALE_CONFIG
 
 const DEFAULT_SYSTEM: SystemMappingConfig = DEFAULT_SYSTEM_MAPPING
 
@@ -78,6 +72,7 @@ export function useNeutralWorkbench() {
   const [inspectionMode, setInspectionMode] = useState(false)
   const [busyInputLabel, setBusyInputLabel] = useState('Updating')
   const [okhslEnabled, setOkhslEnabled] = useState(false)
+  const [alphaConfig, setAlphaConfig] = useState<AlphaNeutralConfig>(DEFAULT_ALPHA_NEUTRAL_CONFIG)
 
   const touchBusyLabel = useCallback((label: string) => {
     setBusyInputLabel(label)
@@ -269,6 +264,11 @@ export function useNeutralWorkbench() {
   const lightTokenView = useMemo(() => buildTokenView(lightTokens), [lightTokens])
   const darkTokenView = useMemo(() => buildTokenView(darkTokens), [darkTokens])
 
+  const alphaBaseIndices = useMemo(
+    () => deriveAlphaBaseIndices(global, lightTokens, darkTokens, alphaConfig),
+    [global, lightTokens, darkTokens, alphaConfig],
+  )
+
   const activeSystemTokens = previewTheme === 'light' ? lightTokens : darkTokens
   const activeTokenView = useMemo(
     (): TokenView => (previewTheme === 'light' ? lightTokenView : darkTokenView),
@@ -333,6 +333,9 @@ export function useNeutralWorkbench() {
       setOkhslEnabled,
       okhslView,
       setGlobalConfigFromOkhsl,
+      alphaConfig,
+      setAlphaConfig,
+      alphaBaseIndices,
     }),
     [
       globalConfig,
@@ -368,6 +371,9 @@ export function useNeutralWorkbench() {
       setOkhslEnabled,
       okhslView,
       setGlobalConfigFromOkhsl,
+      alphaConfig,
+      setAlphaConfig,
+      alphaBaseIndices,
     ],
   )
 }

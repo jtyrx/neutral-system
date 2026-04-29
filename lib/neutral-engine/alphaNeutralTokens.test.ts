@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import type {GlobalSwatch, SystemToken} from './types'
+import type {GlobalSwatch, SystemRole, SystemToken} from './types'
 import {
   DEFAULT_ALPHA_NEUTRAL_CONFIG,
   deriveAlphaBaseIndex,
@@ -24,7 +24,7 @@ function makeToken(role: string, sourceIndex: number): SystemToken {
   return {
     id: role,
     name: role,
-    role: role as any,
+    role: role as SystemRole,
     theme: 'light',
     sourceGlobalIndex: sourceIndex,
     serialized: {

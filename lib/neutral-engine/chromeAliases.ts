@@ -12,7 +12,8 @@ import type {ThemeMode} from '@/lib/neutral-engine/types'
 
 /**
  * Tier-1 primitive naming — Simple Mode uses `--color-neutral-{label}`.
- * Advanced Mode uses sibling namespaces `--color-neutral-light-{label}` / `--color-neutral-dark-{label}`.
+ * Advanced Mode: light sibling uses the same namespace (`--color-neutral-{label}`);
+ * dark sibling uses `--color-neutral-dark-{label}` (independent ramp).
  */
 export type Tier1NeutralExportMode =
   | {architecture: 'simple'}
@@ -25,7 +26,7 @@ export function tier1NeutralCssVarName(label: string, exportMode?: Tier1NeutralE
     return `color-neutral-${label}`
   }
   return exportMode.scale === 'light'
-    ? `color-neutral-light-${label}`
+    ? `color-neutral-${label}`
     : `color-neutral-dark-${label}`
 }
 

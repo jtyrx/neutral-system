@@ -27,7 +27,7 @@ const DEFAULT_DARK_SCALE_VALUES = {
   lLow: 0.185,
   progression: 'linear',
   lCurve: 'ease-out-light',
-  lCurveStrength: 0.92,
+  lCurveStrength: 1,
   chromaMode: 'achromatic',
   baseChroma: 0.012,
   hue: 260,

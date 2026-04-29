@@ -29,7 +29,7 @@ function alphaLines(
   baseIndex: number,
   swatches: GlobalSwatch[],
   stops: readonly [number, number, number, number],
-  /** When set (Advanced Mode sibling ramps), emits `--color-neutral-light-*` / `--color-neutral-dark-*` refs. */
+  /** When set (Advanced Mode sibling ramps), emits `--color-neutral-*` / `--color-neutral-dark-*` refs via {@link tier1NeutralCssVarName}. */
   tier1Advanced?: Exclude<Tier1NeutralExportMode, {architecture: 'simple'}>,
 ): string[] {
   const swatch = swatches[baseIndex]

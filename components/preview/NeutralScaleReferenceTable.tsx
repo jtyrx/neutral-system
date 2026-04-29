@@ -11,7 +11,7 @@ export type NeutralTableThemeContext = 'light' | 'dark' | 'both'
 
 type Props = {
   global: GlobalSwatch[]
-  /** Advanced mode: light vs dark tier-1 names (`neutral-light-*` / `neutral-dark-*`). Ignored when simple or omitted. */
+  /** Advanced mode: light sibling uses `--color-neutral-*`; dark sibling uses `--color-neutral-dark-*`. Ignored when simple or omitted. */
   tier1ExportMode?: Tier1NeutralExportMode
   /** Frame the table with Light (amber) or Dark (sky) preview chrome. */
   themeContext?: NeutralTableThemeContext

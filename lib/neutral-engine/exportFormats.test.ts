@@ -78,7 +78,7 @@ describe('exportCssVariables', () => {
 })
 
 describe('exportCssVariables (advanced sibling ramps)', () => {
-  it('emits separate light/dark tier-1 `--color-neutral-light-*` / `--color-neutral-dark-*` primitives', () => {
+  it('emits light sibling `--color-neutral-*` (not `-light-*`) plus dark `--color-neutral-dark-*` primitives', () => {
     const ramps = buildArchitectureRamps({
       architecture: 'advanced',
       globalScale: DEFAULT_GLOBAL_SCALE_CONFIG,
@@ -90,8 +90,10 @@ describe('exportCssVariables (advanced sibling ramps)', () => {
     const base = clampSystemMappingToLadderLength(n, DEFAULT_SYSTEM_MAPPING)
     const {light, dark} = deriveAllThemeTokens(ramps, base)
     const css = exportCssVariables({architecture: 'advanced', ramps, light, dark})
-    expect(css).toMatch(/\s--color-neutral-light-[a-zA-Z0-9]+:/)
+    expect(css).not.toMatch(/--color-neutral-light-/)
     expect(css).toMatch(/\s--color-neutral-dark-[a-zA-Z0-9]+:/)
+    const firstLightLabel = ramps.light[0]?.label ?? '0'
+    expect(css).toContain(`  --color-neutral-${firstLightLabel}:`)
   })
 })
 

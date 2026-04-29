@@ -9,10 +9,12 @@ import {WorkbenchHeader} from '@/components/workbench/WorkbenchHeader'
 import {WorkbenchLoadingToast} from '@/components/workbench/WorkbenchLoadingToast'
 import {WorkbenchPreviewColumn} from '@/components/workbench/WorkbenchPreviewColumn'
 import {useNeutralWorkbench} from '@/hooks/useNeutralWorkbench'
-import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import {migrateSystemMappingConfig} from '@/lib/neutral-engine'
+import {DEFAULT_GLOBAL_SCALE_CONFIG} from '@/lib/neutral-engine/defaultGlobalScaleConfig'
+import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import type {
   GlobalScaleConfig,
+  NeutralArchitectureMode,
   SystemMappingConfig,
   SystemToken,
 } from '@/lib/neutral-engine/types'
@@ -22,34 +24,94 @@ const EMPTY_SYSTEM_TOKENS: SystemToken[] = []
 
 export function Workbench() {
   const wb = useNeutralWorkbench()
-  const setGlobalConfig = wb.setGlobalConfig
-  const setSystemConfig = wb.setSystemConfig
-  const setSelection = wb.setSelection
+  const {
+    setSystemConfig,
+    setSelection,
+    setGlobalScale,
+    setLightScale,
+    setDarkScale,
+    setNeutralArchitecture,
+  } = wb
 
   useEffect(() => {
     function onLoad(e: Event) {
       const ce = e as CustomEvent<{
-        globalConfig: GlobalScaleConfig
-        systemConfig: SystemMappingConfig
+        globalConfig?: GlobalScaleConfig
+        architecture?: NeutralArchitectureMode
+        globalScale?: GlobalScaleConfig
+        lightScale?: GlobalScaleConfig
+        darkScale?: GlobalScaleConfig
+        systemConfig?: SystemMappingConfig
       }>
-      if (ce.detail?.globalConfig) {
-        const g = ce.detail.globalConfig
-        setGlobalConfig(
-          {...g, steps: clampGlobalScaleSteps(g.steps)},
+      const d = ce.detail
+      if (!d) return
+      if (d.systemConfig) {
+        setSystemConfig(migrateSystemMappingConfig(d.systemConfig), 'System mapping')
+      }
+
+      const legacyOnlyGlobal =
+        Boolean(d.globalConfig) &&
+        d.globalScale === undefined &&
+        d.lightScale === undefined &&
+        d.darkScale === undefined
+
+      if (legacyOnlyGlobal) {
+        const arch = d.architecture ?? 'simple'
+        setNeutralArchitecture(arch as NeutralArchitectureMode, 'Preset · load')
+        setGlobalScale(
+          {
+            ...DEFAULT_GLOBAL_SCALE_CONFIG,
+            ...d.globalConfig,
+            steps: clampGlobalScaleSteps(d.globalConfig!.steps ?? 16),
+          },
+          'Global scale',
+        )
+        return
+      }
+
+      if (d.architecture != null) {
+        setNeutralArchitecture(d.architecture, 'Preset · architecture')
+      }
+      if (d.globalScale) {
+        setGlobalScale(
+          {
+            ...DEFAULT_GLOBAL_SCALE_CONFIG,
+            ...d.globalScale,
+            steps: clampGlobalScaleSteps(d.globalScale.steps),
+          },
           'Global scale',
         )
       }
-      if (ce.detail?.systemConfig) {
-        setSystemConfig(
-          migrateSystemMappingConfig(ce.detail.systemConfig),
-          'System mapping',
+      if (d.lightScale) {
+        setLightScale(
+          (prev) => ({
+            ...prev,
+            ...d.lightScale,
+            steps: clampGlobalScaleSteps(d.lightScale!.steps),
+          }),
+          'Light scale',
+        )
+      }
+      if (d.darkScale) {
+        setDarkScale(
+          (prev) => ({
+            ...prev,
+            ...d.darkScale,
+            steps: clampGlobalScaleSteps(d.darkScale!.steps),
+          }),
+          'Dark scale',
         )
       }
     }
     window.addEventListener('neutral-system:load-preset', onLoad)
-    return () =>
-      window.removeEventListener('neutral-system:load-preset', onLoad)
-  }, [setGlobalConfig, setSystemConfig])
+    return () => window.removeEventListener('neutral-system:load-preset', onLoad)
+  }, [
+    setSystemConfig,
+    setNeutralArchitecture,
+    setGlobalScale,
+    setLightScale,
+    setDarkScale,
+  ])
 
   const selectedGlobalIndex =
     wb.selection?.kind === 'global' ? wb.selection.index : null
@@ -64,7 +126,8 @@ export function Workbench() {
       className="ns-workbench bg-(--ns-app-bg) text-(--ns-text)"
     >
       <LiveThemeStyles
-        global={wb.global}
+        architecture={wb.neutralArchitecture}
+        ramps={wb.architectureRamps}
         lightTokens={wb.lightTokens}
         darkTokens={wb.darkTokens}
         alphaConfig={wb.alphaConfig}
@@ -84,10 +147,6 @@ export function Workbench() {
         onToggleInspection={wb.toggleInspectionMode}
       />
 
-      {/* <aside className="ns-workbench__controls-col order-2 min-h-0 border-hairline lg:order-0 lg:border-r lg:bg-raised">
-         <WorkbenchControlsShell wb={wb} selectedGlobalIndex={selectedGlobalIndex} /> 
-      </aside> */}
-
       <main
         id="nsb-preview-column"
         className="ns-workbench__preview-col min-h-0 min-w-0 bg-sunken!"
@@ -95,7 +154,10 @@ export function Workbench() {
         <WorkbenchPreviewColumn
           previewTheme={wb.previewTheme}
           showContrastPairs={wb.showContrastPairs}
-          global={wb.global}
+          neutralArchitecture={wb.neutralArchitecture}
+          globalLight={wb.lightRamp}
+          globalDark={wb.darkRamp}
+          unifiedGlobal={wb.neutralArchitecture === 'simple' ? wb.lightRamp : undefined}
           lightTokens={wb.lightTokens}
           darkTokens={wb.darkTokens}
           lightTokenView={wb.lightTokenView}
@@ -104,8 +166,10 @@ export function Workbench() {
           comparisonLayout={wb.comparisonLayout}
           inspectionMode={wb.inspectionMode}
           onSelectSystem={wb.selectSystem}
-          derivationConfig={wb.effectiveMappingConfig}
-          steps={clampGlobalScaleSteps(wb.globalConfig.steps)}
+          derivationConfigLight={wb.effectiveMappingLight}
+          derivationConfigDark={wb.effectiveMappingDark}
+          ladderLightSteps={wb.ladderLightSteps}
+          ladderDarkSteps={wb.ladderDarkSteps}
           alphaBaseIndices={wb.alphaBaseIndices}
         />
       </main>
@@ -117,7 +181,7 @@ export function Workbench() {
         <div className="ns-workbench__inspector-scroll bg-sunken p-4">
           <Inspector
             selection={wb.selection}
-            global={wb.global}
+            global={wb.inspectionGlobalRamp}
             lightTokens={
               wb.selection?.kind === 'system'
                 ? wb.lightTokens

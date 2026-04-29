@@ -13,7 +13,14 @@ import {
 } from '@/components/preview/SemanticPairGrid'
 import {SemanticRoleTable, type SemanticLayerFilter} from '@/components/preview/SemanticRoleTable'
 import {UsedNeutralPrimitivesTable} from '@/components/preview/UsedNeutralPrimitivesTable'
-import {usedGlobalIndicesFromTokenViews, type GlobalSwatch, type TokenView} from '@/lib/neutral-engine'
+import {
+  tier1ExportModeFromTheme,
+  usedGlobalIndicesFromTokenView,
+  usedGlobalIndicesFromTokenViews,
+  type GlobalSwatch,
+  type NeutralArchitectureMode,
+  type TokenView,
+} from '@/lib/neutral-engine'
 
 export type PairedRolesPanelVariant = 'split' | 'focus'
 
@@ -69,7 +76,9 @@ function neutralThemeContext(
 
 export type PairedRolesPanelProps = {
   variant: PairedRolesPanelVariant
-  global: GlobalSwatch[]
+  neutralArchitecture: NeutralArchitectureMode
+  globalLight: GlobalSwatch[]
+  globalDark: GlobalSwatch[]
   lightTokenView: TokenView
   darkTokenView: TokenView
   /** Focus layout: active preview theme (drives single-theme chrome). */
@@ -79,12 +88,15 @@ export type PairedRolesPanelProps = {
 
 export function PairedRolesPanel({
   variant,
-  global,
+  neutralArchitecture,
+  globalLight,
+  globalDark,
   lightTokenView,
   darkTokenView,
   focusTheme = 'light',
   groupHints,
 }: PairedRolesPanelProps) {
+  const advanced = neutralArchitecture === 'advanced'
   const [inspectionView, setInspectionView] = useState<InspectionView>('paired')
   const [themeFocus, setThemeFocus] = useState<ThemeFocus>('both')
   const [roleScope, setRoleScope] = useState<RoleScope>('all')
@@ -102,10 +114,16 @@ export function PairedRolesPanel({
     [variant, themeFocus, focusTheme],
   )
 
-  const usedGlobalIndices = useMemo(
+  const usedLightIndices = useMemo(() => usedGlobalIndicesFromTokenView(lightTokenView), [lightTokenView])
+  const usedDarkIndices = useMemo(() => usedGlobalIndicesFromTokenView(darkTokenView), [darkTokenView])
+
+  const usedCombinedIndices = useMemo(
     () => usedGlobalIndicesFromTokenViews(lightTokenView, darkTokenView),
     [lightTokenView, darkTokenView],
   )
+
+  const tier1LightExport = advanced ? tier1ExportModeFromTheme('light') : {architecture: 'simple' as const}
+  const tier1DarkExport = advanced ? tier1ExportModeFromTheme('darkElevated') : {architecture: 'simple' as const}
 
   const onInspection = useCallback((v: InspectionView) => setInspectionView(v), [])
   const onThemeFocus = useCallback((v: ThemeFocus) => setThemeFocus(v), [])
@@ -156,7 +174,7 @@ export function PairedRolesPanel({
               options={THEME_FOCUS_OPTIONS}
               onChange={onThemeFocus}
             />
-            <p className="mt-2 text-[0.6rem] text-faint">
+            <p className="mt-2 text-[0.6rem] text-disabled">
               {inspectionView === 'neutral'
                 ? 'Frames the neutral ladder with Light (amber) or Dark (sky) preview chrome.'
                 : 'Emphasizes Light, Dark, or both columns in paired output.'}
@@ -211,38 +229,64 @@ export function PairedRolesPanel({
           <SemanticPairGrid
             lightTokenView={lightTokenView}
             darkTokenView={darkTokenView}
-            global={global}
+            globalLight={globalLight}
+            globalDark={globalDark}
             groupHints={groupHints}
             pairEmphasis={pairEmphasis}
           />
         ) : null}
 
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'usedPrimitives' ? (
-          <UsedNeutralPrimitivesTable
-            global={global}
-            usedIndices={usedGlobalIndices}
-            label="Used neutral primitive tokens (light and dark mapping)"
-          />
+          advanced ? (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">
+                  Light ramp
+                </p>
+                <UsedNeutralPrimitivesTable
+                  global={globalLight}
+                  usedIndices={usedLightIndices}
+                  label="Used neutral primitive tokens — Light mapping"
+                />
+              </div>
+              <div className="space-y-2 border-t border-hairline pt-6">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
+                  Dark elevated ramp
+                </p>
+                <UsedNeutralPrimitivesTable
+                  global={globalDark}
+                  usedIndices={usedDarkIndices}
+                  label="Used neutral primitive tokens — Dark elevated mapping"
+                />
+              </div>
+            </div>
+          ) : (
+            <UsedNeutralPrimitivesTable
+              global={globalLight}
+              usedIndices={usedCombinedIndices}
+              label="Used neutral primitive tokens (light and dark mapping)"
+            />
+          )
         ) : null}
 
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'table' ? (
           <div className="grid gap-6 nsb-lg:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-amber-text)">Light</p>
+              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">Light</p>
               <SemanticRoleTable
                 tokenView={lightTokenView}
-                global={global}
+                global={globalLight}
                 label="Light primitive token mapping"
                 layerFilter={layerFilter}
               />
             </div>
             <div className="space-y-2">
-              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-chrome-sky-text)">
+              <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                 Dark elevated
               </p>
               <SemanticRoleTable
                 tokenView={darkTokenView}
-                global={global}
+                global={globalDark}
                 label="Dark elevated primitive token mapping"
                 layerFilter={layerFilter}
               />
@@ -253,7 +297,7 @@ export function PairedRolesPanel({
         {inspectionView === 'paired' && variant === 'focus' && displayMode === 'visual' ? (
           <SemanticSingleThemeGrid
             tokenView={focusTokenView}
-            global={global}
+            global={focusTheme === 'light' ? globalLight : globalDark}
             groupHints={groupHints}
             themeChrome={focusTheme}
           />
@@ -266,7 +310,7 @@ export function PairedRolesPanel({
             </p>
             <SemanticRoleTable
               tokenView={focusTokenView}
-              global={global}
+              global={focusTheme === 'light' ? globalLight : globalDark}
               label={`${focusTitle} primitive token mapping`}
               layerFilter={layerFilter}
             />
@@ -279,19 +323,72 @@ export function PairedRolesPanel({
               Used neutral primitives
             </p>
             <UsedNeutralPrimitivesTable
-              global={global}
-              usedIndices={usedGlobalIndices}
-              label="Used neutral primitive tokens (light and dark mapping)"
+              global={focusTheme === 'light' ? globalLight : globalDark}
+              usedIndices={focusTheme === 'light' ? usedLightIndices : usedDarkIndices}
+              label={`Used neutral primitive tokens — ${focusTitle} mapping`}
             />
           </div>
         ) : null}
 
-        {inspectionView === 'neutral' ? (
+        {inspectionView === 'neutral' && advanced && neutralCtx === 'both' ? (
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">
+                Light ramp
+              </p>
+              <NeutralScaleReferenceTable
+                global={globalLight}
+                tier1ExportMode={tier1LightExport}
+                themeContext="light"
+                embedded
+              />
+              <NeutralScaleUsageTable
+                global={globalLight}
+                usedIndices={usedLightIndices}
+                tier1ExportMode={tier1LightExport}
+                themeContext="light"
+                embedded
+              />
+            </div>
+            <div className="space-y-2 border-t border-hairline pt-6">
+              <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
+                Dark elevated ramp
+              </p>
+              <NeutralScaleReferenceTable
+                global={globalDark}
+                tier1ExportMode={tier1DarkExport}
+                themeContext="dark"
+                embedded
+              />
+              <NeutralScaleUsageTable
+                global={globalDark}
+                usedIndices={usedDarkIndices}
+                tier1ExportMode={tier1DarkExport}
+                themeContext="dark"
+                embedded
+              />
+            </div>
+          </div>
+        ) : null}
+
+        {inspectionView === 'neutral' && !(advanced && neutralCtx === 'both') ? (
           <>
-            <NeutralScaleReferenceTable global={global} themeContext={neutralCtx} embedded />
+            <NeutralScaleReferenceTable
+              global={advanced && neutralCtx === 'dark' ? globalDark : globalLight}
+              tier1ExportMode={
+                !advanced ? {architecture: 'simple'} : neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport
+              }
+              themeContext={neutralCtx}
+              embedded
+            />
             <NeutralScaleUsageTable
-              global={global}
-              usedIndices={usedGlobalIndices}
+              global={advanced && neutralCtx === 'dark' ? globalDark : globalLight}
+              usedIndices={
+                neutralCtx === 'both' ? usedCombinedIndices : neutralCtx === 'dark' ? usedDarkIndices : usedLightIndices
+              }
+              tier1ExportMode={
+                !advanced ? {architecture: 'simple'} : neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport
+              }
               themeContext={neutralCtx}
               embedded
             />

@@ -1,5 +1,9 @@
-import type {AlphaNeutralConfig, GlobalSwatch, SystemToken} from './types'
-import {neutralPrimitiveCssVarName} from './chromeAliases'
+import type {AlphaNeutralConfig, ArchitectureRamps, GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
+import {
+  tier1ExportModeFromTheme,
+  type Tier1NeutralExportMode,
+  tier1NeutralCssVarName,
+} from '@/lib/neutral-engine/chromeAliases'
 
 export const DEFAULT_ALPHA_NEUTRAL_CONFIG: AlphaNeutralConfig = {
   lightIndexOffset: 0,
@@ -9,13 +13,11 @@ export const DEFAULT_ALPHA_NEUTRAL_CONFIG: AlphaNeutralConfig = {
 
 /**
  * Resolves the ramp index to use as the alpha-token base for a given theme.
- * Primary anchor: `text.default`'s sourceGlobalIndex (highest contrast neutral per theme).
- * Falls back to the last ramp index if text.default is absent.
  */
 export function deriveAlphaBaseIndex(
   tokens: SystemToken[],
   offset: number,
-  rampLength = 41,
+  rampLength: number,
 ): number {
   const textDefault = tokens.find((t) => t.role === 'text.default')
   const baseIndex = textDefault?.sourceGlobalIndex ?? rampLength - 1
@@ -25,48 +27,64 @@ export function deriveAlphaBaseIndex(
 function alphaLines(
   prefix: string,
   baseIndex: number,
-  global: GlobalSwatch[],
+  swatches: GlobalSwatch[],
   stops: readonly [number, number, number, number],
+  /** When set (Advanced Mode sibling ramps), emits `--color-neutral-light-*` / `--color-neutral-dark-*` refs. */
+  tier1Advanced?: Exclude<Tier1NeutralExportMode, {architecture: 'simple'}>,
 ): string[] {
-  const swatch = global[baseIndex]
+  const swatch = swatches[baseIndex]
   if (!swatch) return []
-  const varRef = `var(--${neutralPrimitiveCssVarName(swatch.label)})`
+  const varCssName =
+    tier1Advanced != null ? tier1NeutralCssVarName(swatch.label, tier1Advanced) : tier1NeutralCssVarName(swatch.label)
+  const varRef = `var(--${varCssName})`
   return stops.map((alpha, i) => {
     const pct = Math.round(alpha * 100)
     return `  --color-${prefix}-alpha-${(i + 1) * 100}: color-mix(in oklch, ${varRef} ${pct}%, transparent);`
   })
 }
 
-/**
- * Derives 8 CSS custom-property lines: 4 light (`--color-neutral-alpha-*`)
- * and 4 dark (`--color-dark-neutral-alpha-*`).
- * Intended to be injected into `[data-theme]` blocks by exportCssVariables().
- */
 export function deriveAlphaNeutralCssLines(
-  global: GlobalSwatch[],
+  ramps: ArchitectureRamps,
   lightTokens: SystemToken[],
   darkTokens: SystemToken[],
   config: AlphaNeutralConfig,
 ): string[] {
-  const lightBase = deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, global.length)
-  const darkBase = deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, global.length)
+  if (ramps.architecture === 'simple') {
+    const g = ramps.global
+    const lightBase = deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, g.length)
+    const darkBase = deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, g.length)
+    return [
+      ...alphaLines('neutral', lightBase, g, config.alphaStops),
+      ...alphaLines('dark-neutral', darkBase, g, config.alphaStops),
+    ]
+  }
+
+  const {light: lightRamp, dark: darkRamp} = ramps
+  const lightBase = deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, lightRamp.length)
+  const darkBase = deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, darkRamp.length)
+
   return [
-    ...alphaLines('neutral', lightBase, global, config.alphaStops),
-    ...alphaLines('dark-neutral', darkBase, global, config.alphaStops),
+    ...alphaLines('neutral', lightBase, lightRamp, config.alphaStops, tier1ExportModeFromTheme('light')),
+    ...alphaLines('dark-neutral', darkBase, darkRamp, config.alphaStops, tier1ExportModeFromTheme('darkElevated')),
   ]
 }
 
-/**
- * Returns the resolved base indices for visualization (offset map + ramp badges).
- */
 export function deriveAlphaBaseIndices(
-  global: GlobalSwatch[],
+  ramps: ArchitectureRamps,
   lightTokens: SystemToken[],
   darkTokens: SystemToken[],
   config: AlphaNeutralConfig,
 ): {lightBase: number; darkBase: number} {
+  if (ramps.architecture === 'simple') {
+    const g = ramps.global
+    return {
+      lightBase: deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, g.length),
+      darkBase: deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, g.length),
+    }
+  }
+  const {light: lightRamp, dark: darkRamp} = ramps
   return {
-    lightBase: deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, global.length),
-    darkBase: deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, global.length),
+    lightBase: deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, lightRamp.length),
+    darkBase: deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, darkRamp.length),
   }
 }

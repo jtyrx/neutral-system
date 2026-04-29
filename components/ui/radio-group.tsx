@@ -12,7 +12,7 @@ const radioGroupVariants = cva('grid gap-2', {
     variant: {
       default: 'bg-overlay',
       scrim: cn(
-        'bg-overlay-scrim h-8 p-1',
+        'bg-toolbar-control-surface-sunken h-8 p-1',
         '**:data-[slot=radio-group-indicator]:hidden',
       ),
     },
@@ -30,7 +30,7 @@ const radioGroupItemVariants = cva(
         default:
           'border-input focus-visible:border-ring focus-visible:ring-ring/50 data-checked:border-primary shadow-none',
         scrim:
-          'border-(--ns-hairline) bg-transparent text-(--ns-text-on) shadow-none focus-visible:border-(--ns-border-focus) focus-visible:ring-(--ns-border-focus)/50 data-checked:border-(--ns-text-on)',
+          'border-(--ns-hairline) bg-surface-subtle text-(--ns-text-on) shadow-none focus-visible:border-(--ns-border-focus) focus-visible:ring-(--ns-border-focus)/50 data-checked:border-(--ns-text-on)',
       },
     },
     defaultVariants: {
@@ -43,7 +43,7 @@ const radioGroupIndicatorVariants = cva('size-2 rounded-full', {
   variants: {
     variant: {
       default: 'bg-primary',
-      scrim: 'bg-(--ns-text-on)',
+      scrim: 'bg-surface-subtle',
     },
   },
   defaultVariants: {

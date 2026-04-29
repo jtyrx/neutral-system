@@ -2,13 +2,7 @@
 
 /**
  * Workbench state: all input changes are applied **synchronously** so the single token
- * derivation + CSS write lands within one React commit. Our instrumented costs
- * (`buildGlobalScale` ≤3ms, `deriveSystemTokens` ≤1ms, `buildTokenView` ≤0.2ms,
- * `exportCssVariables` ≤0.2ms, CSS var recalc ≈15ms) total ~15-20ms per click — well
- * under a frame. `useTransition`/`useDeferredValue` were previously used to defer heavy
- * derivation, but that work is now cheap, and relying on the React concurrent scheduler
- * turns a one-frame update into many-frames — catastrophic when the browser throttles
- * rAF to 1Hz for unfocused windows. Synchronous updates stay fast in every focus state.
+ * derivation + CSS write lands within one React commit.
  */
 import type {SetStateAction} from 'react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
@@ -25,19 +19,22 @@ import {
 import {
   applyContrastEmphasisToSystemMapping,
   applyOkhslEdit,
-  buildGlobalScale,
+  buildArchitectureRamps,
   buildTokenView,
   clampSystemMappingToLadderLength,
   DEFAULT_ALPHA_NEUTRAL_CONFIG,
   DEFAULT_SYSTEM_MAPPING,
-  deriveBrandSurfaceToken,
   deriveAlphaBaseIndices,
+  deriveBrandSurfaceToken,
   deriveSystemTokens,
   okhslViewFromConfig,
+  rampForTheme,
   type AlphaNeutralConfig,
+  type ArchitectureRamps,
   type ContrastEmphasis,
   type GlobalScaleConfig,
   type GlobalSwatch,
+  type NeutralArchitectureMode,
   type OkhslEdit,
   type OkhslView,
   type SystemMappingConfig,
@@ -46,7 +43,11 @@ import {
   type TokenView,
   type WorkbenchSelection,
 } from '@/lib/neutral-engine'
-import {DEFAULT_GLOBAL_SCALE_CONFIG} from '@/lib/neutral-engine/defaultGlobalScaleConfig'
+import {
+  DEFAULT_ADVANCED_DARK_SCALE,
+  DEFAULT_ADVANCED_LIGHT_SCALE,
+  DEFAULT_GLOBAL_SCALE_CONFIG,
+} from '@/lib/neutral-engine/defaultGlobalScaleConfig'
 import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import {labelForGlobalPatchKey, labelForSystemPatchKey} from '@/lib/neutral-engine/workbenchInputLabels'
@@ -56,41 +57,75 @@ const DEFAULT_GLOBAL: GlobalScaleConfig = DEFAULT_GLOBAL_SCALE_CONFIG
 const DEFAULT_SYSTEM: SystemMappingConfig = DEFAULT_SYSTEM_MAPPING
 
 export function useNeutralWorkbench() {
-  const [globalConfig, setGlobalConfigBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
+  const [neutralArchitecture, setNeutralArchitectureBase] = useState<NeutralArchitectureMode>('advanced')
+  const [globalScale, setGlobalScaleBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
+  const [lightScale, setLightScaleBase] = useState<GlobalScaleConfig>(DEFAULT_ADVANCED_LIGHT_SCALE)
+  const [darkScale, setDarkScaleBase] = useState<GlobalScaleConfig>(DEFAULT_ADVANCED_DARK_SCALE)
   const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
   const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('default')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
-  /**
-   * Light vs Dark comparison panel: split shows both ramps; focus shows one (preview toolbar picks which).
-   * We still derive light+dark tokens whenever mapping changes — export and theme panels need both themes;
-   * skipping one `deriveSystemTokens` in focus mode would require lazy export or a second deferred pass.
-   */
   const [comparisonLayout, setComparisonLayout] = useState<ComparisonLayout>('split')
   const [showContrastPairs, setShowContrastPairs] = useState(false)
-  /** Inspection mode highlights semantic annotations and routes clicks to the Inspector. */
   const [inspectionMode, setInspectionMode] = useState(false)
   const [busyInputLabel, setBusyInputLabel] = useState('Updating')
   const [okhslEnabled, setOkhslEnabled] = useState(false)
+  /** Which sibling scale variants / OKHSL edit in Advanced Mode. Simple Mode always `'global'`. */
+  const [scaleEditTarget, setScaleEditTarget] = useState<'global' | 'light' | 'dark'>('light')
   const [alphaConfig, setAlphaConfig] = useState<AlphaNeutralConfig>(DEFAULT_ALPHA_NEUTRAL_CONFIG)
 
   const touchBusyLabel = useCallback((label: string) => {
     setBusyInputLabel(label)
   }, [])
 
-  const setGlobalConfig = useCallback(
-    (action: SetStateAction<GlobalScaleConfig>, label = 'Global scale') => {
-      if (presetDebugEnabled()) {
-        beginTimer(label)
-        const last = getLastPreset()
-        if (last) {
-          setLastPreset({...last, setGlobalConfigLabel: label, setGlobalConfigAt: performance.now()})
-        }
+  const bumpPresetTimer = useCallback((label: string) => {
+    if (presetDebugEnabled()) {
+      beginTimer(label)
+      const last = getLastPreset()
+      if (last) {
+        setLastPreset({...last, setGlobalConfigLabel: label, setGlobalConfigAt: performance.now()})
       }
+    }
+  }, [])
+
+  const setNeutralArchitecture = useCallback(
+    (next: NeutralArchitectureMode, label = 'Neutral architecture') => {
       touchBusyLabel(label)
-      setGlobalConfigBase(action)
+      setNeutralArchitectureBase(next)
+      if (next === 'simple') {
+        setScaleEditTarget('global')
+      } else {
+        setScaleEditTarget((t) => (t === 'global' ? 'light' : t))
+      }
     },
     [touchBusyLabel],
+  )
+
+  const setGlobalScaleCfg = useCallback(
+    (action: SetStateAction<GlobalScaleConfig>, label = 'Global scale') => {
+      bumpPresetTimer(label)
+      touchBusyLabel(label)
+      setGlobalScaleBase(action)
+    },
+    [bumpPresetTimer, touchBusyLabel],
+  )
+
+  const setLightScaleCfg = useCallback(
+    (action: SetStateAction<GlobalScaleConfig>, label = 'Light scale') => {
+      bumpPresetTimer(label)
+      touchBusyLabel(label)
+      setLightScaleBase(action)
+    },
+    [bumpPresetTimer, touchBusyLabel],
+  )
+
+  const setDarkScaleCfg = useCallback(
+    (action: SetStateAction<GlobalScaleConfig>, label = 'Dark scale') => {
+      bumpPresetTimer(label)
+      touchBusyLabel(label)
+      setDarkScaleBase(action)
+    },
+    [bumpPresetTimer, touchBusyLabel],
   )
 
   const setSystemConfig = useCallback(
@@ -127,20 +162,31 @@ export function useNeutralWorkbench() {
     [touchBusyLabel, emphasisLabel],
   )
 
-  /** Single-field updates with referential stability when the value is unchanged. */
+  /** Simple Mode — edits legacy unified ramp only. */
   const patchGlobal = useCallback(
     <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => {
       touchBusyLabel(explicitLabel ?? labelForGlobalPatchKey(key))
-      setGlobalConfigBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
+      setGlobalScaleBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
     },
     [touchBusyLabel],
   )
 
-  const setGlobalConfigFromOkhsl = useCallback(
-    (edit: OkhslEdit, label = 'OKHSL') => {
-      setGlobalConfig((cfg) => applyOkhslEdit(cfg, edit), label)
+  /** Advanced Mode — light sibling ramp */
+  const patchLight = useCallback(
+    <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => {
+      touchBusyLabel(explicitLabel ?? labelForGlobalPatchKey(key))
+      setLightScaleBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
     },
-    [setGlobalConfig],
+    [touchBusyLabel],
+  )
+
+  /** Advanced Mode — dark sibling ramp */
+  const patchDark = useCallback(
+    <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => {
+      touchBusyLabel(explicitLabel ?? labelForGlobalPatchKey(key))
+      setDarkScaleBase((prev) => (prev[key] === value ? prev : {...prev, [key]: value}))
+    },
+    [touchBusyLabel],
   )
 
   const patchSystem = useCallback(
@@ -151,22 +197,64 @@ export function useNeutralWorkbench() {
     [touchBusyLabel],
   )
 
-  /**
-   * Always `false` — updates are synchronous and complete in a single commit, so there is
-   * no "pending" window to report. Kept on the return surface for API stability with
-   * consumers that still read it (e.g. `WorkbenchLoadingToast`).
-   */
   const inputBusy = false
 
-  const ladderN = useMemo(() => clampGlobalScaleSteps(globalConfig.steps), [globalConfig.steps])
+  const ladderGlobalN = useMemo(() => clampGlobalScaleSteps(globalScale.steps), [globalScale.steps])
+  const ladderLightN = useMemo(() => clampGlobalScaleSteps(lightScale.steps), [lightScale.steps])
+  const ladderDarkN = useMemo(() => clampGlobalScaleSteps(darkScale.steps), [darkScale.steps])
 
-  /** Ladder-bounded mapping — matches `deriveSystemTokens` / export (starts & dark segment stay in range). */
-  const systemConfig = useMemo(
-    () => clampSystemMappingToLadderLength(ladderN, systemConfigBase),
-    [ladderN, systemConfigBase],
+  const ladderFormN = useMemo(
+    () =>
+      neutralArchitecture === 'advanced'
+        ? Math.max(2, ladderLightN, ladderDarkN)
+        : ladderGlobalN,
+    [neutralArchitecture, ladderGlobalN, ladderLightN, ladderDarkN],
   )
 
-  const global = useMemo(() => buildGlobalScale(globalConfig), [globalConfig])
+  /** UI + shared clamp — widest ladder bounds both themes when Advanced. */
+  const systemConfig = useMemo(
+    () => clampSystemMappingToLadderLength(ladderFormN, systemConfigBase),
+    [ladderFormN, systemConfigBase],
+  )
+
+  const architectureRamps: ArchitectureRamps = useMemo(
+    () =>
+      buildArchitectureRamps({
+        architecture: neutralArchitecture,
+        globalScale,
+        lightScale,
+        darkScale,
+      }),
+    [neutralArchitecture, globalScale, lightScale, darkScale],
+  )
+
+  const effectiveMappingLight = useMemo(
+    () =>
+      applyContrastEmphasisToSystemMapping(
+        clampSystemMappingToLadderLength(ladderLightN, systemConfigBase),
+        contrastEmphasis,
+      ),
+    [systemConfigBase, contrastEmphasis, ladderLightN],
+  )
+
+  const effectiveMappingDark = useMemo(
+    () =>
+      applyContrastEmphasisToSystemMapping(
+        clampSystemMappingToLadderLength(ladderDarkN, systemConfigBase),
+        contrastEmphasis,
+      ),
+    [systemConfigBase, contrastEmphasis, ladderDarkN],
+  )
+
+  /** @deprecated Prefer {@link effectiveMappingLight} — kept for callers that assumed one ladder length. */
+  const effectiveMappingConfig = effectiveMappingLight
+  const immediateMappingConfig = effectiveMappingLight
+
+  const lightRamp = useMemo(() => rampForTheme(architectureRamps, 'light'), [architectureRamps])
+  const darkRamp = useMemo(() => rampForTheme(architectureRamps, 'darkElevated'), [architectureRamps])
+
+  /** Legacy single `global` ramp — mirrors light ramp when Advanced (preview + inspector heuristic). */
+  const global = lightRamp
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -176,44 +264,28 @@ export function useNeutralWorkbench() {
     const perfLabel = last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf'
     console.log(
       perfLabel,
-      'buildGlobalScale',
-      JSON.stringify({label: last.label, steps: global.length, at: performance.now()}),
+      'buildArchitectureRamps',
+      JSON.stringify({label: last.label, lightSteps: lightRamp.length, darkSteps: darkRamp.length, at: performance.now()}),
     )
-  }, [global])
-
-  /**
-   * Same object passed to deriveSystemTokens — also drives resolved-index UI (must stay aligned).
-   * Synchronous: no deferred mirrors, token derivation runs in the same commit as the input change.
-   */
-  const effectiveMappingConfig = useMemo(
-    () =>
-      applyContrastEmphasisToSystemMapping(
-        clampSystemMappingToLadderLength(ladderN, systemConfigBase),
-        contrastEmphasis,
-      ),
-    [systemConfigBase, contrastEmphasis, ladderN],
-  )
-
-  /** Kept as a named alias for the live `surface.brand` OKLCH consumer; identical to effectiveMappingConfig. */
-  const immediateMappingConfig = effectiveMappingConfig
+  }, [lightRamp, darkRamp])
 
   const liveBrandSurfaceOklch = useMemo(() => {
-    const light = deriveBrandSurfaceToken(global, effectiveMappingConfig, 'light')
-    const dark = deriveBrandSurfaceToken(global, effectiveMappingConfig, 'darkElevated')
+    const light = deriveBrandSurfaceToken(lightRamp, effectiveMappingLight, 'light')
+    const dark = deriveBrandSurfaceToken(darkRamp, effectiveMappingDark, 'darkElevated')
     return {
       light: trimCssColorValue(light?.serialized.oklchCss ?? 'oklch(0% 0 none)'),
       dark: trimCssColorValue(dark?.serialized.oklchCss ?? 'oklch(0% 0 none)'),
     }
-  }, [global, effectiveMappingConfig])
+  }, [lightRamp, darkRamp, effectiveMappingLight, effectiveMappingDark])
 
   const lightTokens = useMemo(
-    () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'light'}),
-    [global, effectiveMappingConfig],
+    () => deriveSystemTokens(lightRamp, {...effectiveMappingLight, themeMode: 'light'}),
+    [lightRamp, effectiveMappingLight],
   )
 
   const darkTokens = useMemo(
-    () => deriveSystemTokens(global, {...effectiveMappingConfig, themeMode: 'darkElevated'}),
-    [global, effectiveMappingConfig],
+    () => deriveSystemTokens(darkRamp, {...effectiveMappingDark, themeMode: 'darkElevated'}),
+    [darkRamp, effectiveMappingDark],
   )
 
   useEffect(() => {
@@ -221,16 +293,14 @@ export function useNeutralWorkbench() {
     if (!presetDebugEnabled()) return
     const last = getLastPreset()
     if (!last) return
-    const perfLabel = last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf'
 
-    // End-to-end timer closes here (idempotent across re-renders via `timerEnded` guard).
     endTimerOnce()
 
     try {
       const entry = getPresetCounts(last.at)
       if (entry) {
         console.log(
-          perfLabel,
+          last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf',
           'Summary',
           JSON.stringify({
             kind: last.kind,
@@ -244,7 +314,7 @@ export function useNeutralWorkbench() {
       // ignore
     }
     console.log(
-      perfLabel,
+      last.kind === 'variant' ? 'PresetPerf' : 'ScalePerf',
       'deriveSystemTokens done',
       JSON.stringify({
         kind: last.kind,
@@ -256,18 +326,69 @@ export function useNeutralWorkbench() {
     )
   }, [lightTokens, darkTokens])
 
+  const okhslEditableConfig =
+    neutralArchitecture === 'simple'
+      ? globalScale
+      : scaleEditTarget === 'light'
+        ? lightScale
+        : scaleEditTarget === 'dark'
+          ? darkScale
+          : globalScale
+
   const okhslView: OkhslView = useMemo(
-    () => okhslViewFromConfig(globalConfig),
-    [globalConfig],
+    () => okhslViewFromConfig(okhslEditableConfig),
+    [okhslEditableConfig],
+  )
+
+  const commitOkhslToTarget = useCallback(
+    (cfg: GlobalScaleConfig) => {
+      if (neutralArchitecture === 'simple') {
+        setGlobalScaleBase(cfg)
+        return
+      }
+      if (scaleEditTarget === 'light') setLightScaleBase(cfg)
+      else if (scaleEditTarget === 'dark') setDarkScaleBase(cfg)
+      else setGlobalScaleBase(cfg)
+    },
+    [neutralArchitecture, scaleEditTarget],
+  )
+
+  const setGlobalConfigFromOkhsl = useCallback(
+    (edit: OkhslEdit, label = 'OKHSL') => {
+      if (presetDebugEnabled()) beginTimer(label)
+      touchBusyLabel(label)
+      commitOkhslToTarget(applyOkhslEdit(okhslEditableConfig, edit))
+    },
+    [touchBusyLabel, commitOkhslToTarget, okhslEditableConfig],
+  )
+
+  /** Preset loader & Variants Section — resolves to the active Edit target’s scale setter. */
+  const setScaleConfigPreset = useCallback(
+    (action: SetStateAction<GlobalScaleConfig>, label?: string) => {
+      if (neutralArchitecture === 'simple') {
+        setGlobalScaleCfg(action, label)
+        return
+      }
+      if (scaleEditTarget === 'light') {
+        setLightScaleCfg(action, label)
+      } else if (scaleEditTarget === 'dark') {
+        setDarkScaleCfg(action, label)
+      } else {
+        setGlobalScaleCfg(action, label)
+      }
+    },
+    [neutralArchitecture, scaleEditTarget, setGlobalScaleCfg, setLightScaleCfg, setDarkScaleCfg],
   )
 
   const lightTokenView = useMemo(() => buildTokenView(lightTokens), [lightTokens])
   const darkTokenView = useMemo(() => buildTokenView(darkTokens), [darkTokens])
 
   const alphaBaseIndices = useMemo(
-    () => deriveAlphaBaseIndices(global, lightTokens, darkTokens, alphaConfig),
-    [global, lightTokens, darkTokens, alphaConfig],
+    () => deriveAlphaBaseIndices(architectureRamps, lightTokens, darkTokens, alphaConfig),
+    [architectureRamps, lightTokens, darkTokens, alphaConfig],
   )
+
+  const inspectionGlobalRamp = previewTheme === 'light' ? lightRamp : darkRamp
 
   const activeSystemTokens = previewTheme === 'light' ? lightTokens : darkTokens
   const activeTokenView = useMemo(
@@ -287,23 +408,35 @@ export function useNeutralWorkbench() {
     setInspectionMode((v) => !v)
   }, [])
 
-  /**
-   * Stabilize the returned bag: every setter is already `useCallback`-stable; only state values
-   * rotate. Memoizing on the underlying states means any consumer that receives the full `wb`
-   * object (e.g. `WorkbenchControlsShell`) can benefit from `React.memo` when the slices it reads
-   * haven't changed. Without this, every workbench render would hand out a fresh object reference
-   * and defeat downstream memoization.
-   */
   return useMemo(
     () => ({
-      globalConfig,
-      setGlobalConfig,
+      neutralArchitecture,
+      setNeutralArchitecture,
+      globalScale,
+      lightScale,
+      darkScale,
+      /** @deprecated Prefer `globalScale` — alias for presets that still pass `globalConfig`. */
+      globalConfig: globalScale,
+      setGlobalScale: setGlobalScaleCfg,
+      setLightScale: setLightScaleCfg,
+      setDarkScale: setDarkScaleCfg,
       patchGlobal,
+      patchLight,
+      patchDark,
+      setScaleConfigPreset,
+      ladderLightSteps: ladderLightN,
+      ladderDarkSteps: ladderDarkN,
+      ladderGlobalSteps: ladderGlobalN,
       systemConfig,
       setSystemConfig,
       patchSystem,
       effectiveMappingConfig,
+      effectiveMappingLight,
+      effectiveMappingDark,
       immediateMappingConfig,
+      architectureRamps,
+      lightRamp,
+      darkRamp,
       liveBrandSurfaceOklch,
       global,
       lightTokens,
@@ -331,21 +464,42 @@ export function useNeutralWorkbench() {
       toggleInspectionMode,
       okhslEnabled,
       setOkhslEnabled,
+      scaleEditTarget,
+      setScaleEditTarget,
       okhslView,
+      okhslEditableConfig,
       setGlobalConfigFromOkhsl,
       alphaConfig,
       setAlphaConfig,
       alphaBaseIndices,
+      inspectionGlobalRamp,
     }),
     [
-      globalConfig,
-      setGlobalConfig,
+      neutralArchitecture,
+      setNeutralArchitecture,
+      globalScale,
+      lightScale,
+      darkScale,
+      setGlobalScaleCfg,
+      setLightScaleCfg,
+      setDarkScaleCfg,
       patchGlobal,
+      patchLight,
+      patchDark,
+      setScaleConfigPreset,
+      ladderLightN,
+      ladderDarkN,
+      ladderGlobalN,
       systemConfig,
       setSystemConfig,
       patchSystem,
       effectiveMappingConfig,
+      effectiveMappingLight,
+      effectiveMappingDark,
       immediateMappingConfig,
+      architectureRamps,
+      lightRamp,
+      darkRamp,
       liveBrandSurfaceOklch,
       global,
       lightTokens,
@@ -359,25 +513,38 @@ export function useNeutralWorkbench() {
       contrastEmphasis,
       setContrastEmphasis,
       selection,
+      setSelection,
       selectGlobal,
       selectSystem,
       inputBusy,
       busyInputLabel,
       comparisonLayout,
+      setComparisonLayout,
       showContrastPairs,
+      setShowContrastPairs,
       inspectionMode,
+      setInspectionMode,
       toggleInspectionMode,
       okhslEnabled,
       setOkhslEnabled,
+      scaleEditTarget,
+      setScaleEditTarget,
       okhslView,
+      okhslEditableConfig,
       setGlobalConfigFromOkhsl,
       alphaConfig,
       setAlphaConfig,
       alphaBaseIndices,
+      inspectionGlobalRamp,
     ],
   )
 }
 
 export type NeutralWorkbench = ReturnType<typeof useNeutralWorkbench>
-export {DEFAULT_GLOBAL, DEFAULT_SYSTEM}
+export {
+  DEFAULT_ADVANCED_DARK_SCALE as DEFAULT_ADVANCED_DARK,
+  DEFAULT_ADVANCED_LIGHT_SCALE as DEFAULT_ADVANCED_LIGHT,
+  DEFAULT_GLOBAL,
+  DEFAULT_SYSTEM,
+}
 export type {GlobalSwatch, SystemToken}

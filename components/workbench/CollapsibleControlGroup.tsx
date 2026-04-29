@@ -44,7 +44,7 @@ export function CollapsibleControlGroup({
   return (
     <details
       open={defaultOpen}
-      className="group rounded-sm border border-hairline bg-raised"
+      className="group rounded-sm border border-hairline bg-subtle"
     >
       <summary className="cursor-pointer list-none px-4 py-3 sm:px-4 sm:py-3 [&::-webkit-details-marker]:hidden">
         <div className="flex items-start justify-between gap-3">
@@ -60,7 +60,7 @@ export function CollapsibleControlGroup({
               </p>
             ) : null}
           </div>
-          <ChevronDownIcon className="mt-0.5 h-4 w-4 shrink-0 text-faint transition-transform duration-200 group-open:rotate-180" />
+          <ChevronDownIcon className="mt-0.5 h-4 w-4 shrink-0 text-disabled transition-transform duration-200 group-open:rotate-180" />
         </div>
       </summary>
       <div id={id} className="border-t border-hairline px-4 pt-3 pb-5">

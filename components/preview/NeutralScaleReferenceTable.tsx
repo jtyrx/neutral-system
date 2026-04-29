@@ -2,6 +2,8 @@
 
 import {memo} from 'react'
 
+import {tier1NeutralCssVarName} from '@/lib/neutral-engine/chromeAliases'
+import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import {oklchCoordsFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {GlobalSwatch} from '@/lib/neutral-engine'
 
@@ -9,15 +11,20 @@ export type NeutralTableThemeContext = 'light' | 'dark' | 'both'
 
 type Props = {
   global: GlobalSwatch[]
+  /** Advanced mode: light vs dark tier-1 names (`neutral-light-*` / `neutral-dark-*`). Ignored when simple or omitted. */
+  tier1ExportMode?: Tier1NeutralExportMode
   /** Frame the table with Light (amber) or Dark (sky) preview chrome. */
   themeContext?: NeutralTableThemeContext
   /** When true, omit top margin / separator (nested in inspector). */
   embedded?: boolean
 }
 
-/** Export JSON keys use `neutral-${label}` — aligned with `exportJson` in exportFormats. */
-function exportTokenKey(label: string): string {
-  return `neutral-${label}`
+/** Tier-1 `--color-*` key for the ramp step (matches `exportCssVariables`). */
+function exportTokenKey(label: string, mode?: Tier1NeutralExportMode): string {
+  if (mode == null || mode.architecture === 'simple') {
+    return `--${tier1NeutralCssVarName(label)}`
+  }
+  return `--${tier1NeutralCssVarName(label, mode)}`
 }
 
 function oklchL(s: GlobalSwatch): number {
@@ -27,15 +34,15 @@ function oklchL(s: GlobalSwatch): number {
 function frameClass(themeContext: NeutralTableThemeContext | undefined): string {
   switch (themeContext) {
     case 'light':
-      return 'border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface-faint)] ring-1 ring-[var(--ns-chrome-amber-ring-faint)]'
+      return 'border-[var(--chrome-amber-border)] bg-[var(--chrome-amber-surface-faint)] ring-1 ring-[var(--chrome-amber-ring-faint)]'
     case 'dark':
-      return 'border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface-faint)] ring-1 ring-[var(--ns-chrome-sky-ring-faint)]'
+      return 'border-[var(--chrome-sky-border)] bg-[var(--chrome-sky-surface-faint)] ring-1 ring-[var(--chrome-sky-ring-faint)]'
     default:
       return 'border-hairline bg-[var(--ns-surface-raised)]'
   }
 }
 
-function NeutralScaleReferenceTableInner({global, themeContext = 'both', embedded = false}: Props) {
+function NeutralScaleReferenceTableInner({global, tier1ExportMode, themeContext = 'both', embedded = false}: Props) {
   if (global.length === 0) {
     return null
   }
@@ -75,7 +82,7 @@ function NeutralScaleReferenceTableInner({global, themeContext = 'both', embedde
           <tbody>
             {rows.map((s) => (
               <tr key={s.index} className="border-b border-hairline">
-                <td className="px-2 py-1.5 font-mono text-[0.6rem] tabular-nums text-faint">
+                <td className="px-2 py-1.5 font-mono text-[0.6rem] tabular-nums text-disabled">
                   {s.index}
                 </td>
                 <td className="px-2 py-1.5 font-mono text-default">{s.label}</td>
@@ -94,7 +101,7 @@ function NeutralScaleReferenceTableInner({global, themeContext = 'both', embedde
                   {s.serialized.oklchCss}
                 </td>
                 <td className="px-2 py-1.5 font-mono text-[0.6rem] text-muted">
-                  {exportTokenKey(s.label)}
+                  {exportTokenKey(s.label, tier1ExportMode)}
                 </td>
               </tr>
             ))}

@@ -117,7 +117,7 @@ function TooltipContent({
               <path d="M0 0h14L7 7z" />
             </svg>
           </TooltipPrimitive.Arrow>
-          <span className="relative z-[1] min-w-0 shrink-0 whitespace-nowrap">{content}</span>
+          <span className="relative z-1 min-w-0 shrink-0 whitespace-nowrap">{content}</span>
         </TooltipPrimitive.Popup>
       </TooltipPrimitive.Positioner>
     </TooltipPrimitive.Portal>

@@ -5,28 +5,46 @@ import {labelsForNamingStyle} from '@/lib/neutral-engine/naming'
 import type {ChromaMode, GlobalScaleConfig, GlobalSwatch, LCurve} from '@/lib/neutral-engine/types'
 
 /**
- * Maps t ∈ [0,1] through a lightness easing curve and returns the interpolated L value.
+ * Maps `t ∈ [0,1]` through the lightness curve shape only (does not interpolate to L).
  *
- * - `linear` (default): uniform steps, identical to pre-refactor behaviour.
- * - `ease-in-dark`: quadratic t² — more L spread in dark region, corrects dark-tail compression.
+ * - `linear` (default): `t`.
+ * - `ease-in-dark`: quadratic t² — more L spread in dark region.
  * - `ease-out-light`: quadratic ease-out — more L spread in light region.
  * - `s-curve`: smooth-step S — more spread at both extremes, compressed in the mid-range.
  */
-export function easeL(lHigh: number, lLow: number, t: number, curve?: LCurve): number {
-  let mapped: number
+export function mapLightnessT(t: number, curve?: LCurve): number {
   switch (curve ?? 'linear') {
     case 'ease-in-dark':
-      mapped = t * t
-      break
+      return t * t
     case 'ease-out-light':
-      mapped = 1 - (1 - t) * (1 - t)
-      break
+      return 1 - (1 - t) * (1 - t)
     case 's-curve':
-      mapped = t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t)
-      break
+      return t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t)
     default:
-      mapped = t
+      return t
   }
+}
+
+function clampLCurveStrength(raw: number | undefined): number {
+  const v = raw === undefined ? 1 : raw
+  const n = Number.isFinite(v) ? v : 1
+  return Math.min(1, Math.max(0, n))
+}
+
+/**
+ * Maps `t` through the curve, blends toward linear by `strength`, then interpolates OKLCH L.
+ * `strength` 0 → linear spacing; `1` (default) → full preset curve behaviour.
+ */
+export function easeL(
+  lHigh: number,
+  lLow: number,
+  t: number,
+  curve?: LCurve,
+  strength?: number,
+): number {
+  const s = clampLCurveStrength(strength)
+  const curvedT = mapLightnessT(t, curve)
+  const mapped = t + (curvedT - t) * s
   return lHigh + mapped * (lLow - lHigh)
 }
 
@@ -80,7 +98,7 @@ export function clampGlobalScaleSteps(raw: number): number {
 
 // Small in-memory cache: global scale is pure/deterministic and frequently recomputed
 // (main ramp + comparison rails + previews). Keep it tiny to avoid unbounded memory.
-const GLOBAL_SCALE_CACHE_MAX = 24
+const GLOBAL_SCALE_CACHE_MAX = 48
 const globalScaleCache = new Map<string, GlobalSwatch[]>()
 
 function cacheKeyForGlobalScale(config: GlobalScaleConfig): string {
@@ -94,6 +112,7 @@ function cacheKeyForGlobalScale(config: GlobalScaleConfig): string {
     config.hue,
     config.namingStyle,
     config.lCurve ?? 'linear',
+    clampLCurveStrength(config.lCurveStrength),
     config.chromaLight ?? '',
     config.chromaDark ?? '',
     config.hueLight ?? '',
@@ -101,8 +120,9 @@ function cacheKeyForGlobalScale(config: GlobalScaleConfig): string {
   ].join('|')
 }
 
-export function buildGlobalScale(config: GlobalScaleConfig): GlobalSwatch[] {
-  const key = cacheKeyForGlobalScale(config)
+/** @param cacheQualifier When set, separates cache entries (e.g. Advanced sibling ramps may share numeric config). */
+export function buildGlobalScale(config: GlobalScaleConfig, cacheQualifier?: string): GlobalSwatch[] {
+  const key = cacheKeyForGlobalScale(config) + (cacheQualifier != null ? `|${cacheQualifier}` : '')
   const cached = globalScaleCache.get(key)
   if (cached) {
     globalScaleCache.delete(key)
@@ -147,7 +167,7 @@ export function buildGlobalScale(config: GlobalScaleConfig): GlobalSwatch[] {
 
   for (let i = 0; i < n; i++) {
     const t = n === 1 ? 0 : i / (n - 1)
-    const L = easeL(lHigh, lLow, t, config.lCurve)
+    const L = easeL(lHigh, lLow, t, config.lCurve, config.lCurveStrength)
     const C = chromaAtT(chromaMode, t, chromaAtLight, chromaAtDark)
     // When hue drift is active, extract H from the Oklab range at linear t.
     // The range is sampled at linear t (not eased) so the hue shift is time-uniform.

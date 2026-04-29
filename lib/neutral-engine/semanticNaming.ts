@@ -1,6 +1,6 @@
 /**
  * Dot-path semantic roles (tier-2): `surface.default`, `text.muted`, `border.focus`, …
- * Tier-1 primitives remain `neutral-*`; roles resolve per theme via {@link deriveSystemTokens}.
+ * Tier-1 primitives remain `--color-neutral-*`; roles resolve per theme via {@link deriveSystemTokens}.
  *
  * **Lexicon (intent):**
  * - **Surface** `surface.*` — elevation: `sunken` (well) → `default` (page) → `subtle` → `raised` → `overlay`;

@@ -1,6 +1,7 @@
+import {tier1NeutralCssVarName} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
 
-/** Numeric neutral ladder order (matches global `swatch.label` / export `neutral-*`). */
+/** Numeric neutral ladder order (matches global `swatch.label` / CSS `--color-neutral-*`). */
 export function primitiveSortKey(sw: GlobalSwatch | undefined): number {
   if (!sw) return Number.NEGATIVE_INFINITY
   const n = Number(sw.label)
@@ -10,7 +11,7 @@ export function primitiveSortKey(sw: GlobalSwatch | undefined): number {
 /** Tier-1 export name for the ramp swatch at `sourceIndex` (or `—`). */
 export function primitiveNeutralExportName(global: GlobalSwatch[], sourceIndex: number): string {
   const sw = global[sourceIndex]
-  return sw ? `neutral-${sw.label}` : '—'
+  return sw ? `--${tier1NeutralCssVarName(sw.label)}` : '—'
 }
 
 /** Sort mapped system tokens by underlying primitive ladder value, then role. */

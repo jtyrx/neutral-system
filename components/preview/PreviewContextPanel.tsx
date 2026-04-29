@@ -5,42 +5,55 @@ import {useMemo} from 'react'
 import {PreviewComparison, type ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {OffsetMapDiagram} from '@/components/viz/OffsetMapDiagram'
 import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
-import type {GlobalSwatch, SystemMappingConfig, TokenView} from '@/lib/neutral-engine'
+import type {
+  GlobalSwatch,
+  NeutralArchitectureMode,
+  SystemMappingConfig,
+  TokenView,
+} from '@/lib/neutral-engine'
 
 type Props = {
-  global: GlobalSwatch[]
+  neutralArchitecture: NeutralArchitectureMode
+  globalLight: GlobalSwatch[]
+  globalDark: GlobalSwatch[]
   lightTokenView: TokenView
   darkTokenView: TokenView
   previewTheme: 'light' | 'dark'
   comparisonLayout: ComparisonLayout
-  /** Same derivation as system mapping / exports (contrast emphasis applied). */
-  derivationConfig: SystemMappingConfig
-  steps: number
+  derivationConfigLight: SystemMappingConfig
+  derivationConfigDark: SystemMappingConfig
+  ladderLightSteps: number
+  ladderDarkSteps: number
   alphaBaseIndices?: {lightBase: number; darkBase: number}
 }
 
 /**
- * Light vs Dark comparison — scrolls with page (not sticky) so the hero mock stays primary.
+ * Light vs Dark comparison — scrolls with page (not sticky).
  */
 export function PreviewContextPanel({
-  global,
+  neutralArchitecture,
+  globalLight,
+  globalDark,
   lightTokenView,
   darkTokenView,
   previewTheme,
   comparisonLayout,
-  derivationConfig,
-  steps,
+  derivationConfigLight,
+  derivationConfigDark,
+  ladderLightSteps,
+  ladderDarkSteps,
   alphaBaseIndices,
 }: Props) {
-  const n = Math.max(2, steps)
+  const nl = Math.max(2, ladderLightSteps)
+  const nd = Math.max(2, ladderDarkSteps)
 
   const lightIdx = useMemo(
-    () => previewResolvedRoleIndices(derivationConfig, n, 'light'),
-    [derivationConfig, n],
+    () => previewResolvedRoleIndices(derivationConfigLight, nl, 'light'),
+    [derivationConfigLight, nl],
   )
   const darkIdx = useMemo(
-    () => previewResolvedRoleIndices(derivationConfig, n, 'darkElevated'),
-    [derivationConfig, n],
+    () => previewResolvedRoleIndices(derivationConfigDark, nd, 'darkElevated'),
+    [derivationConfigDark, nd],
   )
 
   return (
@@ -64,7 +77,7 @@ export function PreviewContextPanel({
               <div className="mt-4 max-w-full" id="offset-mapping-diagrams">
                 <div className="grid gap-4 nsb-lg:grid-cols-1">
                   <OffsetMapDiagram
-                    steps={steps}
+                    steps={ladderLightSteps}
                     themeLabel="Light"
                     description="Bars use the same resolved global indices as light themeMode tokens (low index = light)."
                     surfaceIndices={lightIdx.surface}
@@ -73,7 +86,7 @@ export function PreviewContextPanel({
                     alphaBaseIndex={alphaBaseIndices?.lightBase}
                   />
                   <OffsetMapDiagram
-                    steps={steps}
+                    steps={ladderDarkSteps}
                     themeLabel="Dark elevated"
                     description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
                     surfaceIndices={darkIdx.surface}
@@ -91,7 +104,9 @@ export function PreviewContextPanel({
           <PreviewComparison
             layout={comparisonLayout}
             focusTheme={previewTheme}
-            global={global}
+            neutralArchitecture={neutralArchitecture}
+            globalLight={globalLight}
+            globalDark={globalDark}
             lightTokenView={lightTokenView}
             darkTokenView={darkTokenView}
             alphaBaseIndices={alphaBaseIndices}

@@ -10,10 +10,13 @@ import {
 } from '@/components/preview/SemanticPreviewBlockCases'
 import type {TokenSelectTheme} from '@/components/preview/SemanticTokenAnnotation'
 import {ThemeComparisonFrame} from '@/components/preview/ThemeComparisonFrame'
-import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
+import type {GlobalSwatch, NeutralArchitectureMode, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
-  global: GlobalSwatch[]
+  neutralArchitecture: NeutralArchitectureMode
+  globalLight: GlobalSwatch[]
+  globalDark: GlobalSwatch[]
+  unifiedGlobal?: GlobalSwatch[]
   lightTokenView: TokenView
   darkTokenView: TokenView
   liveBrandSurfaceOklch: {light: string; dark: string}
@@ -29,7 +32,8 @@ type BlockRowProps = Props & {block: PreviewBlockCase; index: number}
 function BlockRow({
   block,
   index,
-  global,
+  globalLight,
+  globalDark,
   lightTokenView,
   darkTokenView,
   liveBrandSurfaceOklch,
@@ -41,7 +45,7 @@ function BlockRow({
   const Case = block.Component
   const lightPane = (
     <Case
-      global={global}
+      global={globalLight}
       tokenView={lightTokenView}
       brandPlaneOklch={liveBrandSurfaceOklch.light}
       theme="light"
@@ -51,7 +55,7 @@ function BlockRow({
   )
   const darkPane = (
     <Case
-      global={global}
+      global={globalDark}
       tokenView={darkTokenView}
       brandPlaneOklch={liveBrandSurfaceOklch.dark}
       theme="darkElevated"

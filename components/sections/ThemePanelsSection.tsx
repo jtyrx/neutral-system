@@ -57,7 +57,7 @@ function RoleTokenTable({
   const sorted = useMemo(() => sortSystemTokensByPrimitiveLadder(tokens, global), [tokens, global])
 
   if (sorted.length === 0) {
-    return <p className="text-[0.65rem] text-faint">No tokens in this group.</p>
+    return <p className="text-[0.65rem] text-disabled">No tokens in this group.</p>
   }
   return (
     <div className="overflow-x-auto rounded-lg border border-hairline">
@@ -82,7 +82,7 @@ function RoleTokenTable({
                   <span className="block truncate" title={humanizeRole(t.role)}>
                     {humanizeRole(t.role)}
                   </span>
-                  <span className="mt-0.5 block truncate text-[0.6rem] text-faint" title={t.name}>
+                  <span className="mt-0.5 block truncate text-[0.6rem] text-disabled" title={t.name}>
                     {t.name}
                   </span>
                 </td>
@@ -127,16 +127,16 @@ function ThemeTokenColumn({
 
   const shell =
     variant === 'light'
-      ? 'border-[var(--ns-chrome-amber-border)] bg-[var(--ns-chrome-amber-surface)]'
-      : 'border-[var(--ns-chrome-sky-border)] bg-[var(--ns-chrome-sky-surface)]'
+      ? 'border-[var(--chrome-amber-border)] bg-[var(--chrome-amber-surface)]'
+      : 'border-[var(--chrome-sky-border)] bg-[var(--chrome-sky-surface)]'
   const heading =
     variant === 'light'
-      ? 'text-[var(--ns-chrome-amber-text)]'
-      : 'text-[var(--ns-chrome-sky-text)]'
+      ? 'text-[var(--chrome-amber-text)]'
+      : 'text-[var(--chrome-sky-text)]'
   const eyebrowTone =
     variant === 'light'
-      ? 'text-[var(--ns-chrome-amber-text)]'
-      : 'text-[var(--ns-chrome-sky-text)]'
+      ? 'text-[var(--chrome-amber-text)]'
+      : 'text-[var(--chrome-sky-text)]'
 
   const emphasisToks = tokensForSemanticLayer(tokenView, 'emphasis')
 
@@ -154,9 +154,10 @@ function ThemeTokenColumn({
           {showTable ? 'Visual view' : 'Data table'}
         </button>
         {showTable ? (
-          <p className="mt-2 text-[0.6rem] leading-snug text-faint">
-            Primitive column uses tier‑1 names from the global ramp (<span className="font-mono">neutral-*</span>
-            ). Rows sort by ladder value; semantic role and tier‑2 token name are secondary.
+          <p className="mt-2 text-[0.6rem] leading-snug text-disabled">
+            Primitive column uses tier‑1 CSS names from the global ramp (
+            <span className="font-mono">--color-neutral-*</span>). Rows sort by ladder value; semantic role and
+            tier‑2 token name are secondary.
           </p>
         ) : null}
       </header>
@@ -174,7 +175,7 @@ function ThemeTokenColumn({
                   <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
                     {friendlySemanticCategoryLabel(titleKey)}
                   </h4>
-                  <p className="text-[0.65rem] text-faint">{hint}</p>
+                  <p className="text-[0.65rem] text-disabled">{hint}</p>
                   <RoleTokenTable tokens={groupTokens} global={global} onSelect={onSelectSystem} />
                 </div>
               )
@@ -182,7 +183,7 @@ function ThemeTokenColumn({
             {emphasisToks.length > 0 ? (
               <div className="space-y-2 border-t border-hairline pt-6">
                 <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Emphasis</h4>
-                <p className="text-[0.65rem] text-faint">Experimental accessible pairs (higher contrast).</p>
+                <p className="text-[0.65rem] text-disabled">Experimental accessible pairs (higher contrast).</p>
                 <RoleTokenTable tokens={emphasisToks} global={global} onSelect={onSelectSystem} />
               </div>
             ) : null}
@@ -221,7 +222,7 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
         <ThemeTokenColumn
           eyebrow="Light theme"
           title="Primitive tokens"
-          hint="Tier‑1 neutral-* mapping from the bright end of the global ramp (themeMode: light)."
+          hint="Tier‑1 --color-neutral-* mapping from the bright end of the global ramp (themeMode: light)."
           tokenView={lightTokenView}
           global={global}
           onSelectSystem={onSelectSystem}
@@ -230,7 +231,7 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
         <ThemeTokenColumn
           eyebrow="Dark elevated"
           title="Primitive tokens"
-          hint="Tier‑1 neutral-* mapping from the dark tail for elevated UI (themeMode: darkElevated)."
+          hint="Tier‑1 --color-neutral-* mapping from the dark tail for elevated UI (themeMode: darkElevated)."
           tokenView={darkTokenView}
           global={global}
           onSelectSystem={onSelectSystem}

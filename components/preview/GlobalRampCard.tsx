@@ -42,7 +42,7 @@ function GlobalRampCardInner({
         invertDisplay={invertDisplay}
         alphaBaseIndex={alphaBaseIndex}
       />
-      <p className="text-[0.6rem] leading-snug text-[var(--ns-text-disabled)]">{directionHint}</p>
+      <p className="text-[0.6rem] leading-snug text-(--ns-text-disabled)">{directionHint}</p>
     </div>
   )
 }

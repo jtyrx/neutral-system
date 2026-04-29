@@ -63,7 +63,7 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
       data-ns-theme-toggle
       aria-label={`Application color theme. Current selection: ${activeTheme}. Resolved theme: ${resolved}.`}
       className={cn(
-        'inline-flex items-center gap-0.5 rounded-full',
+        'inline-flex items-center gap-0.25 rounded-full',
         // Icon radio: hide the default dot indicator from the base shadcn item.
         '**:data-[slot=radio-group-indicator]:hidden',
         className,
@@ -77,10 +77,10 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
             value={option.value}
             aria-label={option.label}
             className={cn(
-              'inline-flex size-6 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
+              'inline-flex size-6.75 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
               'hover:bg-(--ns-chip) hover:text-(--ns-text)',
               'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-(--ns-border-focus)/30',
-              selected && 'bg-(--ns-overlay-strong) text-primary',
+              selected && 'bg-raised text-default',
             )}
           >
             <Icon className="size-3.5" aria-hidden={true} />

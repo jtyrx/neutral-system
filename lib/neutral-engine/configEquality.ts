@@ -10,7 +10,9 @@ export function globalConfigsEqual(a: GlobalScaleConfig, b: GlobalScaleConfig): 
     a.baseChroma === b.baseChroma &&
     a.hue === b.hue &&
     a.namingStyle === b.namingStyle &&
-    a.variantId === b.variantId
+    a.variantId === b.variantId &&
+    a.lCurve === b.lCurve &&
+    (a.lCurveStrength ?? 1) === (b.lCurveStrength ?? 1)
   )
 }
 

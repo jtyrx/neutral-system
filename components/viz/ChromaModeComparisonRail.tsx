@@ -53,7 +53,7 @@ function ChromaModeComparisonRailInner({config}: Props) {
             className="grid gap-2 sm:grid-cols-1 sm:items-stretch sm:gap-2"
           >
             <div className="flex items-center ">
-              <p className="text-left text-[0.65rem] font-medium font-mono uppercase tracking-wide text-faint">
+              <p className="text-left text-[0.65rem] font-medium font-mono uppercase tracking-wide text-disabled">
                 {label}
               </p>
             </div>

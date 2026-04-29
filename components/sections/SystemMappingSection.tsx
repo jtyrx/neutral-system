@@ -15,17 +15,20 @@ type Props = {
   /** Raw workbench state — bound to inputs. */
   config: SystemMappingConfig
   /**
-   * Deferred mapping + contrast emphasis — **must** match `deriveSystemTokens` (same as
-   * `effectiveMappingConfig` from the workbench hook).
+   * Deferred mapping — **must** match {@link deriveSystemTokens} for each theme ladder length.
    */
-  derivationConfig: SystemMappingConfig
+  derivationLight: SystemMappingConfig
+  derivationDark: SystemMappingConfig
   contrastEmphasis: ContrastEmphasis
   patchSystem: <K extends keyof SystemMappingConfig>(
     key: K,
     value: SystemMappingConfig[K],
     label?: string,
   ) => void
-  steps: number
+  /** Light sibling ramp steps (clamp input max + resolved indices preview). */
+  stepsLight: number
+  /** Dark sibling ramp steps (elevated sibling in Advanced Mode). */
+  stepsDark: number
   alphaBaseIndices?: {lightBase: number; darkBase: number}
 }
 
@@ -74,21 +77,25 @@ function ResolvedIndices({ label, indices }: { label: string; indices: number[] 
 
 function SystemMappingSectionInner({
   config,
-  derivationConfig,
+  derivationLight,
+  derivationDark,
   contrastEmphasis,
   patchSystem,
-  steps,
+  stepsLight,
+  stepsDark,
   alphaBaseIndices,
 }: Props) {
-  const n = Math.max(2, steps)
+  const nl = Math.max(2, stepsLight)
+  const nd = Math.max(2, stepsDark)
+  const stepsUnion = Math.max(stepsLight, stepsDark)
 
   const lightIdx = useMemo(
-    () => previewResolvedRoleIndices(derivationConfig, n, 'light'),
-    [derivationConfig, n],
+    () => previewResolvedRoleIndices(derivationLight, nl, 'light'),
+    [derivationLight, nl],
   )
   const darkIdx = useMemo(
-    () => previewResolvedRoleIndices(derivationConfig, n, 'darkElevated'),
-    [derivationConfig, n],
+    () => previewResolvedRoleIndices(derivationDark, nd, 'darkElevated'),
+    [derivationDark, nd],
   )
 
   return (
@@ -142,7 +149,7 @@ function SystemMappingSectionInner({
             label="Dark segment length"
             hint="Tail steps for dark UI pool"
             min={3}
-            max={steps}
+            max={stepsUnion}
             value={config.darkSegmentLength}
             onChange={(v) => patchSystem('darkSegmentLength', v)}
           />
@@ -190,7 +197,7 @@ function SystemMappingSectionInner({
                   label="Surface start index"
                   hint="First global index on ladder"
                   min={0}
-                  max={steps - 1}
+                  max={nl - 1}
                   value={config.fillStart}
                   onChange={(v) => patchSystem('fillStart', v)}
                 />
@@ -223,7 +230,7 @@ function SystemMappingSectionInner({
                 <NumField
                   label="Border start index"
                   min={0}
-                  max={steps - 1}
+                  max={nl - 1}
                   value={config.strokeStart}
                   onChange={(v) => patchSystem('strokeStart', v)}
                 />
@@ -255,8 +262,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text start index"
+                  hint="Manual ramp anchor; if picks collide after clamping, engine snaps to an edge‑fit start from ramp length × shade count × effective step."
                   min={0}
-                  max={steps - 1}
+                  max={nl - 1}
                   value={config.textStart}
                   onChange={(v) => patchSystem('textStart', v)}
                 />
@@ -306,7 +314,7 @@ function SystemMappingSectionInner({
                   label="Surface start index"
                   hint="0 starts at the dark-edge swatch; higher values walk inward along the shared ramp."
                   min={0}
-                  max={steps - 1}
+                  max={nd - 1}
                   value={config.darkFillStart}
                   onChange={(v) => patchSystem('darkFillStart', v)}
                 />
@@ -339,7 +347,7 @@ function SystemMappingSectionInner({
                 <NumField
                   label="Border start index"
                   min={0}
-                  max={steps - 1}
+                  max={nd - 1}
                   value={config.darkStrokeStart}
                   onChange={(v) => patchSystem('darkStrokeStart', v)}
                 />
@@ -371,8 +379,9 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text start index"
+                  hint="Manual ramp anchor; if picks collide after clamping, engine snaps to an edge‑fit offset from ramp length × shade count × effective step."
                   min={0}
-                  max={steps - 1}
+                  max={nd - 1}
                   value={config.darkTextStart}
                   onChange={(v) => patchSystem('darkTextStart', v)}
                 />
@@ -394,7 +403,7 @@ function SystemMappingSectionInner({
       <div className="space-y-4">
         <div className="grid gap-4 nsb-lg:grid-cols-1">
           <OffsetMapDiagram
-            steps={steps}
+            steps={nl}
             themeLabel="Light"
             description="Bars use the same resolved global indices as light themeMode tokens (low index = light)."
             surfaceIndices={lightIdx.surface}
@@ -403,7 +412,7 @@ function SystemMappingSectionInner({
             alphaBaseIndex={alphaBaseIndices?.lightBase}
           />
           <OffsetMapDiagram
-            steps={steps}
+            steps={nd}
             themeLabel="Dark elevated"
             description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
             surfaceIndices={darkIdx.surface}
@@ -412,7 +421,7 @@ function SystemMappingSectionInner({
             alphaBaseIndex={alphaBaseIndices?.darkBase}
           />
         </div>
-        <ThemeRangeBar steps={steps} darkSegmentLength={config.darkSegmentLength} />
+        <ThemeRangeBar steps={stepsUnion} darkSegmentLength={config.darkSegmentLength} />
       </div>
     </section>
   )

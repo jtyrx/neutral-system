@@ -1,14 +1,15 @@
 'use client'
 
-import { memo } from 'react'
+import {memo} from 'react'
 
-import type { ComparisonLayout } from '@/components/preview/PreviewComparison'
-import { ContrastPairsPanel } from '@/components/preview/ContrastPairsPanel'
-import { PreviewContextPanel } from '@/components/preview/PreviewContextPanel'
-import { SemanticPreviewWorkbench } from '@/components/preview/SemanticPreviewWorkbench'
-import type { TokenSelectTheme } from '@/components/preview/SemanticTokenAnnotation'
+import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import {ContrastPairsPanel} from '@/components/preview/ContrastPairsPanel'
+import {PreviewContextPanel} from '@/components/preview/PreviewContextPanel'
+import {SemanticPreviewWorkbench} from '@/components/preview/SemanticPreviewWorkbench'
+import type {TokenSelectTheme} from '@/components/preview/SemanticTokenAnnotation'
 import type {
   GlobalSwatch,
+  NeutralArchitectureMode,
   SystemMappingConfig,
   SystemToken,
   TokenView,
@@ -17,34 +18,35 @@ import type {
 type Props = {
   previewTheme: 'light' | 'dark'
   showContrastPairs: boolean
-  global: GlobalSwatch[]
+  neutralArchitecture: NeutralArchitectureMode
+  /** Light-theme ramp (Advanced) or unified ramp (Simple — same reference as globalDark when simple). */
+  globalLight: GlobalSwatch[]
+  /** Dark elevated ramp (Advanced) or unified ramp (Simple). */
+  globalDark: GlobalSwatch[]
+  /** When Simple Mode, duplicate ref to both ramps — enables semantic blocks to optimize. */
+  unifiedGlobal?: GlobalSwatch[]
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
   lightTokenView: TokenView
   darkTokenView: TokenView
-  /** `surface.brand` OKLCH from immediate mapping (no defer) — callout updates with Custom Brand. */
-  liveBrandSurfaceOklch: { light: string; dark: string }
+  liveBrandSurfaceOklch: {light: string; dark: string}
   comparisonLayout: ComparisonLayout
   inspectionMode: boolean
   onSelectSystem: (role: string, theme?: TokenSelectTheme) => void
-  /** Mapping + contrast emphasis — matches token derivation and system mapping diagrams. */
-  derivationConfig: SystemMappingConfig
-  steps: number
+  derivationConfigLight: SystemMappingConfig
+  derivationConfigDark: SystemMappingConfig
+  ladderLightSteps: number
+  ladderDarkSteps: number
   alphaBaseIndices?: {lightBase: number; darkBase: number}
 }
 
-/**
- * Center column — an inspection-oriented preview workbench.
- *
- * Vertical rhythm: paired semantic blocks → optional contrast matrix → deep inspection tools.
- *
- * Wrapped in `memo` so preset/scale transitions that don't touch preview-relevant props (e.g.
- * `busyInputLabel` rotating) skip the entire center column reconciliation.
- */
 function WorkbenchPreviewColumnInner({
   previewTheme,
   showContrastPairs,
-  global,
+  neutralArchitecture,
+  globalLight,
+  globalDark,
+  unifiedGlobal,
   lightTokens,
   darkTokens,
   lightTokenView,
@@ -53,8 +55,10 @@ function WorkbenchPreviewColumnInner({
   comparisonLayout,
   inspectionMode,
   onSelectSystem,
-  derivationConfig,
-  steps,
+  derivationConfigLight,
+  derivationConfigDark,
+  ladderLightSteps,
+  ladderDarkSteps,
   alphaBaseIndices,
 }: Props) {
   return (
@@ -66,7 +70,10 @@ function WorkbenchPreviewColumnInner({
       >
         <section aria-label="Semantic preview blocks" className="mx-auto w-full">
           <SemanticPreviewWorkbench
-            global={global}
+            neutralArchitecture={neutralArchitecture}
+            globalLight={globalLight}
+            globalDark={globalDark}
+            unifiedGlobal={unifiedGlobal}
             lightTokenView={lightTokenView}
             darkTokenView={darkTokenView}
             liveBrandSurfaceOklch={liveBrandSurfaceOklch}
@@ -85,13 +92,17 @@ function WorkbenchPreviewColumnInner({
       </div>
 
       <PreviewContextPanel
-        global={global}
+        neutralArchitecture={neutralArchitecture}
+        globalLight={globalLight}
+        globalDark={globalDark}
         lightTokenView={lightTokenView}
         darkTokenView={darkTokenView}
         previewTheme={previewTheme}
         comparisonLayout={comparisonLayout}
-        derivationConfig={derivationConfig}
-        steps={steps}
+        derivationConfigLight={derivationConfigLight}
+        derivationConfigDark={derivationConfigDark}
+        ladderLightSteps={ladderLightSteps}
+        ladderDarkSteps={ladderDarkSteps}
         alphaBaseIndices={alphaBaseIndices}
       />
     </div>

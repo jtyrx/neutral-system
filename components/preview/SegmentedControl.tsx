@@ -70,7 +70,7 @@ export function ControlTier({
 }) {
   return (
     <div className="flex flex-col gap-2 sm:gap-4">
-      <p className="shrink-0 text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-text-faint) sm:min-w-[7.5rem]">
+      <p className="shrink-0 text-[0.6rem] font-medium uppercase tracking-wide text-(--ns-text-disabled) sm:min-w-[7.5rem]">
         {label}
       </p>
       <div className="min-w-0 flex-1">{children}</div>

@@ -7,7 +7,7 @@
 
 ## 1. Overview
 
-This document defines how neutral primitives are assigned to semantic roles. Components must consume semantic tokens — never raw `--neutral-{label}` primitives. Themes remap semantic tokens to different primitives; components require no changes.
+This document defines how neutral primitives are assigned to semantic roles. Components must consume semantic tokens — never raw `--color-neutral-{label}` tier‑1 primitives except where you intentionally reference the ramp. Themes remap semantic tokens to different primitives; components require no changes.
 
 ### Implemented tokens (ready for use)
 
@@ -47,22 +47,21 @@ Key principles drawn from the Atlassian model and encoded here:
 ```
 Global Ramp (41 steps, index 0 = lightest)
   │
-  ├── Tier 1: --neutral-{label}          (e.g. --neutral-50, --neutral-950)
-  │          --color-neutral-{label}     (legacy alias, resolves to tier 1)
+  ├── Tier 1: --color-neutral-{label}    (e.g. --color-neutral-0 … --color-neutral-1000, literal OKLCH)
   │
   └── Tier 2: --color-{role}             (e.g. --color-text-default, --color-surface-raised)
-               resolved per [data-theme] via var(--neutral-*) references
+               resolved per [data-theme] via var(--color-neutral-*) references
 
 Components
-  └── consume ONLY tier 2 (--color-*) tokens
-      never --neutral-* directly
+  └── consume ONLY tier 2 (--color-*) tokens for semantics
+      avoid referencing tier‑1 primitives directly in UI code
 ```
 
 The engine produces tier 1 via `buildGlobalScale(GlobalScaleConfig)` and tier 2 via `deriveSystemTokens(global, SystemMappingConfig)`. The CSS export writes both tiers into `:root` (dark fallback), `[data-theme="light"]`, and `[data-theme="dark"]` blocks.
 
 ### Ladder positions (default config)
 
-With `steps: 41`, `lHigh: 98.5%`, `lLow: 16.15%`:
+With `steps: 41`, `lHigh: 98.5%`, `lLow: 16.15%`, light/dark **text starts are ladder‑fitted**: after `clampSystemMappingToLadderLength(global.steps)`, stored indices snap when picks would collide — light anchors toward index `n−1`, dark elevated chooses the largest stroke‑text offset that stays pairwise distinct (defaults below remain valid seeds while picks stay distinct).
 
 | Theme | Surface start idx | Border start idx | Text start idx |
 |---|---|---|---|
@@ -242,17 +241,17 @@ The `text.default` index is the natural anchor — it represents the highest-con
 
 ```css
 [data-theme="light"] {
-  --color-neutral-alpha-100: color-mix(in oklch, var(--neutral-950) 8%, transparent);
-  --color-neutral-alpha-200: color-mix(in oklch, var(--neutral-950) 16%, transparent);
-  --color-neutral-alpha-300: color-mix(in oklch, var(--neutral-950) 32%, transparent);
-  --color-neutral-alpha-400: color-mix(in oklch, var(--neutral-950) 48%, transparent);
+  --color-neutral-alpha-100: color-mix(in oklch, var(--color-neutral-950) 8%, transparent);
+  --color-neutral-alpha-200: color-mix(in oklch, var(--color-neutral-950) 16%, transparent);
+  --color-neutral-alpha-300: color-mix(in oklch, var(--color-neutral-950) 32%, transparent);
+  --color-neutral-alpha-400: color-mix(in oklch, var(--color-neutral-950) 48%, transparent);
   /* dark variants use the dark-mode base primitive */
-  --color-dark-neutral-alpha-100: color-mix(in oklch, var(--neutral-50) 8%, transparent);
+  --color-dark-neutral-alpha-100: color-mix(in oklch, var(--color-neutral-50) 8%, transparent);
   /* ... */
 }
 ```
 
-The base primitive (`--neutral-950`, `--neutral-50`, etc.) updates automatically when the user adjusts the offset controls in the workbench.
+The base primitive (`--color-neutral-950`, `--color-neutral-50`, etc.) updates automatically when the user adjusts the offset controls in the workbench.
 
 ### Workbench controls
 
@@ -388,7 +387,7 @@ Under **Contrast & role mapping → Alpha neutral base offset**:
 
 | Do | Don't |
 |---|---|
-| `color: var(--color-text-subtle)` | `color: var(--neutral-400)` |
+| `color: var(--color-text-subtle)` | `color: var(--color-neutral-400)` |
 | `background: var(--color-surface-raised)` | `background: oklch(96% 0.005 260)` |
 | Match icon tier to adjacent text tier | Use `--color-icon-default` for a muted supporting icon |
 | Use `--color-border-focus` for focus rings only | Swap `border.strong` into focus context for visual effect |
@@ -415,10 +414,10 @@ A recommended approach for AI agents performing site-wide semantic token complia
 
 ### Level 1 — Primitive leak check (automated)
 
-Scan all component files for direct `--neutral-{label}` references. No component should ever reference a primitive variable directly.
+Scan all component files for direct `--color-neutral-{label}` tier‑1 references where semantic tokens apply. Prefer tier‑2 `--color-*` tokens for UI surfaces and text.
 
 ```bash
-grep -rn "var(--neutral-" components/ --include="*.tsx" --include="*.css"
+grep -rn "var(--color-neutral-" components/ --include="*.tsx" --include="*.css"
 ```
 
 Expected: 0 results. Any hit is a violation — replace with the appropriate semantic token.

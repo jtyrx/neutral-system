@@ -12,6 +12,8 @@ export function labelForGlobalPatchKey<K extends keyof GlobalScaleConfig>(key: K
     hue: 'Hue',
     namingStyle: 'Naming',
     variantId: 'Variant',
+    lCurve: 'L curve',
+    lCurveStrength: 'L curve strength',
   }
   return map[key] ?? String(key)
 }
@@ -21,13 +23,13 @@ export function labelForSystemPatchKey<K extends keyof SystemMappingConfig>(key:
   const map: Partial<Record<keyof SystemMappingConfig, string>> = {
     fillStart: 'Surface start index',
     strokeStart: 'Border start index',
-    textStart: 'Text start index',
+    textStart: 'Light text start index',
     fillCount: 'Surface token count',
     strokeCount: 'Border token count',
     textCount: 'Text shade count',
     darkFillStart: 'Dark surface start index',
     darkStrokeStart: 'Dark border start index',
-    darkTextStart: 'Dark text start index',
+    darkTextStart: 'Dark elevated text start index',
     darkFillCount: 'Dark surface token count',
     darkStrokeCount: 'Dark border token count',
     darkTextCount: 'Dark text shade count',

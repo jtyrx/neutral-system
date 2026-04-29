@@ -47,9 +47,9 @@
 /* Base theme tokens */
 @layer base {
   :root {
-    /**
-     * Hardcoded fallbacks (used for the very first paint before LiveThemeStyles writes
-     * the live `[data-theme="light|dark"] { --color-*: … }` stylesheet). They match the
+    /* ─── First-paint fallbacks: tier-2 OKLCH dark values ───
+     * Used for the very first paint before LiveThemeStyles writes the live
+     * `[data-theme="light|dark"] { --color-*: … }` stylesheet. They match the
      * current dark feel so there is no flash.
      */
     --color-surface-sunken: oklch(16.15% 0 none);
@@ -71,8 +71,10 @@
     /** High-contrast flip surface (first-paint fallback; live value from workbench tokens). */
     --color-surface-inverse: oklch(96.441% 0 none);
 
-    /**
-     * Legacy `--ns-*` aliases — thin `var(--color-*)` peers for incremental migration.
+    --color-dark-neutral-alpha-alt-100: oklch(0% 0 0 / 0.22);
+
+    /* ─── Legacy --ns-* aliases ───
+     * Thin `var(--color-*)` peers for incremental migration.
      * Canonical semantics are `--color-*`; see `semanticPolicy.ts` for intent → role.
      * Chrome mixers use `--chrome-*`; live + export append the same mixers in `[data-theme]`.
      */
@@ -93,9 +95,9 @@
     --ns-text-disabled: var(--color-text-disabled);
     --ns-text-on: var(--color-text-on);
 
-    /**
-     * Icon semantic tokens — mirror text hierarchy.
-     * Icons pair with adjacent text; use the same token as surrounding copy.
+    /* ─── Icon semantic tokens ───
+     * Mirror text hierarchy. Icons pair with adjacent text;
+     * use the same token as surrounding copy.
      */
     --color-icon-default: var(--color-text-default);
     --color-icon-subtle: var(--color-text-subtle);
@@ -116,17 +118,45 @@
     --ns-border-overlay-scrim: var(--color-border-default);
     --ns-overlay-scrim: var(--color-overlay-scrim);
 
-    /**
-     * Chrome utility ramp (`--chrome-*`) — alpha ladders from body text. Legacy `--ns-*`
-     * names alias `--chrome-*` for existing classnames; prefer `border-hairline`, etc.
+    /* ─── Chrome utility mixers ───
+     * Alpha ladders from body text. Legacy `--ns-*` names alias `--chrome-*` for
+     * existing classnames; prefer `border-hairline`, etc.
      */
-    --chrome-hairline: color-mix(in oklch, var(--color-text-default) 10%, transparent);
-    --chrome-hairline-strong: color-mix(in oklch, var(--color-text-default) 18%, transparent);
-    --chrome-chip: color-mix(in oklch, var(--color-text-default) 6%, transparent);
-    --chrome-field: color-mix(in oklch, var(--color-text-default) 4%, transparent);
-    --chrome-overlay-soft: color-mix(in oklch, var(--color-text-default) 3%, transparent);
-    --chrome-overlay-strong: color-mix(in oklch, var(--color-text-default) 15%, transparent);
-    --chrome-toaster-bg: color-mix(in oklch, var(--color-surface-overlay) 95%, transparent);
+    --chrome-hairline: color-mix(
+      in oklch,
+      var(--color-text-default) 10%,
+      transparent
+    );
+    --chrome-hairline-strong: color-mix(
+      in oklch,
+      var(--color-text-default) 18%,
+      transparent
+    );
+    --chrome-chip: color-mix(
+      in oklch,
+      var(--color-text-default) 6%,
+      transparent
+    );
+    --chrome-field: color-mix(
+      in oklch,
+      var(--color-text-default) 4%,
+      transparent
+    );
+    --chrome-overlay-soft: color-mix(
+      in oklch,
+      var(--color-text-default) 3%,
+      transparent
+    );
+    --chrome-overlay-strong: color-mix(
+      in oklch,
+      var(--color-text-default) 15%,
+      transparent
+    );
+    --chrome-toaster-bg: color-mix(
+      in oklch,
+      var(--color-surface-overlay) 95%,
+      transparent
+    );
     --ns-hairline: var(--chrome-hairline);
     --ns-hairline-strong: var(--chrome-hairline-strong);
     --ns-chip: var(--chrome-chip);
@@ -135,12 +165,12 @@
     --ns-overlay-strong: var(--chrome-overlay-strong);
     --ns-toaster-bg: var(--chrome-toaster-bg);
 
-    /**
-     * Fixed support families — not part of the engine `[data-theme]` remapping.
-     * These are the canonical OKLCH endpoints for the Amber (Light-theme indicator)
-     * and Sky (Dark-theme indicator) families. Components never consume these raw;
-     * they read the `--chrome-{family}-*` mix grid below. Extend with new families by
-     * adding `--chrome-{name}-light|dark` endpoints and parallel mix aliases.
+    /* ─── Fixed chrome family anchors (static design constants) ───
+     * Not part of the engine `[data-theme]` remapping. Canonical OKLCH endpoints for
+     * the Amber (light-theme indicator) and Sky (dark-theme indicator) families.
+     * Components never consume these raw; they read the `--chrome-{family}-*` mix grid
+     * below. Extend with new families by adding `--chrome-{name}-light|dark` endpoints
+     * and parallel mix aliases.
      */
     --chrome-amber-light: oklch(90% 0.12 92);
     --chrome-amber-dark: oklch(72% 0.17 70);
@@ -157,7 +187,7 @@
     --chrome-amber-text: var(--chrome-amber-light);
     --chrome-sky-text: var(--chrome-sky-light);
 
-    /* Amber borders, surfaces, rings, and fills. */
+    /* ─── Chrome amber family derivations ─── */
     --chrome-amber-border-faint: color-mix(
       in oklch,
       var(--chrome-amber) 15%,
@@ -254,7 +284,7 @@
       transparent
     );
 
-    /* Sky borders, surfaces, rings, and fills. */
+    /* ─── Chrome sky family derivations ─── */
     --chrome-sky-border-faint: color-mix(
       in oklch,
       var(--chrome-sky) 15%,
@@ -310,21 +340,9 @@
       var(--chrome-sky) 10%,
       transparent
     );
-    --chrome-sky-pill: color-mix(
-      in oklch,
-      var(--chrome-sky) 15%,
-      transparent
-    );
-    --chrome-sky-hover: color-mix(
-      in oklch,
-      var(--chrome-sky) 20%,
-      transparent
-    );
-    --chrome-sky-fill: color-mix(
-      in oklch,
-      var(--chrome-sky) 80%,
-      transparent
-    );
+    --chrome-sky-pill: color-mix(in oklch, var(--chrome-sky) 15%, transparent);
+    --chrome-sky-hover: color-mix(in oklch, var(--chrome-sky) 20%, transparent);
+    --chrome-sky-fill: color-mix(in oklch, var(--chrome-sky) 80%, transparent);
     --chrome-sky-fill-strong: color-mix(
       in oklch,
       var(--chrome-sky) 90%,
@@ -340,16 +358,51 @@
       var(--chrome-sky) 15%,
       transparent
     );
-    --chrome-sky-ring: color-mix(
-      in oklch,
-      var(--chrome-sky) 20%,
-      transparent
-    );
+    --chrome-sky-ring: color-mix(in oklch, var(--chrome-sky) 20%, transparent);
     --chrome-sky-ring-strong: color-mix(
       in oklch,
       var(--chrome-sky) 25%,
       transparent
     );
+
+    /* ─── shadcn/ui bridge tokens ───
+     * Bridged to neutral tier-2 (`--color-*` in @layer base) where possible.
+     */
+    --background: var(--color-surface-default);
+    --foreground: var(--color-text-default);
+    --card: var(--color-surface-raised);
+    --card-foreground: var(--color-text-default);
+    --popover: var(--color-surface-overlay);
+    --popover-foreground: var(--color-text-default);
+    --primary: var(--color-surface-brand);
+    --primary-foreground: var(--color-text-on);
+    --secondary: var(--color-surface-subtle);
+    --secondary-foreground: var(--color-text-default);
+    --muted: var(--color-surface-subtle);
+    --muted-foreground: var(--color-text-muted);
+    --accent: var(--color-surface-subtle);
+    --accent-foreground: var(--color-text-default);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: var(--color-border-subtle);
+    --input: var(--color-border-default);
+    --ring: var(--color-border-focus);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: var(--ns-app-bg);
+    --sidebar-foreground: var(--ns-text-default);
+    --sidebar-primary: var(--color-surface-brand);
+    --sidebar-primary-foreground: var(--color-text-on);
+    --sidebar-accent: var(--color-surface-subtle);
+    --sidebar-accent-foreground: var(--color-text-default);
+    --sidebar-border: var(--color-border-subtle);
+    --sidebar-ring: var(--color-border-focus);
+
+    /* Chrome control field — used for toolbar control surface-sunken (dark default) */
+    --chrome-control-field: var(--color-dark-neutral-alpha-alt-100);
   }
 
   /* When the whole app is in light mode, amber/sky labels need the darker endpoint
@@ -375,6 +428,31 @@
     --color-surface-inverse: oklch(16.15% 0 none);
     --chrome-amber-text: var(--chrome-amber-dark);
     --chrome-sky-text: var(--chrome-sky-dark);
+
+    /* Chrome control field — used for toolbar control surface-sunken */
+    --chrome-control-field: var(--color-neutral-alpha-alt-100);
+
+     /* Neutral alpha alternative 100% */
+     --color-neutral-alpha-alt-100: oklch(0% 0 0 / 0.06);
+  }
+
+  [data-theme='dark'] {
+    /* Neutral tier-2 inherits from `:root` / live tokens; keep destructive + charts as static accents. */
+    --primary: var(--color-surface-brand);
+    --primary-foreground: var(--color-text-on);
+    --destructive: oklch(0.704 0.191 22.216);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: var(--color-surface-default);
+    --sidebar-foreground: var(--color-text-default);
+    --sidebar-primary: var(--color-surface-brand);
+    --sidebar-primary-foreground: var(--color-text-on);
+
+    /* Chrome control field — used for toolbar control surface-sunken */
+    --chrome-control-field: var(--color-dark-neutral-alpha-alt-100);
   }
 
   /**
@@ -397,7 +475,7 @@
     color: black;
   }
   * {
-    @apply border-border outline-ring/50;
+    @apply  outline-ring/50;
   }
   html {
     @apply font-sans;
@@ -405,277 +483,148 @@
 }
 
 /* Workbench layout */
-.ns-workbench {
-  --ns-workbench-header-height: 0px;
-  display: grid;
-  min-height: 100dvh;
-  width: 100%;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto auto;
-  grid-template-areas:
-    'header'
-    'main'
-    'inspector';
-}
-
-.ns-workbench__header {
-  grid-area: header;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  border-bottom: 1px solid var(--ns-hairline);
-  background-color: color-mix(
-    in oklch,
-    var(--ns-surface-raised) 94%,
-    transparent
-  );
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  backdrop-filter: blur(16px) saturate(120%);
-}
-
-.ns-workbench__preview-col {
-  grid-area: main;
-}
-
-.ns-workbench__inspector-col {
-  grid-area: inspector;
-}
-
-.ns-workbench__inspector-scroll {
-  position: sticky;
-  top: var(--ns-workbench-header-height);
-  max-height: calc(100dvh - var(--ns-workbench-header-height));
-  overflow-y: auto;
-}
-
-@container nsb-workbench (width >= 56rem) {
+@layer base {
   .ns-workbench {
-    grid-template-columns: minmax(0, 1fr) minmax(0, min(36rem, 50cqi));
-    grid-template-rows: auto auto;
+    --ns-workbench-header-height: 0px;
+    display: grid;
+    min-height: 100dvh;
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
     grid-template-areas:
-      'header header'
-      'main inspector';
-    align-items: start;
+      'header'
+      'main'
+      'inspector';
   }
-}
 
-@container nsb-workbench (width >= 72rem) {
-  .ns-workbench {
-    grid-template-columns: minmax(0, 1fr) minmax(0, min(48rem, 52cqi));
-  }
-}
-
-/*
-  #nsb-preview-blocks — workbench surface decoration (temporarily off)
-
-  GRADIENT LAYER: `--ns-preview-blocks-bg` (radial + linear stack), `background` on
-  the host; `--ns-preview-blocks-overlay` + `#nsb-preview-blocks::before` (vignette).
-  THEME: `[data-theme='light'|'dark'] #nsb-preview-blocks` override those vars.
-
-  MAP / “BLUEPRINT” LAYER: repeated `radial-gradient` dot grid and masks on
-  `#nsb-preview-blocks::after` (below in-flow content). Dot custom properties
-  (defaults on the host, then per `[data-theme='light'|'dark']` overrides):
-  `--ns-preview-dot-grid`, `--ns-preview-dot-size`, `--ns-preview-dot-offset-x`,
-  `--ns-preview-dot-offset-y`, `--ns-preview-dot-color`, `--ns-preview-dot-opacity`,
-  `--ns-preview-dot-mask`. The pseudo uses them via `background-image`,
-  `background-size`, `background-position`, `mask-image` (incl. `-webkit-`),
-  `mask-size`, `mask-repeat`, `mask-position`, and `opacity`.
-
-  Restore: uncomment the `LEGACY: …` block below and remove/trim the active
-  `#nsb-preview-blocks` fallback background if you want the full treatment back.
-
-  When editing the LEGACY block, do not insert block-comment delimiters inside it: CSS
-  does not nest comments, and a spurious close (asterisk + slash) would end the
-  block early and the rules below would apply as real styles.
-*/
-#nsb-preview-blocks {
-  position: relative;
-  isolation: isolate;
-  /* Flat fallback while gradients + pseudo-layers are disabled */
-  background: var(--ns-app-bg);
-}
-
-#nsb-preview-blocks > * {
-  position: relative;
-  z-index: 0;
-}
-
-#nsb-preview-blocks {
-  position: relative;
-  isolation: isolate;
-  /* (Default to dark: vars valid before [data-theme] / LiveTheme — no inner `/*` here, see top note.) */
-  /* --ns-preview-blocks-bg:
-    radial-gradient(
-      1200px 600px at 15% 0%,
-      color-mix(in oklch, var(--ns-surface-overlay) 85%, var(--ns-accent) 15%),
-      transparent 62%
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--ns-surface-subtle) 92%, transparent),
-      color-mix(in oklch, var(--ns-app-bg) 100%, transparent)
+  .ns-workbench__header {
+    grid-area: header;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid var(--ns-hairline);
+    background-color: var(--color-surface-subtle);
+    /* background-color: color-mix(
+      in oklch,
+      var(--ns-surface-subtle) 94%,
+      transparent
     ); */
-  /* --ns-preview-blocks-overlay: linear-gradient(
-    to bottom,
-    color-mix(in oklch, var(--ns-text) 5%, transparent),
-    transparent 22%,
-    transparent 84%,
-    color-mix(in oklch, var(--ns-text) 6%, transparent)
-  ); */
-  --ns-preview-dot-grid: 1rem;
-  /* (Dot size ≥1px: avoids subpixel collapse in some engines at non-1 DPR.) */
-  --ns-preview-dot-size: 1px;
-  --ns-preview-dot-offset-x: -0.5px;
-  --ns-preview-dot-offset-y: -0.5px;
-  /* --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 34%, transparent); */
-  --ns-preview-dot-opacity: 0.22;
-  /* --ns-preview-dot-mask: radial-gradient(
-    90% 75% at 50% 40%,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 55%,
-    rgba(0, 0, 0, 0.25) 74%,
-    rgba(0, 0, 0, 0) 100%
-  ); */
-  /* background: var(--ns-preview-blocks-bg); */
-}
+    /* -webkit-backdrop-filter: blur(16px) saturate(120%);
+    backdrop-filter: blur(16px) saturate(120%); */
+  }
 
-#nsb-preview-blocks::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  /* Behind in-flow: z-index -1 is the reliable decorative layer under flex children. */
-  z-index: -1;
-  pointer-events: none;
-  background: var(--color-surface-sunken);
-  mix-blend-mode: normal;
-}
+  .ns-workbench__preview-col {
+    grid-area: main;
+  }
 
-/* ::after: dot “blueprint” on the vignette, still below real children, z -1. */
-#nsb-preview-blocks::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
+  .ns-workbench__inspector-col {
+    grid-area: inspector;
+  }
 
-  background-image: radial-gradient(
-    circle,
-    var(--ns-preview-dot-color) var(--ns-preview-dot-size),
-    transparent calc(var(--ns-preview-dot-size) + 0.5px)
-  );
-  background-repeat: repeat;
-  background-size: var(--ns-preview-dot-grid) var(--ns-preview-dot-grid);
-  background-position: var(--ns-preview-dot-offset-x)
-    var(--ns-preview-dot-offset-y);
-  /* 
-  -webkit-mask-image: var(--ns-preview-dot-mask);
-  mask-image: var(--ns-preview-dot-mask);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%; */
-  /* -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
+  .ns-workbench__inspector-scroll {
+    position: sticky;
+    top: var(--ns-workbench-header-height);
+    max-height: calc(100dvh - var(--ns-workbench-header-height));
+    overflow-y: auto;
+  }
 
-  opacity: var(--ns-preview-dot-opacity); */
-  transition: opacity 200ms ease;
-}
+  @container nsb-workbench (width >= 56rem) {
+    .ns-workbench {
+      grid-template-columns: minmax(0, 1fr) minmax(0, min(36rem, 50cqi));
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        'header header'
+        'main inspector';
+      align-items: start;
+    }
+  }
 
-/* [data-theme=light] field: paper + faint grid, workbench surface. */
-[data-theme='light'] #nsb-preview-blocks {
-  --ns-preview-blocks-bg: var(--ns-surface-default);
-  /* --ns-preview-blocks-bg:
-    radial-gradient(
-      1400px 700px at 10% 0%,
-      color-mix(in oklch, var(--ns-surface-raised) 85%, var(--ns-accent) 15%),
-      transparent 60%
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--ns-surface-raised) 100%, transparent),
-      color-mix(in oklch, var(--ns-surface-default) 92%, transparent)
+  @container nsb-workbench (width >= 72rem) {
+    .ns-workbench {
+      grid-template-columns: minmax(0, 1fr) minmax(0, min(48rem, 52cqi));
+    }
+  }
+
+  /*
+    #nsb-preview-blocks — workbench surface decoration (gradient/vignette/dot-mask layers
+    temporarily disabled). Active: flat background + dot-grid custom properties only.
+    Restore the full treatment from git history if needed.
+  */
+  #nsb-preview-blocks {
+    position: relative;
+    isolation: isolate;
+    background: var(--ns-app-bg);
+    --ns-preview-dot-grid: 1rem;
+    /* Dot size ≥1px: avoids subpixel collapse in some engines at non-1 DPR. */
+    --ns-preview-dot-size: 1px;
+    --ns-preview-dot-offset-x: -0.5px;
+    --ns-preview-dot-offset-y: -0.5px;
+    --ns-preview-dot-opacity: 0.22;
+  }
+
+  #nsb-preview-blocks > * {
+    position: relative;
+    z-index: 0;
+  }
+
+  #nsb-preview-blocks::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Behind in-flow: z-index -1 is the reliable decorative layer under flex children. */
+    z-index: -1;
+    pointer-events: none;
+    background: var(--color-surface-sunken);
+    mix-blend-mode: normal;
+  }
+
+  /* ::after: dot "blueprint" on the vignette, still below real children, z -1. */
+  #nsb-preview-blocks::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image: radial-gradient(
+      circle,
+      var(--ns-preview-dot-color) var(--ns-preview-dot-size),
+      transparent calc(var(--ns-preview-dot-size) + 0.5px)
     );
+    background-repeat: repeat;
+    background-size: var(--ns-preview-dot-grid) var(--ns-preview-dot-grid);
+    background-position: var(--ns-preview-dot-offset-x)
+      var(--ns-preview-dot-offset-y);
+    transition: opacity 200ms ease;
+  }
 
-  --ns-preview-blocks-overlay: linear-gradient(
-    to bottom,
-    color-mix(in oklch, var(--ns-text) 3%, transparent),
-    transparent 18%,
-    transparent 82%,
-    color-mix(in oklch, var(--ns-text) 4%, transparent)
-  );
+  /* [data-theme=light] field: paper + faint grid, workbench surface. */
+  [data-theme='light'] #nsb-preview-blocks {
+    --ns-preview-dot-grid: 1rem;
+    --ns-preview-dot-size: 0.5px;
+    --ns-preview-dot-offset-x: -0.5px;
+    --ns-preview-dot-offset-y: -0.5px;
+    --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 37%, transparent);
+    --ns-preview-dot-opacity: 0.25;
+  }
 
-  --ns-preview-blocks-grid-line: color-mix(
-    in oklch,
-    var(--ns-text) 4%,
-    transparent
-  ); */
+  [data-theme='light'] #nsb-preview-blocks::before {
+    opacity: 0.55;
+  }
 
-  /* Dot pattern, light theme. */
-  --ns-preview-dot-grid: 1rem;
-  --ns-preview-dot-size: 0.5px;
-  --ns-preview-dot-offset-x: -0.5px;
-  --ns-preview-dot-offset-y: -0.5px;
-  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 37%, transparent);
-  --ns-preview-dot-opacity: 0.25;
-  /* --ns-preview-dot-mask: radial-gradient(
-    85% 70% at 50% 45%,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 52%,
-    rgba(0, 0, 0, 0.35) 72%,
-    rgba(0, 0, 0, 0) 100%
-  ); */
-}
+  /* [data-theme=dark] field: deeper neutral, restrained top glow, quieter grid. */
+  [data-theme='dark'] #nsb-preview-blocks {
+    --ns-preview-dot-grid: 1rem;
+    --ns-preview-dot-size: 0.75px;
+    --ns-preview-dot-offset-x: -0.5px;
+    --ns-preview-dot-offset-y: -0.5px;
+    --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 11%, transparent);
+    --ns-preview-dot-opacity: 0.22;
+  }
 
-[data-theme='light'] #nsb-preview-blocks::before {
-  opacity: 0.55;
-}
-
-/* [data-theme=dark] field: deeper neutral, restrained top glow, quieter grid. */
-[data-theme='dark'] #nsb-preview-blocks {
-  /* --ns-preview-blocks-bg:
-    radial-gradient(
-      1200px 600px at 15% 0%,
-      color-mix(in oklch, var(--ns-surface-overlay) 85%, var(--ns-accent) 15%),
-      transparent 62%
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--ns-surface-subtle) 92%, transparent),
-      color-mix(in oklch, var(--ns-app-bg) 100%, transparent)
-    );
-
-  --ns-preview-blocks-overlay: linear-gradient(
-    to bottom,
-    color-mix(in oklch, var(--ns-text) 5%, transparent),
-    transparent 22%,
-    transparent 84%,
-    color-mix(in oklch, var(--ns-text) 6%, transparent)
-  );
-
-  --ns-preview-blocks-grid-line: color-mix(
-    in oklch,
-    var(--ns-text) 7%,
-    transparent
-  ); */
-
-  /* Dot pattern, dark theme. */
-  --ns-preview-dot-grid: 1rem;
-  --ns-preview-dot-size: 0.75px;
-  --ns-preview-dot-offset-x: -0.5px;
-  --ns-preview-dot-offset-y: -0.5px;
-  --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 11%, transparent);
-  --ns-preview-dot-opacity: 0.22;
-  /* --ns-preview-dot-mask: radial-gradient(
-    90% 75% at 50% 40%,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 55%,
-    rgba(0, 0, 0, 0.25) 74%,
-    rgba(0, 0, 0, 0) 100%
-  ); */
-}
-
-[data-theme='dark'] #nsb-preview-blocks::before {
-  opacity: 0.35;
+  [data-theme='dark'] #nsb-preview-blocks::before {
+    opacity: 0.35;
+  }
 }
 
 /* Surface and container utilities */
@@ -817,6 +766,11 @@
   --background-color-sidebar-border: var(--chrome-hairline);
   --bg-sidebar: var(--color-surface-sunken);
 
+  /* Chrome control field — used for toolbar control surface-sunken */
+  --background-color-toolbar-control-surface-sunken: var(
+    --chrome-control-field
+  );
+
   --border-color-default: var(--color-border-default);
   --border-color-focus: var(--color-border-focus);
   --border-color-subtle: var(--color-border-subtle);
@@ -871,58 +825,4 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-}
-
-:root {
-  /**
-   * shadcn/ui — bridged to neutral tier-2 (`--color-*` in @layer base) where possible.
-   */
-  --background: var(--color-surface-default);
-  --foreground: var(--color-text-default);
-  --card: var(--color-surface-raised);
-  --card-foreground: var(--color-text-default);
-  --popover: var(--color-surface-overlay);
-  --popover-foreground: var(--color-text-default);
-  --primary: var(--color-surface-brand);
-  --primary-foreground: var(--color-text-on);
-  --secondary: var(--color-surface-subtle);
-  --secondary-foreground: var(--color-text-default);
-  --muted: var(--color-surface-subtle);
-  --muted-foreground: var(--color-text-muted);
-  --accent: var(--color-surface-subtle);
-  --accent-foreground: var(--color-text-default);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: var(--color-border-subtle);
-  --input: var(--color-border-default);
-  --ring: var(--color-border-focus);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: var(--ns-app-bg);
-  --sidebar-foreground: var(--ns-text-default);
-  --sidebar-primary: var(--color-surface-brand);
-  --sidebar-primary-foreground: var(--color-text-on);
-  --sidebar-accent: var(--color-surface-subtle);
-  --sidebar-accent-foreground: var(--color-text-default);
-  --sidebar-border: var(--color-border-subtle);
-  --sidebar-ring: var(--color-border-focus);
-}
-
-[data-theme='dark'] {
-  /* Neutral tier-2 inherits from `:root` / live tokens; keep destructive + charts as static accents. */
-  --primary: var(--color-surface-brand);
-  --primary-foreground: var(--color-text-on);
-  --destructive: oklch(0.704 0.191 22.216);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: var(--color-surface-default);
-  --sidebar-foreground: var(--color-text-default);
-  --sidebar-primary: var(--color-surface-brand);
-  --sidebar-primary-foreground: var(--color-text-on);
 }

@@ -1,11 +1,11 @@
 import type {NamingStyle} from '@/lib/neutral-engine/types'
 
 /**
- * One unique numeric label per step on the 0–1000 token scale (canonical neutral-* export keys).
+ * One unique numeric label per step on the 0–1000 token scale (canonical `--color-neutral-*` CSS keys).
  *
  * Previously, `token_ladder` picked an anchor index with `round(t * 18)`, so when
  * `steps` exceeded the anchor count, many indices collapsed to the same anchor (duplicate
- * `neutral-0`, `neutral-25`, … in JSON/CSS). Spacing labels evenly across 0–1000 keeps a single
+ * `--color-neutral-0`, `--color-neutral-25`, … in CSS). Spacing labels evenly across 0–1000 keeps a single
  * canonical ladder and injective export names.
  */
 export function uniqueTokenLadderLabels(steps: number): string[] {

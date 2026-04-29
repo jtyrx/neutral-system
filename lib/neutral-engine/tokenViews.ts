@@ -131,6 +131,11 @@ export function tokensForInversePairCategory(view: TokenView): SystemToken[] {
   return out.sort((a, b) => compareSemanticRoles(a.role, b.role) || a.name.localeCompare(b.name))
 }
 
+/** Global ramp indices referenced by any token in a single {@link TokenView}. */
+export function usedGlobalIndicesFromTokenView(view: TokenView): Set<number> {
+  return new Set(view.byGlobalIndex.keys())
+}
+
 /**
  * Global ramp indices referenced by any derived system token (Light + Dark), including emphasis
  * groups — same source as preview tables and exports.

@@ -2,6 +2,7 @@
 
 import {memo} from 'react'
 
+import {Input} from '@/components/ui/input'
 import {Slider} from '@/components/ui/slider'
 import type {OkhslEdit, OkhslView} from '@/lib/neutral-engine/okhsl'
 
@@ -54,15 +55,16 @@ function SliderField({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <span className="ns-label">{label}</span>
-        <input
+        <Input
           type="number"
+          variant="ghost"
           min={min}
           max={max}
           step={step}
           value={displayValue}
           disabled={disabled}
           onChange={(e) => onInputChange(e.target.value)}
-          className="w-16 shrink-0 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-right font-mono text-xs text-muted tabular-nums transition hover:border-hairline focus:border-hairline focus:text-default focus:outline-none disabled:opacity-40"
+          className="w-16 shrink-0"
         />
       </div>
       <Slider

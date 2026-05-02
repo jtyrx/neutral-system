@@ -21,15 +21,13 @@ function Slider({
   onValueChange,
   ...props
 }: SliderProps) {
-  const _values = React.useMemo(
-    () =>
-      Array.isArray(value)
-        ? value
-        : Array.isArray(defaultValue)
-          ? defaultValue
-          : [min, max],
-    [value, defaultValue, min, max]
-  )
+  const _values = React.useMemo((): number[] => {
+    if (Array.isArray(value)) return value
+    if (typeof value === 'number') return [value]
+    if (Array.isArray(defaultValue)) return defaultValue
+    if (typeof defaultValue === 'number') return [defaultValue]
+    return [min]
+  }, [value, defaultValue, min])
 
   const handleValueChange = React.useCallback(
     (v: number | readonly number[]) => {
@@ -68,7 +66,7 @@ function Slider({
             data-slot="slider-thumb"
             key={index}
             index={index}
-            className="relative block size-3 shrink-0 rounded-full border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
+            className="relative block size-3 shrink-0 rounded-full border border-ring bg-background ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
           />
         ))}
       </SliderPrimitive.Control>

@@ -247,6 +247,7 @@ export function PairedRolesPanel({
                   global={globalLight}
                   usedIndices={usedLightIndices}
                   label="Used neutral primitive tokens — Light mapping"
+                  tier1ExportMode={tier1LightExport}
                 />
               </div>
               <div className="space-y-2 border-t border-hairline pt-6">
@@ -257,6 +258,7 @@ export function PairedRolesPanel({
                   global={globalDark}
                   usedIndices={usedDarkIndices}
                   label="Used neutral primitive tokens — Dark elevated mapping"
+                  tier1ExportMode={tier1DarkExport}
                 />
               </div>
             </div>
@@ -278,6 +280,7 @@ export function PairedRolesPanel({
                 global={globalLight}
                 label="Light primitive token mapping"
                 layerFilter={layerFilter}
+                tier1ExportMode={tier1LightExport}
               />
             </div>
             <div className="space-y-2">
@@ -289,6 +292,7 @@ export function PairedRolesPanel({
                 global={globalDark}
                 label="Dark elevated primitive token mapping"
                 layerFilter={layerFilter}
+                tier1ExportMode={tier1DarkExport}
               />
             </div>
           </div>
@@ -313,6 +317,7 @@ export function PairedRolesPanel({
               global={focusTheme === 'light' ? globalLight : globalDark}
               label={`${focusTitle} primitive token mapping`}
               layerFilter={layerFilter}
+              tier1ExportMode={focusTheme === 'light' ? tier1LightExport : tier1DarkExport}
             />
           </div>
         ) : null}
@@ -326,6 +331,7 @@ export function PairedRolesPanel({
               global={focusTheme === 'light' ? globalLight : globalDark}
               usedIndices={focusTheme === 'light' ? usedLightIndices : usedDarkIndices}
               label={`Used neutral primitive tokens — ${focusTitle} mapping`}
+              tier1ExportMode={focusTheme === 'light' ? tier1LightExport : tier1DarkExport}
             />
           </div>
         ) : null}

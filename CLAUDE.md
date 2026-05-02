@@ -33,6 +33,14 @@ Use **shadcn with Base UI** (not Radix UI) for all new interactive primitives.
 - Do **not** mix Radix UI and Base UI primitives in the same component; pick one primitive layer per component family.
 - For components not yet in shadcn's catalog, compose from existing `components/ui/` primitives before reaching for a raw Radix or third-party package.
 
+## Components UI Guardrails
+
+Before planning or editing files inside `components/ui/**`, read and follow:
+
+- `components/ui/AGENTS.md`
+
+Treat this file as the source of truth for shared UI primitives, design-system components, accessibility rules, composition patterns, and import conventions. The local UI guardrails override this root file when there is a direct conflict, unless the task prompt explicitly says otherwise.
+
 ## Architecture
 
 The app is a single-page workbench (`app/page.tsx` → [Workbench](components/workbench/Workbench.tsx)) that generates a neutral color system. Two layers:
@@ -43,7 +51,7 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 2. [systemMap.ts](lib/neutral-engine/systemMap.ts) — `deriveSystemTokens(global, SystemMappingConfig)` resolves ladder indices into semantic tokens for a single `themeMode`. Light and dark elevated use separate `*Start` / `*Count` / `*StepInterval` fields. Picks are always `clampSystemMappingToLadderLength`-ed first so nothing escapes `[0, n−1]` (except `darkFillStart`, which may be `−1`). `resolveBorderFocusIndex` emits `border.focus` as a ramp flip of `surface.default` (not a stroke-count rung).
 3. [effectiveMapping.ts](lib/neutral-engine/effectiveMapping.ts) — `applyContrastEmphasisToSystemMapping` multiplies `contrastDistance` (`subtle`/`default`/`strong`/`inverse`). This must run **before** token derivation so preview, UI, and exports all see the same resolved spacing.
 4. [semanticNaming.ts](lib/neutral-engine/semanticNaming.ts) — dot-path roles for a **governed neutral system**: surface elevation (`surface.sunken` → `surface.overlay`, then `surface.brand` and `surface.inverse`), readable text (`text.default` → `text.disabled` + `text.on`), border structure (`border.default` / `subtle` / `strong` + `border.focus`), plus `state.hover`, `overlay.scrim`, `emphasis.*`. `isInversePairRole` / `isBorderFocusRole` separate flip tokens from ladder counts.
-5. [exportFormats.ts](lib/neutral-engine/exportFormats.ts) — JSON / CSS variables / CSV / Tailwind v4 `@theme inline`. Tier-1 primitives export as **`--color-neutral-<label>`** (literal OKLCH); tier-2 semantics as `--color-surface-default`, `--color-border-focus`, etc. (`semanticColorVarName` handles the dot → hyphen rewrite). [chromeAliases.ts](lib/neutral-engine/chromeAliases.ts) defines **`CHROME_MIXER_LINES`** (`--chrome-*` mixers) injected after tier-2 in each `[data-theme]` block; legacy **`--ns-*`** aliases live in `app/globals.css` only. Designed for **CSS-first** `@theme` consumption in Tailwind v4.
+5. [exportFormats.ts](lib/neutral-engine/exportFormats.ts) — JSON / CSS variables / CSV / Tailwind v4 `@theme inline`. Tier-1 light primitives export as **`--color-neutral-<label>`** (index 0 = lightest); Advanced Mode dark primitives export as **`--color-neutral-dark-<displayIndex>`** where **display index 0 = darkest** (the ramp is reversed at export: `ramp[n-1]` → `dark-0`, `ramp[0]` → `dark-N`). Tier-2 semantics use `--color-surface-default`, `--color-border-focus`, etc. (`semanticColorVarName`). Dark semantic roles reference the reversed display index (e.g. `surface.sunken` at ramp index `n-1` → `var(--color-neutral-dark-0)`). [chromeAliases.ts](lib/neutral-engine/chromeAliases.ts) defines **`CHROME_MIXER_LINES`** (`--chrome-*` mixers) injected after tier-2 in each `[data-theme]` block; legacy **`--ns-*`** aliases live in `app/globals.css` only. Designed for **CSS-first** `@theme` consumption in Tailwind v4.
 6. [okhsl.ts](lib/neutral-engine/okhsl.ts) — `okhslViewFromConfig(cfg)` projects the canonical OKLCH config into an OKHSL authoring view; `applyOkhslEdit(cfg, edit)` commits slider edits back to OKLCH fields. Pure functions — no React, no state. OKHSL is a **view**, not parallel state.
 
 **Workbench — [hooks/useNeutralWorkbench.ts](hooks/useNeutralWorkbench.ts)** is the single state orchestrator. Every control reads/writes through this hook. Important invariants encoded here:
@@ -76,7 +84,7 @@ The app is a single-page workbench (`app/page.tsx` → [Workbench](components/wo
 
 ## Token taxonomy (portfolio / governance)
 
-- **Naming:** internal roles are dot paths (`surface.default`). Exports use `semanticColorVarName` → hyphenated segments after `color-` (e.g. `surface.default` → `--color-surface-default`; `text.on` → `--color-text-on`). Tier-1 primitives are **`--color-neutral-<rampLabel>`**. See [exportFormats.ts](lib/neutral-engine/exportFormats.ts) for exact keys.
+- **Naming:** internal roles are dot paths (`surface.default`). Exports use `semanticColorVarName` → hyphenated segments after `color-` (e.g. `surface.default` → `--color-surface-default`; `text.on` → `--color-text-on`). Tier-1 light primitives are **`--color-neutral-<rampLabel>`** (index 0 = lightest). Advanced Mode dark primitives are **`--color-neutral-dark-<displayIndex>`** where display index 0 = darkest — the export layer reverses the ramp order. All preview tables, the `GlobalScaleStrip`, and the export download use this same reversed convention. See [exportFormats.ts](lib/neutral-engine/exportFormats.ts) for exact keys.
 - **Global ramp:** numeric labels often include **tweener steps** (e.g. `925`, `975`) so the dark tail has enough distinct lightness stops for **elevation without banding** — extra rungs are intentional, not decorative.
 - **Surfaces:** five standard rungs model **luminance elevation** (deepest well → overlay); in dark elevated, higher elevation reads **lighter** along the mapped picks. `surface.brand` is a **distinct accent plane** (one step past overlay on the ramp). `surface.inverse` stays a **dedicated high-contrast flip**, not a sixth ladder rung.
 - **Text:** four standard tones plus **`text.on`** for copy on inverse / bold surfaces — paired with surfaces for **WCAG 2.2**-oriented checks via [contrastContracts.ts](lib/neutral-engine/contrastContracts.ts).

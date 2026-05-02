@@ -78,8 +78,8 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
             aria-label={option.label}
             className={cn(
               'inline-flex size-6.75 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
-              'hover:bg-(--ns-chip) hover:text-(--ns-text)',
-              'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-(--ns-border-focus)/30',
+              'hover:bg-(--chrome-chip) hover:text-default',
+              'focus-visible:border-(--color-border-focus) focus-visible:ring-2 focus-visible:ring-(--color-border-focus)/30',
               selected && 'bg-raised text-default',
             )}
           >

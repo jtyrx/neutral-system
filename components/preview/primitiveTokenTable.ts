@@ -1,4 +1,5 @@
 import {tier1NeutralCssVarName} from '@/lib/neutral-engine/chromeAliases'
+import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
 
 /** Numeric neutral ladder order (matches global `swatch.label` / CSS `--color-neutral-*`). */
@@ -8,10 +9,21 @@ export function primitiveSortKey(sw: GlobalSwatch | undefined): number {
   return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY
 }
 
-/** Tier-1 export name for the ramp swatch at `sourceIndex` (or `—`). */
-export function primitiveNeutralExportName(global: GlobalSwatch[], sourceIndex: number): string {
+/** Tier-1 export name for the ramp swatch at `sourceIndex` (or `—`).
+ * For Advanced dark, the display index is reversed: dark-0 = darkest. */
+export function primitiveNeutralExportName(
+  global: GlobalSwatch[],
+  sourceIndex: number,
+  tier1ExportMode?: Tier1NeutralExportMode,
+): string {
   const sw = global[sourceIndex]
-  return sw ? `--${tier1NeutralCssVarName(sw.label)}` : '—'
+  if (!sw) return '—'
+  const isDarkAdvanced =
+    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
+  const displayLabel = isDarkAdvanced ? String(global.length - 1 - sourceIndex) : sw.label
+  return tier1ExportMode
+    ? `--${tier1NeutralCssVarName(displayLabel, tier1ExportMode)}`
+    : `--${tier1NeutralCssVarName(displayLabel)}`
 }
 
 /** Sort mapped system tokens by underlying primitive ladder value, then role. */

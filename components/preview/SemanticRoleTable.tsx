@@ -6,6 +6,7 @@ import {
   primitiveNeutralExportName,
   primitiveSortKey,
 } from '@/components/preview/primitiveTokenTable'
+import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
 import {isInversePairRole, isOverflowRole} from '@/lib/neutral-engine/semanticNaming'
 
@@ -31,12 +32,18 @@ type Props = {
   label: string
   /** When not `all`, only rows whose roles match the layer prefix. */
   layerFilter?: SemanticLayerFilter
+  /** Advanced Mode: pass dark export mode so primitive names show `--color-neutral-dark-*` with correct display index. */
+  tier1ExportMode?: Tier1NeutralExportMode
 }
 
 /**
  * Deduplicated primitive ladder table: one row per `neutral-*` swatch used by mapped tokens (no semantic columns).
  */
-function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}: Props) {
+function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all', tier1ExportMode}: Props) {
+  const isDarkAdvanced =
+    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
+  const n = global.length
+
   const primitiveIndices = useMemo(() => {
     // Preview-only custom brand must not appear as a neutral primitive row.
     const base = tokenView.sortedForTable.filter(
@@ -53,16 +60,21 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
         indices.push(i)
       }
     }
-    indices.sort((a, b) => {
-      const ka = primitiveSortKey(global[a])
-      const kb = primitiveSortKey(global[b])
-      if (ka !== kb) return ka - kb
-      const la = global[a]?.label ?? ''
-      const lb = global[b]?.label ?? ''
-      return la.localeCompare(lb, undefined, {numeric: true})
-    })
+    if (isDarkAdvanced) {
+      // Sort darkest-first: highest ramp index = darkest = display index 0
+      indices.sort((a, b) => b - a)
+    } else {
+      indices.sort((a, b) => {
+        const ka = primitiveSortKey(global[a])
+        const kb = primitiveSortKey(global[b])
+        if (ka !== kb) return ka - kb
+        const la = global[a]?.label ?? ''
+        const lb = global[b]?.label ?? ''
+        return la.localeCompare(lb, undefined, {numeric: true})
+      })
+    }
     return indices
-  }, [tokenView, layerFilter, global])
+  }, [tokenView, layerFilter, global, isDarkAdvanced])
 
   if (primitiveIndices.length === 0) {
     return (
@@ -89,7 +101,8 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
         <tbody className="font-mono">
           {primitiveIndices.map((idx) => {
             const sw = global[idx]
-            const prim = primitiveNeutralExportName(global, idx)
+            const prim = primitiveNeutralExportName(global, idx, tier1ExportMode)
+            const displayIndex = isDarkAdvanced ? n - 1 - idx : idx
             const hex = sw?.serialized.hex ?? '—'
             const oklch = sw?.serialized.oklchCss ?? '—'
             const swatchBg = hex.startsWith('#') ? hex : undefined
@@ -107,7 +120,7 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all'}:
                 </td>
                 <td className="px-2 py-1.5 align-middle tabular-nums text-subtle hidden sm:table-cell">{hex}</td>
                 <td className="max-w-[min(28rem,55vw)] px-2 py-1.5 align-middle break-all text-subtle hidden sm:table-cell">{oklch}</td>
-                <td className="px-2 py-1.5 text-right align-middle tabular-nums text-muted">{idx}</td>
+                <td className="px-2 py-1.5 text-right align-middle tabular-nums text-muted">{displayIndex}</td>
               </tr>
             )
           })}

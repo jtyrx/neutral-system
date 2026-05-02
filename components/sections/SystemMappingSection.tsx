@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from 'react'
 
+import { Input } from '@/components/ui/input'
 import { OffsetMapDiagram } from '@/components/viz/OffsetMapDiagram'
 import { ThemeRangeBar } from '@/components/viz/ThemeRangeBar'
 import { previewResolvedRoleIndices } from '@/lib/neutral-engine/systemMap'
@@ -53,12 +54,13 @@ function NumField({
     <label className="space-y-1">
       <span className="ns-label">{label}</span>
       {hint ? <span className="block text-[0.65rem] leading-snug text-disabled">{hint}</span> : null}
-      <input
+      <Input
         type="number"
         min={min}
         max={max}
         step={step}
-        className="ns-input font-mono"
+        variant="workbench"
+        className="font-mono"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
       />
@@ -112,7 +114,7 @@ function SystemMappingSectionInner({
         </p>
       </header>
 
-      <div className="rounded-sm border border-hairline bg-(--ns-overlay-soft) px-4 py-3 sm:px-5 sm:py-4">
+      <div className="rounded-sm border border-hairline bg-(--chrome-overlay-soft) px-4 py-3 sm:px-5 sm:py-4">
         <h3 className="text-sm font-semibold text-default">Shared mapping</h3>
         <p className="mt-1 text-xs text-muted">
           Contrast distance applies to both themes (scaled by emphasis in the preview toolbar). Step

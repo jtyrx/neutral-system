@@ -45,7 +45,16 @@ function NeutralScaleUsageTableInner({
   themeContext = 'both',
   embedded = false,
 }: Props) {
-  const rows = [...global].sort((a, b) => a.index - b.index)
+  const isDarkAdvanced =
+    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
+  const n = global.length
+
+  const rows = isDarkAdvanced
+    ? [...global].sort((a, b) => b.index - a.index)
+    : [...global].sort((a, b) => a.index - b.index)
+
+  const displayIdx = (s: GlobalSwatch) => (isDarkAdvanced ? n - 1 - s.index : s.index)
+  const displayLabel = (s: GlobalSwatch) => String(displayIdx(s))
 
   if (rows.length === 0) {
     return null
@@ -107,10 +116,10 @@ function NeutralScaleUsageTableInner({
                   <td
                     className={`px-2 py-1.5 font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
                   >
-                    {s.index}
+                    {displayIdx(s)}
                   </td>
                   <td className={`px-2 py-1.5 font-mono ${used ? 'text-default' : 'text-disabled'}`}>
-                    {s.label}
+                    {displayLabel(s)}
                   </td>
                   <td
                     className={`px-2 py-1.5 text-right font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
@@ -139,7 +148,7 @@ function NeutralScaleUsageTableInner({
                   <td
                     className={`px-2 py-1.5 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
                   >
-                    {exportTokenKey(s.label, tier1ExportMode)}
+                    {exportTokenKey(displayLabel(s), tier1ExportMode)}
                   </td>
                 </tr>
               )

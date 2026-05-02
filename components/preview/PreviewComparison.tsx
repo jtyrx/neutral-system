@@ -1,6 +1,7 @@
 'use client'
 
 import {memo} from 'react'
+import {cva} from 'class-variance-authority'
 
 import {GlobalRampCard} from '@/components/preview/GlobalRampCard'
 import {PairedRolesPanel} from '@/components/preview/PairedRolesPanel'
@@ -18,6 +19,70 @@ type Props = {
   lightTokenView: TokenView
   darkTokenView: TokenView
   alphaBaseIndices?: {lightBase: number; darkBase: number}
+}
+
+type ChromeTone = 'amber' | 'sky'
+
+const previewChromePanelVariants = cva('rounded-xl border', {
+  variants: {
+    tone: {
+      amber: 'border-(--chrome-amber-border) bg-(--chrome-amber-surface)',
+      sky: 'border-(--chrome-sky-border) bg-(--chrome-sky-surface)',
+    },
+    layout: {
+      focus: 'p-3 sm:p-4',
+      splitLight: 'px-3 py-3 sm:px-3.5 sm:py-4',
+      splitDark: 'p-3 sm:p-4',
+    },
+  },
+})
+
+const previewThemeBadgeVariants = cva(
+  'rounded-full px-2 py-0.5 font-mono text-[0.6rem]',
+  {
+    variants: {
+      tone: {
+        amber: 'bg-(--chrome-amber-pill) text-(--chrome-amber-text)',
+        sky: 'bg-(--chrome-sky-pill) text-(--chrome-sky-text)',
+      },
+    },
+  },
+)
+
+const previewPanelHeaderRowClass =
+  'mb-3 flex flex-wrap items-baseline justify-between gap-2'
+
+function rampCardAccentClass(tone: ChromeTone, ring: 'strong' | 'soft') {
+  if (tone === 'amber') {
+    return ring === 'strong'
+      ? 'ring-1 ring-(--chrome-amber-ring)'
+      : 'ring-1 ring-(--chrome-amber-ring-soft)'
+  }
+  return ring === 'strong'
+    ? 'ring-1 ring-(--chrome-sky-ring)'
+    : 'ring-1 ring-(--chrome-sky-ring-soft)'
+}
+
+function PreviewPanelHeading({
+  eyebrow,
+  title,
+  tone,
+  badgeLabel,
+}: {
+  eyebrow: string
+  title: string
+  tone: ChromeTone
+  badgeLabel: string
+}) {
+  return (
+    <div className={previewPanelHeaderRowClass}>
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <p className="mt-0.5 text-sm font-medium text-default">{title}</p>
+      </div>
+      <span className={previewThemeBadgeVariants({tone})}>{badgeLabel}</span>
+    </div>
+  )
 }
 
 const GROUP_HINTS: PairedRoleGroupHints = {
@@ -39,12 +104,13 @@ function PreviewComparisonInner({
   alphaBaseIndices,
 }: Props) {
   const simple = neutralArchitecture === 'simple'
-  const invertDarkDisplay = simple
+  const invertDarkDisplay = true
 
   if (layout === 'focus') {
     const isLight = focusTheme === 'light'
     const tokenView = isLight ? lightTokenView : darkTokenView
     const ramp = isLight ? globalLight : globalDark
+    const tone: ChromeTone = isLight ? 'amber' : 'sky'
     const title = isLight ? 'Light' : 'Dark elevated'
     const caption = simple
       ? isLight
@@ -59,32 +125,21 @@ function PreviewComparisonInner({
         : 'Surfaces pull from the dark tail; the strip is inverted so it reads dark → light left to right.'
       : isLight
         ? 'Light sibling ramp reads light → dark (low → high index).'
-        : 'Dark sibling ramp reads light → dark — independent optical scale.'
+        : 'Dark sibling ramp reads dark → light — dark-0 is the darkest step.'
 
     return (
       <div className="space-y-4">
         <div
-          className={`rounded-xl border p-3 sm:p-4 ${
-            isLight
-              ? 'border-(--chrome-amber-border) bg-(--chrome-amber-surface)'
-              : 'border-(--chrome-sky-border) bg-(--chrome-sky-surface)'
-          }`}
+          className={previewChromePanelVariants({tone, layout: 'focus'})}
         >
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <p className="eyebrow">{title}</p>
-              <p className="mt-0.5 text-sm font-medium text-default">Mapping preview</p>
-            </div>
-            <span
-              className={`rounded-full px-2 py-0.5 font-mono text-[0.6rem] ${
-                isLight
-                  ? 'bg-(--chrome-amber-pill) text-(--chrome-amber-text)'
-                  : 'bg-(--chrome-sky-pill) text-(--chrome-sky-text)'
-              }`}
-            >
-              {isLight ? 'themeMode: light' : 'themeMode: darkElevated'}
-            </span>
-          </div>
+          <PreviewPanelHeading
+            eyebrow={title}
+            title="Mapping preview"
+            tone={tone}
+            badgeLabel={
+              isLight ? 'themeMode: light' : 'themeMode: darkElevated'
+            }
+          />
           <GlobalRampCard
             id={isLight ? 'light-global-ramp' : 'dark-global-ramp'}
             role="region"
@@ -92,9 +147,7 @@ function PreviewComparisonInner({
             global={ramp}
             tokenView={tokenView}
             caption={caption}
-            accentClassName={
-              isLight ? 'ring-1 ring-[var(--chrome-amber-ring)]' : 'ring-1 ring-[var(--chrome-sky-ring)]'
-            }
+            accentClassName={rampCardAccentClass(tone, 'strong')}
             invertDisplay={!isLight ? invertDarkDisplay : undefined}
             directionHint={directionHint}
             alphaBaseIndex={isLight ? alphaBaseIndices?.lightBase : alphaBaseIndices?.darkBase}
@@ -115,27 +168,22 @@ function PreviewComparisonInner({
   }
 
   const lightCaption = simple ? 'Light · global ramp (low index = lightest)' : 'Light neutral scale (low index = lightest)'
-  const darkCaption = simple ? 'Dark elevated · global ramp (dark edge)' : 'Dark neutral scale (dark edge)'
+  const darkCaption = simple ? 'Dark elevated · global ramp (dark edge)' : 'Dark neutral scale (dark-0 = darkest)'
   const darkDirSimple =
     'Dark strip is visually inverted to read dark → light left to right; resolved indices remain absolute.'
   const darkDirAdvanced =
-    'Dark sibling ramp reads light→dark along indices; semantic picks anchor from the dark tail.'
+    'Dark sibling ramp reads dark → light (low index = darkest); semantic picks anchor from dark-0.'
 
   return (
     <div className="space-y-8">
       <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:gap-4">
-        <div className="rounded-xl border border-(--chrome-amber-border) bg-(--chrome-amber-surface) px-3 py-3 sm:px-3.5 sm:py-4">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <p className="eyebrow">Light</p>
-              <p className="mt-0.5 text-sm font-medium text-default">
-                {simple ? 'Global ramp' : 'Neutral scale'}
-              </p>
-            </div>
-            <span className="rounded-full bg-(--chrome-amber-pill) px-2 py-0.5 font-mono text-[0.6rem] text-(--chrome-amber-text)">
-              themeMode: light
-            </span>
-          </div>
+        <div className={previewChromePanelVariants({tone: 'amber', layout: 'splitLight'})}>
+          <PreviewPanelHeading
+            eyebrow="Light"
+            title={simple ? 'Global ramp' : 'Neutral scale'}
+            tone="amber"
+            badgeLabel="themeMode: light"
+          />
           <GlobalRampCard
             id="light-global-ramp"
             role="region"
@@ -143,24 +191,19 @@ function PreviewComparisonInner({
             global={globalLight}
             tokenView={lightTokenView}
             caption={lightCaption}
-            accentClassName="ring-1 ring-[var(--chrome-amber-ring-soft)]"
+            accentClassName={rampCardAccentClass('amber', 'soft')}
             directionHint="Ramp reads light → dark (low → high index)."
             alphaBaseIndex={alphaBaseIndices?.lightBase}
           />
         </div>
 
-        <div className="rounded-xl border border-(--chrome-sky-border) bg-(--chrome-sky-surface) p-3 sm:p-4">
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <p className="eyebrow">Dark elevated</p>
-              <p className="mt-0.5 text-sm font-medium text-default">
-                {simple ? 'Global ramp' : 'Neutral scale'}
-              </p>
-            </div>
-            <span className="rounded-full bg-(--chrome-sky-pill) px-2 py-0.5 font-mono text-[0.6rem] text-(--chrome-sky-text)">
-              themeMode: darkElevated
-            </span>
-          </div>
+        <div className={previewChromePanelVariants({tone: 'sky', layout: 'splitDark'})}>
+          <PreviewPanelHeading
+            eyebrow="Dark elevated"
+            title={simple ? 'Global ramp' : 'Neutral scale'}
+            tone="sky"
+            badgeLabel="themeMode: darkElevated"
+          />
           <GlobalRampCard
             id="dark-global-ramp"
             role="region"
@@ -168,7 +211,7 @@ function PreviewComparisonInner({
             global={globalDark}
             tokenView={darkTokenView}
             caption={darkCaption}
-            accentClassName="ring-1 ring-[var(--chrome-sky-ring-soft)]"
+            accentClassName={rampCardAccentClass('sky', 'soft')}
             invertDisplay={invertDarkDisplay}
             directionHint={simple ? darkDirSimple : darkDirAdvanced}
             alphaBaseIndex={alphaBaseIndices?.darkBase}

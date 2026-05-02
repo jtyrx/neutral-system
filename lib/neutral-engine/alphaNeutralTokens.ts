@@ -34,8 +34,13 @@ function alphaLines(
 ): string[] {
   const swatch = swatches[baseIndex]
   if (!swatch) return []
+  // Advanced dark: display indices are reversed (dark-0 = darkest), so convert ramp index to display label.
+  const displayLabel =
+    tier1Advanced?.scale === 'dark'
+      ? String(swatches.length - 1 - baseIndex)
+      : swatch.label
   const varCssName =
-    tier1Advanced != null ? tier1NeutralCssVarName(swatch.label, tier1Advanced) : tier1NeutralCssVarName(swatch.label)
+    tier1Advanced != null ? tier1NeutralCssVarName(displayLabel, tier1Advanced) : tier1NeutralCssVarName(displayLabel)
   const varRef = `var(--${varCssName})`
   return stops.map((alpha, i) => {
     const pct = Math.round(alpha * 100)

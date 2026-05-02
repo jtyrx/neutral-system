@@ -1,6 +1,9 @@
 'use client'
 
 import {memo, useCallback, useMemo, useState} from 'react'
+import {cva} from 'class-variance-authority'
+
+import {cn} from '@/lib/utils'
 
 import {friendlySemanticCategoryLabel, humanizeRole} from '@/components/preview/previewLabels'
 import {
@@ -8,6 +11,7 @@ import {
   sortSystemTokensByPrimitiveLadder,
 } from '@/components/preview/primitiveTokenTable'
 import {type PairSection, SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
+import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch} from '@/lib/neutral-engine'
 import type {SystemToken, TokenView} from '@/lib/neutral-engine'
 import {
@@ -18,7 +22,8 @@ import {
 } from '@/lib/neutral-engine/tokenViews'
 
 type Props = {
-  global: GlobalSwatch[]
+  globalLight: GlobalSwatch[]
+  globalDark: GlobalSwatch[]
   lightTokenView: TokenView
   darkTokenView: TokenView
   onSelectSystem: (id: string) => void
@@ -49,12 +54,22 @@ function RoleTokenTable({
   tokens,
   global,
   onSelect,
+  tier1ExportMode,
 }: {
   tokens: SystemToken[]
   global: GlobalSwatch[]
   onSelect: (id: string) => void
+  tier1ExportMode?: Tier1NeutralExportMode
 }) {
-  const sorted = useMemo(() => sortSystemTokensByPrimitiveLadder(tokens, global), [tokens, global])
+  const isDarkAdvanced =
+    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
+  const n = global.length
+
+  const sorted = useMemo(() => {
+    const base = sortSystemTokensByPrimitiveLadder(tokens, global)
+    // Dark: sort darkest-first (highest ramp index = darkest = display index 0)
+    return isDarkAdvanced ? [...base].reverse() : base
+  }, [tokens, global, isDarkAdvanced])
 
   if (sorted.length === 0) {
     return <p className="text-[0.65rem] text-disabled">No tokens in this group.</p>
@@ -72,7 +87,8 @@ function RoleTokenTable({
         </thead>
         <tbody className="font-mono">
           {sorted.map((t) => {
-            const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex)
+            const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex, tier1ExportMode)
+            const displayIndex = isDarkAdvanced ? n - 1 - t.sourceGlobalIndex : t.sourceGlobalIndex
             return (
               <tr key={t.id} className="border-b border-hairline">
                 <td className="px-2 py-1.5 font-medium text-default" title={t.name}>
@@ -86,7 +102,7 @@ function RoleTokenTable({
                     {t.name}
                   </span>
                 </td>
-                <td className="px-2 py-1.5 text-right tabular-nums text-muted">{t.sourceGlobalIndex}</td>
+                <td className="px-2 py-1.5 text-right tabular-nums text-muted">{displayIndex}</td>
                 <td className="px-2 py-1.5 align-middle">
                   <button
                     type="button"
@@ -105,6 +121,24 @@ function RoleTokenTable({
   )
 }
 
+const themeColumnShellVariants = cva('rounded-2xl border p-4 sm:p-5', {
+  variants: {
+    tone: {
+      light: 'border-(--chrome-amber-border) bg-(--chrome-amber-surface)',
+      dark: 'border-(--chrome-sky-border) bg-(--chrome-sky-surface)',
+    },
+  },
+})
+
+const themeColumnHeadingVariants = cva('', {
+  variants: {
+    tone: {
+      light: 'text-(--chrome-amber-text)',
+      dark: 'text-(--chrome-sky-text)',
+    },
+  },
+})
+
 function ThemeTokenColumn({
   eyebrow,
   title,
@@ -113,6 +147,7 @@ function ThemeTokenColumn({
   global,
   onSelectSystem,
   variant,
+  tier1ExportMode,
 }: {
   eyebrow: string
   title: string
@@ -121,43 +156,32 @@ function ThemeTokenColumn({
   global: GlobalSwatch[]
   onSelectSystem: (id: string) => void
   variant: 'light' | 'dark'
+  tier1ExportMode: Tier1NeutralExportMode
 }) {
   const [showTable, setShowTable] = useState(true)
   const toggle = useCallback(() => setShowTable((v) => !v), [])
 
-  const shell =
-    variant === 'light'
-      ? 'border-[var(--chrome-amber-border)] bg-[var(--chrome-amber-surface)]'
-      : 'border-[var(--chrome-sky-border)] bg-[var(--chrome-sky-surface)]'
-  const heading =
-    variant === 'light'
-      ? 'text-[var(--chrome-amber-text)]'
-      : 'text-[var(--chrome-sky-text)]'
-  const eyebrowTone =
-    variant === 'light'
-      ? 'text-[var(--chrome-amber-text)]'
-      : 'text-[var(--chrome-sky-text)]'
-
+  const tone = variant === 'dark' ? 'dark' : 'light'
   const emphasisToks = tokensForSemanticLayer(tokenView, 'emphasis')
 
   return (
-    <div className={`rounded-2xl border p-4 sm:p-5 ${shell}`}>
+    <div className={themeColumnShellVariants({tone})}>
       <header className="border-b border-hairline pb-4">
-        <p className={`eyebrow ${eyebrowTone}`}>{eyebrow}</p>
+        <p className={cn('eyebrow', themeColumnHeadingVariants({tone}))}>{eyebrow}</p>
         <h3 className="mt-1 text-lg font-semibold text-default">{title}</h3>
         <p className="mt-1 text-xs text-muted">{hint}</p>
         <button
           type="button"
           onClick={toggle}
-          className="mt-3 rounded-full border border-hairline px-2.5 py-1 text-[0.65rem] text-subtle hover:bg-(--ns-chip) hover:text-default"
+          className="mt-3 rounded-full border border-hairline px-2.5 py-1 text-[0.65rem] text-subtle hover:bg-(--chrome-chip) hover:text-default"
         >
           {showTable ? 'Visual view' : 'Data table'}
         </button>
         {showTable ? (
           <p className="mt-2 text-[0.6rem] leading-snug text-disabled">
-            Primitive column uses tier‑1 CSS names from the global ramp (
-            <span className="font-mono">--color-neutral-*</span>). Rows sort by ladder value; semantic role and
-            tier‑2 token name are secondary.
+            Primitive column uses tier‑1 CSS names (
+            <span className="font-mono">{variant === 'dark' ? '--color-neutral-dark-*' : '--color-neutral-*'}</span>
+            ). Rows sort by ladder value; semantic role and tier‑2 token name are secondary.
           </p>
         ) : null}
       </header>
@@ -165,26 +189,36 @@ function ThemeTokenColumn({
       <div className="mt-6 space-y-8">
         {showTable ? (
           <>
-            {THEME_TABLE_GROUPS.map(({section, hint}) => {
+            {THEME_TABLE_GROUPS.map(({section, hint: groupHint}) => {
               const groupTokens = tokensForThemeTableBlock(tokenView, section)
               if (groupTokens.length === 0) return null
               const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
               const k = section.kind === 'inverse' ? 'inverse' : section.layer
               return (
                 <div key={k} className="space-y-2">
-                  <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
+                  <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
                     {friendlySemanticCategoryLabel(titleKey)}
                   </h4>
-                  <p className="text-[0.65rem] text-disabled">{hint}</p>
-                  <RoleTokenTable tokens={groupTokens} global={global} onSelect={onSelectSystem} />
+                  <p className="text-[0.65rem] text-disabled">{groupHint}</p>
+                  <RoleTokenTable
+                    tokens={groupTokens}
+                    global={global}
+                    onSelect={onSelectSystem}
+                    tier1ExportMode={tier1ExportMode}
+                  />
                 </div>
               )
             })}
             {emphasisToks.length > 0 ? (
               <div className="space-y-2 border-t border-hairline pt-6">
-                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>Emphasis</h4>
+                <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>Emphasis</h4>
                 <p className="text-[0.65rem] text-disabled">Experimental accessible pairs (higher contrast).</p>
-                <RoleTokenTable tokens={emphasisToks} global={global} onSelect={onSelectSystem} />
+                <RoleTokenTable
+                  tokens={emphasisToks}
+                  global={global}
+                  onSelect={onSelectSystem}
+                  tier1ExportMode={tier1ExportMode}
+                />
               </div>
             ) : null}
           </>
@@ -193,10 +227,15 @@ function ThemeTokenColumn({
             <SemanticSingleThemeGrid tokenView={tokenView} global={global} />
             {emphasisToks.length > 0 ? (
               <div className="space-y-2 border-t border-hairline pt-6">
-                <h4 className={`text-xs font-semibold uppercase tracking-wide ${heading}`}>
+                <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
                   Emphasis (experimental)
                 </h4>
-                <RoleTokenTable tokens={emphasisToks} global={global} onSelect={onSelectSystem} />
+                <RoleTokenTable
+                  tokens={emphasisToks}
+                  global={global}
+                  onSelect={onSelectSystem}
+                  tier1ExportMode={tier1ExportMode}
+                />
               </div>
             ) : null}
           </>
@@ -206,7 +245,7 @@ function ThemeTokenColumn({
   )
 }
 
-function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelectSystem}: Props) {
+function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
   return (
     <section id="themes" className="scroll-mt-6 space-y-6">
       <header>
@@ -224,18 +263,20 @@ function ThemePanelsSectionInner({global, lightTokenView, darkTokenView, onSelec
           title="Primitive tokens"
           hint="Tier‑1 --color-neutral-* mapping from the bright end of the global ramp (themeMode: light)."
           tokenView={lightTokenView}
-          global={global}
+          global={globalLight}
           onSelectSystem={onSelectSystem}
           variant="light"
+          tier1ExportMode={{architecture: 'advanced', scale: 'light'}}
         />
         <ThemeTokenColumn
           eyebrow="Dark elevated"
           title="Primitive tokens"
-          hint="Tier‑1 --color-neutral-* mapping from the dark tail for elevated UI (themeMode: darkElevated)."
+          hint="Tier‑1 --color-neutral-dark-* mapping from the dark tail (themeMode: darkElevated). dark-0 = darkest."
           tokenView={darkTokenView}
-          global={global}
+          global={globalDark}
           onSelectSystem={onSelectSystem}
           variant="dark"
+          tier1ExportMode={{architecture: 'advanced', scale: 'dark'}}
         />
       </div>
     </section>

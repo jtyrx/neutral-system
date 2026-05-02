@@ -4,6 +4,7 @@ import * as React from "react"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 
 import { cn } from "@/lib/utils"
+import { tooltipPopupContentBaseClassName } from "@/components/ui/floating-popup-styles"
 
 function TooltipProvider({
   delayDuration = 0,
@@ -87,10 +88,7 @@ function TooltipContent({
       >
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
-          className={cn(
-            "z-50 inline-flex w-fit max-w-xs flex-row items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs leading-normal tracking-normal antialiased text-background has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--transform-origin) **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-            className,
-          )}
+          className={cn(tooltipPopupContentBaseClassName, className)}
           {...props}
         >
           <TooltipPrimitive.Arrow

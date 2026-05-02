@@ -4,7 +4,7 @@ import type Color from 'colorjs.io'
 import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react'
 
 import {SegmentedControl, type SegmentedOption} from '@/components/preview/SegmentedControl'
-import {CollapsibleControlGroup} from '@/components/workbench/CollapsibleControlGroup'
+import {Input} from '@/components/ui/input'
 import {canonicalBrandOklchCss, tryParseBrandOklch} from '@/lib/neutral-engine/brandColor'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
@@ -141,12 +141,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
   const isDraftValid = draft.trim() === '' ? false : !!parseSupportedBrandInput(draft, format)
 
   return (
-    <CollapsibleControlGroup
-      id="custom-brand"
-      title="Custom brand"
-      subtitle="Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview, exports, and the Color.js picker."
-      defaultOpen
-    >
+    <>
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -184,13 +179,13 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
                 size="sm"
               />
             </div>
-            <input
+            <Input
               ref={inputRef}
               id="brand-color-input"
               type="text"
               spellCheck={false}
               autoComplete="off"
-              className="w-full rounded-lg border border-hairline bg-raised px-3 py-2 font-mono text-xs text-default outline-none transition focus:border-(--chrome-amber-border-bold) focus:ring-2 focus:ring-(--chrome-amber-ring-strong)"
+              className="font-mono text-xs focus:border-(--chrome-amber-border-bold) focus:ring-2 focus:ring-(--chrome-amber-ring-strong)"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onBlur={commitDraftIfValid}
@@ -222,6 +217,6 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
           )}
         </div>
       ) : null}
-    </CollapsibleControlGroup>
+    </>
   )
 }

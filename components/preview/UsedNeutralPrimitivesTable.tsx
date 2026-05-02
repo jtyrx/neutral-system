@@ -3,6 +3,7 @@
 import {memo, useMemo} from 'react'
 
 import {primitiveNeutralExportName, primitiveSortKey} from '@/components/preview/primitiveTokenTable'
+import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch} from '@/lib/neutral-engine'
 
 type Props = {
@@ -11,25 +12,35 @@ type Props = {
   usedIndices: ReadonlySet<number>
   /** Region label for screen readers. */
   label: string
+  /** Advanced Mode: pass dark export mode so primitive names show `--color-neutral-dark-*` with correct display index. */
+  tier1ExportMode?: Tier1NeutralExportMode
 }
 
 /**
  * One row per used `neutral-*` primitive: swatch, name, hex, OKLCH, idx — deduplicated, no semantics.
  * Custom brand is preview-only and intentionally excluded; this table reflects exportable ramp rows.
  */
-function UsedNeutralPrimitivesTableInner({global, usedIndices, label}: Props) {
+function UsedNeutralPrimitivesTableInner({global, usedIndices, label, tier1ExportMode}: Props) {
+  const isDarkAdvanced =
+    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
+
   const rows = useMemo(() => {
     const indices = [...usedIndices].filter((i) => i >= 0 && i < global.length)
-    indices.sort((a, b) => {
-      const ka = primitiveSortKey(global[a])
-      const kb = primitiveSortKey(global[b])
-      if (ka !== kb) return ka - kb
-      const la = global[a]?.label ?? ''
-      const lb = global[b]?.label ?? ''
-      return la.localeCompare(lb, undefined, {numeric: true})
-    })
+    if (isDarkAdvanced) {
+      // Sort darkest-first: highest ramp index = darkest = display index 0
+      indices.sort((a, b) => b - a)
+    } else {
+      indices.sort((a, b) => {
+        const ka = primitiveSortKey(global[a])
+        const kb = primitiveSortKey(global[b])
+        if (ka !== kb) return ka - kb
+        const la = global[a]?.label ?? ''
+        const lb = global[b]?.label ?? ''
+        return la.localeCompare(lb, undefined, {numeric: true})
+      })
+    }
     return indices
-  }, [usedIndices, global])
+  }, [usedIndices, global, isDarkAdvanced])
 
   if (rows.length === 0) {
     return (
@@ -59,7 +70,8 @@ function UsedNeutralPrimitivesTableInner({global, usedIndices, label}: Props) {
           <tbody className="font-mono">
             {rows.map((idx) => {
               const sw = global[idx]
-              const prim = primitiveNeutralExportName(global, idx)
+              const prim = primitiveNeutralExportName(global, idx, tier1ExportMode)
+              const displayIndex = isDarkAdvanced ? global.length - 1 - idx : idx
               const hex = sw?.serialized.hex ?? '—'
               const oklch = sw?.serialized.oklchCss ?? '—'
               const swatchBg = hex.startsWith('#') ? hex : undefined
@@ -79,7 +91,7 @@ function UsedNeutralPrimitivesTableInner({global, usedIndices, label}: Props) {
                   <td className="max-w-[min(28rem,55vw)] px-2 py-1.5 align-middle break-all text-subtle">
                     {oklch}
                   </td>
-                  <td className="px-2 py-1.5 text-right align-middle tabular-nums text-muted">{idx}</td>
+                  <td className="px-2 py-1.5 text-right align-middle tabular-nums text-muted">{displayIndex}</td>
                 </tr>
               )
             })}

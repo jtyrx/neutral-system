@@ -3,6 +3,7 @@
 import Color from 'colorjs.io'
 import {memo, useCallback, useEffect, useRef, useState} from 'react'
 
+import {cn} from '@/lib/utils'
 import {analyzeSwatch} from '@/lib/neutral-engine/heuristics'
 import {parseColorFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {
@@ -101,18 +102,19 @@ function GlobalSwatchInspector({
       id="global-swatch-inspector"
       role="region"
       aria-label="Global swatch inspector"
-      className={`space-y-4 rounded-sm border ns-panel p-4 ${
+      className={cn(
+        'space-y-4 rounded-sm border ns-panel p-4',
         exiting
           ? 'pointer-events-none translate-y-0.5 scale-[0.995] opacity-0 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]'
-          : 'animate-inspector-enter'
-      }`}
+          : 'animate-inspector-enter',
+      )}
     >
       <div className="flex items-start justify-between gap-3">
         <p className="eyebrow">Global swatch</p>
         <button
           type="button"
           onClick={handleClose}
-          className="shrink-0 rounded-lg border border-hairline bg-(--ns-chip) px-2.5 py-1 text-[0.65rem] font-medium text-muted transition-colors hover:bg-sidebar-border hover:text-default"
+          className="shrink-0 rounded-lg border border-hairline bg-(--chrome-chip) px-2.5 py-1 text-[0.65rem] font-medium text-muted transition-colors hover:bg-raised hover:text-default"
           aria-label="Close global swatch inspector"
         >
           Close

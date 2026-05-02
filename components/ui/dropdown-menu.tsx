@@ -4,6 +4,7 @@ import * as React from 'react'
 import {Menu as MenuPrimitive} from '@base-ui/react/menu'
 
 import {cn} from '@/lib/utils'
+import {floatingPopupOpenClose} from '@/components/ui/floating-popup-styles'
 
 function DropdownMenu({
   ...props
@@ -12,9 +13,24 @@ function DropdownMenu({
 }
 
 function DropdownMenuTrigger({
+  asChild,
+  children,
   ...props
-}: React.ComponentProps<typeof MenuPrimitive.Trigger>) {
-  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
+}: React.ComponentProps<typeof MenuPrimitive.Trigger> & {
+  asChild?: boolean
+}) {
+  return (
+    <MenuPrimitive.Trigger
+      data-slot="dropdown-menu-trigger"
+      render={
+        asChild && React.isValidElement(children)
+          ? (children as React.ReactElement)
+          : undefined
+      }
+      {...(asChild ? {} : { children })}
+      {...props}
+    />
+  )
 }
 
 function DropdownMenuPortal({
@@ -45,10 +61,8 @@ function DropdownMenuContent({
           data-slot="dropdown-menu-content"
           className={cn(
             'bg-default text-text-default',
-            // 'bg-popover text-popover-foreground',
             'z-50 min-w-32 overflow-hidden rounded-md border border-border p-1 shadow-md',
-            'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95',
-            'data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+            floatingPopupOpenClose,
             className,
           )}
           {...props}
@@ -68,7 +82,7 @@ function DropdownMenuItem({
       className={cn(
         'text-text-default',
         'relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none',
-        'focus:bg-[#000] focus:text-accent-foreground',
+        'focus:bg-accent focus:text-accent-foreground',
         'data-disabled:pointer-events-none data-disabled:opacity-50',
         '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*="size-"])]:size-4',
         className,

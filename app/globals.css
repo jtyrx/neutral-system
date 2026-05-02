@@ -432,8 +432,8 @@
     /* Chrome control field — used for toolbar control surface-sunken */
     --chrome-control-field: var(--color-neutral-alpha-alt-100);
 
-     /* Neutral alpha alternative 100% */
-     --color-neutral-alpha-alt-100: oklch(0% 0 0 / 0.06);
+    /* Neutral alpha alternative 100% */
+    --color-neutral-alpha-alt-100: oklch(0% 0 0 / 0.06);
   }
 
   [data-theme='dark'] {
@@ -475,7 +475,7 @@
     color: black;
   }
   * {
-    @apply  outline-ring/50;
+    @apply outline-ring/50;
   }
   html {
     @apply font-sans;
@@ -484,6 +484,31 @@
 
 /* Workbench layout */
 @layer base {
+  /**
+   * Builder `<details>` panels: animate disclosure body height where supported
+   * (`::details-content`, `interpolate-size`; e.g. Chrome 129+, Safari 17.4+).
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .ns-collapsible-details {
+      interpolate-size: allow-keywords;
+    }
+
+    .ns-collapsible-details::details-content {
+      overflow: hidden;
+      transition:
+        height 200ms var(--ease-out-cubic),
+        content-visibility 200ms allow-discrete;
+    }
+
+    .ns-collapsible-details:not([open])::details-content {
+      height: 0;
+    }
+
+    .ns-collapsible-details[open]::details-content {
+      height: auto;
+    }
+  }
+
   .ns-workbench {
     --ns-workbench-header-height: 0px;
     display: grid;
@@ -530,7 +555,7 @@
 
   @container nsb-workbench (width >= 56rem) {
     .ns-workbench {
-      grid-template-columns: minmax(0, 1fr) minmax(0, min(36rem, 50cqi));
+      grid-template-columns: minmax(0, 1fr) minmax(0, min(20rem, 50cqi));
       grid-template-rows: auto auto;
       grid-template-areas:
         'header header'
@@ -541,7 +566,7 @@
 
   @container nsb-workbench (width >= 72rem) {
     .ns-workbench {
-      grid-template-columns: minmax(0, 1fr) minmax(0, min(48rem, 52cqi));
+      grid-template-columns: minmax(0, 1fr) minmax(0, min(28rem, 52cqi));
     }
   }
 
@@ -604,7 +629,11 @@
     --ns-preview-dot-size: 0.5px;
     --ns-preview-dot-offset-x: -0.5px;
     --ns-preview-dot-offset-y: -0.5px;
-    --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 37%, transparent);
+    --ns-preview-dot-color: color-mix(
+      in oklch,
+      var(--ns-text) 37%,
+      transparent
+    );
     --ns-preview-dot-opacity: 0.25;
   }
 
@@ -618,7 +647,11 @@
     --ns-preview-dot-size: 0.75px;
     --ns-preview-dot-offset-x: -0.5px;
     --ns-preview-dot-offset-y: -0.5px;
-    --ns-preview-dot-color: color-mix(in oklch, var(--ns-text) 11%, transparent);
+    --ns-preview-dot-color: color-mix(
+      in oklch,
+      var(--ns-text) 11%,
+      transparent
+    );
     --ns-preview-dot-opacity: 0.22;
   }
 
@@ -629,8 +662,8 @@
 
 /* Surface and container utilities */
 @utility ns-panel {
-  background-color: var(--ns-surface-default);
-  border: 1px solid var(--ns-hairline);
+  background-color: var(--color-surface-default);
+  border: 1px solid var(--chrome-hairline);
 }
 
 @utility ns-overlay-card {
@@ -639,13 +672,14 @@
   inset: 0;
   overflow: hidden;
   border-radius: 0.75rem;
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--card-border, var(--chrome-hairline-strong));
   padding: 0.75rem 1rem;
-  background-color: var(--ns-overlay-soft);
+  background-color: var(--chrome-overlay-soft);
   /* Modifier for Glass UI effect */
   /* -webkit-backdrop-filter: blur(8px) saturate(180%); */
   backdrop-filter: blur(8px) saturate(50%);
-  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 1px 1px 0
+    color-mix(in oklch, var(--color-text-default) 12%, transparent);
 
   /* TODO: Uncomment this when we have a dark mode */
   /* background: linear-gradient(137deg, rgba(17, 18, 20, .75) 4.87%, rgba(12, 13, 15, .9) 75.88%); */
@@ -657,20 +691,19 @@
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-    /* your styles */
-    /* -webkit-box-shadow:
-      inset 1px 1px 0px -1px rgba(255, 255, 255, 0.7),
-      inset 0 0 1px 1px rgba(255, 255, 255, 0.7); */
-    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
-    /* inset 0 1px 1px 0 rgba(255, 255, 255, 0.95); */
+    box-shadow: inset 0 1px 1px 0
+      color-mix(in oklch, var(--color-text-default) 28%, transparent);
   }
 }
 
 /* Text and typography utilities */
 @utility ns-label {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.6875rem;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0.01em;
   color: var(--ns-text-subtle);
+  margin-block-end: 0.5rem;
 }
 
 @utility eyebrow {
@@ -818,6 +851,7 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --radius-control: var(--radius);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -825,4 +859,14 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /** Elevation shadows (Tailwind `--shadow-*` → `shadow-raised`, `shadow-overlay`) */
+  --shadow-raised: 0 1px 2px
+    color-mix(in oklch, var(--color-text-default) 8%, transparent);
+  --shadow-overlay: 0 8px 30px
+    color-mix(in oklch, var(--color-text-default) 12%, transparent);
+
+  /** Control padding tokens (optional; use `px-control-md`, etc.) */
+  --spacing-control-sm: 0.375rem;
+  --spacing-control-md: 0.625rem;
 }

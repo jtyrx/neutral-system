@@ -30,7 +30,7 @@ const radioGroupItemVariants = cva(
         default:
           'border-input focus-visible:border-ring focus-visible:ring-ring/50 data-checked:border-primary shadow-none',
         scrim:
-          'border-(--ns-hairline) bg-surface-subtle text-(--ns-text-on) shadow-none focus-visible:border-(--ns-border-focus) focus-visible:ring-(--ns-border-focus)/50 data-checked:border-(--ns-text-on)',
+          'border border-hairline bg-surface-subtle text-(--color-text-on) shadow-none focus-visible:border-(--color-border-focus) focus-visible:ring-(--color-border-focus)/50 data-checked:border-(--color-text-on)',
       },
     },
     defaultVariants: {

@@ -47,8 +47,17 @@ function NeutralScaleReferenceTableInner({global, tier1ExportMode, themeContext 
     return null
   }
 
-  /** Scale index order 0 … n−1 matches buildGlobalScale (lightest → darkest by L). */
-  const rows = [...global].sort((a, b) => a.index - b.index)
+  const isDarkAdvanced =
+    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
+  const n = global.length
+
+  /** For dark advanced, rows run darkest → lightest (display index 0 = darkest); otherwise lightest → darkest. */
+  const rows = isDarkAdvanced
+    ? [...global].sort((a, b) => b.index - a.index)
+    : [...global].sort((a, b) => a.index - b.index)
+
+  const displayIdx = (s: GlobalSwatch) => (isDarkAdvanced ? n - 1 - s.index : s.index)
+  const displayLabel = (s: GlobalSwatch) => String(displayIdx(s))
 
   const outer = embedded ? 'space-y-3' : 'mt-8 space-y-3 border-t border-hairline pt-6'
 
@@ -83,9 +92,9 @@ function NeutralScaleReferenceTableInner({global, tier1ExportMode, themeContext 
             {rows.map((s) => (
               <tr key={s.index} className="border-b border-hairline">
                 <td className="px-2 py-1.5 font-mono text-[0.6rem] tabular-nums text-disabled">
-                  {s.index}
+                  {displayIdx(s)}
                 </td>
-                <td className="px-2 py-1.5 font-mono text-default">{s.label}</td>
+                <td className="px-2 py-1.5 font-mono text-default">{displayLabel(s)}</td>
                 <td className="px-2 py-1.5 text-right font-mono text-[0.6rem] tabular-nums text-muted">
                   {oklchL(s).toFixed(4)}
                 </td>
@@ -101,7 +110,7 @@ function NeutralScaleReferenceTableInner({global, tier1ExportMode, themeContext 
                   {s.serialized.oklchCss}
                 </td>
                 <td className="px-2 py-1.5 font-mono text-[0.6rem] text-muted">
-                  {exportTokenKey(s.label, tier1ExportMode)}
+                  {exportTokenKey(displayLabel(s), tier1ExportMode)}
                 </td>
               </tr>
             ))}

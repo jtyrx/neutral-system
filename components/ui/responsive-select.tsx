@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 
+import { INPUT_WORKBENCH_FIELD_CLASS } from '@/components/ui/input'
 import {
   NativeSelect,
   NativeSelectOption,
@@ -47,10 +48,15 @@ export function ResponsiveSelect({
     [options],
   )
 
-  const mergedSelectClassName = cn('ns-input appearance-none pr-8 mb-0', className)
+  const mergedSelectClassName = cn(
+    INPUT_WORKBENCH_FIELD_CLASS,
+    'appearance-none pr-8 mb-0',
+    className,
+  )
 
   const mergedTriggerClassName = cn(
-    'ns-input flex h-auto min-h-9 w-full min-w-0 justify-between gap-2 py-2 pr-2.5 text-left font-normal whitespace-normal [&_svg]:shrink-0',
+    INPUT_WORKBENCH_FIELD_CLASS,
+    'flex h-auto min-h-9 w-full min-w-0 justify-between gap-2 py-2 pr-2.5 text-left font-normal whitespace-normal [&_svg]:shrink-0',
     '*:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:text-left',
     className,
   )

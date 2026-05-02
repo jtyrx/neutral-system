@@ -189,7 +189,7 @@ function ExportSectionInner({
   )
 
   return (
-    <section id="export" className="scroll-mt-6 space-y-4">
+    <section id="workbench-export" className="scroll-mt-6 space-y-4">
       <header>
         <p className="eyebrow">7 · Export</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-(--ns-text)">Tokens</h2>

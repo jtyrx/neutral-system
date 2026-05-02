@@ -2,6 +2,8 @@
 
 import {memo} from 'react'
 
+import { Blend, Braces, Map, Paintbrush, Route } from 'lucide-react'
+
 import {BrandColorSection} from '@/components/sections/BrandColorSection'
 import {ExportSection} from '@/components/sections/ExportSection'
 import {GlobalScaleSection} from '@/components/sections/GlobalScaleSection'
@@ -9,11 +11,10 @@ import {OkhslSection} from '@/components/sections/OkhslSection'
 import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
 import {ThemePanelsSection} from '@/components/sections/ThemePanelsSection'
 import {VariantsSection} from '@/components/sections/VariantsSection'
-import {AdditionalInfoPreviewCard} from '@/components/ui/preview-card'
+import {PillButton, PillChip} from '@/components/ui/chip'
 import {CollapsibleControlGroup} from '@/components/workbench/CollapsibleControlGroup'
 import {DEFAULT_GLOBAL} from '@/hooks/useNeutralWorkbench'
 import type {NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
-import {cn} from '@/lib/cn'
 
 type Props = {
   wb: NeutralWorkbench
@@ -24,99 +25,106 @@ type Props = {
 function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   const simpleArch = wb.neutralArchitecture === 'simple'
 
-  const activeScalePatch = simpleArch ? wb.patchGlobal : wb.scaleEditTarget === 'dark' ? wb.patchDark : wb.patchLight
-  const activeScaleConfig =
-    simpleArch ? wb.globalScale : wb.scaleEditTarget === 'dark' ? wb.darkScale : wb.lightScale
-  const activeRampVisual =
-    simpleArch ? wb.global : wb.scaleEditTarget === 'dark' ? wb.darkRamp : wb.lightRamp
+  const activeRampVisual = simpleArch
+    ? wb.global
+    : wb.scaleEditTarget === 'dark'
+      ? wb.darkRamp
+      : wb.lightRamp
   return (
     <div className="flex flex-col gap-4 pb-12">
       <CollapsibleControlGroup
         id="neutral-workbench-controls-scale"
-        title={simpleArch ? 'Global neutral scale ladder' : 'Neutral scale ladders'}
-        subtitle={
-          simpleArch
-            ? 'Steps, lightness range, chroma shaping, and hue variants.'
-            : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'
+        icon={Blend}
+        title={
+          simpleArch ? 'Global neutral scale ladder' : 'Neutral scale ladders'
         }
-        additionalInfo={
-          <AdditionalInfoPreviewCard additionalInfo="How this ladder works">
-            <p className="max-w-2xl text-sm text-muted">
-              Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
-            </p>
-          </AdditionalInfoPreviewCard>
-        }
+        // additionalInfo={
+        //   <>
+        //     <p>
+        //       {simpleArch
+        //         ? 'Steps, lightness range, chroma shaping, and hue variants.'
+        //         : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'}
+        //     </p>
+        //     <AdditionalInfoPreviewCard additionalInfo="How this ladder works">
+        //       <p className="max-w-2xl text-sm text-muted">
+        //         Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
+        //       </p>
+        //     </AdditionalInfoPreviewCard>
+        //   </>
+        // }
         defaultOpen
       >
         <div className="space-y-4">
           <div>
+            <div className="mt-1 space-y-2 text-xs text-muted">
+              {simpleArch
+                ? 'Steps, lightness range, chroma shaping, and hue variants.'
+                : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'}
+            </div>
             <p className="text-xs font-medium text-default">Architecture</p>
             <p className="mt-1 text-[0.65rem] text-muted">
-              Simple mirrors one ramp into both themes by mapping. Advanced keeps independent ramps for optics.
+              Simple mirrors one ramp into both themes by mapping. Advanced
+              keeps independent ramps for optics.
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <button
-                type="button"
+              <PillChip
+                selected={simpleArch}
+                tone="amber"
+                activeStyle="pill"
                 onClick={() => wb.setNeutralArchitecture('simple')}
-                className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs font-medium transition',
-                  simpleArch ? 'border-(--chrome-amber-border) bg-(--chrome-amber-pill)' : 'border-hairline bg-(--ns-chip)',
-                )}
               >
                 Simple · single ladder
-              </button>
-              <button
-                type="button"
+              </PillChip>
+              <PillChip
+                selected={!simpleArch}
+                tone="sky"
+                activeStyle="pill"
                 onClick={() => wb.setNeutralArchitecture('advanced')}
-                className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs font-medium transition',
-                  !simpleArch ? 'border-(--chrome-sky-border) bg-(--chrome-sky-pill)' : 'border-hairline bg-(--ns-chip)',
-                )}
               >
                 Advanced · sibling ramps
-              </button>
+              </PillChip>
             </div>
           </div>
 
           {!simpleArch ? (
             <div>
-              <p className="text-xs font-medium text-default">Edit target ramp</p>
+              <p className="text-xs font-medium text-default">
+                Edit target ramp
+              </p>
               <p className="mt-1 text-[0.65rem] text-muted">
-                Hue variants and OKHSL commits apply here. Inspect the other ramp visually in previews.
+                Hue variants and OKHSL commits apply here. Inspect the other
+                ramp visually in previews.
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <button
-                  type="button"
+                <PillChip
+                  selected={wb.scaleEditTarget === 'light'}
+                  tone="amber"
+                  activeStyle="surface-soft"
                   onClick={() => wb.setScaleEditTarget('light')}
-                  className={cn(
-                    'rounded-full border px-3 py-1.5 text-xs font-medium transition',
-                    wb.scaleEditTarget === 'light'
-                      ? 'border-(--chrome-amber-border) bg-(--chrome-amber-surface-soft)'
-                      : 'border-hairline bg-(--ns-chip)',
-                  )}
                 >
                   Light ramp
-                </button>
-                <button
-                  type="button"
+                </PillChip>
+                <PillChip
+                  selected={wb.scaleEditTarget === 'dark'}
+                  tone="sky"
+                  activeStyle="surface-soft"
                   onClick={() => wb.setScaleEditTarget('dark')}
-                  className={cn(
-                    'rounded-full border px-3 py-1.5 text-xs font-medium transition',
-                    wb.scaleEditTarget === 'dark'
-                      ? 'border-(--chrome-sky-border) bg-(--chrome-sky-surface-soft)'
-                      : 'border-hairline bg-(--ns-chip)',
-                  )}
                 >
                   Dark elevated ramp
-                </button>
+                </PillChip>
               </div>
             </div>
           ) : null}
         </div>
 
         <GlobalScaleSection
-          config={activeScaleConfig}
-          patchGlobal={activeScalePatch}
+          architecture={wb.neutralArchitecture}
+          comparisonConfig={wb.globalScale}
+          curveModeNamingConfig={simpleArch ? wb.globalScale : wb.lightScale}
+          lightRampConfig={simpleArch ? wb.globalScale : wb.lightScale}
+          patchLightRamp={simpleArch ? wb.patchGlobal : wb.patchLight}
+          darkRampConfig={simpleArch ? wb.globalScale : wb.darkScale}
+          patchDarkRamp={simpleArch ? wb.patchGlobal : wb.patchDark}
           global={activeRampVisual}
           selectedIndex={selectedGlobalIndex}
           onSelectSwatch={wb.selectGlobal}
@@ -133,7 +141,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         </div>
         <div
           id="nsb-workbench-controls-okhsl"
-          className="mt-6 border-t border-hairline pt-6"
+          className="mt-6  border-hairline pt-6"
         >
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -147,7 +155,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
             </div>
             <div className="flex items-center gap-2">
               {wb.okhslEnabled ? (
-                <button
+                <PillButton
                   type="button"
                   onClick={() =>
                     wb.setScaleConfigPreset(
@@ -161,20 +169,18 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                       'OKHSL · Reset',
                     )
                   }
-                  className="rounded-full border border-hairline bg-(--ns-chip) px-3 py-1.5 text-xs font-medium text-subtle transition hover:bg-sidebar-border"
                 >
                   Reset
-                </button>
+                </PillButton>
               ) : null}
-              <button
+              <PillButton
                 id="nsb-workbench-controls-okhsl-toggle"
                 type="button"
                 onClick={() => wb.setOkhslEnabled((v) => !v)}
-                className="rounded-full border border-hairline bg-(--ns-chip) px-3 py-1.5 text-xs font-medium text-subtle transition hover:bg-sidebar-border"
                 aria-expanded={wb.okhslEnabled}
               >
                 {wb.okhslEnabled ? 'Hide OKHSL' : 'Show OKHSL'}
-              </button>
+              </PillButton>
             </div>
           </div>
           {wb.okhslEnabled ? (
@@ -196,17 +202,34 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         </div>
       </CollapsibleControlGroup>
 
-      <BrandColorSection
-        systemConfig={wb.systemConfig}
-        patchSystem={wb.patchSystem}
-      />
-
       <CollapsibleControlGroup
-        id="mapping"
-        title="Contrast & role mapping"
-        subtitle="Contrast distance, step intervals, starts, and token counts per role ladder."
+        id="workbench-custom-brand"
+        icon={Paintbrush}
+        title="Custom brand"
+        // additionalInfo="Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview, exports, and the Color.js picker."
         defaultOpen
       >
+        <div className="mt-1 space-y-2 text-xs text-muted">
+          Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview,
+          exports, and the Color.js picker.
+        </div>
+        <BrandColorSection
+          systemConfig={wb.systemConfig}
+          patchSystem={wb.patchSystem}
+        />
+      </CollapsibleControlGroup>
+
+      <CollapsibleControlGroup
+        id="workbench-mapping"
+        icon={Map}
+        title="Contrast & role mapping"
+        // additionalInfo="Contrast distance, step intervals, starts, and token counts per role ladder."
+        defaultOpen
+      >
+        <div className="mt-1 space-y-2 text-xs text-muted">
+          Contrast distance, step intervals, starts, and token counts per role
+          ladder.
+        </div>
         <SystemMappingSection
           config={wb.systemConfig}
           derivationLight={wb.effectiveMappingLight}
@@ -217,12 +240,16 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           stepsDark={wb.ladderDarkSteps}
           alphaBaseIndices={wb.alphaBaseIndices}
         />
-        <div className="mt-6 border-t border-hairline pt-6 space-y-3">
+        <div className="mt-6 space-y-3  border-hairline pt-6">
           <div>
-            <p className="text-xs font-medium text-default">Alpha neutral base offset</p>
+            <p className="text-xs font-medium text-default">
+              Alpha neutral base offset
+            </p>
             <p className="text-xs text-muted">
-              Nudge the alpha token anchor from <code className="font-mono">text.default</code> resolved index.
-              Light base: {wb.alphaBaseIndices.lightBase} · Dark base: {wb.alphaBaseIndices.darkBase}
+              Nudge the alpha token anchor from{' '}
+              <code className="font-mono">text.default</code> resolved index.
+              Light base: {wb.alphaBaseIndices.lightBase} · Dark base:{' '}
+              {wb.alphaBaseIndices.darkBase}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -234,9 +261,12 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 max={10}
                 value={wb.alphaConfig.lightIndexOffset}
                 onChange={(e) =>
-                  wb.setAlphaConfig((prev) => ({...prev, lightIndexOffset: Number(e.target.value)}))
+                  wb.setAlphaConfig((prev) => ({
+                    ...prev,
+                    lightIndexOffset: Number(e.target.value),
+                  }))
                 }
-                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right text-xs font-mono"
+                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right font-mono text-xs"
               />
             </label>
             <label className="flex flex-col gap-1">
@@ -247,9 +277,12 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 max={10}
                 value={wb.alphaConfig.darkIndexOffset}
                 onChange={(e) =>
-                  wb.setAlphaConfig((prev) => ({...prev, darkIndexOffset: Number(e.target.value)}))
+                  wb.setAlphaConfig((prev) => ({
+                    ...prev,
+                    darkIndexOffset: Number(e.target.value),
+                  }))
                 }
-                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right text-xs font-mono"
+                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right font-mono text-xs"
               />
             </label>
           </div>
@@ -257,13 +290,16 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup
-        id="inspect"
+        id="workbench-inspect"
+        icon={Route}
         title="Inspect & paired views"
-        subtitle="Theme panels, ramp usage, and role tables."
+        // additionalInfo="Theme panels, ramp usage, and role tables."
         defaultOpen={false}
       >
+        <div className="mt-1 space-y-2 text-xs text-muted">Theme panels, ramp usage, and role tables.</div>
         <ThemePanelsSection
-          global={wb.global}
+          globalLight={wb.lightRamp}
+          globalDark={wb.darkRamp}
           lightTokenView={wb.lightTokenView}
           darkTokenView={wb.darkTokenView}
           onSelectSystem={wb.selectSystem}
@@ -272,8 +308,9 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
 
       <CollapsibleControlGroup
         id="export"
+        icon={Braces}
         title="Export"
-        subtitle="JSON, CSS, CSV, Tailwind @theme."
+        // subtitle="JSON, CSS, CSV, Tailwind @theme."
         defaultOpen={false}
       >
         <ExportSection

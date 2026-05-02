@@ -53,10 +53,15 @@ function semanticCssValue(
   const ramp = rampForTheme(ramps, t.theme)
   const sw = ramp[t.sourceGlobalIndex]
   if (!sw) return t.serialized.oklchCss
+  // Advanced dark: primitives are exported darkest-first, so display index is reversed.
+  const label =
+    architecture === 'advanced' && t.theme !== 'light'
+      ? String(ramp.length - 1 - t.sourceGlobalIndex)
+      : sw.label
   const name =
     architecture === 'simple'
-      ? tier1NeutralCssVarName(sw.label)
-      : tier1NeutralCssVarName(sw.label, tier1ExportModeFromTheme(t.theme))
+      ? tier1NeutralCssVarName(label)
+      : tier1NeutralCssVarName(label, tier1ExportModeFromTheme(t.theme))
   return `var(--${name})`
 }
 
@@ -78,6 +83,18 @@ function emitTier1Block(
   architecture: NeutralArchitectureMode,
   sibling?: 'light' | 'dark',
 ): void {
+  if (sibling === 'dark') {
+    // Dark primitives are exported darkest-first: dark-0 = darkest (ramp[n-1]), dark-N = lightest (ramp[0]).
+    const n = swatches.length
+    for (let displayIdx = 0; displayIdx < n; displayIdx++) {
+      const s = swatches[n - 1 - displayIdx]!
+      const displayLabel = String(displayIdx)
+      lines.push(
+        `  --${tier1NeutralCssVarName(displayLabel, {architecture: 'advanced', scale: 'dark'})}: ${s.serialized.oklchCss};`,
+      )
+    }
+    return
+  }
   swatches.forEach((s) => {
     lines.push(`  --${cssVarTier1Fragment(s, architecture, sibling)}: ${s.serialized.oklchCss};`)
   })

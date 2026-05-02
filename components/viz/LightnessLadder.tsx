@@ -3,19 +3,31 @@
 import {memo} from 'react'
 
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
+import {cn} from '@/lib/utils'
 
 type Props = {
   swatches: GlobalSwatch[]
   onSelect?: (index: number) => void
   selectedIndex?: number | null
+  className?: string
 }
 
-function LightnessLadderInner({swatches, onSelect, selectedIndex}: Props) {
+function LightnessLadderInner({
+  swatches,
+  onSelect,
+  selectedIndex,
+  className,
+}: Props) {
   if (swatches.length === 0) return null
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 col-span-full">
       <p className="eyebrow">Lightness ladder</p>
-      <div className="flex h-28 w-full gap-px overflow-hidden rounded-xl border border-hairline bg-raised">
+      <div
+        className={cn(
+          'flex h-28 w-full overflow-hidden rounded-xl border border-hairline bg-raised',
+          className,
+        )}
+      >
         {swatches.map((s) => (
           <button
             key={s.index}

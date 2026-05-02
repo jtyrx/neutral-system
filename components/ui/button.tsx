@@ -1,8 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import {cva, type VariantProps} from 'class-variance-authority'
+import {useButton} from '@base-ui/react/internals/use-button'
 import {useRender} from '@base-ui/react/use-render'
+import {cva, type VariantProps} from 'class-variance-authority'
 
 import {cn} from '@/lib/utils'
 
@@ -48,14 +49,62 @@ function Button({
   variant = 'default',
   size = 'default',
   asChild = false,
-  ...props
+  nativeButton = true,
+  disabled,
+  focusableWhenDisabled,
+  ref,
+  children,
+  ...rest
 }: React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    /** Passed to Base UI `useButton` — focusable when `disabled` (e.g. toolbar composite). */
+    focusableWhenDisabled?: boolean
+    /**
+     * When `true` (default), native `<button>` semantics. When `false`, `role="button"` behavior;
+     * pair with `asChild` + a non-`<button>` host (e.g. `Link`).
+     */
+    nativeButton?: boolean
   }) {
-  const {ref, children, ...rest} = props
+  const {getButtonProps, buttonRef} = useButton({
+    disabled: disabled ?? false,
+    focusableWhenDisabled,
+    native: nativeButton,
+  })
+
   return useRender({
     defaultTagName: 'button',
+    ref: ref != null ? [ref, buttonRef] : buttonRef,
+    render: asChild ? React.Children.only(children as React.ReactElement) : undefined,
+    props: getButtonProps({
+      ...rest,
+      ...(!asChild ? {children} : {}),
+      disabled,
+      'data-slot': 'button',
+      'data-variant': variant,
+      'data-size': size,
+      className: cn(buttonVariants({variant, size, className})),
+    }),
+  }) as React.ReactElement
+}
+
+export type ButtonLinkProps = React.ComponentProps<'a'> &
+  VariantProps<typeof buttonVariants> & {
+    /** Slot a Next.js `<Link>` or router anchor. Single valid element child. */
+    asChild?: boolean
+  }
+
+function ButtonLink({
+  className,
+  variant = 'default',
+  size = 'default',
+  asChild = false,
+  ref,
+  children,
+  ...rest
+}: ButtonLinkProps) {
+  return useRender({
+    defaultTagName: 'a',
     ref,
     render: asChild ? React.Children.only(children as React.ReactElement) : undefined,
     props: {
@@ -69,4 +118,4 @@ function Button({
   }) as React.ReactElement
 }
 
-export {Button, buttonVariants}
+export {Button, ButtonLink, buttonVariants}

@@ -20,7 +20,7 @@ function LightnessLadderInner({
 }: Props) {
   if (swatches.length === 0) return null
   return (
-    <div className="space-y-2 col-span-full">
+    <div className="col-span-full space-y-2">
       <p className="eyebrow">Lightness ladder</p>
       <div
         className={cn(
@@ -34,8 +34,10 @@ function LightnessLadderInner({
             type="button"
             title={`${s.label} · L from OKLCH`}
             onClick={() => onSelect?.(s.index)}
-            className={`relative min-w-0 flex-1 transition ring-offset-2 ring-offset-black ${
-              selectedIndex === s.index ? 'ring-2 ring-white/60' : 'hover:brightness-110'
+            className={`relative min-w-0 flex-1 ring-offset-2 ring-offset-black transition ${
+              selectedIndex === s.index
+                ? 'ring-2 ring-white/60'
+                : 'hover:brightness-110'
             }`}
             style={{backgroundColor: s.serialized.hex}}
           >
@@ -44,7 +46,8 @@ function LightnessLadderInner({
         ))}
       </div>
       <p className="text-[0.65rem] text-muted">
-        Lightest → darkest (left → right). OKLCH lightness interpolated linearly.
+        Lightest → darkest (left → right). OKLCH lightness interpolated
+        linearly.
       </p>
     </div>
   )

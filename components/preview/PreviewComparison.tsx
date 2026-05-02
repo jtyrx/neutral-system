@@ -6,7 +6,11 @@ import {cva} from 'class-variance-authority'
 import {GlobalRampCard} from '@/components/preview/GlobalRampCard'
 import {PairedRolesPanel} from '@/components/preview/PairedRolesPanel'
 import type {PairedRoleGroupHints} from '@/components/preview/SemanticPairGrid'
-import type {GlobalSwatch, NeutralArchitectureMode, TokenView} from '@/lib/neutral-engine'
+import type {
+  GlobalSwatch,
+  NeutralArchitectureMode,
+  TokenView,
+} from '@/lib/neutral-engine'
 
 export type ComparisonLayout = 'split' | 'focus'
 
@@ -129,9 +133,7 @@ function PreviewComparisonInner({
 
     return (
       <div className="space-y-4">
-        <div
-          className={previewChromePanelVariants({tone, layout: 'focus'})}
-        >
+        <div className={previewChromePanelVariants({tone, layout: 'focus'})}>
           <PreviewPanelHeading
             eyebrow={title}
             title="Mapping preview"
@@ -143,14 +145,18 @@ function PreviewComparisonInner({
           <GlobalRampCard
             id={isLight ? 'light-global-ramp' : 'dark-global-ramp'}
             role="region"
-            aria-label={isLight ? 'Light neutral ramp' : 'Dark elevated neutral ramp'}
+            aria-label={
+              isLight ? 'Light neutral ramp' : 'Dark elevated neutral ramp'
+            }
             global={ramp}
             tokenView={tokenView}
             caption={caption}
             accentClassName={rampCardAccentClass(tone, 'strong')}
             invertDisplay={!isLight ? invertDarkDisplay : undefined}
             directionHint={directionHint}
-            alphaBaseIndex={isLight ? alphaBaseIndices?.lightBase : alphaBaseIndices?.darkBase}
+            alphaBaseIndex={
+              isLight ? alphaBaseIndices?.lightBase : alphaBaseIndices?.darkBase
+            }
           />
           <PairedRolesPanel
             variant="focus"
@@ -167,8 +173,12 @@ function PreviewComparisonInner({
     )
   }
 
-  const lightCaption = simple ? 'Light · global ramp (low index = lightest)' : 'Light neutral scale (low index = lightest)'
-  const darkCaption = simple ? 'Dark elevated · global ramp (dark edge)' : 'Dark neutral scale (dark-0 = darkest)'
+  const lightCaption = simple
+    ? 'Light · global ramp (low index = lightest)'
+    : 'Light neutral scale (low index = lightest)'
+  const darkCaption = simple
+    ? 'Dark elevated · global ramp (dark edge)'
+    : 'Dark neutral scale (dark-0 = darkest)'
   const darkDirSimple =
     'Dark strip is visually inverted to read dark → light left to right; resolved indices remain absolute.'
   const darkDirAdvanced =
@@ -177,7 +187,12 @@ function PreviewComparisonInner({
   return (
     <div className="space-y-8">
       <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:gap-4">
-        <div className={previewChromePanelVariants({tone: 'amber', layout: 'splitLight'})}>
+        <div
+          className={previewChromePanelVariants({
+            tone: 'amber',
+            layout: 'splitLight',
+          })}
+        >
           <PreviewPanelHeading
             eyebrow="Light"
             title={simple ? 'Global ramp' : 'Neutral scale'}
@@ -197,7 +212,12 @@ function PreviewComparisonInner({
           />
         </div>
 
-        <div className={previewChromePanelVariants({tone: 'sky', layout: 'splitDark'})}>
+        <div
+          className={previewChromePanelVariants({
+            tone: 'sky',
+            layout: 'splitDark',
+          })}
+        >
           <PreviewPanelHeading
             eyebrow="Dark elevated"
             title={simple ? 'Global ramp' : 'Neutral scale'}
@@ -207,7 +227,9 @@ function PreviewComparisonInner({
           <GlobalRampCard
             id="dark-global-ramp"
             role="region"
-            aria-label={simple ? 'Dark elevated global ramp' : 'Dark neutral scale'}
+            aria-label={
+              simple ? 'Dark elevated global ramp' : 'Dark neutral scale'
+            }
             global={globalDark}
             tokenView={darkTokenView}
             caption={darkCaption}

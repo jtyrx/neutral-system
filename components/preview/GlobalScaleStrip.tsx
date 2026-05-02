@@ -198,7 +198,10 @@ function GlobalScaleStripInner({
         id={stripId}
         role="group"
         aria-label="Global ramp: color ramp and semantic lanes (surface, border, text, alpha)"
-        className={cn('w-full overflow-x-auto rounded-xl border border-hairline bg-raised p-2', accentClassName)}
+        className={cn(
+          'w-full overflow-x-auto rounded-xl border border-hairline bg-raised p-2',
+          accentClassName,
+        )}
       >
         <div className="flex min-w-0 flex-col gap-3">
           {segments.map((segment, segIdx) => {
@@ -267,7 +270,10 @@ function GlobalScaleStripInner({
                       <div
                         key={`${s.index}-surf`}
                         aria-label={`Index ${s.index}: surface mappings`}
-                        className={cn('flex min-w-0 flex-col items-center justify-start border-hairline/50 pt-0.5', LANE_CELL_MIN_H)}
+                        className={cn(
+                          'flex min-w-0 flex-col items-center justify-start border-hairline/50 pt-0.5',
+                          LANE_CELL_MIN_H,
+                        )}
                       >
                         <LaneBadges tokens={surfaceMerged} />
                       </div>
@@ -278,7 +284,10 @@ function GlobalScaleStripInner({
                     <div
                       key={`${s.index}-bdr`}
                       aria-label={`Index ${s.index}: border mappings`}
-                      className={cn('flex min-w-0 flex-col items-center justify-start pt-px', LANE_CELL_MIN_H)}
+                      className={cn(
+                        'flex min-w-0 flex-col items-center justify-start pt-px',
+                        LANE_CELL_MIN_H,
+                      )}
                     >
                       <LaneBadges tokens={perColumnLanes[ci]!.border} />
                     </div>
@@ -288,7 +297,10 @@ function GlobalScaleStripInner({
                     <div
                       key={`${s.index}-txt`}
                       aria-label={`Index ${s.index}: text mappings`}
-                      className={cn('flex min-w-0 flex-col items-center justify-start pt-px', LANE_CELL_MIN_H)}
+                      className={cn(
+                        'flex min-w-0 flex-col items-center justify-start pt-px',
+                        LANE_CELL_MIN_H,
+                      )}
                     >
                       <LaneBadges tokens={perColumnLanes[ci]!.text} />
                     </div>
@@ -305,7 +317,10 @@ function GlobalScaleStripInner({
                             ? `Index ${s.index}: alpha neutral token base`
                             : `Index ${s.index}: no alpha anchor`
                         }
-                        className={cn('flex min-w-0 flex-col items-center justify-start pt-px', LANE_CELL_MIN_H)}
+                        className={cn(
+                          'flex min-w-0 flex-col items-center justify-start pt-px',
+                          LANE_CELL_MIN_H,
+                        )}
                       >
                         {showAlpha ? (
                           <span

@@ -26,6 +26,23 @@ export function primitiveNeutralExportName(
     : `--${tier1NeutralCssVarName(displayLabel)}`
 }
 
+/**
+ * Visible/tier-1 shorthand label for a ramp chip (aligned with `{@link primitiveNeutralExportName}`).
+ * Dark preview uses reversed display indices (`neutral-dark-0` = darkest).
+ */
+export function rampTier1FacingLabel(
+  ramp: GlobalSwatch[],
+  sourceIndex: number,
+  tier1ExportMode?: Tier1NeutralExportMode,
+): string {
+  const sw = ramp[sourceIndex]
+  if (!sw) return ''
+  const isDarkTier1 =
+    tier1ExportMode?.architecture === 'advanced' &&
+    tier1ExportMode.scale === 'dark'
+  return isDarkTier1 ? String(ramp.length - 1 - sourceIndex) : sw.label
+}
+
 /** Sort mapped system tokens by underlying primitive ladder value, then role. */
 export function sortSystemTokensByPrimitiveLadder(
   tokens: SystemToken[],

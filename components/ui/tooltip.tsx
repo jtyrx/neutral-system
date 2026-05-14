@@ -1,10 +1,14 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
+import * as React from 'react'
+import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
 
-import { cn } from "@/lib/utils"
-import { tooltipPopupContentBaseClassName } from "@/components/ui/floating-popup-styles"
+import { cn } from '@/lib/utils'
+import {
+  tooltipPopupBodyPadding,
+  tooltipPopupContentBaseClassName,
+  tooltipPopupInnerSurface,
+} from '@/components/ui/floating-popup-styles'
 
 function TooltipProvider({
   delayDuration = 0,
@@ -50,11 +54,11 @@ function TooltipTrigger({
 
 type TooltipContentProps = Omit<
   React.ComponentProps<typeof TooltipPrimitive.Popup>,
-  "children"
+  'children'
 > &
   Pick<
     React.ComponentProps<typeof TooltipPrimitive.Positioner>,
-    "side" | "align" | "sideOffset"
+    'side' | 'align' | 'sideOffset'
   > & {
     children?: React.ReactNode
     /**
@@ -67,8 +71,8 @@ type TooltipContentProps = Omit<
 function TooltipContent({
   className,
   sideOffset = 0,
-  side = "top",
-  align = "center",
+  side = 'top',
+  align = 'center',
   children,
   withViewport = false,
   ...props
@@ -91,31 +95,35 @@ function TooltipContent({
           className={cn(tooltipPopupContentBaseClassName, className)}
           {...props}
         >
-          <TooltipPrimitive.Arrow
+          {/* <TooltipPrimitive.Arrow
             aria-hidden={true}
             className={cn(
-              "z-0 text-foreground",
-              // Rotations on the SVG only; no CSS transform on the positioned `Arrow` box (Floating UI).
-              "data-[side=top]:[&>svg]:rotate-0",
-              "data-[side=bottom]:[&>svg]:rotate-180",
-              "data-[side=left]:[&>svg]:-rotate-90",
-              "data-[side=right]:[&>svg]:rotate-90",
-              "data-[side=inline-start]:[&>svg]:-rotate-90",
-              "data-[side=inline-end]:[&>svg]:rotate-90",
+              'z-1 shrink-0',
+              'data-[side=top]:bottom-0 data-[side=top]:translate-y-[calc(50%-1px)]',
+              'data-[side=bottom]:top-0 data-[side=bottom]:translate-y-[calc(-50%+1px)]',
+              'data-[side=left]:right-0 data-[side=left]:translate-x-[calc(50%-1px)]',
+              'data-[side=right]:left-0 data-[side=right]:translate-x-[calc(-50%+1px)]',
+              'data-[side=inline-start]:right-0 data-[side=inline-start]:translate-x-[calc(50%-1px)]',
+              'data-[side=inline-end]:left-0 data-[side=inline-end]:translate-x-[calc(-50%+1px)]',
+              '[&>div]:box-border [&>div]:size-2.5 [&>div]:shrink-0 [&>div]:rotate-45 [&>div]:bg-popover',
             )}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden={true}
-              width={14}
-              height={7}
-              viewBox="0 0 14 7"
-              className="block shrink-0 fill-current"
+            <div aria-hidden={true} />
+          </TooltipPrimitive.Arrow> */}
+          {/*
+            Block wrapper (not <span>): callers often pass <p> and lists — phrasing-only <span>
+            breaks HTML parsing (browser hoists <p>), destroying layout and hiding text in flex.
+          */}
+          <div className={cn(tooltipPopupInnerSurface)}>
+            <div
+              className={cn(
+                'relative z-2 flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 items-stretch whitespace-normal text-left [&_p]:m-0',
+                tooltipPopupBodyPadding,
+              )}
             >
-              <path d="M0 0h14L7 7z" />
-            </svg>
-          </TooltipPrimitive.Arrow>
-          <span className="relative z-1 min-w-0 shrink-0 whitespace-nowrap">{content}</span>
+              {content}
+            </div>
+          </div>
         </TooltipPrimitive.Popup>
       </TooltipPrimitive.Positioner>
     </TooltipPrimitive.Portal>

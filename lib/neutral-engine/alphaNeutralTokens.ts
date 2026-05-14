@@ -11,6 +11,7 @@ export const DEFAULT_ALPHA_NEUTRAL_CONFIG: AlphaNeutralConfig = {
   alphaStops: [0.08, 0.16, 0.32, 0.48],
 }
 
+// TODO: Revise alpha engine to use surface engine's deriveAlphaBaseIndex
 /**
  * Resolves the ramp index to use as the alpha-token base for a given theme.
  */

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import '../components/control-center/control-center.css';
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
@@ -8,29 +9,74 @@
 @custom-variant nsb-lg (@container nsb-workbench (width >= 56rem));
 @custom-variant nsb-xl (@container nsb-workbench (width >= 72rem));
 
+/**
+ * Ramp color UI (dock strip + picker rail) — source: `components/control-center/ramp/RampSwatchRail.tsx`
+ *
+ * | Hook | Use |
+ * |------|-----|
+ * | `[data-slot='ramp-swatch']` | Each color cell (live + placeholder) |
+ * | `[data-slot='ramp-swatch-rail']` | Fused rail container — use `w-full` only; **never** fixed `width` here or segments collapse |
+ * | `[data-ramp-variant='live' | 'placeholder']` | Cell state |
+ * | `[data-ramp-index]`, `[data-ramp-theme]` | Ladder index + light/dark |
+ * | `[data-dock-item]` | Dock magnification wrapper ids only (not the swatch paint) |
+ *
+ * Tailwind:
+ * - **Variants** `@custom-variant ramp-swatch` / `ramp-swatch-rail` — use as **prefixes**
+ *   (`ramp-swatch:focus-visible:ring-2`, `ramp-swatch-rail:shadow-md`). Replacing these with
+ *   only `@utility` would drop that composition; keep variants for state/stacking.
+ * - **Utility** `ramp-swatch-segment` — optional **class** preset (`className="ramp-swatch-segment …"`)
+ *   for shared segment chrome; customize by adding more utilities or overriding with arbitrary classes.
+ * Arbitrary parent: `[&_[data-slot=ramp-swatch]]:…`
+ * @theme tokens: `--ramp-swatch-placeholder-bg`, `--ramp-swatch-tap-clear`, `--ramp-swatch-min-width` (segment floor; override in `@theme` to retune).
+ */
+@custom-variant ramp-swatch (&:where([data-slot='ramp-swatch']));
+@custom-variant ramp-swatch-rail (&:where([data-slot='ramp-swatch-rail']));
+
+/** Segment cells: add alongside `data-slot="ramp-swatch"` — tokens + tap clear; pair with `ramp-swatch:*` variants for states. */
+@utility ramp-swatch-segment {
+  min-width: var(--ramp-swatch-min-width);
+  -webkit-tap-highlight-color: var(--ramp-swatch-tap-clear);
+}
+
+@utility ramp-swatch-rail {
+  width: var(--ramp-swatch-rail-width, 100%);
+  border-radius: var(--ramp-swatch-rail-radius, var(--radius-card));
+}
 @theme {
   --animate-inspector-enter: inspector-enter 220ms
     cubic-bezier(0.22, 1, 0.36, 1) both;
   --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
 
-  --ease-in-cubic: cubic-bezier(0.32, 0, 0.67, 0);
-  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
-  --ease-in-quad: cubic-bezier(0.11, 0, 0.5, 0);
-  --ease-out-quad: cubic-bezier(0.5, 1, 0.89, 1);
-
   --ease-out-quart: cubic-bezier(0.17, 0.84, 0.44, 1);
   --ease-in-quart: cubic-bezier(0.9, 0.03, 0.69, 0.22);
   --ease-in-out-quart: cubic-bezier(0.77, 0, 0.18, 1);
 
-  --ease-in-quint: cubic-bezier(0.76, 0.05, 0.86, 0.06);
-  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
-
-  --ease-in-out-circ: cubic-bezier(0.79, 0.14, 0.15, 0.86);
-
   --sidebar-width-default: 14rem;
   --sidebar-width-min: 12rem;
   --sidebar-width-max: 28rem;
+
+  /** Ramp cells / rail: reference in raw CSS as `var(--ramp-swatch-*)` or style via `ramp-swatch:` utilities. */
+  --ramp-swatch-placeholder-bg: var(--color-surface-raised);
+  --ramp-swatch-tap-clear: transparent;
+  /** Minimum width per `[data-slot='ramp-swatch']` cell — do not set width on `ramp-swatch-rail` or the flex strip collapses. */
+  --ramp-swatch-min-width: 1rem;
+  --ramp-swatch-rail-width: 100%;
+  --ramp-swatch-rail-radius: var(--radius-card);
+
+  /** Print-pt → rem (assumes 1rem = 16px: 1pt = 4/3px, so 1pt = 1/12 rem). */
+  --pt: calc(1rem / 12);
+  --radius-toolbar: calc(26 * var(--pt));
+  --radius-compact-toolbar: calc(20 * var(--pt));
+  --radius-titlebar: calc(16 * var(--pt));
+  --radius-menu: calc(12 * var(--pt));
+  --radius-card: calc(10 * var(--pt));
+  --radius-input: calc(8 * var(--pt));
+  --radius-select: calc(6 * var(--pt));
+  --radius-dock-item: calc(7 * var(--pt));
+
+  /* Caption text size — used for small labels, badges, numeric readouts */
+  --text-caption: 0.6875rem;
 }
 
 @keyframes inspector-enter {
@@ -474,12 +520,12 @@
     background: rgb(255 138 76 / 0.75);
     color: black;
   }
-  * {
+  /* * {
     @apply outline-ring/50;
-  }
-  html {
+  } */
+  /* html {
     @apply font-sans;
-  }
+  } */
 }
 
 /* Workbench layout */
@@ -496,7 +542,7 @@
     .ns-collapsible-details::details-content {
       overflow: hidden;
       transition:
-        height 200ms var(--ease-out-cubic),
+        height 200ms var(--ease-out-quart),
         content-visibility 200ms allow-discrete;
     }
 
@@ -553,6 +599,22 @@
     overflow-y: auto;
   }
 
+  [data-slot='dock-picker-surface'] {
+    transform-origin: 50% 100%;
+    /* box-shadow only — Motion owns transform so avoid competing transition-property */
+    transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Restrained outer lift; internal tier separation uses overlay-tier shadow in ControlCenterPanel */
+    box-shadow:
+      0 16px 36px -12px rgb(0 0 0 / 0.2),
+      0 6px 14px -8px rgb(0 0 0 / 0.12);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot='dock-picker-surface'] {
+      transition-duration: 0.08s;
+      transition-timing-function: ease;
+    }
+  }
   @container nsb-workbench (width >= 56rem) {
     .ns-workbench {
       grid-template-columns: minmax(0, 1fr) minmax(0, min(20rem, 50cqi));
@@ -719,7 +781,7 @@
 /* Interaction and state utilities */
 @utility ns-input {
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-input);
   padding-inline: 0.75rem;
   padding-block: 0.5rem;
   font-size: 0.875rem;
@@ -775,8 +837,54 @@
   text-box: trim-both cap alphabetic;
 }
 
+/* ── Picker-subsystem shared utilities ─────────────────────────────────── */
+
+/** Caption text: replaces text-[0.65rem] text-muted across picker components. */
+@utility picker-caption {
+  font-size: var(--text-caption);
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+
+/** Monospaced numeric readout at caption scale. */
+@utility picker-numeric {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-caption);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/** Shared mono font-family stack — use as a class or reference font-family inline. */
+@utility font-mono-stack {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/** Horizontal action/badge row — replaces flex flex-wrap items-center gap-2. */
+@utility picker-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/** Distributed section header row — replaces flex flex-wrap items-center justify-between gap-3. */
+@utility picker-section-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/** Section divider — replaces space-y-6 + border-t border-hairline pt-6. */
+@utility picker-section-divider {
+  border-top: 1px solid var(--chrome-hairline);
+  padding-top: 1.5rem;
+}
+
 @theme inline {
-  /* Tier-2 `--color-*` + `--chrome-*` mixers; `--ns-*` remains as legacy aliases in `@layer base`. */
+  /* Semantic text-color utilities: text-default, text-muted, text-subtle, etc. */
   --text-color-default: var(--color-text-default);
   --text-color-subtle: var(--color-text-subtle);
   --text-color-muted: var(--color-text-muted);
@@ -786,6 +894,7 @@
   --text-color-scrim: var(--color-text-default);
   --text-color-overlay-scrim: var(--color-text-default);
 
+  /* Semantic bg utilities: bg-default, bg-raised, bg-sunken, bg-overlay, etc. */
   --background-color-sunken: var(--color-surface-sunken);
   --background-color-default: var(--color-surface-default);
   --background-color-subtle: var(--color-surface-subtle);
@@ -798,12 +907,11 @@
   --background-color-sidebar-primary: var(--color-surface-brand);
   --background-color-sidebar-border: var(--chrome-hairline);
   --bg-sidebar: var(--color-surface-sunken);
-
-  /* Chrome control field — used for toolbar control surface-sunken */
   --background-color-toolbar-control-surface-sunken: var(
     --chrome-control-field
   );
 
+  /* Semantic border utilities: border-hairline, border-default, border-focus, etc. */
   --border-color-default: var(--color-border-default);
   --border-color-focus: var(--color-border-focus);
   --border-color-subtle: var(--color-border-subtle);
@@ -860,13 +968,68 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /** Elevation shadows (Tailwind `--shadow-*` → `shadow-raised`, `shadow-overlay`) */
+  /** Elevation shadows (Tailwind `--shadow-*` → `shadow-raised`, `shadow-lg`, `shadow-overlay`, `shadow-xl`) */
   --shadow-raised: 0 1px 2px
     color-mix(in oklch, var(--color-text-default) 8%, transparent);
+  --shadow-lg:
+    0 4px 16px -4px
+      color-mix(in oklch, var(--color-text-default) 10%, transparent),
+    0 2px 6px -2px
+      color-mix(in oklch, var(--color-text-default) 6%, transparent);
   --shadow-overlay: 0 8px 30px
     color-mix(in oklch, var(--color-text-default) 12%, transparent);
+  --shadow-xl:
+    0 12px 40px -8px
+      color-mix(in oklch, var(--color-text-default) 14%, transparent),
+    0 4px 14px -4px
+      color-mix(in oklch, var(--color-text-default) 8%, transparent);
 
   /** Control padding tokens (optional; use `px-control-md`, etc.) */
   --spacing-control-sm: 0.375rem;
   --spacing-control-md: 0.625rem;
+}
+
+/* Progressive blur helpers: fallbacks + reduced-transparency.
+ * `PageProgressiveBlur` / `ElevationProgressiveBlur` annotate layers with `[data-pb-layer]`. */
+
+.ns-page-progressive-blur [data-pb-fallback] {
+  position: absolute;
+  opacity: 1;
+  transition: opacity 140ms ease;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  @media (prefers-reduced-transparency: no-preference) {
+    .ns-page-progressive-blur [data-pb-fallback] {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .ns-page-progressive-blur [data-pb-layer] {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ns-page-progressive-blur [data-pb-layer],
+  .ns-elevation-progressive-blur [data-pb-layer] {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .ns-page-progressive-blur [data-pb-fallback] {
+    opacity: 1;
+    pointer-events: none;
+  }
+}
+
+@utility ns-progressive-blur-host {
+  pointer-events: none;
+  isolation: isolate;
 }

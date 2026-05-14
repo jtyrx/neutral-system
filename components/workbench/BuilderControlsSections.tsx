@@ -1,8 +1,8 @@
 'use client'
 
-import {memo} from 'react'
+import {memo, useMemo} from 'react'
 
-import { Blend, Braces, Map, Paintbrush, Route } from 'lucide-react'
+import {Blend, Braces, Map, Paintbrush, Palette, Route} from 'lucide-react'
 
 import {BrandColorSection} from '@/components/sections/BrandColorSection'
 import {ExportSection} from '@/components/sections/ExportSection'
@@ -11,10 +11,12 @@ import {OkhslSection} from '@/components/sections/OkhslSection'
 import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
 import {ThemePanelsSection} from '@/components/sections/ThemePanelsSection'
 import {VariantsSection} from '@/components/sections/VariantsSection'
+import {OklchPickerPanel} from '@/components/picker/OklchPickerPanel'
 import {PillButton, PillChip} from '@/components/ui/chip'
 import {CollapsibleControlGroup} from '@/components/workbench/CollapsibleControlGroup'
-import {DEFAULT_GLOBAL} from '@/hooks/useNeutralWorkbench'
-import type {NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
+import {DEFAULT_GLOBAL, type NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
+import {useOklchPickerWorkbench} from '@/hooks/useOklchPickerWorkbench'
+import {sandboxWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 
 type Props = {
   wb: NeutralWorkbench
@@ -24,6 +26,8 @@ type Props = {
 /** Grouped controls: Scale → Mapping → Inspect → Export. */
 function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   const simpleArch = wb.neutralArchitecture === 'simple'
+  const sandboxPicker = useOklchPickerWorkbench()
+  const sandboxAdapter = useMemo(() => sandboxWorkbenchAdapter(sandboxPicker), [sandboxPicker])
 
   const activeRampVisual = simpleArch
     ? wb.global
@@ -120,7 +124,6 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         <GlobalScaleSection
           architecture={wb.neutralArchitecture}
           comparisonConfig={wb.globalScale}
-          curveModeNamingConfig={simpleArch ? wb.globalScale : wb.lightScale}
           lightRampConfig={simpleArch ? wb.globalScale : wb.lightScale}
           patchLightRamp={simpleArch ? wb.patchGlobal : wb.patchLight}
           darkRampConfig={simpleArch ? wb.globalScale : wb.darkScale}
@@ -129,16 +132,8 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           selectedIndex={selectedGlobalIndex}
           onSelectSwatch={wb.selectGlobal}
         />
-        <div className="mt-6">
-          {/*
-            Passing `setScaleConfigPreset` keeps commits on the active edit target (Simple: global ramp;
-            Advanced: light vs dark sibling) so `memo(VariantsSection)` stays stable when only the target swaps.
-          */}
-          <VariantsSection
-            config={wb.okhslEditableConfig}
-            onChange={wb.setScaleConfigPreset}
-          />
-        </div>
+
+        {/* OKHSL authoring overlay */}
         <div
           id="nsb-workbench-controls-okhsl"
           className="mt-6  border-hairline pt-6"
@@ -199,6 +194,32 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
               />
             </div>
           ) : null}
+        </div>
+        <div className="mt-6">
+          {/*
+            Passing `setScaleConfigPreset` keeps commits on the active edit target (Simple: global ramp;
+            Advanced: light vs dark sibling) so `memo(VariantsSection)` stays stable when only the target swaps.
+          */}
+          <VariantsSection
+            config={wb.okhslEditableConfig}
+            onChange={wb.setScaleConfigPreset}
+          />
+        </div>
+      </CollapsibleControlGroup>
+
+      <CollapsibleControlGroup
+        id="workbench-oklch-picker"
+        icon={Palette}
+        title="OKLCH picker (parallel)"
+        defaultOpen={false}
+      >
+        <div className="mt-1 space-y-2 text-xs text-muted">
+          Gamut-aware L / C / H exploration on a separate engine config. Use{' '}
+          <span className="font-medium text-default">Apply to global scale</span> to copy the
+          resulting ramp into Simple mode (single ladder).
+        </div>
+        <div className="mt-4">
+          <OklchPickerPanel variant="embedded" adapter={sandboxAdapter} />
         </div>
       </CollapsibleControlGroup>
 

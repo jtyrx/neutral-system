@@ -4,8 +4,8 @@
  * Workbench state: all input changes are applied **synchronously** so the single token
  * derivation + CSS write lands within one React commit.
  */
-import type {SetStateAction} from 'react'
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import type {Dispatch, SetStateAction} from 'react'
+import {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 'react'
 
 import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
 import {
@@ -51,12 +51,85 @@ import {
 import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import {labelForGlobalPatchKey, labelForSystemPatchKey} from '@/lib/neutral-engine/workbenchInputLabels'
+import {
+  readWorkbenchFromStorage,
+  writeWorkbenchToStorage,
+  type WorkbenchPersistedPayloadV1,
+} from '@/lib/workbench/workbenchStorage'
 
 const DEFAULT_GLOBAL: GlobalScaleConfig = DEFAULT_GLOBAL_SCALE_CONFIG
 
 const DEFAULT_SYSTEM: SystemMappingConfig = DEFAULT_SYSTEM_MAPPING
 
-export function useNeutralWorkbench() {
+export interface NeutralWorkbench {
+  neutralArchitecture: NeutralArchitectureMode
+  setNeutralArchitecture: (next: NeutralArchitectureMode, label?: string) => void
+  globalScale: GlobalScaleConfig
+  lightScale: GlobalScaleConfig
+  darkScale: GlobalScaleConfig
+  /** @deprecated Prefer `globalScale` */
+  globalConfig: GlobalScaleConfig
+  setGlobalScale: (action: SetStateAction<GlobalScaleConfig>, label?: string) => void
+  setLightScale: (action: SetStateAction<GlobalScaleConfig>, label?: string) => void
+  setDarkScale: (action: SetStateAction<GlobalScaleConfig>, label?: string) => void
+  patchGlobal: <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => void
+  patchLight: <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => void
+  patchDark: <K extends keyof GlobalScaleConfig>(key: K, value: GlobalScaleConfig[K], explicitLabel?: string) => void
+  setScaleConfigPreset: (action: SetStateAction<GlobalScaleConfig>, label?: string) => void
+  ladderLightSteps: number
+  ladderDarkSteps: number
+  ladderGlobalSteps: number
+  systemConfig: SystemMappingConfig
+  setSystemConfig: (action: SetStateAction<SystemMappingConfig>, label?: string) => void
+  patchSystem: <K extends keyof SystemMappingConfig>(key: K, value: SystemMappingConfig[K], explicitLabel?: string) => void
+  /** @deprecated Prefer `effectiveMappingLight` */
+  effectiveMappingConfig: SystemMappingConfig
+  effectiveMappingLight: SystemMappingConfig
+  effectiveMappingDark: SystemMappingConfig
+  immediateMappingConfig: SystemMappingConfig
+  architectureRamps: ArchitectureRamps
+  lightRamp: GlobalSwatch[]
+  darkRamp: GlobalSwatch[]
+  liveBrandSurfaceOklch: {light: string; dark: string}
+  /** Legacy single ramp — mirrors lightRamp when Advanced */
+  global: GlobalSwatch[]
+  lightTokens: SystemToken[]
+  darkTokens: SystemToken[]
+  lightTokenView: TokenView
+  darkTokenView: TokenView
+  activeTokenView: TokenView
+  activeSystemTokens: SystemToken[]
+  previewTheme: 'light' | 'dark'
+  setPreviewTheme: (value: 'light' | 'dark', label?: string) => void
+  contrastEmphasis: ContrastEmphasis
+  setContrastEmphasis: (value: ContrastEmphasis, label?: string) => void
+  selection: WorkbenchSelection | null
+  setSelection: Dispatch<SetStateAction<WorkbenchSelection | null>>
+  selectGlobal: (index: number) => void
+  selectSystem: (id: string, theme?: ThemeMode) => void
+  inputBusy: false
+  busyInputLabel: string
+  comparisonLayout: ComparisonLayout
+  setComparisonLayout: Dispatch<SetStateAction<ComparisonLayout>>
+  showContrastPairs: boolean
+  setShowContrastPairs: Dispatch<SetStateAction<boolean>>
+  inspectionMode: boolean
+  setInspectionMode: Dispatch<SetStateAction<boolean>>
+  toggleInspectionMode: () => void
+  okhslEnabled: boolean
+  setOkhslEnabled: Dispatch<SetStateAction<boolean>>
+  scaleEditTarget: 'global' | 'light' | 'dark'
+  setScaleEditTarget: Dispatch<SetStateAction<'global' | 'light' | 'dark'>>
+  okhslView: OkhslView
+  okhslEditableConfig: GlobalScaleConfig
+  setGlobalConfigFromOkhsl: (edit: OkhslEdit, label?: string) => void
+  alphaConfig: AlphaNeutralConfig
+  setAlphaConfig: Dispatch<SetStateAction<AlphaNeutralConfig>>
+  alphaBaseIndices: {lightBase: number; darkBase: number}
+  inspectionGlobalRamp: GlobalSwatch[]
+}
+
+export function useNeutralWorkbench(): NeutralWorkbench {
   const [neutralArchitecture, setNeutralArchitectureBase] = useState<NeutralArchitectureMode>('advanced')
   const [globalScale, setGlobalScaleBase] = useState<GlobalScaleConfig>(DEFAULT_GLOBAL)
   const [lightScale, setLightScaleBase] = useState<GlobalScaleConfig>(DEFAULT_ADVANCED_LIGHT_SCALE)
@@ -69,6 +142,7 @@ export function useNeutralWorkbench() {
   const [showContrastPairs, setShowContrastPairs] = useState(false)
   const [inspectionMode, setInspectionMode] = useState(false)
   const [busyInputLabel, setBusyInputLabel] = useState('Updating')
+  const [storageReady, setStorageReady] = useState(false)
   const [okhslEnabled, setOkhslEnabled] = useState(false)
   /** Which sibling scale variants / OKHSL edit in Advanced Mode. Simple Mode always `'global'`. */
   const [scaleEditTarget, setScaleEditTarget] = useState<'global' | 'light' | 'dark'>('light')
@@ -77,6 +151,33 @@ export function useNeutralWorkbench() {
   const touchBusyLabel = useCallback((label: string) => {
     setBusyInputLabel(label)
   }, [])
+
+  /* One-time synchronous hydration from native `localStorage` before paint (`useLayoutEffect` + batch setStates). */
+  /* eslint-disable react-hooks/set-state-in-effect -- client-only persisted workbench bootstrap */
+  useLayoutEffect(() => {
+    const p = readWorkbenchFromStorage()
+    if (p) {
+      setNeutralArchitectureBase(p.neutralArchitecture)
+      setGlobalScaleBase(p.globalScale)
+      setLightScaleBase(p.lightScale)
+      setDarkScaleBase(p.darkScale)
+      setSystemConfigBase(p.systemConfig)
+      setContrastEmphasisBase(p.contrastEmphasis)
+      setComparisonLayout(p.comparisonLayout)
+      setShowContrastPairs(p.showContrastPairs)
+      setInspectionMode(p.inspectionMode)
+      setOkhslEnabled(p.okhslEnabled)
+      setAlphaConfig(p.alphaConfig)
+      setSelection(p.selection)
+      if (p.neutralArchitecture === 'simple') {
+        setScaleEditTarget('global')
+      } else {
+        setScaleEditTarget(p.scaleEditTarget)
+      }
+    }
+    setStorageReady(true)
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const bumpPresetTimer = useCallback((label: string) => {
     if (presetDebugEnabled()) {
@@ -388,6 +489,48 @@ export function useNeutralWorkbench() {
     [architectureRamps, lightTokens, darkTokens, alphaConfig],
   )
 
+  const persistPayload: WorkbenchPersistedPayloadV1 = useMemo(
+    () => ({
+      v: 1,
+      neutralArchitecture,
+      globalScale,
+      lightScale,
+      darkScale,
+      systemConfig: systemConfigBase,
+      contrastEmphasis,
+      comparisonLayout,
+      showContrastPairs,
+      inspectionMode,
+      okhslEnabled,
+      scaleEditTarget,
+      alphaConfig,
+      selection,
+    }),
+    [
+      neutralArchitecture,
+      globalScale,
+      lightScale,
+      darkScale,
+      systemConfigBase,
+      contrastEmphasis,
+      comparisonLayout,
+      showContrastPairs,
+      inspectionMode,
+      okhslEnabled,
+      scaleEditTarget,
+      alphaConfig,
+      selection,
+    ],
+  )
+
+  useEffect(() => {
+    if (!storageReady) return
+    const handle = window.setTimeout(() => {
+      writeWorkbenchToStorage(persistPayload)
+    }, 220)
+    return () => window.clearTimeout(handle)
+  }, [storageReady, persistPayload])
+
   const inspectionGlobalRamp = previewTheme === 'light' ? lightRamp : darkRamp
 
   const activeSystemTokens = previewTheme === 'light' ? lightTokens : darkTokens
@@ -540,7 +683,6 @@ export function useNeutralWorkbench() {
   )
 }
 
-export type NeutralWorkbench = ReturnType<typeof useNeutralWorkbench>
 export {
   DEFAULT_ADVANCED_DARK_SCALE as DEFAULT_ADVANCED_DARK,
   DEFAULT_ADVANCED_LIGHT_SCALE as DEFAULT_ADVANCED_LIGHT,

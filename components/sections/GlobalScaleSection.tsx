@@ -4,7 +4,6 @@ import {
   memo,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -14,9 +13,7 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronsUpDown,
-  Minus,
   Moon,
-  Plus,
   Settings2,
   Sun,
 } from 'lucide-react'
@@ -34,7 +31,7 @@ import {
   type ResponsiveSelectOption,
 } from '@/components/ui/responsive-select'
 import {SelectPrimitives} from '@/components/ui/select'
-import {Slider} from '@/components/ui/slider'
+import {Slider, SliderControlled} from '@/components/ui/slider'
 import {Toolbar} from '@/components/ui/toolbar'
 import {ChromaModeComparisonRail} from '@/components/viz/ChromaModeComparisonRail'
 import {LightnessLadder} from '@/components/viz/LightnessLadder'
@@ -63,7 +60,6 @@ export type RampPatchFn = <K extends keyof GlobalScaleConfig>(
 type Props = {
   architecture: 'simple' | 'advanced'
   comparisonConfig: GlobalScaleConfig
-  curveModeNamingConfig: GlobalScaleConfig
   lightRampConfig: GlobalScaleConfig
   patchLightRamp: RampPatchFn
   darkRampConfig: GlobalScaleConfig
@@ -131,6 +127,15 @@ function stepsSelectListMaxHeightStyle(): {maxHeight: string} {
   }
 }
 
+/** Match `Toolbar.Button` icon styling; avoid `PopoverTrigger` + `Toolbar.Button` composition (Base UI prerender #69). */
+const GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS = cn(
+  '-my-px inline-flex size-8 shrink-0 items-center justify-center rounded-select text-subtle outline-none transition',
+  'hover:bg-sidebar-border hover:text-default',
+  'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
+  'disabled:pointer-events-none disabled:opacity-45',
+  '[&_svg]:pointer-events-none [&_svg]:size-4',
+)
+
 const HUE_OPTIONS: ResponsiveSelectOption[] = Array.from(
   {length: 361},
   (_, i) => ({
@@ -167,7 +172,7 @@ const GlobalScaleRampVisualization = memo(
 
     return (
       <>
-        <div className="overflow-x-auto rounded-2xl border border-hairline">
+        <div className="overflow-x-auto rounded-select border border-hairline">
           <div
             className="flex min-h-18"
             style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}
@@ -284,19 +289,10 @@ function useCoalescedPatch(patchGlobal: RampPatchFn) {
   return schedule
 }
 
-function buildDualRampSchedule(
-  light: SchedulePatchFn,
-  dark: SchedulePatchFn,
-): SchedulePatchFn {
-  return (key, value, label) => {
-    light(key, value, label)
-    dark(key, value, label)
-  }
-}
 
 const lightnessToolbarInputClass = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
-  'mb-0 h-8 max-w-36 min-w-16 flex-1 shrink rounded-md px-2.5 py-1',
+  'mb-0 h-8 max-w-36 min-w-16 flex-1 shrink rounded-input px-2.5 py-1',
   'font-mono text-xs text-default tabular-nums',
 )
 
@@ -357,6 +353,7 @@ function LightnessAnchorToolbarInput({
   )
 }
 
+// Color Ramp Steps (Scale Steps)
 function StepsRampSegment({
   idPrefix,
   config,
@@ -403,7 +400,7 @@ function StepsRampSegment({
           <Plus aria-hidden />
         </Toolbar.Button> */}
       </Toolbar.Group>
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      {/* <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" /> */}
       <SelectPrimitives.Root
         id={`${idPrefix}-steps-select`}
         value={String(clampedSteps)}
@@ -412,11 +409,15 @@ function StepsRampSegment({
           schedule('steps', Number(v), 'Steps')
         }}
       >
-        <Toolbar.Button
-          render={<SelectPrimitives.Trigger />}
+        <SelectPrimitives.Trigger
           type="button"
           aria-haspopup="listbox"
-          className="h-8 min-w-16 flex-1 justify-between gap-2 px-3 text-left font-mono text-xs tabular-nums"
+          className={cn(
+            INPUT_WORKBENCH_FIELD_CLASS,
+            'h-8 min-h-8 min-w-16 flex flex-1 shrink items-center justify-between gap-2 px-2.5 py-0 text-left font-mono text-xs tabular-nums outline-none select-none',
+            'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+            'data-placeholder:text-muted-foreground',
+          )}
         >
           <SelectPrimitives.Value>
             {(v) => (v != null && String(v) !== '' ? `${v} steps` : '—')}
@@ -424,7 +425,7 @@ function StepsRampSegment({
           <SelectPrimitives.Icon className="pointer-events-none flex shrink-0">
             <ChevronsUpDown className="size-4 opacity-60" aria-hidden />
           </SelectPrimitives.Icon>
-        </Toolbar.Button>
+        </SelectPrimitives.Trigger>
         <SelectPrimitives.Portal>
           <SelectPrimitives.Positioner
             align="center"
@@ -435,7 +436,7 @@ function StepsRampSegment({
           >
             <SelectPrimitives.Popup
               className={cn(
-                'relative isolate z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-hidden rounded-lg border border-hairline bg-popover px-1 py-1 text-popover-foreground shadow-md ring-1 ring-ring/35 outline-none',
+                'relative isolate z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-hidden rounded-select border border-hairline px-1 py-1 text-popover-foreground shadow-md ring-1 ring-ring/35 outline-none',
               )}
             >
               <SelectPrimitives.ScrollUpArrow
@@ -452,16 +453,12 @@ function StepsRampSegment({
                   <SelectPrimitives.Item
                     key={n}
                     value={String(n)}
-                    className="relative flex cursor-default items-center gap-2 rounded-md py-2 pr-10 pl-2.5 text-sm outline-none select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
+                    className="relative flex cursor-default items-center gap-2 rounded-select py-2 pr-10 pl-2.5 text-sm outline-none select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
                   >
                     <SelectPrimitives.ItemText className="font-mono">
                       {String(n)}
                     </SelectPrimitives.ItemText>
-                    <SelectPrimitives.ItemIndicator
-                      aria-hidden
-                      className="pointer-events-none absolute inset-y-0 right-2 flex items-center"
-                      render={<span />}
-                    >
+                    <SelectPrimitives.ItemIndicator className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
                       <Check className="size-3.5" />
                     </SelectPrimitives.ItemIndicator>
                   </SelectPrimitives.Item>
@@ -490,9 +487,6 @@ function LightnessSegment({
   config: GlobalScaleConfig
   schedule: SchedulePatchFn
 }) {
-  const lHighLabel = formatLightnessFieldDisplay(config.lHigh)
-  const lLowLabel = formatLightnessFieldDisplay(config.lLow)
-
   return (
     <>
       <LightnessAnchorToolbarInput
@@ -515,9 +509,9 @@ function LightnessSegment({
       <Toolbar.Separator className="m-0.25 h-4 bg-transparent data-[orientation=vertical]:w-px" />
       <Popover>
         <PopoverTrigger
-          render={
-            <Toolbar.Button type="button" aria-label="Open lightness sliders" />
-          }
+          type="button"
+          aria-label="Open lightness sliders"
+          className={GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS}
         >
           <Settings2 aria-hidden />
         </PopoverTrigger>
@@ -529,36 +523,28 @@ function LightnessSegment({
           <PopoverHeader>
             <PopoverTitle>Lightness</PopoverTitle>
           </PopoverHeader>
-          <div className="space-y-2">
-            <span className="text-xs font-medium text-muted">
-              Lightest L ({lHighLabel})
-            </span>
-            <Slider
-              min={0}
-              max={1}
-              step={0.005}
-              value={[config.lHigh]}
-              onValueChange={([next]) =>
-                typeof next === 'number' &&
-                schedule('lHigh', Number(next.toFixed(4)), 'Lightest L slider')
+          <SliderControlled
+            id={`${idPrefix}-lightness-range-slider`}
+            label="Darkest / lightest L"
+            min={0}
+            max={1}
+            step={0.005}
+            value={[config.lLow, config.lHigh]}
+            format={{maximumFractionDigits: 4}}
+            onValueChange={([nextLow, nextHigh]) => {
+              if (typeof nextLow === 'number') {
+                const lLow = Number(nextLow.toFixed(4))
+                if (lLow !== config.lLow)
+                  schedule('lLow', lLow, 'Darkest L slider')
               }
-            />
-          </div>
-          <div className="space-y-2">
-            <span className="text-xs font-medium text-muted">
-              Darkest L ({lLowLabel})
-            </span>
-            <Slider
-              min={0}
-              max={1}
-              step={0.005}
-              value={[config.lLow]}
-              onValueChange={([next]) =>
-                typeof next === 'number' &&
-                schedule('lLow', Number(next.toFixed(4)), 'Darkest L slider')
+
+              if (typeof nextHigh === 'number') {
+                const lHigh = Number(nextHigh.toFixed(4))
+                if (lHigh !== config.lHigh)
+                  schedule('lHigh', lHigh, 'Lightest L slider')
               }
-            />
-          </div>
+            }}
+          />
         </PopoverContent>
       </Popover>
     </>
@@ -607,12 +593,9 @@ function HueChromaSegment({
       <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
       <Popover>
         <PopoverTrigger
-          render={
-            <Toolbar.Button
-              type="button"
-              aria-label="Open hue / chroma sliders"
-            />
-          }
+          type="button"
+          aria-label="Open hue / chroma sliders"
+          className={GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS}
         >
           <Settings2 aria-hidden />
         </PopoverTrigger>
@@ -738,10 +721,87 @@ function HueChromaSegment({
   )
 }
 
+function SystemShapeSegment({
+  idPrefix,
+  config,
+  schedule,
+  global,
+}: {
+  idPrefix: string
+  config: GlobalScaleConfig
+  schedule: SchedulePatchFn
+  global: GlobalSwatch[]
+}) {
+  return (
+    <>
+      <ResponsiveSelect
+        id={`${idPrefix}-naming`}
+        className="h-8 max-w-[13rem] min-w-[9rem] flex-1 shrink py-1 text-xs"
+        value={config.namingStyle}
+        options={namingOptions.map((o) => ({value: o.id, label: o.label}))}
+        onValueChange={(v) => schedule('namingStyle', v as NamingStyle, 'Naming')}
+      />
+      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <ResponsiveSelect
+        id={`${idPrefix}-chroma`}
+        className="h-8 max-w-[13rem] min-w-[8.25rem] flex-1 shrink py-1 text-xs"
+        value={config.chromaMode}
+        options={chromaOptions.map((o) => ({value: o.id, label: o.label}))}
+        onValueChange={(v) =>
+          schedule('chromaMode', v as GlobalScaleConfig['chromaMode'], 'Chroma mode')
+        }
+      />
+      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <ResponsiveSelect
+        id={`${idPrefix}-l-curve`}
+        className="h-8 max-w-[13rem] min-w-[10rem] flex-1 shrink py-1 text-xs"
+        value={config.lCurve ?? 'linear'}
+        options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
+        onValueChange={(v) => schedule('lCurve', v as LCurve, 'L curve')}
+      />
+      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Popover>
+        <PopoverTrigger
+          type="button"
+          aria-label="L curve strength sliders"
+          disabled={(config.lCurve ?? 'linear') === 'linear'}
+          className={GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS}
+        >
+          <Settings2 aria-hidden />
+        </PopoverTrigger>
+        <PopoverContent className="w-80 gap-4" align="start" sideOffset={8}>
+          <PopoverHeader>
+            <PopoverTitle>L curve strength</PopoverTitle>
+          </PopoverHeader>
+          <LightnessSparkline swatches={global} />
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-muted tabular-nums">
+              Strength {Math.round((config.lCurveStrength ?? 1) * 100)}%
+            </span>
+            <Slider
+              disabled={(config.lCurve ?? 'linear') === 'linear'}
+              min={0}
+              max={100}
+              step={1}
+              value={[Math.round((config.lCurveStrength ?? 1) * 100)]}
+              onValueChange={([pct]) =>
+                typeof pct === 'number' &&
+                schedule('lCurveStrength', pct / 100, 'L curve strength')
+              }
+            />
+            <p className="text-[0.65rem] text-muted">
+              0% = linear spacing · 100% = full selected curve
+            </p>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </>
+  )
+}
+
 function GlobalScaleSectionInner({
   architecture,
   comparisonConfig,
-  curveModeNamingConfig,
   lightRampConfig,
   patchLightRamp,
   darkRampConfig,
@@ -753,14 +813,6 @@ function GlobalScaleSectionInner({
   const scheduleLightRamp = useCoalescedPatch(patchLightRamp)
   const scheduleDarkRamp = useCoalescedPatch(patchDarkRamp)
   const [showComparison, setShowComparison] = useState(false)
-
-  const dualModesSchedule = useMemo(
-    () =>
-      architecture === 'simple'
-        ? scheduleLightRamp
-        : buildDualRampSchedule(scheduleLightRamp, scheduleDarkRamp),
-    [architecture, scheduleLightRamp, scheduleDarkRamp],
-  )
 
   const advanced = architecture === 'advanced'
 
@@ -784,9 +836,7 @@ function GlobalScaleSectionInner({
           aria-expanded={showComparison}
           aria-controls="chroma-mode-comparison-rail"
         >
-
-            {showComparison ? 'Hide comparison' : 'Show comparison'}
-    
+          {showComparison ? 'Hide comparison' : 'Show comparison'}
         </Button>
       </div>
 
@@ -855,47 +905,64 @@ function GlobalScaleSectionInner({
               ? 'Lightness anchors · light & dark'
               : 'Lightness anchors'}
           </p>
-          <Toolbar.Root
-            id={GLOBAL_SCALE_TOOLBAR.lightness.id}
-            data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.lightness.slug}
-            className="w-full flex-wrap gap-px"
-            aria-labelledby={GLOBAL_SCALE_TOOLBAR.lightness.headingId}
-          >
-            {advanced ? (
-              <>
-                <span
-                  className={cn(
-                    'mx-0.5 self-center px-1 font-semibold tracking-wide text-disabled uppercase',
-                    advanced && 'text-muted',
-                  )}
-                >
-                  <Sun className="size-3.5" aria-hidden={true} />
-                </span>
+          <div className="@container min-w-0 w-full">
+            <Toolbar.Root
+              id={GLOBAL_SCALE_TOOLBAR.lightness.id}
+              data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.lightness.slug}
+              className={cn(
+                'grid w-full gap-px',
+                advanced
+                  ? 'grid-cols-1 @min-[28rem]:grid-cols-2'
+                  : 'grid-cols-2',
+              )}
+              aria-labelledby={GLOBAL_SCALE_TOOLBAR.lightness.headingId}
+            >
+              {advanced ? (
+                <>
+                  <div className="flex">
+                    <span
+                      className={cn(
+                        'mx-0.5 self-center px-1 font-semibold tracking-wide text-disabled uppercase',
+                        advanced && 'text-muted',
+                      )}
+                    >
+                      <Sun className="size-3.5" aria-hidden={true} />
+                    </span>
+                    <LightnessSegment
+                      idPrefix="global-scale-light-l"
+                      config={lightRampConfig}
+                      schedule={scheduleLightRamp}
+                    />
+                  </div>
+                  {/* <Toolbar.Separator className="m-1 h-5 min-h-[1.75rem] shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" /> */}
+                  <div className="flex">
+                    <span
+                      className={cn(
+                        'mx-0.5 self-center px-1 font-semibold tracking-wide text-disabled uppercase',
+                        advanced && 'text-muted',
+                      )}
+                    >
+                      <Moon className="size-3.5" aria-hidden={true} />
+                    </span>
+                    <LightnessSegment
+                      idPrefix="global-scale-dark-l"
+                      config={darkRampConfig}
+                      schedule={scheduleDarkRamp}
+                    />
+                  </div>
+                </>
+              ) : (
                 <LightnessSegment
-                  idPrefix="global-scale-light-l"
+                  idPrefix="global-scale-l"
                   config={lightRampConfig}
                   schedule={scheduleLightRamp}
                 />
-                <Toolbar.Separator className="m-1 h-5 min-h-[1.75rem] shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" />
-                <span className="self-center px-1 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
-                  <Moon className="size-3.5" aria-hidden={true} />
-                </span>
-                <LightnessSegment
-                  idPrefix="global-scale-dark-l"
-                  config={darkRampConfig}
-                  schedule={scheduleDarkRamp}
-                />
-              </>
-            ) : (
-              <LightnessSegment
-                idPrefix="global-scale-l"
-                config={lightRampConfig}
-                schedule={scheduleLightRamp}
-              />
-            )}
-          </Toolbar.Root>
+              )}
+            </Toolbar.Root>
+          </div>
         </div>
 
+        {/* Hue & base chroma */}
         <div className="space-y-1">
           <p
             id={GLOBAL_SCALE_TOOLBAR.hueChroma.headingId}
@@ -905,40 +972,50 @@ function GlobalScaleSectionInner({
               ? 'Hue & base chroma · light & dark'
               : 'Hue & base chroma'}
           </p>
-          <Toolbar.Root
-            id={GLOBAL_SCALE_TOOLBAR.hueChroma.id}
-            data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.hueChroma.slug}
-            className="w-full flex-wrap gap-px"
-            aria-labelledby={GLOBAL_SCALE_TOOLBAR.hueChroma.headingId}
-          >
-            {advanced ? (
-              <>
-                <span className="self-center px-1 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
-                  <Sun className="size-3.5" aria-hidden={true} />
-                </span>
+          <div className="@container min-w-0 w-full">
+            <Toolbar.Root
+              id={GLOBAL_SCALE_TOOLBAR.hueChroma.id}
+              data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.hueChroma.slug}
+              className={cn(
+                'grid w-full gap-px',
+                advanced
+                  ? 'grid-cols-1 @min-[28rem]:grid-cols-2'
+                  : 'grid-cols-2',
+              )}
+              aria-labelledby={GLOBAL_SCALE_TOOLBAR.hueChroma.headingId}
+            >
+              {advanced ? (
+                <>
+                  <div className="flex">
+                    <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
+                      <Sun className="size-3.5" aria-hidden={true} />
+                    </span>
+                    <HueChromaSegment
+                      idPrefix="global-scale-light-hue"
+                      config={lightRampConfig}
+                      schedule={scheduleLightRamp}
+                    />
+                  </div>
+                  <div className="flex">
+                    <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
+                      <Moon className="size-3.5" aria-hidden={true} />
+                    </span>
+                    <HueChromaSegment
+                      idPrefix="global-scale-dark-hue"
+                      config={darkRampConfig}
+                      schedule={scheduleDarkRamp}
+                    />
+                  </div>
+                </>
+              ) : (
                 <HueChromaSegment
-                  idPrefix="global-scale-light-hue"
+                  idPrefix="global-scale-hue"
                   config={lightRampConfig}
                   schedule={scheduleLightRamp}
                 />
-                <Toolbar.Separator className="m-1 h-5 min-h-[1.75rem] shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" />
-                <span className="self-center px-1 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
-                  <Moon className="size-3.5" aria-hidden={true} />
-                </span>
-                <HueChromaSegment
-                  idPrefix="global-scale-dark-hue"
-                  config={darkRampConfig}
-                  schedule={scheduleDarkRamp}
-                />
-              </>
-            ) : (
-              <HueChromaSegment
-                idPrefix="global-scale-hue"
-                config={lightRampConfig}
-                schedule={scheduleLightRamp}
-              />
-            )}
-          </Toolbar.Root>
+              )}
+            </Toolbar.Root>
+          </div>
         </div>
 
         <div className="space-y-1">
@@ -946,113 +1023,55 @@ function GlobalScaleSectionInner({
             id={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
             className="ns-label text-trim-both"
           >
-            System shape
+            {advanced ? 'System shape · light & dark' : 'System shape'}
           </p>
-          <Toolbar.Root
-            id={GLOBAL_SCALE_TOOLBAR.systemShape.id}
-            data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.systemShape.slug}
-            className="w-full flex-wrap items-center gap-1 gap-y-px"
-            aria-labelledby={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
-          >
-            <ResponsiveSelect
-              id="global-scale-modes-naming"
-              className="h-8 max-w-[13rem] min-w-[9rem] flex-1 shrink py-1 text-xs"
-              value={curveModeNamingConfig.namingStyle}
-              options={namingOptions.map((o) => ({
-                value: o.id,
-                label: o.label,
-              }))}
-              onValueChange={(v) =>
-                dualModesSchedule('namingStyle', v as NamingStyle, 'Naming')
-              }
-            />
-            <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
-            <ResponsiveSelect
-              id="global-scale-modes-chroma"
-              className="h-8 max-w-[13rem] min-w-[8.25rem] flex-1 shrink py-1 text-xs"
-              value={curveModeNamingConfig.chromaMode}
-              options={chromaOptions.map((o) => ({
-                value: o.id,
-                label: o.label,
-              }))}
-              onValueChange={(v) =>
-                dualModesSchedule(
-                  'chromaMode',
-                  v as GlobalScaleConfig['chromaMode'],
-                  'Chroma mode',
-                )
-              }
-            />
-            <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
-            <ResponsiveSelect
-              id="global-scale-modes-l-curve"
-              className="h-8 max-w-[13rem] min-w-[10rem] flex-1 shrink py-1 text-xs"
-              value={curveModeNamingConfig.lCurve ?? 'linear'}
-              options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
-              onValueChange={(v) =>
-                dualModesSchedule('lCurve', v as LCurve, 'L curve')
-              }
-            />
-            <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
-            <Popover>
-              <PopoverTrigger
-                render={
-                  <Toolbar.Button
-                    type="button"
-                    aria-label="L curve strength sliders"
-                    disabled={
-                      (curveModeNamingConfig.lCurve ?? 'linear') === 'linear'
-                    }
-                  />
-                }
+          {advanced ? (
+            <div className="@container min-w-0 w-full">
+              <Toolbar.Root
+                id={GLOBAL_SCALE_TOOLBAR.systemShape.id}
+                data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.systemShape.slug}
+                className="grid w-full gap-px grid-cols-1 @min-[28rem]:grid-cols-2"
+                aria-labelledby={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
               >
-                <Settings2 aria-hidden />
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-80 gap-4"
-                align="start"
-                sideOffset={8}
-              >
-                <PopoverHeader>
-                  <PopoverTitle>L curve strength</PopoverTitle>
-                </PopoverHeader>
-                <LightnessSparkline swatches={global} />
-                <div className="space-y-2">
-                  <span className="text-xs font-medium text-muted tabular-nums">
-                    Strength{' '}
-                    {Math.round(
-                      (curveModeNamingConfig.lCurveStrength ?? 1) * 100,
-                    )}
-                    %
+                <div className="flex flex-wrap items-center gap-1 gap-y-px">
+                  <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
+                    <Sun className="size-3.5" aria-hidden={true} />
                   </span>
-                  <Slider
-                    disabled={
-                      (curveModeNamingConfig.lCurve ?? 'linear') === 'linear'
-                    }
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={[
-                      Math.round(
-                        (curveModeNamingConfig.lCurveStrength ?? 1) * 100,
-                      ),
-                    ]}
-                    onValueChange={([pct]) =>
-                      typeof pct === 'number' &&
-                      dualModesSchedule(
-                        'lCurveStrength',
-                        pct / 100,
-                        'L curve strength',
-                      )
-                    }
+                  <SystemShapeSegment
+                    idPrefix="global-scale-light-shape"
+                    config={lightRampConfig}
+                    schedule={scheduleLightRamp}
+                    global={global}
                   />
-                  <p className="text-[0.65rem] text-muted">
-                    0% = linear spacing · 100% = full selected curve
-                  </p>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </Toolbar.Root>
+                <div className="flex flex-wrap items-center gap-1 gap-y-px">
+                  <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
+                    <Moon className="size-3.5" aria-hidden={true} />
+                  </span>
+                  <SystemShapeSegment
+                    idPrefix="global-scale-dark-shape"
+                    config={darkRampConfig}
+                    schedule={scheduleDarkRamp}
+                    global={global}
+                  />
+                </div>
+              </Toolbar.Root>
+            </div>
+          ) : (
+            <Toolbar.Root
+              id={GLOBAL_SCALE_TOOLBAR.systemShape.id}
+              data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.systemShape.slug}
+              className="w-full flex-wrap items-center gap-1 gap-y-px"
+              aria-labelledby={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
+            >
+              <SystemShapeSegment
+                idPrefix="global-scale-shape"
+                config={lightRampConfig}
+                schedule={scheduleLightRamp}
+                global={global}
+              />
+            </Toolbar.Root>
+          )}
         </div>
       </div>
     </section>

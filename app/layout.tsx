@@ -1,23 +1,43 @@
 import './globals.css'
 
-import {AppLayoutShell} from '@/components/app-sidebar'
 import {AppProviders} from '@/components/providers/AppProviders'
 import type {Metadata} from 'next'
-import {IBM_Plex_Mono, Inter, Geist} from 'next/font/google'
+import localFont from 'next/font/local'
 import {cn} from '@/lib/utils'
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
+const geist = localFont({
+  src: './fonts/geist-latin.woff2',
+  variable: '--font-sans',
   display: 'swap',
+  weight: '100 900',
 })
 
-const ibm = IBM_Plex_Mono({
+const inter = localFont({
+  src: './fonts/inter-latin.woff2',
+  variable: '--font-inter',
+  display: 'swap',
+  weight: '100 900',
+})
+
+const ibm = localFont({
+  src: [
+    {
+      path: './fonts/ibm-plex-mono-latin-400.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/ibm-plex-mono-latin-500.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: './fonts/ibm-plex-mono-latin-600.woff2',
+      weight: '600',
+      style: 'normal',
+    },
+  ],
   variable: '--font-mono',
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
   display: 'swap',
 })
 
@@ -30,15 +50,19 @@ export const metadata: Metadata = {
     'Generate and export systematic neutral palettes with Color.js — global scale, theme mapping, and tokens.',
 }
 
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
+export default function RootLayout({
+  children,
+}: Readonly<{children: React.ReactNode}>) {
   return (
-    <html lang="en" className={cn(inter.variable, ibm.variable, "font-sans", geist.variable)} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn(inter.variable, ibm.variable, 'font-sans', geist.variable)}
+      suppressHydrationWarning
+    >
       <body>
         {/* Base UI Quick Start: isolation stacking context for portaled popups (tooltips, dialogs). */}
         <div className="isolate min-h-screen">
-          <AppProviders>
-            <AppLayoutShell>{children}</AppLayoutShell>
-          </AppProviders>
+          <AppProviders>{children}</AppProviders>
         </div>
       </body>
     </html>

@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-11T00:00:00Z",
+  "title": "Design System: Neutral System Builder",
+  "extensions": {
+    "colorMeta": {
+      "calibration-orange": {
+        "role": "primary",
+        "displayName": "Calibration Orange",
+        "canonical": "oklch(69.3% 0.2546 37.91)",
+        "tonalRamp": [
+          "oklch(15% 0.04 37.91)",
+          "oklch(25% 0.07 37.91)",
+          "oklch(35% 0.12 37.91)",
+          "oklch(45% 0.18 37.91)",
+          "oklch(55% 0.24 37.91)",
+          "oklch(65% 0.25 37.91)",
+          "oklch(75% 0.22 37.91)",
+          "oklch(90% 0.10 37.91)"
+        ]
+      },
+      "chrome-amber": {
+        "role": "secondary",
+        "displayName": "Chrome Amber",
+        "canonical": "oklch(72% 0.17 70)",
+        "notes": "Light-mode indicator chrome. Dark endpoint is canonical; alpha mixes are derived via color-mix. Light endpoint: oklch(90% 0.12 92).",
+        "tonalRamp": [
+          "oklch(15% 0.03 70)",
+          "oklch(30% 0.07 70)",
+          "oklch(45% 0.11 70)",
+          "oklch(58% 0.15 70)",
+          "oklch(68% 0.17 70)",
+          "oklch(78% 0.15 70)",
+          "oklch(87% 0.12 70)",
+          "oklch(94% 0.06 70)"
+        ]
+      },
+      "chrome-sky": {
+        "role": "secondary",
+        "displayName": "Chrome Sky",
+        "canonical": "oklch(70% 0.14 235)",
+        "notes": "Dark-mode indicator chrome. Dark endpoint is canonical; alpha mixes are derived via color-mix. Light endpoint: oklch(88% 0.08 230).",
+        "tonalRamp": [
+          "oklch(15% 0.03 235)",
+          "oklch(30% 0.06 235)",
+          "oklch(42% 0.10 235)",
+          "oklch(54% 0.13 235)",
+          "oklch(64% 0.14 235)",
+          "oklch(74% 0.12 235)",
+          "oklch(83% 0.09 235)",
+          "oklch(93% 0.05 235)"
+        ]
+      },
+      "neutral-canvas-dark": {
+        "role": "neutral",
+        "displayName": "Void",
+        "canonical": "oklch(16.15% 0 0)",
+        "notes": "Deepest dark surface (surface-sunken). Engine-generated; this is the first-paint fallback. Light: oklch(98.5% 0 0).",
+        "tonalRamp": [
+          "oklch(16.15% 0 0)",
+          "oklch(22.33% 0 0)",
+          "oklch(30% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(60% 0 0)",
+          "oklch(75% 0 0)",
+          "oklch(88% 0 0)",
+          "oklch(98.5% 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Reserved for large identity moments. Not currently used in workbench chrome." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles, panel headers. Sparse — most UI uses label size." },
+      "body": { "displayName": "Body", "purpose": "Form labels, description text. Max 65-75ch where it appears in longer blocks." },
+      "label": { "displayName": "Label", "purpose": "Primary UI text size. Used for control annotations, sidebar items, section text." },
+      "mono": { "displayName": "Mono", "purpose": "All numerical readouts, OKLCH values, hex codes, token names, step indices. tabular-nums." },
+      "eyebrow": { "displayName": "Eyebrow", "purpose": "Section category labels. Sparse use. Uppercase + wide tracking signals categorical separation." }
+    },
+    "shadows": [
+      {
+        "name": "raised",
+        "value": "0 1px 2px color-mix(in oklch, var(--color-text-default) 8%, transparent)",
+        "purpose": "Minimal lift for dock action buttons and elevated interactive cards."
+      },
+      {
+        "name": "lg",
+        "value": "0 4px 16px -4px color-mix(in oklch, var(--color-text-default) 10%, transparent), 0 2px 6px -2px color-mix(in oklch, var(--color-text-default) 6%, transparent)",
+        "purpose": "Inspector panels and elevated content areas."
+      },
+      {
+        "name": "overlay",
+        "value": "0 8px 30px color-mix(in oklch, var(--color-text-default) 12%, transparent)",
+        "purpose": "Popovers, menus, detached floating panels."
+      },
+      {
+        "name": "xl",
+        "value": "0 12px 40px -8px color-mix(in oklch, var(--color-text-default) 14%, transparent), 0 4px 14px -4px color-mix(in oklch, var(--color-text-default) 8%, transparent)",
+        "purpose": "Modal surfaces and heavy overlay panels."
+      },
+      {
+        "name": "dock-panel",
+        "value": "0 18px 48px -20px rgb(0 0 0 / 0.55), 0 4px 12px -6px rgb(0 0 0 / 0.35)",
+        "purpose": "Floating control center dock. Hardcoded black: must read against any user-configured ramp color."
+      },
+      {
+        "name": "dock-picker-surface",
+        "value": "0 16px 36px -12px rgb(0 0 0 / 0.2), 0 6px 14px -8px rgb(0 0 0 / 0.12)",
+        "purpose": "Picker popup when detached. Restrained lift; lighter than dock-panel."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.19, 1, 0.22, 1)",
+        "purpose": "Fast exits and structural entrances. Inspector panel enter, collapse animations."
+      },
+      {
+        "name": "ease-out-quart",
+        "value": "cubic-bezier(0.17, 0.84, 0.44, 1)",
+        "purpose": "Default for state transitions: color, background, box-shadow. 150ms standard."
+      },
+      {
+        "name": "ease-in-out-quart",
+        "value": "cubic-bezier(0.77, 0, 0.18, 1)",
+        "purpose": "Shared axis transitions where both in and out need snap."
+      },
+      {
+        "name": "inspector-enter",
+        "value": "220ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Inspector panel entrance: translateY(6px) → 0, opacity 0 → 1."
+      },
+      {
+        "name": "collapsible-details",
+        "value": "200ms ease-out-quart",
+        "purpose": "Native <details> height animation via interpolate-size. Chrome 129+, Safari 17.4+."
+      }
+    ],
+    "breakpoints": [
+      { "name": "nsb-lg", "value": "56rem (container query on #nsb-workbench)", "purpose": "Workbench switches from stacked to side-by-side layout." },
+      { "name": "nsb-xl", "value": "72rem (container query on #nsb-workbench)", "purpose": "Inspector column expands to min(28rem, 52cqi)." },
+      { "name": "sm", "value": "40rem", "purpose": "Control center dock increases bottom offset." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Dock Action Button",
+      "kind": "button",
+      "refersTo": "dock-action",
+      "description": "Icon button in the floating control center dock. 44px, gently curved.",
+      "html": "<button class=\"ds-dock-action\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 4V2M12 22v-2M4 12H2M22 12h-2\"/></svg></button>",
+      "css": ".ds-dock-action { width: 2.75rem; height: 2.75rem; flex-shrink: 0; border-radius: 0.833rem; border: 1px solid oklch(96.44% 0 0 / 0.1); background-color: oklch(22.33% 0 0); color: oklch(96.44% 0 0); display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; transition: background-color 0.15s cubic-bezier(0.17, 0.84, 0.44, 1), color 0.15s cubic-bezier(0.17, 0.84, 0.44, 1), box-shadow 0.15s cubic-bezier(0.17, 0.84, 0.44, 1); box-shadow: 0 1px 2px oklch(96.44% 0 0 / 0.08); } .ds-dock-action:hover { background-color: oklch(24.39% 0 0); } .ds-dock-action:active { background-color: oklch(26% 0 0); } .ds-dock-action:focus-visible { border-color: oklch(78% 0.14 55); box-shadow: 0 1px 2px oklch(96.44% 0 0 / 0.08), 0 0 0 3px oklch(78% 0.14 55 / 0.35); }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "chip",
+      "refersTo": "segmented-item",
+      "description": "Pill-shaped mode-switching toggle. Primary interaction pattern for theme and layout switches.",
+      "html": "<div class=\"ds-segmented\"><button class=\"ds-segmented-item ds-segmented-item--active\" aria-checked=\"true\">Light</button><button class=\"ds-segmented-item\" aria-checked=\"false\">Dark</button></div>",
+      "css": ".ds-segmented { display: inline-flex; border-radius: 9999px; border: 1px solid oklch(96.44% 0 0 / 0.09); background-color: oklch(96.44% 0 0 / 0.04); padding: 0.125rem; } .ds-segmented-item { display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; padding: 0.375rem 0.625rem; font-size: 0.75rem; font-weight: 500; font-family: ui-sans-serif, system-ui, sans-serif; color: oklch(88.21% 0 0); border: none; background: transparent; cursor: pointer; outline: none; transition: color 0.15s ease, background-color 0.15s ease; white-space: nowrap; } .ds-segmented-item:hover { color: oklch(96.44% 0 0); } .ds-segmented-item:focus-visible { box-shadow: 0 0 0 2px oklch(78% 0.14 55 / 0.4); } .ds-segmented-item--active { background-color: oklch(18.21% 0 0); color: oklch(96.44% 0 0); box-shadow: 0 1px 3px oklch(0% 0 0 / 0.3), 0 0 0 1px oklch(78% 0.14 55 / 0.25); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text and numeric input. Used for color value entry and configuration fields.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"oklch(69.3% 0.2546 37.91)\" />",
+      "css": ".ds-input { width: 100%; border-radius: 0.625rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-family: ui-sans-serif, system-ui, sans-serif; background: oklch(96.44% 0 0 / 0.06); border: 1px solid oklch(96.44% 0 0 / 0.18); color: oklch(96.44% 0 0); outline: none; box-sizing: border-box; transition: box-shadow 0.15s cubic-bezier(0.17, 0.84, 0.44, 1); } .ds-input::placeholder { color: oklch(84.09% 0 0); } .ds-input:focus { box-shadow: 0 0 0 2px oklch(96.44% 0 0 / 0.15); }"
+    },
+    {
+      "name": "Panel Surface",
+      "kind": "card",
+      "refersTo": "segmented-item-active",
+      "description": "Floating control center panel. Compact-toolbar radius, hairline border, backdrop blur.",
+      "html": "<div class=\"ds-panel\"><div class=\"ds-panel-body\"><span class=\"ds-eyebrow\">Global Scale</span><p style=\"margin:0.5rem 0 0; font-size:0.875rem;\">Steps: 41</p></div></div>",
+      "css": ".ds-panel { display: flex; flex-direction: column; overflow: hidden; border-radius: 1.667rem; border: 1px solid oklch(96.44% 0 0 / 0.1); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); } .ds-panel-body { background-color: oklch(18.21% 0 0); color: oklch(96.44% 0 0); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; padding: 1rem; } .ds-eyebrow { display: block; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(88.21% 0 0); }"
+    },
+    {
+      "name": "Eyebrow Label",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Monospaced uppercase section divider. Signals categorical separation in control groups.",
+      "html": "<span class=\"ds-eyebrow\">Color Ramp</span>",
+      "css": ".ds-eyebrow { display: block; font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: oklch(88.21% 0 0); margin-bottom: 0.5rem; }"
+    },
+    {
+      "name": "Ramp Swatch Rail",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The signature visualization: a full-width flex strip of OKLCH color cells representing the user's neutral ramp. The central output artifact of the tool.",
+      "html": "<div class=\"ds-ramp-rail\"><button class=\"ds-ramp-swatch\" style=\"background: oklch(96.44% 0 0);\"></button><button class=\"ds-ramp-swatch\" style=\"background: oklch(82% 0 0);\"></button><button class=\"ds-ramp-swatch\" style=\"background: oklch(69.3% 0.2546 37.91);\"></button><button class=\"ds-ramp-swatch\" style=\"background: oklch(45% 0 0);\"></button><button class=\"ds-ramp-swatch\" style=\"background: oklch(28% 0 0);\"></button><button class=\"ds-ramp-swatch\" style=\"background: oklch(18.21% 0 0);\"></button></div>",
+      "css": ".ds-ramp-rail { display: flex; width: 100%; border-radius: 0.5rem; overflow: hidden; } .ds-ramp-swatch { flex: 1 1 0; min-width: 1rem; height: 2.75rem; border: none; cursor: pointer; outline: none; transition: box-shadow 75ms ease; } .ds-ramp-swatch:focus-visible { z-index: 10; box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.75), 0 0 0 2px oklch(78% 0.14 55); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Calibration Chamber",
+    "overview": "Neutral System Builder is a precision instrument, not a creative sandbox. Its UI is deliberately colorless: achromatic neutrals from near-black to near-white, a single warm accent that appears only where it carries meaning, and motion that communicates system response rather than aesthetic personality. The chrome recedes so the ramp colors — the actual output of the tool — read true. Every pixel that isn't the user's color system is a pixel that should not exist.\n\nThe system rejects three things without exception: the weight and darkness of Adobe-style tooling, the bubbly friendliness of no-code SaaS surfaces, and the block-stacking rhythm of Notion-style everything-is-a-block layouts. This is not a tool that performs expertise; it is a tool built by people who have it, for people who do too.\n\nThe design language is taut without being stark. Type is set at information density, not comfort density. Controls recede until needed, then confirm without surprising. The floating dock uses genuine depth to separate it from the canvas it floats above, earning its visual weight rather than borrowing it from a color.",
+    "keyCharacteristics": [
+      "Deep achromatic dark-by-default chrome, with a light mode that is equally precise",
+      "Single saturated accent: Calibration Orange, used only as the brand/primary surface",
+      "OKLCH-native throughout, no sRGB shortcuts",
+      "Print-point radius scale: toolbar radii calculated in pt units for geometric precision",
+      "Text-relative elevation: most shadows derive from color-mix(in oklch, text N%, transparent)",
+      "IBM Plex Mono for all numerical readouts, labels, and eyebrow text",
+      "Motion uses exponential ease-out exclusively; no bounce, no spring"
+    ],
+    "rules": [
+      { "name": "The Achromatic Canvas Rule", "body": "The workbench chrome is colorless by design. The user's ramp colors are the product; the UI is the container. Any saturated color added to the chrome competes with the output and must be rejected.", "section": "colors" },
+      { "name": "The One Voice Rule", "body": "Calibration Orange appears in exactly one semantic role: the active/brand surface. Never use it for hover states, decorative borders, background tints, or gradients. Its informational value depends entirely on its rarity.", "section": "colors" },
+      { "name": "The Mono Anchor Rule", "body": "Every number that means something uses IBM Plex Mono. Color values, step indices, percentage readouts, export token names: all mono.", "section": "typography" },
+      { "name": "The No-Decoration Rule", "body": "No gradient text, no outlined text, no colored display type. Weight and size carry hierarchy. Color carries meaning only through the accent and semantic role system.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Shadows appear only in response to elevation state (hover, popup, focus, floating). A shadow that exists at rest is structural, not decorative: every resting shadow must earn it by communicating a genuine layer hierarchy.", "section": "elevation" },
+      { "name": "The Text-Relative Shadow Rule", "body": "Standard shadow tokens derive from color-mix(in oklch, text N%, transparent) so they adapt to both light and dark themes. Only the dock and picker-surface use hardcoded black-channel shadows.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use OKLCH for all color values. The system is OKLCH-native; sRGB hex values lose precision for Display-P3 gamut.",
+      "Do use color-mix(in oklch, var(--color-text-default) N%, transparent) for alpha surfaces and shadows in standard components.",
+      "Do use --radius-compact-toolbar (calc(20/12 * 1rem)) for the outer radius of any floating panel or popup.",
+      "Do use IBM Plex Mono for any numerical readout, OKLCH value, token name, or measurement.",
+      "Do use ease-out-quart or ease-out-expo for all state transitions.",
+      "Do allow information density. Expert users read dense layouts.",
+      "Do use --chrome-hairline and --chrome-hairline-strong tokens for all borders. Never hardcode a border color.",
+      "Do use hardcoded black-channel shadows for the dock and floating panels only."
+    ],
+    "donts": [
+      "Don't add saturated colors to the UI chrome. Calibration Orange is the only accent.",
+      "Don't apply Adobe-style tool heaviness: no persistent dark icon bars, no multiple competing floating panels.",
+      "Don't apply no-code SaaS friendliness: no gradient cards, no pastel tints, no rounded-everything pill aesthetics applied uniformly.",
+      "Don't stack blocks like Notion: avoid uniform vertical rhythm that makes every block feel the same weight.",
+      "Don't use border-left or border-right greater than 1px as a colored accent stripe.",
+      "Don't use gradient text (background-clip: text). Emphasis via weight or size only.",
+      "Don't animate layout properties (width, height, padding, margin). Animate transform, opacity, color, background-color, box-shadow.",
+      "Don't use bounce or elastic easing. Precision instruments respond with exponential ease-out.",
+      "Don't hardcode light or dark color values in components without theme-aware logic.",
+      "Don't override the ramp swatch rail's width at the container level."
+    ]
+  }
+}

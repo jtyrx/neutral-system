@@ -1,5 +1,9 @@
 'use client'
 
+/**
+ * Base UI toolbar layout primitives (chip + controls). Rich tooltips with an integrated
+ * caret use `components/ui/tooltip.tsx` and `components/ui/floating-popup-styles.ts`.
+ */
 import * as React from 'react'
 
 import {

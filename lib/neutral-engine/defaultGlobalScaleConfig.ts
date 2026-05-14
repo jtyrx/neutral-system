@@ -5,12 +5,12 @@ import type { GlobalScaleConfig } from '@/lib/neutral-engine/types'
  * Used for Simple Mode (`DEFAULT_GLOBAL_SCALE_CONFIG`) and Advanced light sibling ramp.
  */
 const DEFAULT_LIGHT_SCALE_VALUES = {
-  steps: 16,
-  lHigh: 0.985,
+  steps: 14,
+  lHigh: 1.0,
   lLow: 0.215,
   progression: 'linear',
   lCurve: 'ease-in-dark',
-  lCurveStrength: 0.7,
+  lCurveStrength: 1.0,
   chromaMode: 'achromatic',
   baseChroma: 0.012,
   hue: 260,
@@ -23,11 +23,11 @@ const DEFAULT_LIGHT_SCALE_VALUES = {
  */
 const DEFAULT_DARK_SCALE_VALUES = {
   steps: 16,
-  lHigh: 0.985,
-  lLow: 0.185,
+  lHigh: 0.915,
+  lLow: 0.18,
   progression: 'linear',
   lCurve: 'ease-out-light',
-  lCurveStrength: 1,
+  lCurveStrength: 0.6,
   chromaMode: 'achromatic',
   baseChroma: 0.012,
   hue: 260,

@@ -1,102 +1,75 @@
 # AGENTS.md
 
-This file guides **Cursor Agent** and **Composer** when working in this repository. It is self-contained alongside human-oriented docs; for Claude Code, see `CLAUDE.md`.
+Instructions for Cursor Agent and Composer. Claude Code uses `CLAUDE.md`. Keep this file small: add details only when they must be loaded on every agent turn.
 
 ## Commands
 
-This repo uses **pnpm** (`pnpm-lock.yaml` is the source of truth; the `packageManager` field in `package.json` pins the version).
+Use `pnpm`; `pnpm-lock.yaml` and `package.json#packageManager` are authoritative.
 
 ```bash
-pnpm install        # install dependencies
-pnpm dev            # Next.js dev server (Turbopack) on :3000
-pnpm build          # production build
-pnpm start          # serve built output
-pnpm lint           # ESLint (next/core-web-vitals + next/typescript)
-pnpm type-check     # tsc --noEmit (strict)
-pnpm test           # vitest run (engine unit tests)
+pnpm install
+pnpm dev
+pnpm build
+pnpm start
+pnpm lint
+pnpm type-check
+pnpm test
 ```
 
-Vitest covers `lib/neutral-engine/*.test.ts`. Prefer `pnpm test` after engine changes.
+Run `pnpm type-check` before claiming done. Run `pnpm test` after engine changes and `pnpm build` for non-trivial or broad changes.
+
+**Before running `type-check` or `build` in CI / agent environments**, clear the Next.js cache first to avoid stale artifacts being scanned:
+
+```bash
+rm -rf .next && pnpm type-check
+rm -rf .next && pnpm build
+```
+
+Production builds must be network-independent. Vendor required runtime assets (especially fonts) instead of relying on build-time fetches.
 
 ## Stack
 
-Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4 (`@import "tailwindcss"` in `app/globals.css`), `colorjs.io` for color math, `sonner` for toasts. **UI:** shadcn/ui-style components live under `@/components/ui` and wrap **`@base-ui/react`** primitives (not Radix). Path alias `@/*` resolves from repo root.
+Next.js 16 App Router, React 19, TypeScript strict, Tailwind CSS v4, `colorjs.io`, `sonner`, shadcn-style UI wrappers over `@base-ui/react` primitives. Alias `@/*` resolves from repo root. Do not add Radix or a CMS unless explicitly requested.
 
-## CMS and data
-
-**This app does not use Sanity** (or any other headless CMS). There is no `@sanity/*` dependency, no Studio, and no GROQ. A repo-wide search for `sanity` / `groq` in application code (excluding incidental draft-route plumbing) is empty.
-
-State is entirely **in-browser**: the workbench (`useNeutralWorkbench`) plus optional preset load via the `neutral-system:load-preset` custom event. There is no content API or document store.
-
-`app/api/draft-mode/enable` (if present) is **optional** [Next.js draft mode](https://nextjs.org/docs/app/guides/draft-mode) for generic preview URLs only; it is **not** wired to a CMS. Query/env names that mention `sanity-*` or `SANITY_PREVIEW_SECRET` exist only for URL compatibility with external tools—do not introduce Sanity or CMS packages unless product requirements change explicitly.
+For Next.js-specific work, read only the relevant local docs under `.next-docs` first. If docs are missing, run `npx @next/codemod agents-md --output AGENTS.md`.
 
 ## Architecture
 
-Single-page workbench (`app/page.tsx` → `components/workbench/Workbench.tsx`) that generates a neutral color system.
+Single-page workbench: `app/page.tsx` -> `components/workbench/Workbench.tsx`.
 
-**Engine (`lib/neutral-engine/`)** — pure, framework-free, barrel export `lib/neutral-engine/index.ts`. Pipeline:
+Engine code in `lib/neutral-engine/` is pure and framework-free. Main flow:
 
-1. `globalScale.ts` — `buildGlobalScale(GlobalScaleConfig)` → ordered OKLCH ramp (`GlobalSwatch[]`). Index 0 is lightest, last is darkest. Length clamped `[8, 48]` via `clampGlobalScaleSteps`.
-2. `systemMap.ts` — `deriveSystemTokens(global, SystemMappingConfig)` per `themeMode`. Light and dark elevated use separate `*Start` / `*Count` / `*StepInterval`. Always `clampSystemMappingToLadderLength` first so picks stay in `[0, n−1]` (exception: `darkFillStart` may be `−1`).
-3. `effectiveMapping.ts` — `applyContrastEmphasisToSystemMapping` scales `contrastDistance` (`subtle` / `default` / `strong` / `inverse`). Must run **before** token derivation so preview, UI, and exports match.
-4. `semanticNaming.ts` — design-system dot-path roles: **surface** elevation (`surface.sunken` … `surface.overlay`, plus `surface.brand` for on-brand planes and `surface.inverse`); **text** hierarchy (`text.default` … `text.disabled`, plus `text.on` on inverse/bold/brand surfaces); **border** (`border.default` / `subtle` / `strong` from stroke count, plus auto `border.focus` = max-contrast flip vs `surface.default`); `state.hover`, `overlay.scrim`, `emphasis.*`. `isInversePairRole` gates `surface.inverse` + `text.on` out of “standard ladder” UIs; `isBorderFocusRole` identifies `border.focus`.
-5. `exportFormats.ts` — JSON, CSS variables, CSV, Tailwind v4 `@theme inline`. Tier-1 light primitives as **`--color-neutral-*`** (index 0 = lightest, canonical OKLCH). Advanced Mode dark primitives as **`--color-neutral-dark-<displayIndex>`** where **display index 0 = darkest** — `emitTier1Block` reverses the dark ramp at export so `ramp[n-1]` (darkest) → `dark-0` and `ramp[0]` (lightest) → `dark-N`. Semantic role references for dark (`semanticCssValue`) apply the same reversal formula `(n-1 - sourceGlobalIndex)`. Tier-2 semantics use `--color-surface-default`, `--color-text-on`, `--color-border-focus`, etc. (dot → hyphen via `semanticColorVarName`). **`--chrome-*`** mixers appended in each `[data-theme]` block (`CHROME_MIXER_LINES` in `chromeAliases.ts`). **`semanticPolicy.ts`** documents intent → role policy; `tokensForExportChannel` (`exportTokens.ts`) centralizes export filtering. **`ThemeMode`** is `light` \| `darkElevated` only.
+- `globalScale.ts`: `buildGlobalScale`; index `0` is lightest, last is darkest; steps clamp to `[8, 48]`.
+- `systemMap.ts`: `deriveSystemTokens`; always use `clampSystemMappingToLadderLength` before deriving. `darkFillStart` may be `-1`.
+- `effectiveMapping.ts`: apply contrast emphasis before token derivation.
+- `semanticNaming.ts`: role ids stay as dot paths such as `surface.default`, `text.on`, `border.focus`.
+- `exportFormats.ts`: JSON, CSS, CSV, Tailwind v4. Light tier-1 exports as `--color-neutral-*`; dark advanced tier-1 exports reversed as `--color-neutral-dark-<displayIndex>` where `0` is darkest.
 
-**Token sources of truth**
+Workbench state is centralized in `hooks/useNeutralWorkbench.ts`. Keep input changes synchronous; do not reintroduce `useTransition` or `useDeferredValue` there without revisiting the Chromium 1Hz throttle issue. `inputBusy` remains API-compatible and always `false`. CSS variable writes live in `components/providers/LiveThemeStyles.tsx` and use `useLayoutEffect`.
 
-- **Tier-1 / tier-2 colors:** resolved by `LiveThemeStyles` → `exportCssVariables` (authoritative after load). Light primitives: `--color-neutral-0` = lightest. Dark primitives (Advanced Mode): `--color-neutral-dark-0` = darkest — the export layer reverses the ramp order. `app/globals.css` keeps approximate tier-2 for first paint; do not duplicate a full dark `[data-theme=’dark’]` tier-2 block there.
-- **Dark display index convention:** whenever a component displays or computes a dark primitive index (`NeutralScaleReferenceTable`, `NeutralScaleUsageTable`, `SemanticRoleTable`, `UsedNeutralPrimitivesTable`, `SemanticRoleTable`, `ThemePanelsSection`, `GlobalScaleStrip`), it must apply `displayIndex = n - 1 - sourceGlobalIndex`. The `primitiveNeutralExportName(global, idx, tier1ExportMode?)` helper in `primitiveTokenTable.ts` does this automatically when `tier1ExportMode.scale === ‘dark’`. Always pass the export mode.
-- **`--chrome-*` / legacy `--ns-*`:** `chromeAliases.ts` owns **`CHROME_MIXER_LINES`** only. Support amber/sky grids are `--chrome-amber-*` / `--chrome-sky-*` in `globals.css`. Legacy `--ns-*` color tokens stay thin aliases to **`--color-*`** / **`--chrome-*`**.
-- **Exports:** downloadable **JSON** strips preview-only custom `surface.brand` (`isPreviewOnlyBrandToken`) and optional `emphasis.*` (`isEmphasisToken`). CSS / Tailwind export tabs still omit custom brand only.
+State is in-browser only. Presets load by dispatching `neutral-system:load-preset` with `{ globalConfig, systemConfig }`. `app/api/draft-mode/enable`, if present, is generic preview plumbing, not CMS integration.
 
-**Workbench (`hooks/useNeutralWorkbench.ts`)** — single state orchestrator; all controls go through this hook.
+## Token Rules
 
-- **All input changes are synchronous** — one token derivation + CSS write per commit. `useTransition` / `useDeferredValue` were intentionally removed from this hook (see the file-header comment): concurrent scheduling loses to Chromium's 1Hz `rAF` / `useEffect` throttle on unfocused windows, turning one-frame updates into minute-long stalls. Do not reintroduce deferred scheduling without re-litigating that trade-off.
-- `inputBusy` is kept on the return surface for API compatibility but is **always `false`**. Do not wire new loading UI to it.
-- CSS variable writes live in `components/providers/LiveThemeStyles.tsx` and use **`useLayoutEffect`** (not `useEffect`) so the paint isn't deferred into the 1Hz throttle window.
-- Always derive **both** `lightTokens` and `darkTokens` (export and theme panels), including in `focus` comparison mode.
-- `effectiveMappingConfig` is canonical for any UI that shows resolved indices; it must match what `deriveSystemTokens` receives.
+- React-facing color data must be `SerializedColor`, never live `Color` instances.
+- For color math, reparse at leaf call sites with helpers from `lib/neutral-engine/serialize.ts`.
+- Do not recompute derived ladder picks in components; import helpers from `systemMap.ts`.
+- Dark display index is `n - 1 - sourceGlobalIndex`; use `primitiveNeutralExportName(global, idx, tier1ExportMode?)`.
+- `--chrome-*` mixers come from `chromeAliases.ts`; legacy `--ns-*` tokens stay thin aliases only.
+- Downloadable JSON omits preview-only custom brand and optional emphasis tokens; CSS/Tailwind omit custom brand.
 
-**UI:** `Workbench.tsx` — preview + inspector. `WorkbenchControlsShell.tsx` + `BuilderControlsSections.tsx` — Scale → Contrast & role mapping → Inspect → Export. `components/sections/*` — section bodies; `components/preview/*` — palettes/tables; `components/viz/*` — ladders and offset diagrams.
+## UI And Styling
 
-**Responsive breakpoints (hybrid):** `#nsb-viewport` is a Tailwind **named container** (`@container/nsb-workbench`). Workbench grid (`.ns-workbench` in `app/globals.css`) and workbench-scoped utilities use **`nsb-lg:`** / **`nsb-xl:`** (`@custom-variant` → `@container nsb-workbench (width ≥ …)`), so preview + inspector layout tracks **inset width** after the **resizable sidebar**. Coarse shell behavior (e.g. mobile nav sheet) still uses **viewport** via `useIsMobile` (~768px). For layout inside the workbench, prefer **`nsb-lg:`** over **`lg:`** so breakpoints match available content width, not the full viewport.
+- Tailwind v4 only. Theme tokens live in `app/globals.css`; no `tailwind.config.*`.
+- Use shadcn-style components in `components/ui` backed by `@base-ui/react`.
+- For files in `components/ui/**`, read `components/ui/AGENTS.md`; that file overrides this section.
+- Use `nsb-lg:` / `nsb-xl:` container variants for workbench layout; reserve viewport breakpoints for shell/mobile behavior.
+- Use `cn()` for class merging. Style: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports.
 
-**Presets:** dispatch `neutral-system:load-preset` with `detail: { globalConfig, systemConfig }`. Workbench applies `migrateSystemMappingConfig` and `clampGlobalScaleSteps`.
+## Debugging
 
-## Conventions
+Debug instrumentation lives in `lib/debug/presetDebug.ts`. Route new debug logs through `presetDebugEnabled()`, which is gated to development.
 
-- **Derived ladder picks:** do not reimplement in components. Use `systemMap.ts` (`pickLightIndices`, `pickDarkIndices`, `pickDarkStrokeTextIndices`, `previewResolvedRoleIndices`, `mirrorRampIndex`).
-- **Clamping:** when `steps` changes, `clampSystemMappingToLadderLength` before using `SystemMappingConfig`.
-- **Roles:** dot-path strings (`surface.default`, `text.on`) as `SystemToken.id` / `name` / `role`. Do not pre-flatten for UI; export layer rewrites names. WCAG-oriented surface×text pairings live in `contrastContracts.ts` (`SURFACE_TEXT_CONTRACTS`).
-- **Color on the React surface is `SerializedColor` only.** `GlobalSwatch` and `SystemToken` carry `serialized: SerializedColor`; they do **not** carry a live `colorjs.io` `Color` instance. Never add `Color` to a type consumed by components, hooks, or React state — that leaks the colorjs.io prototype graph into DevTools snapshots.
-- **When Color math is unavoidable** (WCAG contrast, ΔE, OKLCH coord reads), reparse at the call site with `parseColorFromSerialized(s.serialized)` or `oklchCoordsFromSerialized(s.serialized)` from `lib/neutral-engine/serialize.ts`. Create `Color` instances only inside the engine or at the leaf of a memoized selector.
-- **Engine-side Color creation** always via `new Color(...)` + `serializeColor`. Use `SerializedColor.inSrgbGamut` for gamut flags; don't re-check.
-- **OKLCH strings:** `oklch(L% C H)` with `none` for achromatic hue (`buildOklchString`); match in new CSS output.
-- **Style:** single quotes, no semicolons, trailing commas, 2-space indent, `type` imports. Prefer `'use client'` for interactive workbench code; omit on `app/layout.tsx` and engine modules.
-- **Tailwind v4 only** — no `tailwind.config.*`. Theme in `@theme` in `app/globals.css`. PostCSS: `@tailwindcss/postcss`.
-- **UI components (shadcn + Base UI):**
-  - **Primitive layer:** keep using **`@base-ui/react`** subpaths, matching `components/ui/*`. Do **not** add **`@radix-ui/*`** for workbench UI unless there is an explicit, repo-wide migration decision.
-  - **CLI:** add or refresh components via the **shadcn CLI** with this repo’s `components.json` (pnpm-first: `pnpm exec shadcn add …`). After generation, **verify** imports stay Base UI–aligned with neighboring files; reconcile if a template defaults to a different primitive layer.
-  - **Styles:** keep `app/globals.css` `@import 'shadcn/tailwind.css'` and preserve the shadcn **→** `--color-*` bridge described under Token sources of truth.
-  - **Patterns:** extend existing wrappers (`cn`, `class-variance-authority`, slot / `useRender` where present) rather than introducing parallel component libraries.
-- **Debug instrumentation** lives in `lib/debug/presetDebug.ts`. `presetDebugEnabled()` is hard-gated to `process.env.NODE_ENV === 'development'` so a stale URL param, localStorage flag, or window flag can never cost a prod user. Route new debug log sites through `presetDebugEnabled()` to preserve the single kill-switch.
+## Change Discipline
 
-## Folder-Specific Guardrails
-
-When planning or editing files inside `components/ui/**`, also read and follow:
-
-- `components/ui/AGENTS.md`
-
-The local folder instructions are the persistent source of truth for shared UI primitives and reusable design-system components. They override root-level guidance when there is a direct conflict, unless the task prompt explicitly says otherwise.
-
-## Cursor Agent / Composer behavior
-
-- **Verify before claiming done:** run `pnpm type-check`; for non-trivial changes, run `pnpm build` as well.
-- **Keep diffs focused:** change only what the task requires; avoid drive-by refactors.
-- **Follow existing patterns:** repo-relative paths, same component and hook structure as neighboring files.
-
-## Deployment
-
-Production on Vercel (`vercel.json`: `framework: nextjs`; Vercel auto-detects pnpm from `pnpm-lock.yaml` + the `packageManager` field in `package.json`). `next.config.mjs` pins Turbopack `root` when parent dirs may contain unrelated lockfiles.
-
-<!-- NEXT-AGENTS-MD-START -->[Next.js Docs Index]|root: ./.next-docs|STOP. What you remember about Next.js is WRONG for this project. Always search docs and read before any task.|If docs missing, run this command first: npx @next/codemod agents-md --output AGENTS.md|01-app:{04-glossary.mdx}|01-app/01-getting-started:{01-installation.mdx,02-project-structure.mdx,03-layouts-and-pages.mdx,04-linking-and-navigating.mdx,05-server-and-client-components.mdx,06-fetching-data.mdx,07-mutating-data.mdx,08-caching.mdx,09-revalidating.mdx,10-error-handling.mdx,11-css.mdx,12-images.mdx,13-fonts.mdx,14-metadata-and-og-images.mdx,15-route-handlers.mdx,16-proxy.mdx,17-deploying.mdx,18-upgrading.mdx}|01-app/02-guides:{ai-agents.mdx,analytics.mdx,authentication.mdx,backend-for-frontend.mdx,caching-without-cache-components.mdx,cdn-caching.mdx,ci-build-caching.mdx,content-security-policy.mdx,css-in-js.mdx,custom-server.mdx,data-security.mdx,debugging.mdx,deploying-to-platforms.mdx,draft-mode.mdx,environment-variables.mdx,forms.mdx,how-revalidation-works.mdx,incremental-static-regeneration.mdx,instant-navigation.mdx,instrumentation.mdx,internationalization.mdx,json-ld.mdx,lazy-loading.mdx,local-development.mdx,mcp.mdx,mdx.mdx,memory-usage.mdx,migrating-to-cache-components.mdx,multi-tenant.mdx,multi-zones.mdx,open-telemetry.mdx,package-bundling.mdx,ppr-platform-guide.mdx,prefetching.mdx,preserving-ui-state.mdx,production-checklist.mdx,progressive-web-apps.mdx,public-static-pages.mdx,redirecting.mdx,rendering-philosophy.mdx,sass.mdx,scripts.mdx,self-hosting.mdx,single-page-applications.mdx,static-exports.mdx,streaming.mdx,tailwind-v3-css.mdx,third-party-libraries.mdx,videos.mdx,view-transitions.mdx}|01-app/02-guides/migrating:{app-router-migration.mdx,from-create-react-app.mdx,from-vite.mdx}|01-app/02-guides/testing:{cypress.mdx,jest.mdx,playwright.mdx,vitest.mdx}|01-app/02-guides/upgrading:{codemods.mdx,version-14.mdx,version-15.mdx,version-16.mdx}|01-app/03-api-reference:{07-edge.mdx,08-turbopack.mdx}|01-app/03-api-reference/01-directives:{use-cache-private.mdx,use-cache-remote.mdx,use-cache.mdx,use-client.mdx,use-server.mdx}|01-app/03-api-reference/02-components:{font.mdx,form.mdx,image.mdx,link.mdx,script.mdx}|01-app/03-api-reference/03-file-conventions/01-metadata:{app-icons.mdx,manifest.mdx,opengraph-image.mdx,robots.mdx,sitemap.mdx}|01-app/03-api-reference/03-file-conventions/02-route-segment-config:{dynamicParams.mdx,instant.mdx,maxDuration.mdx,preferredRegion.mdx,runtime.mdx}|01-app/03-api-reference/03-file-conventions:{default.mdx,dynamic-routes.mdx,error.mdx,forbidden.mdx,instrumentation-client.mdx,instrumentation.mdx,intercepting-routes.mdx,layout.mdx,loading.mdx,mdx-components.mdx,not-found.mdx,page.mdx,parallel-routes.mdx,proxy.mdx,public-folder.mdx,route-groups.mdx,route.mdx,src-folder.mdx,template.mdx,unauthorized.mdx}|01-app/03-api-reference/04-functions:{after.mdx,cacheLife.mdx,cacheTag.mdx,catchError.mdx,connection.mdx,cookies.mdx,draft-mode.mdx,fetch.mdx,forbidden.mdx,generate-image-metadata.mdx,generate-metadata.mdx,generate-sitemaps.mdx,generate-static-params.mdx,generate-viewport.mdx,headers.mdx,image-response.mdx,next-request.mdx,next-response.mdx,not-found.mdx,permanentRedirect.mdx,redirect.mdx,refresh.mdx,revalidatePath.mdx,revalidateTag.mdx,unauthorized.mdx,unstable_cache.mdx,unstable_noStore.mdx,unstable_rethrow.mdx,updateTag.mdx,use-link-status.mdx,use-params.mdx,use-pathname.mdx,use-report-web-vitals.mdx,use-router.mdx,use-search-params.mdx,use-selected-layout-segment.mdx,use-selected-layout-segments.mdx,userAgent.mdx}|01-app/03-api-reference/05-config/01-next-config-js:{adapterPath.mdx,allowedDevOrigins.mdx,appDir.mdx,assetPrefix.mdx,authInterrupts.mdx,basePath.mdx,cacheComponents.mdx,cacheHandlers.mdx,cacheLife.mdx,compress.mdx,crossOrigin.mdx,cssChunking.mdx,deploymentId.mdx,devIndicators.mdx,distDir.mdx,env.mdx,expireTime.mdx,exportPathMap.mdx,generateBuildId.mdx,generateEtags.mdx,headers.mdx,htmlLimitedBots.mdx,httpAgentOptions.mdx,images.mdx,incrementalCacheHandlerPath.mdx,inlineCss.mdx,logging.mdx,mdxRs.mdx,onDemandEntries.mdx,optimizePackageImports.mdx,output.mdx,pageExtensions.mdx,poweredByHeader.mdx,productionBrowserSourceMaps.mdx,proxyClientMaxBodySize.mdx,reactCompiler.mdx,reactMaxHeadersLength.mdx,reactStrictMode.mdx,redirects.mdx,rewrites.mdx,sassOptions.mdx,serverActions.mdx,serverComponentsHmrCache.mdx,serverExternalPackages.mdx,staleTimes.mdx,staticGeneration.mdx,taint.mdx,trailingSlash.mdx,transpilePackages.mdx,turbopack.mdx,turbopackFileSystemCache.mdx,turbopackIgnoreIssue.mdx,typedRoutes.mdx,typescript.mdx,urlImports.mdx,useLightningcss.mdx,viewTransition.mdx,webVitalsAttribution.mdx,webpack.mdx}|01-app/03-api-reference/05-config:{02-typescript.mdx,03-eslint.mdx}|01-app/03-api-reference/06-cli:{create-next-app.mdx,next.mdx}|01-app/03-api-reference/07-adapters:{01-configuration.mdx,02-creating-an-adapter.mdx,03-api-reference.mdx,04-testing-adapters.mdx,05-routing-with-next-routing.mdx,06-implementing-ppr-in-an-adapter.mdx,07-runtime-integration.mdx,08-invoking-entrypoints.mdx,09-output-types.mdx,10-routing-information.mdx,11-use-cases.mdx}|02-pages/01-getting-started:{01-installation.mdx,02-project-structure.mdx,04-images.mdx,05-fonts.mdx,06-css.mdx,11-deploying.mdx}|02-pages/02-guides:{analytics.mdx,authentication.mdx,babel.mdx,ci-build-caching.mdx,content-security-policy.mdx,css-in-js.mdx,custom-server.mdx,debugging.mdx,draft-mode.mdx,environment-variables.mdx,forms.mdx,incremental-static-regeneration.mdx,instrumentation.mdx,internationalization.mdx,lazy-loading.mdx,mdx.mdx,multi-zones.mdx,open-telemetry.mdx,package-bundling.mdx,post-css.mdx,preview-mode.mdx,production-checklist.mdx,redirecting.mdx,sass.mdx,scripts.mdx,self-hosting.mdx,static-exports.mdx,tailwind-v3-css.mdx,third-party-libraries.mdx}|02-pages/02-guides/migrating:{app-router-migration.mdx,from-create-react-app.mdx,from-vite.mdx}|02-pages/02-guides/testing:{cypress.mdx,jest.mdx,playwright.mdx,vitest.mdx}|02-pages/02-guides/upgrading:{codemods.mdx,version-10.mdx,version-11.mdx,version-12.mdx,version-13.mdx,version-14.mdx,version-9.mdx}|02-pages/03-building-your-application/01-routing:{01-pages-and-layouts.mdx,02-dynamic-routes.mdx,03-linking-and-navigating.mdx,05-custom-app.mdx,06-custom-document.mdx,07-api-routes.mdx,08-custom-error.mdx}|02-pages/03-building-your-application/02-rendering:{01-server-side-rendering.mdx,02-static-site-generation.mdx,04-automatic-static-optimization.mdx,05-client-side-rendering.mdx}|02-pages/03-building-your-application/03-data-fetching:{01-get-static-props.mdx,02-get-static-paths.mdx,03-forms-and-mutations.mdx,03-get-server-side-props.mdx,05-client-side.mdx}|02-pages/03-building-your-application/06-configuring:{12-error-handling.mdx}|02-pages/04-api-reference:{06-edge.mdx,08-turbopack.mdx}|02-pages/04-api-reference/01-components:{font.mdx,form.mdx,head.mdx,image-legacy.mdx,image.mdx,link.mdx,script.mdx}|02-pages/04-api-reference/02-file-conventions:{instrumentation.mdx,proxy.mdx,public-folder.mdx,src-folder.mdx}|02-pages/04-api-reference/03-functions:{get-initial-props.mdx,get-server-side-props.mdx,get-static-paths.mdx,get-static-props.mdx,next-request.mdx,next-response.mdx,use-params.mdx,use-report-web-vitals.mdx,use-router.mdx,use-search-params.mdx,userAgent.mdx}|02-pages/04-api-reference/04-config/01-next-config-js:{adapterPath.mdx,allowedDevOrigins.mdx,assetPrefix.mdx,basePath.mdx,bundlePagesRouterDependencies.mdx,compress.mdx,crossOrigin.mdx,deploymentId.mdx,devIndicators.mdx,distDir.mdx,env.mdx,exportPathMap.mdx,generateBuildId.mdx,generateEtags.mdx,headers.mdx,httpAgentOptions.mdx,images.mdx,logging.mdx,onDemandEntries.mdx,optimizePackageImports.mdx,output.mdx,pageExtensions.mdx,poweredByHeader.mdx,productionBrowserSourceMaps.mdx,proxyClientMaxBodySize.mdx,reactStrictMode.mdx,redirects.mdx,rewrites.mdx,serverExternalPackages.mdx,trailingSlash.mdx,transpilePackages.mdx,turbopack.mdx,typescript.mdx,urlImports.mdx,useLightningcss.mdx,webVitalsAttribution.mdx,webpack.mdx}|02-pages/04-api-reference/04-config:{01-typescript.mdx,02-eslint.mdx}|02-pages/04-api-reference/05-cli:{create-next-app.mdx,next.mdx}|02-pages/04-api-reference/06-adapters:{01-configuration.mdx,02-creating-an-adapter.mdx,03-api-reference.mdx,04-testing-adapters.mdx,05-routing-with-next-routing.mdx,06-implementing-ppr-in-an-adapter.mdx,07-runtime-integration.mdx,08-invoking-entrypoints.mdx,09-output-types.mdx,10-routing-information.mdx,11-use-cases.mdx}|03-architecture:{accessibility.mdx,fast-refresh.mdx,nextjs-compiler.mdx,supported-browsers.mdx}|04-community:{01-contribution-guide.mdx,02-rspack.mdx}<!-- NEXT-AGENTS-MD-END -->
+Keep diffs focused and preserve existing patterns. Do not reformat or refactor unrelated files.

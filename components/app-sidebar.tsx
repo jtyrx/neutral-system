@@ -1,8 +1,8 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import {useSyncExternalStore, type ReactNode} from 'react'
 import Link from 'next/link'
-import { BookOpen, Home, Layers, Settings, Sliders } from 'lucide-react'
+import { BookOpen, Check, Home, Layers, Settings, Sliders } from 'lucide-react'
 
 import {
   Sidebar,
@@ -29,6 +29,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {ControlCenter} from '@/components/control-center/ControlCenter'
+import {ControlCenterElevationProvider} from '@/components/control-center/debug/ControlCenterElevationProvider'
+import {ControlCenterDebugGate} from '@/components/control-center/debug/ControlCenterDebugGate'
+import {NeutralWorkbenchProvider} from '@/components/providers/NeutralWorkbenchProvider'
+import {
+  dockElevationDebugEnabled,
+  subscribeDockElevationDebug,
+  toggleDockElevationDebugOptIn,
+} from '@/lib/debug/dockElevationDebug'
 
 type AppLayoutShellProps = {
   children: ReactNode
@@ -58,28 +67,60 @@ export function AppLayoutShell({
         ? {closeOnLoadDelayMs: sidebarCloseOnLoadDelayMs}
         : {})}
     >
-      <AppSidebar />
-      <SidebarInset
-        id="nsb-inset"
-        className="min-h-svh flex-1 flex-col bg-(--color-surface-sunken) text-(--color-text-default)"
-      >
-        <header
-          id="nsb-chrome-header"
-          className="border-b border-hairline bg-(--color-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl"
-        >
-          <div className="mx-auto flex h-9 items-center gap-2 sm:px-0">
-            <SidebarTrigger />
-            <p className="eyebrow hidden text-default sm:block">Builder</p>
-          </div>
-        </header>
-        <div
-          id="nsb-viewport"
-          className="@container/nsb-workbench min-h-0 min-w-0 flex-1 z-0"
-        >
-          {children}
-        </div>
-      </SidebarInset>
+      <ControlCenterElevationProvider>
+        <NeutralWorkbenchProvider>
+          <AppSidebar />
+          <SidebarInset
+            id="nsb-inset"
+            className="min-h-svh flex-1 flex-col bg-(--color-surface-sunken) text-(--color-text-default)"
+          >
+            <header
+              id="nsb-chrome-header"
+              className="border-b border-hairline bg-(--color-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl"
+            >
+              <div className="mx-auto flex h-9 items-center gap-2 sm:px-0">
+                <SidebarTrigger />
+                <p className="eyebrow hidden text-default sm:block">Builder</p>
+              </div>
+            </header>
+            <div
+              id="nsb-viewport"
+              className="@container/nsb-workbench min-h-0 min-w-0 flex-1 z-0 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]"
+            >
+              {children}
+            </div>
+            <ControlCenter />
+          </SidebarInset>
+        </NeutralWorkbenchProvider>
+        <ControlCenterDebugGate />
+      </ControlCenterElevationProvider>
     </SidebarProvider>
+  )
+}
+
+function SidebarDockElevationDebugMenuItem() {
+  const enabled = useSyncExternalStore(
+    subscribeDockElevationDebug,
+    dockElevationDebugEnabled,
+    () => false,
+  )
+  if (process.env.NODE_ENV !== 'development') return null
+  return (
+    <>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        onClick={() => {
+          toggleDockElevationDebugOptIn()
+        }}
+      >
+        <span className="flex min-w-0 flex-1 items-center gap-2">
+          <span className="flex size-4 shrink-0 justify-center">
+            {enabled ? <Check className="size-4" aria-hidden /> : null}
+          </span>
+          <span className="min-w-0">Dock blur tuning</span>
+        </span>
+      </DropdownMenuItem>
+    </>
   )
 }
 
@@ -148,11 +189,11 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={<SidebarMenuButton tooltip="Settings" />}
-              >
-                <Settings />
-                <span>Settings</span>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton tooltip="Settings">
+                  <Settings />
+                  <span>Settings</span>
+                </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="end">
                 <DropdownMenuLabel>Settings</DropdownMenuLabel>
@@ -161,6 +202,7 @@ export function AppSidebar() {
                 <DropdownMenuItem>Keyboard shortcuts</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>About</DropdownMenuItem>
+                <SidebarDockElevationDebugMenuItem />
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

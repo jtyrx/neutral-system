@@ -34,7 +34,7 @@ function frameClass(themeContext: NeutralTableThemeContext | undefined): string 
     case 'dark':
       return 'border-[var(--chrome-sky-border)] bg-[var(--chrome-sky-surface-faint)] ring-1 ring-[var(--chrome-sky-ring-faint)]'
     default:
-      return 'border-hairline bg-[var(--ns-surface-raised)]'
+      return 'border-hairline bg-raised'
   }
 }
 
@@ -77,7 +77,7 @@ function NeutralScaleUsageTableInner({
         role="region"
         aria-label="Neutral scale usage — full ladder with mapped indices highlighted"
       >
-        <table className="w-full min-w-lg text-left text-[0.65rem]">
+        <table className="w-full min-w-lg text-left text-micro">
           <thead className="border-b border-hairline text-muted">
             <tr>
               <th className="px-2 py-1.5 font-medium">Mapping</th>

@@ -58,7 +58,7 @@ export function PreviewContextPanel({
 
   return (
     <div
-      className="border-b border-hairline bg-(--ns-app-bg) backdrop-blur-xl supports-backdrop-filter:bg-(--ns-app-bg)"
+      className="border-b border-hairline bg-sunken backdrop-blur-xl supports-backdrop-filter:bg-sunken"
       role="region"
       aria-label="Preview context — Light versus Dark Elevated comparison"
     >

@@ -51,7 +51,7 @@ export const OklchLauncherButton = memo(forwardRef<
           <Palette aria-hidden />
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">Open OKLCH picker</TooltipContent>
+      <TooltipContent side="top" sideOffset={6}><span className="text-label">Open OKLCH picker</span></TooltipContent>
     </Tooltip>
   )
 }))
@@ -110,7 +110,7 @@ export const ThemeCycleButton = memo(function ThemeCycleButton() {
           {icon}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="top">Cycle theme (light - dark - system)</TooltipContent>
+      <TooltipContent side="top" sideOffset={6}><span className="text-label">Cycle theme (light - dark - system)</span></TooltipContent>
     </Tooltip>
   )
 })

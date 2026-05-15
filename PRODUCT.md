@@ -1,5 +1,7 @@
 # Product
 
+> **On-demand reference.** Load this file explicitly when working on product strategy, user journey, or feature prioritization decisions. It is not auto-loaded on every agent turn.
+
 ## Register
 
 product

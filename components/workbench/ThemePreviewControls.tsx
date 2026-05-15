@@ -1,14 +1,22 @@
 'use client'
 
 import {memo, useCallback} from 'react'
+import {Check, ChevronDown} from 'lucide-react'
 
 import {GlobalThemeToggleButton} from '@/components/workbench/GlobalThemeToggleButton'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuList,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {cn} from '@/lib/cn'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
 
 type Props = {
-  previewTheme: 'light' | 'dark'
-  onPreviewTheme: (t: 'light' | 'dark', label?: string) => void
   contrastEmphasis: ContrastEmphasis
   onContrastEmphasis: (e: ContrastEmphasis, label?: string) => void
   showContrastPairs?: boolean
@@ -17,11 +25,6 @@ type Props = {
   dense?: boolean
   /** When false, only contrast mapping is shown (e.g. split comparison already shows both themes). */
   showThemeToggle?: boolean
-}
-
-const THEME_LABEL: Record<'light' | 'dark', string> = {
-  light: 'Light',
-  dark: 'Dark elevated',
 }
 
 const EMPHASIS_ORDER: ContrastEmphasis[] = ['subtle', 'default', 'strong', 'inverse']
@@ -33,18 +36,20 @@ const EMPHASIS_LABEL: Record<ContrastEmphasis, string> = {
   inverse: 'Inverse',
 }
 
+const EMPHASIS_DESC: Record<ContrastEmphasis, string> = {
+  subtle: 'Lower contrast, softer visual weight.',
+  default: 'Balanced contrast for general use.',
+  strong: 'Higher contrast, stronger visual weight.',
+  inverse: 'Inverted contrast mapping.',
+}
+
 function ThemePreviewControlsInner({
-  previewTheme,
-  onPreviewTheme,
   contrastEmphasis,
   onContrastEmphasis,
   showContrastPairs,
   onShowContrastPairs,
   dense,
-  showThemeToggle = true,
 }: Props) {
-  const onLight = useCallback(() => onPreviewTheme('light', THEME_LABEL.light), [onPreviewTheme])
-  const onDark = useCallback(() => onPreviewTheme('dark', THEME_LABEL.dark), [onPreviewTheme])
   const onSubtle = useCallback(
     () => onContrastEmphasis('subtle', `Contrast · ${EMPHASIS_LABEL.subtle}`),
     [onContrastEmphasis],
@@ -69,80 +74,66 @@ function ThemePreviewControlsInner({
     inverse: onInverse,
   }
 
-  const pad = dense ? 'px-3 py-1' : 'px-4 py-1.5'
   return (
     <div className={cn('flex flex-wrap items-center gap-2', !dense && 'gap-3')}>
       <div
-        className="flex items-center gap-2 border-r border-(--ns-hairline) pr-2 sm:pr-2.5"
+        className="flex items-center gap-2 border-r border-hairline pr-2 sm:pr-2.5"
         role="group"
         aria-label="Application color theme"
       >
         <GlobalThemeToggleButton />
       </div>
-      {showThemeToggle ? (
-        <div
-          className="ns-control-group"
-          role="group"
-          aria-label="Preview focus theme"
-        >
-          <button
-            type="button"
-            onClick={onLight}
-            className={cn(
-              'ns-control-item text-xs',
-              pad,
-              previewTheme === 'light'
-                ? 'bg-(--ns-overlay-strong) text-(--ns-text)'
-                : 'text-(--ns-text-muted) hover:text-(--ns-text)',
-            )}
-          >
-            {THEME_LABEL.light}
-          </button>
-          <button
-            type="button"
-            onClick={onDark}
-            className={cn(
-              'ns-control-item text-xs',
-              pad,
-              previewTheme === 'dark'
-                ? 'bg-(--ns-overlay-strong) text-(--ns-text)'
-                : 'text-(--ns-text-muted) hover:text-(--ns-text)',
-            )}
-          >
-            {THEME_LABEL.dark}
-          </button>
-        </div>
-      ) : null}
       {onShowContrastPairs ? (
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-(--ns-text-subtle)">
+        <label className="flex cursor-pointer items-center gap-2 text-xs text-subtle">
           <input
             type="checkbox"
-            className="rounded border-(--ns-hairline-strong) bg-(--ns-surface-raised)"
+            className="rounded border-hairline-strong bg-raised"
             checked={showContrastPairs ?? false}
             onChange={(e) => onShowContrastPairs(e.target.checked)}
           />
           Contrast pairs
         </label>
       ) : null}
-      <div className="ns-control-group">
-        {EMPHASIS_ORDER.map((e) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <button
-            key={e}
             type="button"
-            onClick={emphasisHandler[e]}
-            className={cn(
-              'ns-control-item text-xs capitalize',
-              pad,
-              contrastEmphasis === e
-                ? 'bg-(--ns-overlay-strong) text-(--ns-text)'
-                : 'text-(--ns-text-muted) hover:text-(--ns-text)',
-            )}
-            aria-pressed={contrastEmphasis === e}
+            className="group flex items-center gap-1.5 rounded-xl border border-transparent bg-transparent px-2.5 py-1.5 text-xs font-light text-subtle transition-colors hover:bg-chip hover:text-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
           >
-            {EMPHASIS_LABEL[e]}
+            <span>Contrast</span>
+            <span className="font-medium text-default">
+              {EMPHASIS_LABEL[contrastEmphasis]}
+            </span>
+            <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
           </button>
-        ))}
-      </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent variant="panel" align="start" sideOffset={8}>
+          <DropdownMenuLabel>Contrast mapping</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuList>
+            {EMPHASIS_ORDER.map((e) => {
+              const selected = contrastEmphasis === e
+              return (
+                <DropdownMenuItem
+                  key={e}
+                  onClick={emphasisHandler[e]}
+                  data-active={selected ? 'true' : undefined}
+                >
+                  <div>
+                    <div className="text-sm font-normal">{EMPHASIS_LABEL[e]}</div>
+                    <p className="text-xs text-muted-foreground">{EMPHASIS_DESC[e]}</p>
+                  </div>
+                  {selected ? (
+                    <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                  ) : (
+                    <span className="size-4 shrink-0" aria-hidden />
+                  )}
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuList>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

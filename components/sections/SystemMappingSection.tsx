@@ -53,7 +53,7 @@ function NumField({
   return (
     <label className="space-y-1">
       <span className="ns-label">{label}</span>
-      {hint ? <span className="block text-[0.65rem] leading-snug text-disabled">{hint}</span> : null}
+      {hint ? <span className="block text-micro leading-snug text-disabled">{hint}</span> : null}
       <Input
         type="number"
         min={min}
@@ -184,7 +184,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Surface</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Surface / background ramp</p>
+                <p className="mt-0.5 text-micro text-muted">Surface / background ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -218,7 +218,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3 border-t border-(--chrome-amber-border-faint) pt-5">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Border</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Borders & dividers</p>
+                <p className="mt-0.5 text-micro text-muted">Borders & dividers</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -251,7 +251,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3 border-t border-(--chrome-amber-border-faint) pt-5">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Text</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Foreground & secondary type</p>
+                <p className="mt-0.5 text-micro text-muted">Foreground & secondary type</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -301,7 +301,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Surface</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Dark-edge anchored surface ramp</p>
+                <p className="mt-0.5 text-micro text-muted">Dark-edge anchored surface ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -335,7 +335,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3 border-t border-(--chrome-sky-border-faint) pt-5">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Border</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Hairline / divider ramp</p>
+                <p className="mt-0.5 text-micro text-muted">Hairline / divider ramp</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField
@@ -368,7 +368,7 @@ function SystemMappingSectionInner({
             <div className="space-y-3 border-t border-(--chrome-sky-border-faint) pt-5">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Text</h4>
-                <p className="mt-0.5 text-[0.65rem] text-muted">Type ramp (stroke-text picker)</p>
+                <p className="mt-0.5 text-micro text-muted">Type ramp (stroke-text picker)</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-1">
                 <NumField

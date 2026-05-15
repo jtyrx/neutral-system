@@ -12,14 +12,19 @@ import {
 } from 'react'
 
 import {useControlCenterViewportBounds} from '@/hooks/useControlCenterViewportMaxHeight'
+import {useControlCenterMeasurement} from '@/hooks/useControlCenterMeasurement'
 import {ControlCenterPanel} from '@/components/control-center/panel/ControlCenterPanel'
 import {
   useDockElevationTuning,
   isDockChromeTuningEnabled,
   isDockHaloBarEnabled,
 } from '@/components/control-center/debug/ControlCenterElevationProvider'
-import {DockRampSegments} from '@/components/control-center/dock/DockRampSegments'
-import {OklchLauncherButton, ThemeCycleButton} from '@/components/control-center/dock/DockActionButton'
+import {RampSwatchRail} from '@/components/control-center/ramp/RampSwatchRail'
+import {
+  OklchLauncherButton,
+  ThemeCycleButton,
+} from '@/components/control-center/dock/DockActionButton'
+import {RampRangeButton} from '@/components/control-center/dock/DockRampRangeButton'
 import {
   DockMagnifyItem,
   MagnifyingDockShell,
@@ -37,6 +42,34 @@ type ViewportStyle = CSSProperties & {
 
 const THEME_DOCK_MAGNIFY_INDEX = 10000
 
+const SECONDARY_DOCK_INITIAL = {
+  opacity: 0,
+  x: -18,
+  scaleX: 0.12,
+  filter: 'blur(8px)',
+  clipPath: 'inset(0 100% 0 0 round 1rem)',
+}
+const SECONDARY_DOCK_ANIMATE = {
+  opacity: 1,
+  x: 0,
+  scaleX: 1,
+  filter: 'blur(0px)',
+  clipPath: 'inset(0 0% 0 0 round 1rem)',
+}
+const SECONDARY_DOCK_EXIT = {
+  opacity: 0,
+  x: -12,
+  scaleX: 0.16,
+  filter: 'blur(6px)',
+  clipPath: 'inset(0 100% 0 0 round 1rem)',
+}
+const SECONDARY_DOCK_TRANSITION = {
+  duration: 0.24,
+  ease: easeSurface,
+  opacity: {duration: 0.14, ease: easeSurface},
+  filter: {duration: 0.16, ease: easeSurface},
+}
+
 const EXPANDED_INITIAL = {opacity: 0}
 const EXPANDED_ANIMATE = {opacity: 1}
 const EXPANDED_EXIT = {opacity: 0}
@@ -44,41 +77,11 @@ const REST_ANIMATE = {opacity: 1, y: 0, scale: 1}
 const REST_EXIT = {opacity: 0, y: 18, scale: 0.98}
 const REST_EXIT_REDUCED = {opacity: 0}
 
-const PICKER_OVERLAY_SELECTOR = '[data-slot="dock-picker-overlay-tier"]'
-const PICKER_CONTROLS_SELECTOR = '[data-slot="dock-picker-controls-tier"]'
-const TABLIST_SELECTOR = '[data-slot="control-center-tablist"]'
-const TABPANEL_INNER_SELECTOR = '[data-slot="tabpanel-inner"]'
-const REST_STAGE_SELECTOR = '[data-slot="cc-rest-stage"]'
-
-function cssPx(value: string, fallback = 0) {
-  const parsed = Number.parseFloat(value)
-  return Number.isFinite(parsed) ? parsed : fallback
-}
-
-function measureExpandedContentHeight(
-  viewport: HTMLElement,
-  preview: HTMLElement,
-  controls: HTMLElement,
-) {
-  const tablist = viewport.querySelector<HTMLElement>(TABLIST_SELECTOR)
-  const inner = viewport.querySelector<HTMLElement>(TABPANEL_INNER_SELECTOR)
-  const activePanel = inner?.parentElement as HTMLElement | null
-  const activePanelStyle = activePanel ? getComputedStyle(activePanel) : null
-  const controlsStyle = getComputedStyle(controls)
-
-  return (
-    preview.offsetHeight +
-    cssPx(controlsStyle.paddingTop) +
-    (tablist?.offsetHeight ?? 32) +
-    (activePanelStyle ? cssPx(activePanelStyle.paddingTop, 10) : 10) +
-    (inner?.scrollHeight ?? 0) +
-    (activePanelStyle ? cssPx(activePanelStyle.paddingBottom, 12) : 12)
-  )
-}
 
 /** Picker dock: OKLCH launcher, live ramp swatch, theme cycle; expands to steps controls. */
 export function ControlCenter() {
   const [expanded, setExpanded] = useState(false)
+  const [swatchDockOpen, setSwatchDockOpen] = useState(false)
   const reduceMotion = useDockReducedMotion()
   const launcherRef = useRef<HTMLButtonElement>(null)
   const dockShellRef = useRef<HTMLDivElement>(null)
@@ -89,8 +92,7 @@ export function ControlCenter() {
   /** Collapsed halo uses negative inset; keep that state from clipping the blur envelope. */
   const collapsedHaloNeedsViewportBleed = isDockHaloBarEnabled(halo)
 
-  // Content-driven max-height state
-  const [contentHeight, setContentHeight] = useState(0)
+  const contentHeight = useControlCenterMeasurement(viewportRef, expanded)
   const [isTransitioning, setIsTransitioning] = useState(false)
   // Last settled max-height — held during AnimatePresence exit so exiting content isn't clipped
   const [prevMaxHeight, setPrevMaxHeight] = useState(0)
@@ -105,89 +107,6 @@ export function ControlCenter() {
     contentHeightRef.current = contentHeight
     availableHeightRef.current = viewportBounds?.maxHeight ?? 0
   }, [contentHeight, expanded, viewportBounds])
-
-  // Observe active content height. Re-attaches whenever expanded changes.
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport) return
-
-    let ro: ResizeObserver | null = null
-    let mo: MutationObserver | null = null
-    let measureFrame = 0
-
-    const cancelMeasure = () => {
-      if (measureFrame === 0) return
-      cancelAnimationFrame(measureFrame)
-      measureFrame = 0
-    }
-
-    const cleanupObservers = () => {
-      ro?.disconnect()
-      mo?.disconnect()
-      ro = null
-      mo = null
-    }
-
-    const cleanup = () => {
-      cancelMeasure()
-      cleanupObservers()
-    }
-
-    const scheduleMeasure = (measure: () => void) => {
-      cancelMeasure()
-      measureFrame = requestAnimationFrame(() => {
-        measureFrame = 0
-        measure()
-      })
-    }
-
-    const commitContentHeight = (next: number) => {
-      setContentHeight((prev) => (prev === next ? prev : next))
-    }
-
-    const attachObservers = () => {
-      cancelMeasure()
-      cleanupObservers()
-      if (expanded) {
-        const preview = viewport.querySelector<HTMLElement>(
-          PICKER_OVERLAY_SELECTOR,
-        )
-        const controls = viewport.querySelector<HTMLElement>(
-          PICKER_CONTROLS_SELECTOR,
-        )
-        if (!preview || !controls) {
-          // Panel not mounted yet (AnimatePresence wait mode); watch for it
-          mo = new MutationObserver(attachObservers)
-          mo.observe(viewport, {childList: true, subtree: false})
-          return
-        }
-        const measure = () => {
-          commitContentHeight(
-            measureExpandedContentHeight(viewport, preview, controls),
-          )
-        }
-        const schedule = () => scheduleMeasure(measure)
-        ro = new ResizeObserver(schedule)
-        ro.observe(preview)
-        ro.observe(controls)
-        // Catch tab switches (panel mount/unmount) and accordion-style expansions
-        mo = new MutationObserver(schedule)
-        mo.observe(controls, {childList: true, subtree: true})
-        measure()
-      } else {
-        const stage = viewport.querySelector<HTMLElement>(REST_STAGE_SELECTOR)
-        if (!stage) return
-        const measure = () => commitContentHeight(stage.offsetHeight)
-        const schedule = () => scheduleMeasure(measure)
-        ro = new ResizeObserver(schedule)
-        ro.observe(stage)
-        measure()
-      }
-    }
-
-    attachObservers()
-    return cleanup
-  }, [expanded])
 
   const justSettledRef = useRef(false)
   const heightMV = useMotionValue(0)
@@ -221,7 +140,9 @@ export function ControlCenter() {
       return expanded ? available : prevMaxHeight
     }
     // Stable: clamp measured content to available viewport; +2px avoids edge-case scrollbar.
-    return contentHeight > 0 ? Math.min(contentHeight + 2, available) : available
+    return contentHeight > 0
+      ? Math.min(contentHeight + 2, available)
+      : available
   }, [viewportBounds, contentHeight, isTransitioning, expanded, prevMaxHeight])
 
   const viewportMaxStyle = useMemo((): ViewportStyle | undefined => {
@@ -274,8 +195,13 @@ export function ControlCenter() {
   }, [])
 
   const open = useCallback(() => {
+    setSwatchDockOpen(false)
     setIsTransitioning(true)
     setExpanded(true)
+  }, [])
+
+  const toggleSwatchDock = useCallback(() => {
+    setSwatchDockOpen((open) => !open)
   }, [])
 
   const shellStyle = useMemo((): CSSProperties | undefined => {
@@ -316,25 +242,82 @@ export function ControlCenter() {
     [reduceMotion],
   )
 
-  const dockToolbar = useMemo(() => (
-    <MagnifyingDockShell shellStyle={shellStyle}>
-      <DockMagnifyItem
-        magnifyIndex={0}
-        className="shrink-0"
-        data-dock-item="oklch-launcher"
+  const secondaryDockInitial = reduceMotion ? false : SECONDARY_DOCK_INITIAL
+  const secondaryDockIn = reduceMotion ? undefined : SECONDARY_DOCK_ANIMATE
+  const secondaryDockExit = reduceMotion ? undefined : SECONDARY_DOCK_EXIT
+  const secondaryDockTransition = reduceMotion
+    ? undefined
+    : SECONDARY_DOCK_TRANSITION
+
+  const dockToolbar = useMemo(
+    () => (
+      <motion.div
+        data-slot="dock-system"
+        data-swatch-dock-open={swatchDockOpen ? 'true' : undefined}
+        className="cc-dock-system"
+        layout="position"
+        transition={restTransition}
       >
-        <OklchLauncherButton ref={launcherRef} onOpen={open} />
-      </DockMagnifyItem>
-      <DockRampSegments startMagnifyIndex={1} />
-      <DockMagnifyItem
-        magnifyIndex={THEME_DOCK_MAGNIFY_INDEX}
-        className="shrink-0"
-        data-dock-item="theme-cycle"
-      >
-        <ThemeCycleButton />
-      </DockMagnifyItem>
-    </MagnifyingDockShell>
-  ), [open, shellStyle])
+        <MagnifyingDockShell shellStyle={shellStyle}>
+          <DockMagnifyItem
+            magnifyIndex={0}
+            className="shrink-0"
+            data-dock-item="oklch-launcher"
+          >
+            <OklchLauncherButton ref={launcherRef} onOpen={open} />
+          </DockMagnifyItem>
+          <DockMagnifyItem
+            key="swatch"
+            magnifyIndex={1}
+            className="shrink-0"
+            data-dock-item="ramp-range"
+          >
+            <RampRangeButton
+              aria-label={
+                swatchDockOpen ? 'Hide ramp rail dock' : 'Show ramp rail dock'
+              }
+              aria-pressed={swatchDockOpen}
+              onOpen={toggleSwatchDock}
+            />
+          </DockMagnifyItem>
+          <DockMagnifyItem
+            magnifyIndex={THEME_DOCK_MAGNIFY_INDEX}
+            className="shrink-0"
+            data-dock-item="theme-cycle"
+          >
+            <ThemeCycleButton />
+          </DockMagnifyItem>
+        </MagnifyingDockShell>
+        <AnimatePresence initial={false}>
+          {swatchDockOpen ? (
+            <motion.div
+              key="secondary-ramp-rail"
+              data-slot="dock-item"
+              data-dock-item="ramp-rail"
+              className="cc-secondary-dock"
+              initial={secondaryDockInitial}
+              animate={secondaryDockIn}
+              exit={secondaryDockExit}
+              transition={secondaryDockTransition}
+            >
+              <RampSwatchRail className="cc-secondary-dock-rail" />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </motion.div>
+    ),
+    [
+      open,
+      restTransition,
+      secondaryDockExit,
+      secondaryDockIn,
+      secondaryDockInitial,
+      secondaryDockTransition,
+      shellStyle,
+      swatchDockOpen,
+      toggleSwatchDock,
+    ],
+  )
 
   return (
     <div

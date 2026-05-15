@@ -89,7 +89,7 @@ function GlobalScaleStripInner({
 
   return (
     <div className="space-y-2">
-      <p className="text-[0.65rem] font-medium tracking-wide text-muted">
+      <p className="text-micro font-medium tracking-wide text-muted">
         {caption}
       </p>
       <div

@@ -28,7 +28,7 @@ export function ThemeRangeBar({steps, darkSegmentLength}: Props) {
           Dark segment ({seg})
         </div>
       </div>
-      <p className="text-[0.65rem] text-muted">
+      <p className="text-micro text-muted">
         Dark elevated mode primarily uses the right-hand segment (last {seg} global steps).
       </p>
     </div>

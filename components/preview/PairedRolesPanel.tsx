@@ -138,7 +138,7 @@ export function PairedRolesPanel({
 
   const shellClass =
     variant === 'split'
-      ? 'rounded-sm border border-hairline bg-[var(--ns-overlay-soft)] px-4 py-3 sm:px-5 sm:py-4'
+      ? 'rounded-sm border border-hairline bg-overlay-soft px-4 py-3 sm:px-5 sm:py-4'
       : 'mt-6 space-y-4 border-t border-hairline pt-6'
 
   return (
@@ -240,7 +240,7 @@ export function PairedRolesPanel({
           advanced ? (
             <div className="space-y-6">
               <div className="space-y-2">
-                <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">
+                <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-amber-text)">
                   Light ramp
                 </p>
                 <UsedNeutralPrimitivesTable
@@ -251,7 +251,7 @@ export function PairedRolesPanel({
                 />
               </div>
               <div className="space-y-2 border-t border-hairline pt-6">
-                <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
+                <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                   Dark elevated ramp
                 </p>
                 <UsedNeutralPrimitivesTable
@@ -339,7 +339,7 @@ export function PairedRolesPanel({
         {inspectionView === 'neutral' && advanced && neutralCtx === 'both' ? (
           <div className="space-y-8">
             <div className="space-y-2">
-              <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">
+              <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-amber-text)">
                 Light ramp
               </p>
               <NeutralScaleReferenceTable
@@ -357,7 +357,7 @@ export function PairedRolesPanel({
               />
             </div>
             <div className="space-y-2 border-t border-hairline pt-6">
-              <p className="text-[0.65rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
+              <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                 Dark elevated ramp
               </p>
               <NeutralScaleReferenceTable

@@ -11,7 +11,6 @@ import {
   type KeyboardEvent,
 } from 'react'
 
-import {DockMagnifyItem} from '@/components/control-center/dock/MagnifyingDockShell'
 import {
   displayLadderIndex,
   RAMP_SWATCH_DOCK_PLACEHOLDER_COUNT,
@@ -38,7 +37,6 @@ type DockRampSegmentModel = {
   facingLabel: string
   hex: string
   index: number
-  magnifyIndex: number
   oklchCss: string
   outOfSrgb: boolean
   title: string
@@ -48,7 +46,6 @@ type DockRampSegmentModel = {
 type DockPlaceholderSegmentModel = {
   dataDockItem: string
   edgeClassName: string
-  magnifyIndex: number
   hasTrailingDivider: boolean
 }
 
@@ -67,31 +64,25 @@ function clampRampIndex(i: number, length: number) {
 const DockRampPlaceholderSegment = memo(function DockRampPlaceholderSegment({
   dataDockItem,
   edgeClassName,
-  magnifyIndex,
   hasTrailingDivider,
 }: DockPlaceholderSegmentModel) {
   return (
-    <DockMagnifyItem
-      magnifyIndex={magnifyIndex}
+    <div
+      role="presentation"
+      data-slot="ramp-swatch"
+      data-ramp-variant="placeholder"
       data-dock-item={dataDockItem}
-      className="cc-dock-ramp-item"
+      className={cn(
+        'ramp-swatch-segment cc-dock-ramp-item cc-dock-ramp-segment cc-dock-ramp-segment-placeholder',
+        edgeClassName,
+        hasTrailingDivider && 'border-r border-hairline/50',
+      )}
     >
-      <div
-        role="presentation"
-        data-slot="ramp-swatch"
-        data-ramp-variant="placeholder"
-        className={cn(
-          'ramp-swatch-segment cc-dock-ramp-segment cc-dock-ramp-segment-placeholder',
-          edgeClassName,
-          hasTrailingDivider && 'border-r border-hairline/50',
-        )}
-      >
-        <span
-          className="cc-ramp-segment-paint-fill bg-(--color-surface-raised)"
-          aria-hidden
-        />
-      </div>
-    </DockMagnifyItem>
+      <span
+        className="cc-ramp-segment-paint-fill bg-(--color-surface-raised)"
+        aria-hidden
+      />
+    </div>
   )
 })
 
@@ -117,7 +108,6 @@ const DockRampSegment = memo(function DockRampSegment({
   hex,
   index,
   isKbd,
-  magnifyIndex,
   oklchCss,
   outOfSrgb,
   previewTheme,
@@ -150,66 +140,55 @@ const DockRampSegment = memo(function DockRampSegment({
   }, [index, onSelect])
 
   return (
-    <DockMagnifyItem
-      magnifyIndex={magnifyIndex}
-      data-dock-item={dataDockItem}
-      className="cc-dock-ramp-item"
-    >
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            ref={bindFocusRef}
-            data-slot="ramp-swatch"
-            data-ramp-variant="live"
-            data-ramp-index={index}
-            data-ramp-theme={previewTheme}
-            data-kbd={isKbd ? 'true' : undefined}
-            title={title}
-            className={cn(
-              'ramp-swatch-segment cc-dock-ramp-segment cc-dock-ramp-segment-live',
-              edgeClassName,
-              hasTrailingDivider && 'border-r border-hairline/50',
-            )}
-            aria-label={ariaLabel}
-            onFocus={handleFocus}
-            onBlur={onBlur}
-            onKeyDown={onKeyDown}
-            onClick={handleClick}
-          >
-            <span
-              className="cc-ramp-segment-paint cc-ramp-segment-paint-fill rounded-dock-item"
-              style={paintStyle}
-              aria-hidden
-            />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" sideOffset={6} className="cc-ramp-tooltip">
-          <p className="cc-ramp-tooltip-title">{facingLabel}</p>
-          <p className="cc-ramp-tooltip-break">{cssName}</p>
-          <p className="cc-ramp-tooltip-muted">
-            ramp index {index}
-            {previewTheme === 'dark' ? ` · dark display ${displayIndex}` : ''}
-          </p>
-          <p className="cc-ramp-tooltip-break">{hex}</p>
-          <p className="cc-ramp-tooltip-break">{oklchCss}</p>
-          {outOfSrgb ? (
-            <p className="cc-ramp-gamut-warning">
-              Out of sRGB (display clipped)
-            </p>
-          ) : null}
-        </TooltipContent>
-      </Tooltip>
-    </DockMagnifyItem>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          ref={bindFocusRef}
+          data-slot="ramp-swatch"
+          data-ramp-variant="live"
+          data-ramp-index={index}
+          data-ramp-theme={previewTheme}
+          data-dock-item={dataDockItem}
+          data-kbd={isKbd ? 'true' : undefined}
+          title={title}
+          className={cn(
+            'ramp-swatch-segment cc-dock-ramp-item cc-dock-ramp-segment cc-dock-ramp-segment-live',
+            edgeClassName,
+            hasTrailingDivider && 'border-r border-hairline/50',
+          )}
+          aria-label={ariaLabel}
+          onFocus={handleFocus}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          onClick={handleClick}
+        >
+          <span
+            className="cc-ramp-segment-paint cc-ramp-segment-paint-fill rounded-dock-item"
+            style={paintStyle}
+            aria-hidden
+          />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" sideOffset={6} className="cc-ramp-tooltip">
+        <p className="cc-ramp-tooltip-title">{facingLabel}</p>
+        <p className="cc-ramp-tooltip-break">{cssName}</p>
+        <p className="cc-ramp-tooltip-muted">
+          ramp index {index}
+          {previewTheme === 'dark' ? ` · dark display ${displayIndex}` : ''}
+        </p>
+        <p className="cc-ramp-tooltip-break">{hex}</p>
+        <p className="cc-ramp-tooltip-break">{oklchCss}</p>
+        {outOfSrgb ? (
+          <p className="cc-ramp-gamut-warning">Out of sRGB (display clipped)</p>
+        ) : null}
+      </TooltipContent>
+    </Tooltip>
   )
 })
 
-/** Per-segment dock items + magnification — use inside `MagnifyingDockShell` after launcher. */
-function DockRampSegmentsInner({
-  startMagnifyIndex = 1,
-}: {
-  startMagnifyIndex?: number
-}) {
+/** Ramp swatch segments — must be placed inside a single `DockMagnifyItem` in the parent. */
+function DockRampSegmentsInner() {
   const wb = useNeutralWorkbenchOptional()
   const [kbdIdx, setKbdIdx] = useState<number | null>(null)
   const kbdIdxRef = useRef<number | null>(null)
@@ -244,10 +223,9 @@ function DockRampSegmentsInner({
     return Array.from({length: PLACEHOLDER_COUNT}, (_, i) => ({
       dataDockItem: `ramp-placeholder-${i}`,
       edgeClassName: dockSegmentEdgeClassName(i, last),
-      magnifyIndex: startMagnifyIndex + i,
       hasTrailingDivider: i !== last,
     }))
-  }, [startMagnifyIndex])
+  }, [])
 
   const liveSegments = useMemo((): DockRampSegmentModel[] => {
     const last = ramp.length - 1
@@ -264,14 +242,13 @@ function DockRampSegmentsInner({
         facingLabel,
         hex: s.serialized.hex,
         index: s.index,
-        magnifyIndex: startMagnifyIndex + i,
         oklchCss: s.serialized.oklchCss,
         outOfSrgb: !s.serialized.inSrgbGamut,
         title: `${facingLabel} · ${cssName}`,
         hasTrailingDivider: i !== last,
       }
     })
-  }, [ramp, previewTheme, startMagnifyIndex, tier1Mode])
+  }, [ramp, previewTheme, tier1Mode])
 
   const setKeyboardIndex = useCallback((next: number | null) => {
     kbdIdxRef.current = next
@@ -353,19 +330,19 @@ function DockRampSegmentsInner({
 
   if (!wb || ramp.length === 0) {
     return (
-      <>
+      <div className="flex flex-row items-end h-full w-full">
         {placeholderSegments.map((segment) => (
           <DockRampPlaceholderSegment
             key={segment.dataDockItem}
             {...segment}
           />
         ))}
-      </>
+      </div>
     )
   }
 
   return (
-    <>
+    <div className="flex flex-row items-end h-full w-full">
       {liveSegments.map((segment, i) => (
         <DockRampSegment
           key={segment.index}
@@ -380,7 +357,7 @@ function DockRampSegmentsInner({
           onSelect={pickGlobalSwatch}
         />
       ))}
-    </>
+    </div>
   )
 }
 

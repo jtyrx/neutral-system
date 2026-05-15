@@ -1,0 +1,225 @@
+<h2>How should the two swatches be arranged inside the button?</h2>
+<p class="subtitle">The button is 44×44px. Each option keeps both swatches legible at dock scale.</p>
+
+<style>
+  .demo-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 8px 0 24px;
+  }
+
+  .demo-shell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Button shell replicating cc-dock-action */
+  .btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(50,50,50,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    padding: 7px;
+  }
+
+  /* Light bg variant */
+  .btn-light {
+    background: rgba(235,235,235,0.95);
+    border-color: rgba(0,0,0,0.1);
+  }
+
+  /* A: Side by side */
+  .layout-split {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    gap: 3px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .layout-split .sw {
+    flex: 1;
+    height: 100%;
+    border-radius: 5px;
+  }
+
+  /* B: Stacked */
+  .layout-stack {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 3px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .layout-stack .sw {
+    flex: 1;
+    width: 100%;
+    border-radius: 5px;
+  }
+
+  /* C: Diagonal */
+  .layout-diag {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .layout-diag .sw-top {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+  .layout-diag .sw-bot {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  }
+
+  /* Swatch colors - dark theme */
+  .c-low-dark  { background: oklch(94% 0.012 260); }
+  .c-high-dark { background: oklch(22% 0.018 260); }
+  /* Swatch colors - light theme (inverted perception) */
+  .c-low-light  { background: oklch(94% 0.012 260); }
+  .c-high-light { background: oklch(22% 0.018 260); }
+
+  .demo-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+  }
+  .theme-label {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+  }
+
+  .cards { gap: 20px; }
+  .card { padding: 24px 20px; }
+  .card-image {
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .label-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(110,180,255,0.15);
+    color: rgba(110,180,255,0.9);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+</style>
+
+<div class="cards">
+
+  <!-- Option A: Side by side -->
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="demo-row">
+        <div class="demo-shell">
+          <div class="btn">
+            <div class="layout-split">
+              <div class="sw c-low-dark"></div>
+              <div class="sw c-high-dark"></div>
+            </div>
+          </div>
+          <span class="theme-label">dark ui</span>
+        </div>
+        <div class="demo-shell">
+          <div class="btn btn-light">
+            <div class="layout-split">
+              <div class="sw c-low-light"></div>
+              <div class="sw c-high-light"></div>
+            </div>
+          </div>
+          <span class="theme-label">light ui</span>
+        </div>
+      </div>
+    </div>
+    <div class="label-tag">Option A</div>
+    <h3>Side by side (vertical split)</h3>
+    <p>Lowest on the left, highest on the right — mirrors the horizontal direction of the ramp swatches. Reads like a condensed before/after.</p>
+  </div>
+
+  <!-- Option B: Stacked -->
+  <div class="card" data-choice="stack" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="demo-row">
+        <div class="demo-shell">
+          <div class="btn">
+            <div class="layout-stack">
+              <div class="sw c-low-dark"></div>
+              <div class="sw c-high-dark"></div>
+            </div>
+          </div>
+          <span class="theme-label">dark ui</span>
+        </div>
+        <div class="demo-shell">
+          <div class="btn btn-light">
+            <div class="layout-stack">
+              <div class="sw c-low-light"></div>
+              <div class="sw c-high-light"></div>
+            </div>
+          </div>
+          <span class="theme-label">light ui</span>
+        </div>
+      </div>
+    </div>
+    <div class="label-tag">Option B</div>
+    <h3>Stacked (horizontal split)</h3>
+    <p>Lowest on top, highest on bottom. Reads more like a gradient strip — suggests a vertical scale. Feels less directly linked to the horizontal ramp.</p>
+  </div>
+
+  <!-- Option C: Diagonal -->
+  <div class="card" data-choice="diagonal" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="demo-row">
+        <div class="demo-shell">
+          <div class="btn">
+            <div class="layout-diag">
+              <div class="sw-top c-low-dark"></div>
+              <div class="sw-bot c-high-dark"></div>
+            </div>
+          </div>
+          <span class="theme-label">dark ui</span>
+        </div>
+        <div class="demo-shell">
+          <div class="btn btn-light">
+            <div class="layout-diag">
+              <div class="sw-top c-low-light"></div>
+              <div class="sw-bot c-high-light"></div>
+            </div>
+          </div>
+          <span class="theme-label">light ui</span>
+        </div>
+      </div>
+    </div>
+    <div class="label-tag">Option C</div>
+    <h3>Diagonal split</h3>
+    <p>A single diagonal line divides the two swatches. More graphic — no gap, maximum color area. Somewhat unconventional but visually distinct.</p>
+  </div>
+
+</div>

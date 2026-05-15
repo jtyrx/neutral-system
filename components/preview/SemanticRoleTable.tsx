@@ -88,7 +88,7 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all', 
 
   return (
     <div className="overflow-x-auto rounded-xl border border-hairline bg-raised" role="region" aria-label={label}>
-      <table className="w-full min-w-md text-left text-[0.65rem]">
+      <table className="w-full min-w-md text-left text-micro">
         <thead className="border-b border-hairline font-mono text-muted">
           <tr>
             <th className="px-2 py-1.5 font-medium">Primitive</th>

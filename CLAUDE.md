@@ -72,11 +72,10 @@ State is persisted to `localStorage` via `lib/workbench/workbenchStorage.ts` (ke
 
 ## UI And Styling
 
-- Tailwind v4 only. Theme tokens live in `app/globals.css`; no `tailwind.config.*`.
-- Use shadcn-style components in `components/ui` backed by `@base-ui/react`.
-- For files in `components/ui/**`, read `components/ui/AGENTS.md`; that file is authoritative for shared primitives.
-- Use `nsb-lg:` / `nsb-xl:` container variants for workbench layout; reserve viewport breakpoints for shell/mobile behavior.
-- Use `cn()` for class merging. Style: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports.
+- Tailwind v4; tokens in `app/globals.css`; no `tailwind.config.*`.
+- For `components/ui/**`, `components/ui/AGENTS.md` is authoritative.
+- `cn()` for merging; `nsb-lg:`/`nsb-xl:` for workbench layout; viewport breakpoints for shell/mobile only.
+- Style: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports.
 
 ## Debugging
 

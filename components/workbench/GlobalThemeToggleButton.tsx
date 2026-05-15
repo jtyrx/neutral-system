@@ -41,10 +41,17 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
       <div
         aria-hidden={true}
         className={cn(
-          'flex h-7 w-20 shrink-0 rounded-full border border-hairline bg-overlay sm:w-23',
+          'inline-flex h-8 shrink-0 items-center gap-0.25 rounded-full bg-toolbar-control-surface-sunken p-1',
           className,
         )}
-      />
+      >
+        {OPTIONS.map((option) => (
+          <span
+            key={option.value}
+            className="inline-flex size-6.75 items-center justify-center rounded-full border border-transparent text-disabled"
+          />
+        ))}
+      </div>
     )
   }
 
@@ -57,33 +64,22 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
   return (
     <RadioGroup
       id="nsb-theme-toggle"
-      variant="scrim"
+      variant="icon"
       value={activeTheme}
       onValueChange={(value) => setTheme(value as ThemeChoice)}
       data-ns-theme-toggle
       aria-label={`Application color theme. Current selection: ${activeTheme}. Resolved theme: ${resolved}.`}
-      className={cn(
-        'inline-flex items-center gap-0.25 rounded-full',
-        // Icon radio: hide the default dot indicator from the base shadcn item.
-        '**:data-[slot=radio-group-indicator]:hidden',
-        className,
-      )}
+      className={className}
     >
       {OPTIONS.map((option) => {
         const Icon = option.icon
-        const selected = activeTheme === option.value
         const item = (
           <RadioGroupItem
             value={option.value}
+            variant="icon"
             aria-label={option.label}
-            className={cn(
-              'inline-flex size-6.75 cursor-pointer items-center justify-center rounded-full border border-transparent text-disabled transition-colors outline-none',
-              'hover:bg-(--chrome-chip) hover:text-default',
-              'focus-visible:border-(--color-border-focus) focus-visible:ring-2 focus-visible:ring-(--color-border-focus)/30',
-              selected && 'bg-raised text-default',
-            )}
           >
-            <Icon className="size-3.5" aria-hidden={true} />
+            <Icon className="size-3.75" aria-hidden={true} />
             <span className="sr-only">{option.label}</span>
           </RadioGroupItem>
         )

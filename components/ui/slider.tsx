@@ -73,7 +73,7 @@ const sliderLabelVariants = cva('text-subtle', {
   variants: {
     size: {
       sm: 'text-xs',
-      default: 'text-[0.8125rem]',
+      default: 'text-label',
       lg: 'text-sm',
     },
     tone: {

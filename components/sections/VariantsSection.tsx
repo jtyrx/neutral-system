@@ -37,8 +37,8 @@ function VariantsSectionInner({config, onChange}: Props) {
     <section id="variants" className="scroll-mt-6 space-y-4">
       <header>
         <p className="eyebrow">5 · Neutral variants</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-(--ns-text)">Hue & chroma presets</h2>
-        <p className="mt-2 max-w-2xl text-sm text-(--ns-text-muted)">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Hue & chroma presets</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
           Pure neutral locks chroma to zero. Warm / cool / bluish apply low chroma at a fixed hue.
           Custom keeps your sliders.
         </p>
@@ -61,8 +61,8 @@ function VariantsSectionInner({config, onChange}: Props) {
             className={cn(
               'ns-control-item border px-3 py-1.5 text-xs transition',
               config.variantId === v.id
-                ? 'border-(--ns-hairline-strong) bg-(--ns-overlay-strong) text-(--ns-text)'
-                : 'border-(--ns-hairline) bg-(--ns-chip) text-(--ns-text-subtle) hover:bg-(--ns-hairline)',
+                ? 'border-hairline-strong bg-overlay-strong text-default'
+                : 'border-hairline bg-chip text-subtle hover:bg-(--chrome-hairline)',
             )}
           >
             {v.label}

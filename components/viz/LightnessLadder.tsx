@@ -45,7 +45,7 @@ function LightnessLadderInner({
           </button>
         ))}
       </div>
-      <p className="text-[0.65rem] text-muted">
+      <p className="text-micro text-muted">
         Lightest → darkest (left → right). OKLCH lightness interpolated
         linearly.
       </p>

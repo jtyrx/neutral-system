@@ -33,9 +33,9 @@ type RowProps = {
 
 const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, tickIndices}: RowProps) {
   return (
-    <div className="flex items-center gap-2 text-[0.65rem]">
+    <div className="flex items-center gap-2 text-micro">
       <span className="w-16 shrink-0 font-medium text-muted">{label}</span>
-      <div className="relative h-4 flex-1 rounded bg-(--ns-chip)">
+      <div className="relative h-4 flex-1 rounded bg-chip">
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded"
           aria-hidden
@@ -43,7 +43,7 @@ const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, ti
           {tickIndices.map((i) => (
             <div
               key={i}
-              className="absolute bottom-1 top-1 w-px -translate-x-1/2 bg-(--ns-chip)"
+              className="absolute bottom-1 top-1 w-px -translate-x-1/2 bg-chip"
               style={{left: indexToLeftPercent(i, steps)}}
             />
           ))}

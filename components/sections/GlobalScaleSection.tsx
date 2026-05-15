@@ -34,8 +34,8 @@ import {SelectPrimitives} from '@/components/ui/select'
 import {Slider, SliderControlled} from '@/components/ui/slider'
 import {Toolbar} from '@/components/ui/toolbar'
 import {ChromaModeComparisonRail} from '@/components/viz/ChromaModeComparisonRail'
-import {LightnessLadder} from '@/components/viz/LightnessLadder'
 import {LightnessSparkline} from '@/components/viz/LightnessSparkline'
+import {GlobalScaleRampVisualization} from '@/components/sections/GlobalScaleRampVisualization'
 import {logPresetGroup} from '@/lib/debug/presetDebug'
 import {cn} from '@/lib/utils'
 import {
@@ -153,61 +153,6 @@ const BASE_CHROMA_OPTIONS: ResponsiveSelectOption[] = Array.from(
   },
 )
 
-type RampProps = {
-  global: GlobalSwatch[]
-  selectedIndex: number | null
-  onSelectSwatch: (index: number) => void
-}
-
-/** Isolated from control form so typing does not re-paint the full strip on every keystroke. */
-const GlobalScaleRampVisualization = memo(
-  function GlobalScaleRampVisualization({
-    global,
-    selectedIndex,
-    onSelectSwatch,
-  }: RampProps) {
-    const n = global.length
-    const ringIndex =
-      selectedIndex == null || n === 0 ? null : Math.min(selectedIndex, n - 1)
-
-    return (
-      <>
-        <div className="overflow-x-auto rounded-select border border-hairline">
-          <div
-            className="flex min-h-18"
-            style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}
-          >
-            {global.map((s) => (
-              <button
-                key={s.index}
-                type="button"
-                title={s.serialized.oklchCss}
-                onClick={() => onSelectSwatch(s.index)}
-                className={cn(
-                  'min-w-[8px] flex-1 border-l border-hairline first:border-l-0',
-                  ringIndex === s.index && 'ring-2 ring-white/50 ring-inset',
-                )}
-                style={{backgroundColor: s.serialized.hex}}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-4 nsb-lg:grid-cols-[1fr_14rem]">
-          <LightnessLadder
-            swatches={global}
-            onSelect={onSelectSwatch}
-            selectedIndex={ringIndex}
-            className={cn(
-              'col-span-full h-28 w-full rounded-xl border border-hairline bg-raised',
-            )}
-          />
-          {/* <LightnessSparkline swatches={global} /> */}
-        </div>
-      </>
-    )
-  },
-)
 
 function clampHueDeg(h: number): number {
   return Math.min(360, Math.max(0, Math.round(h)))
@@ -789,7 +734,7 @@ function SystemShapeSegment({
                 schedule('lCurveStrength', pct / 100, 'L curve strength')
               }
             />
-            <p className="text-[0.65rem] text-muted">
+            <p className="text-micro text-muted">
               0% = linear spacing · 100% = full selected curve
             </p>
           </div>

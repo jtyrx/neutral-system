@@ -1,0 +1,175 @@
+<h2>Where should the ramp range button live in the dock?</h2>
+<p class="subtitle">The button shows the lowest + highest ramp colors and opens the control panel when clicked. Pick the position that feels most natural.</p>
+
+<style>
+  .dock-mockup {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px 10px;
+    border-radius: 16px;
+    background: rgba(36,36,36,0.88);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 18px 48px -20px rgba(0,0,0,0.6), 0 4px 12px -6px rgba(0,0,0,0.4);
+  }
+
+  .dock-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(56,56,56,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: rgba(255,255,255,0.75);
+    font-size: 18px;
+  }
+
+  .dock-ramp {
+    display: flex;
+    height: 44px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+    flex-shrink: 0;
+    width: 180px;
+  }
+  .dock-ramp span {
+    flex: 1;
+  }
+
+  .dock-range-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(56,56,56,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 3px;
+    padding: 7px;
+    overflow: hidden;
+  }
+  .dock-range-btn .swatch {
+    flex: 1;
+    height: 100%;
+    border-radius: 5px;
+  }
+  .swatch-low { background: oklch(94% 0.012 260); }
+  .swatch-high { background: oklch(22% 0.018 260); }
+  .dock-range-btn.highlight {
+    border-color: rgba(110,180,255,0.6);
+    box-shadow: 0 0 0 2px rgba(110,180,255,0.25);
+  }
+
+  .cards { gap: 20px; }
+  .card { padding: 24px; }
+  .card-image {
+    display: flex;
+    justify-content: center;
+    padding: 20px 10px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .label-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(110,180,255,0.15);
+    color: rgba(110,180,255,0.9);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+</style>
+
+<div class="cards">
+
+  <div class="card" data-choice="left" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="dock-mockup">
+        <div class="dock-btn">🎨</div>
+        <div class="dock-range-btn highlight">
+          <div class="swatch swatch-low"></div>
+          <div class="swatch swatch-high"></div>
+        </div>
+        <div class="dock-ramp">
+          <span style="background:oklch(94% 0.012 260)"></span>
+          <span style="background:oklch(85% 0.02 260)"></span>
+          <span style="background:oklch(72% 0.03 260)"></span>
+          <span style="background:oklch(60% 0.04 260)"></span>
+          <span style="background:oklch(48% 0.04 260)"></span>
+          <span style="background:oklch(38% 0.035 260)"></span>
+          <span style="background:oklch(30% 0.025 260)"></span>
+          <span style="background:oklch(22% 0.018 260)"></span>
+        </div>
+        <div class="dock-btn">☀️</div>
+      </div>
+    </div>
+    <div class="label-tag">Option A</div>
+    <h3>Between launcher and ramp</h3>
+    <p>Ramp range button sits left of the color swatches, adjacent to the palette launcher. Groups the two "entry" controls together on the left.</p>
+  </div>
+
+  <div class="card" data-choice="right" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="dock-mockup">
+        <div class="dock-btn">🎨</div>
+        <div class="dock-ramp">
+          <span style="background:oklch(94% 0.012 260)"></span>
+          <span style="background:oklch(85% 0.02 260)"></span>
+          <span style="background:oklch(72% 0.03 260)"></span>
+          <span style="background:oklch(60% 0.04 260)"></span>
+          <span style="background:oklch(48% 0.04 260)"></span>
+          <span style="background:oklch(38% 0.035 260)"></span>
+          <span style="background:oklch(30% 0.025 260)"></span>
+          <span style="background:oklch(22% 0.018 260)"></span>
+        </div>
+        <div class="dock-range-btn highlight">
+          <div class="swatch swatch-low"></div>
+          <div class="swatch swatch-high"></div>
+        </div>
+        <div class="dock-btn">☀️</div>
+      </div>
+    </div>
+    <div class="label-tag">Option B</div>
+    <h3>Between ramp and theme toggle</h3>
+    <p>Ramp range button caps the right side of the color swatches. The ramp "bookends" itself — endpoint summary immediately follows the full sequence.</p>
+  </div>
+
+  <div class="card" data-choice="far-right" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="dock-mockup">
+        <div class="dock-btn">🎨</div>
+        <div class="dock-ramp">
+          <span style="background:oklch(94% 0.012 260)"></span>
+          <span style="background:oklch(85% 0.02 260)"></span>
+          <span style="background:oklch(72% 0.03 260)"></span>
+          <span style="background:oklch(60% 0.04 260)"></span>
+          <span style="background:oklch(48% 0.04 260)"></span>
+          <span style="background:oklch(38% 0.035 260)"></span>
+          <span style="background:oklch(30% 0.025 260)"></span>
+          <span style="background:oklch(22% 0.018 260)"></span>
+        </div>
+        <div class="dock-btn">☀️</div>
+        <div class="dock-range-btn highlight">
+          <div class="swatch swatch-low"></div>
+          <div class="swatch swatch-high"></div>
+        </div>
+      </div>
+    </div>
+    <div class="label-tag">Option C</div>
+    <h3>Far right (after theme toggle)</h3>
+    <p>Ramp range button is the rightmost item. Theme toggle and range summary become a utility cluster on the far end, separate from the color swatches.</p>
+  </div>
+
+</div>

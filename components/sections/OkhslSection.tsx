@@ -157,7 +157,7 @@ function OkhslSectionInner({view, onEdit, resolvedConfig}: Props) {
 
       <div className="border-t border-hairline pt-4">
         <p className="ns-label mb-2">Resolved OKLCH</p>
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-[0.65rem] text-muted">
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-micro text-muted">
           <div>
             <dt className="text-muted/60">Hue (°)</dt>
             <dd className="tabular-nums text-default">{resolvedConfig.hue}</dd>

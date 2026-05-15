@@ -72,11 +72,11 @@ function RoleTokenTable({
   }, [tokens, global, isDarkAdvanced])
 
   if (sorted.length === 0) {
-    return <p className="text-[0.65rem] text-disabled">No tokens in this group.</p>
+    return <p className="text-micro text-disabled">No tokens in this group.</p>
   }
   return (
     <div className="overflow-x-auto rounded-lg border border-hairline">
-      <table className="w-full min-w-[18rem] text-left text-[0.65rem]">
+      <table className="w-full min-w-[18rem] text-left text-micro">
         <thead className="border-b border-hairline font-mono text-muted">
           <tr>
             <th className="px-2 py-1.5">Primitive</th>
@@ -173,7 +173,7 @@ function ThemeTokenColumn({
         <button
           type="button"
           onClick={toggle}
-          className="mt-3 rounded-full border border-hairline px-2.5 py-1 text-[0.65rem] text-subtle hover:bg-(--chrome-chip) hover:text-default"
+          className="mt-3 rounded-full border border-hairline px-2.5 py-1 text-micro text-subtle hover:bg-(--chrome-chip) hover:text-default"
         >
           {showTable ? 'Visual view' : 'Data table'}
         </button>
@@ -199,7 +199,7 @@ function ThemeTokenColumn({
                   <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
                     {friendlySemanticCategoryLabel(titleKey)}
                   </h4>
-                  <p className="text-[0.65rem] text-disabled">{groupHint}</p>
+                  <p className="text-micro text-disabled">{groupHint}</p>
                   <RoleTokenTable
                     tokens={groupTokens}
                     global={global}
@@ -212,7 +212,7 @@ function ThemeTokenColumn({
             {emphasisToks.length > 0 ? (
               <div className="space-y-2 border-t border-hairline pt-6">
                 <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>Emphasis</h4>
-                <p className="text-[0.65rem] text-disabled">Experimental accessible pairs (higher contrast).</p>
+                <p className="text-micro text-disabled">Experimental accessible pairs (higher contrast).</p>
                 <RoleTokenTable
                   tokens={emphasisToks}
                   global={global}

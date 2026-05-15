@@ -133,7 +133,7 @@ function LayoutNavCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
               <p className="text-xs font-medium" style={{color: c.td}}>
                 Panel
               </p>
-              <p className="mt-1 text-[0.65rem] leading-relaxed" style={{color: c.ts}}>
+              <p className="mt-1 text-micro leading-relaxed" style={{color: c.ts}}>
                 Section dividers stay quiet so structure reads without heavy chrome.
               </p>
             </div>
@@ -173,7 +173,7 @@ function DataCardCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
           <h4 className="text-sm font-semibold" style={{color: c.td}}>
             Active users
           </h4>
-          <span className="text-[0.65rem] tabular-nums" style={{color: c.tm}}>
+          <span className="text-micro tabular-nums" style={{color: c.tm}}>
             Updated 14:02 UTC
           </span>
         </div>
@@ -213,7 +213,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
   return (
     <div className="space-y-3">
       <label className="block space-y-1">
-        <span className="text-[0.65rem] font-medium text-default" style={{color: c.ts}}>
+        <span className="text-micro font-medium text-default" style={{color: c.ts}}>
           Company
         </span>
         <div
@@ -231,7 +231,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
         </span>
       </label>
       <label className="block space-y-1">
-        <span className="text-[0.65rem] font-medium text-default " style={{color: c.ts}}>
+        <span className="text-micro font-medium text-default " style={{color: c.ts}}>
           Read-only
         </span>
         <input
@@ -247,7 +247,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
           <SemanticTokenAnnotation role="text.disabled" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         </span>
       </label>
-      <p className="flex flex-wrap items-center gap-x-2 text-[0.65rem] leading-snug" style={{color: c.ts}}>
+      <p className="flex flex-wrap items-center gap-x-2 text-micro leading-snug" style={{color: c.ts}}>
         <span>Use a shorter billing cycle to reduce variance.</span>
         <SemanticTokenAnnotation role="text.subtle" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
       </p>

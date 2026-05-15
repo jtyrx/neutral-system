@@ -28,7 +28,7 @@ function PreviewBlock({eyebrow, title, intent, children}: BlockProps) {
       <header className="space-y-1 border-b border-white/10 pb-2">
         <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/40">{eyebrow}</p>
         <h3 className="text-sm font-semibold tracking-tight text-white">{title}</h3>
-        <p className="text-[0.65rem] leading-snug text-white/45">{intent}</p>
+        <p className="text-micro leading-snug text-white/45">{intent}</p>
       </header>
       {children}
     </section>
@@ -140,7 +140,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
                 <p className="text-xs font-medium" style={{color: td}}>
                   Panel · <CssVar role="surface.subtle" />
                 </p>
-                <p className="mt-1 text-[0.65rem] leading-relaxed" style={{color: ts}}>
+                <p className="mt-1 text-micro leading-relaxed" style={{color: ts}}>
                   Section dividers use <CssVar role="border.subtle" /> so structure reads without heavy chrome.
                 </p>
               </div>
@@ -166,7 +166,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
             <h4 className="text-sm font-semibold" style={{color: td}}>
               Active users
             </h4>
-            <span className="text-[0.65rem] tabular-nums" style={{color: tm}}>
+            <span className="text-micro tabular-nums" style={{color: tm}}>
               Updated 14:02 UTC
             </span>
           </div>
@@ -200,7 +200,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
       >
         <div className="space-y-3">
           <label className="block space-y-1">
-            <span className="text-[0.65rem] font-medium" style={{color: ts}}>
+            <span className="text-micro font-medium" style={{color: ts}}>
               Company
             </span>
             <div
@@ -214,7 +214,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
             </span>
           </label>
           <label className="block space-y-1">
-            <span className="text-[0.65rem] font-medium" style={{color: ts}}>
+            <span className="text-micro font-medium" style={{color: ts}}>
               Read-only
             </span>
             <input
@@ -229,7 +229,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
               <CssVar role="text.disabled" />
             </span>
           </label>
-          <p className="text-[0.65rem] leading-snug" style={{color: ts}}>
+          <p className="text-micro leading-snug" style={{color: ts}}>
             Use a shorter billing cycle to reduce variance. <CssVar role="text.subtle" />
           </p>
         </div>

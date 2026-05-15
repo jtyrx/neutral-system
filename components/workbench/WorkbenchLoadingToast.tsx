@@ -83,17 +83,17 @@ export function WorkbenchLoadingToast({busy, label}: Props) {
 
   return createPortal(
     <div
-      className="pointer-events-auto fixed inset-0 z-[10000] flex items-center justify-center bg-[color-mix(in_oklch,var(--ns-surface-raised)_50%,transparent)] p-4 backdrop-blur-[1px]"
+      className="pointer-events-auto fixed inset-0 z-[10000] flex items-center justify-center bg-[color-mix(in_oklch,var(--color-surface-raised)_50%,transparent)] p-4 backdrop-blur-[1px]"
       role="presentation"
     >
       <div
-        className="flex max-w-[min(28rem,calc(100vw-2rem))] items-center gap-4 rounded-2xl border border-[var(--ns-hairline-strong)] bg-[var(--ns-surface-raised)] px-6 py-4 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.85)] backdrop-blur-md supports-[backdrop-filter]:bg-[var(--ns-surface-raised)]"
+        className="flex max-w-[min(28rem,calc(100vw-2rem))] items-center gap-4 rounded-2xl border border-hairline-strong bg-raised px-6 py-4 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.85)] backdrop-blur-md supports-[backdrop-filter]:bg-raised"
         role="status"
         aria-live="polite"
         aria-busy="true"
       >
         <div
-          className="size-7 shrink-0 animate-spin rounded-full border-2 border-[var(--ns-hairline-strong)] border-t-white"
+          className="size-7 shrink-0 animate-spin rounded-full border-2 border-hairline-strong border-t-white"
           aria-hidden
         />
         <p className="text-base font-medium leading-snug tracking-tight text-default">

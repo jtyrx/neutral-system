@@ -43,7 +43,7 @@ function LightnessSparklineInner({swatches}: Props) {
           points={pts}
         />
       </svg>
-      <p className="mt-1 text-[0.65rem] text-disabled">
+      <p className="mt-1 text-micro text-disabled">
         OKLCH L% across the global scale (linear ramp = near-straight line).
       </p>
     </div>

@@ -1,5 +1,6 @@
 import './globals.css'
 
+import {AppLayoutShell} from '@/components/app-sidebar'
 import {AppProviders} from '@/components/providers/AppProviders'
 import type {Metadata} from 'next'
 import localFont from 'next/font/local'
@@ -62,7 +63,9 @@ export default function RootLayout({
       <body>
         {/* Base UI Quick Start: isolation stacking context for portaled popups (tooltips, dialogs). */}
         <div className="isolate min-h-screen">
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            <AppLayoutShell>{children}</AppLayoutShell>
+          </AppProviders>
         </div>
       </body>
     </html>

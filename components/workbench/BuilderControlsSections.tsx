@@ -66,7 +66,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'}
             </div>
             <p className="text-xs font-medium text-default">Architecture</p>
-            <p className="mt-1 text-[0.65rem] text-muted">
+            <p className="mt-1 text-micro text-muted">
               Simple mirrors one ramp into both themes by mapping. Advanced
               keeps independent ramps for optics.
             </p>
@@ -95,7 +95,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
               <p className="text-xs font-medium text-default">
                 Edit target ramp
               </p>
-              <p className="mt-1 text-[0.65rem] text-muted">
+              <p className="mt-1 text-micro text-muted">
                 Hue variants and OKHSL commits apply here. Inspect the other
                 ramp visually in previews.
               </p>
@@ -287,7 +287,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                     lightIndexOffset: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right font-mono text-xs"
+                className="w-full rounded border border-hairline bg-field px-2 py-1 text-right font-mono text-xs"
               />
             </label>
             <label className="flex flex-col gap-1">
@@ -303,7 +303,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                     darkIndexOffset: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded border border-hairline bg-(--ns-field) px-2 py-1 text-right font-mono text-xs"
+                className="w-full rounded border border-hairline bg-field px-2 py-1 text-right font-mono text-xs"
               />
             </label>
           </div>

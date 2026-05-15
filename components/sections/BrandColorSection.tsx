@@ -1,15 +1,16 @@
 'use client'
 
 import type Color from 'colorjs.io'
-import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 
+import {OklchControls} from '@/components/picker/OklchControls'
 import {SegmentedControl, type SegmentedOption} from '@/components/preview/SegmentedControl'
 import {Input} from '@/components/ui/input'
+import {useDisplayGamut} from '@/hooks/useDisplayGamut'
 import {canonicalBrandOklchCss, tryParseBrandOklch} from '@/lib/neutral-engine/brandColor'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
+import type {OklchPickerTriple} from '@/lib/neutral-engine/pickerConfig'
 import type {SystemMappingConfig} from '@/lib/neutral-engine/types'
-
-type ColorPickerEl = HTMLElement & {color?: Color}
 
 type Props = {
   systemConfig: SystemMappingConfig
@@ -40,24 +41,20 @@ function serializeBrandColor(c: Color, format: BrandFormat): string {
   return c.to('p3').toString({format: 'css'})
 }
 
-/**
- * Custom brand OKLCH + Color.js `<color-picker>`; shares `systemConfig.brandOklch` with token derivation.
- */
 export function BrandColorSection({systemConfig, patchSystem}: Props) {
   const committed = systemConfig.brandOklch
   const [format, setFormat] = useState<BrandFormat>('oklch')
   const [draft, setDraft] = useState(committed)
-  const [wcReady, setWcReady] = useState(false)
   const [p3Supported] = useState(
     () => typeof CSS !== 'undefined' && CSS.supports?.('color', 'color(display-p3 1 0 0)') === true,
   )
   const [controlsOpen, setControlsOpen] = useState(false)
-  const pickerRef = useRef<ColorPickerEl | null>(null)
-  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  const {tier} = useDisplayGamut()
 
   const committedColor = useMemo(() => tryParseBrandOklch(committed), [committed])
 
-  // Keep the active format field aligned when `brandOklch` changes from the picker (or future preset loads).
+  // Keep the active format field aligned when `brandOklch` changes from the sliders.
   useEffect(() => {
     const c = committedColor
     if (!c) return
@@ -65,21 +62,29 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
     setDraft(serializeBrandColor(c, format))
   }, [committedColor, format])
 
-  useEffect(() => {
-    let cancelled = false
-    void Promise.all([import('color-elements/color-picker.css'), import('color-elements/color-picker')]).then(() => {
-      if (!cancelled) setWcReady(true)
-    })
-    return () => {
-      cancelled = true
+  const pickerTriple = useMemo((): OklchPickerTriple => {
+    if (!committedColor) return {L: 0.5, C: 0.1, H: 0}
+    const oklch = committedColor.to('oklch')
+    return {
+      L: Number(Number(oklch.l).toFixed(4)),
+      C: Number(Number(oklch.c).toFixed(4)),
+      H: Number(Number(oklch.h ?? 0).toFixed(1)),
     }
-  }, [])
+  }, [committedColor])
+
+  const patchPicker = useCallback(
+    (p: Partial<OklchPickerTriple>) => {
+      const next = {...pickerTriple, ...p}
+      const css = `oklch(${next.L} ${next.C} ${next.H})`
+      const parsed = tryParseBrandOklch(css)
+      if (parsed) patchSystem('brandOklch', canonicalBrandOklchCss(parsed), 'Brand color (OKLCH)')
+    },
+    [pickerTriple, patchSystem],
+  )
 
   const commitDraftIfValid = useCallback(() => {
     const parsed = parseSupportedBrandInput(draft, format)
     if (parsed) {
-      // OKLCH: keep the authored string so `surface.brand` / exports match the spec (Color.js
-      // re-serialization shifts coordinates for the same sRGB). Other formats still store OKLCH.
       const brandCss = format === 'oklch' ? trimCssColorValue(draft) : canonicalBrandOklchCss(parsed)
       patchSystem('brandOklch', brandCss, 'Brand color (OKLCH)')
       setDraft(format === 'oklch' ? brandCss : serializeBrandColor(parsed, format))
@@ -88,43 +93,6 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
       if (c) setDraft(serializeBrandColor(c, format))
     }
   }, [draft, format, patchSystem, committedColor])
-
-  useLayoutEffect(() => {
-    const el = pickerRef.current
-    if (!el || !wcReady) return
-    const parsed = committedColor
-    if (!parsed) return
-    try {
-      if (el.color?.equals?.(parsed)) return
-      el.color = parsed
-    } catch {
-      /* ignore picker sync errors */
-    }
-  }, [committedColor, wcReady])
-
-  useEffect(() => {
-    const el = pickerRef.current
-    if (!el || !wcReady) return
-
-    const syncFromPicker = () => {
-      const c = el.color
-      if (!c) return
-      try {
-        const css = canonicalBrandOklchCss(c)
-        patchSystem('brandOklch', css, 'Brand color (OKLCH)')
-        setDraft(serializeBrandColor(c, format))
-      } catch {
-        /* ignore malformed picker state */
-      }
-    }
-
-    el.addEventListener('colorchange', syncFromPicker)
-    el.addEventListener('input', syncFromPicker)
-    return () => {
-      el.removeEventListener('colorchange', syncFromPicker)
-      el.removeEventListener('input', syncFromPicker)
-    }
-  }, [patchSystem, wcReady, format])
 
   const previewCss = committedColor?.toString({format: 'css'}) ?? 'transparent'
 
@@ -147,11 +115,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
           type="button"
           className="rounded-lg border border-(--chrome-amber-border-strong) bg-(--chrome-amber-surface-bold) px-3 py-1.5 text-xs font-semibold text-(--chrome-amber-text) transition hover:bg-(--chrome-amber-hover)"
           onClick={() => {
-            setControlsOpen((o) => {
-              const next = !o
-              if (next) requestAnimationFrame(() => inputRef.current?.focus())
-              return next
-            })
+            setControlsOpen((o) => !o)
           }}
         >
           Custom Brand
@@ -168,7 +132,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
         <div className="mt-4 space-y-4">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label htmlFor="brand-color-input" className="block text-[0.65rem] font-medium uppercase tracking-wide text-muted">
+              <label htmlFor="brand-color-input" className="block text-micro font-medium uppercase tracking-wide text-muted">
                 Brand color
               </label>
               <SegmentedControl
@@ -180,7 +144,6 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
               />
             </div>
             <Input
-              ref={inputRef}
               id="brand-color-input"
               type="text"
               spellCheck={false}
@@ -198,23 +161,15 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
               aria-invalid={draft.trim() !== '' && !isDraftValid}
             />
             {draft.trim() !== '' && !isDraftValid ? (
-              <p className="mt-1 text-[0.65rem] text-(--chrome-amber-text)">
+              <p className="mt-1 text-micro text-(--chrome-amber-text)">
                 Supported formats: OKLCH, Hex, RGB, Display-P3. Invalid values are not applied.
               </p>
             ) : null}
           </div>
 
-          {wcReady ? (
-            <div className="overflow-hidden rounded-xl border border-hairline bg-raised p-2">
-              {/* Hide Color.js space picker & freeform swatch input: this section only exposes OKLCH/Hex/RGB/P3 via our inputs. */}
-              <color-picker ref={pickerRef} space="oklch" className="w-full max-w-full">
-                <span slot="color-space" />
-                <span slot="swatch" />
-              </color-picker>
-            </div>
-          ) : (
-            <p className="text-xs text-disabled">Loading color picker…</p>
-          )}
+          <div className="overflow-hidden rounded-xl border border-hairline bg-raised p-3">
+            <OklchControls picker={pickerTriple} patchPicker={patchPicker} displayTier={tier} />
+          </div>
         </div>
       ) : null}
     </>

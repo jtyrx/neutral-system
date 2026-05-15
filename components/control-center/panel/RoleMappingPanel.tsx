@@ -22,6 +22,7 @@ import {cn} from '@/lib/utils'
 
 export type RoleLadder = 'surface' | 'border' | 'text'
 
+// Dot colors are fixed categorical design constants for this panel's legend — preview-only, not semantic tokens.
 const ROLE_LADDERS: {
   id: RoleLadder
   label: string

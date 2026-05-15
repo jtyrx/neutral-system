@@ -41,10 +41,6 @@ import {
 
 type AppLayoutShellProps = {
   children: ReactNode
-  /** After mount, delay then collapse the desktop sidebar. When omitted, `SidebarProvider` defaults apply. */
-  sidebarCloseOnLoad?: boolean
-  /** When omitted, `SidebarProvider` uses its default delay (500ms). */
-  sidebarCloseOnLoadDelayMs?: number
 }
 
 /**
@@ -54,19 +50,9 @@ type AppLayoutShellProps = {
  */
 export function AppLayoutShell({
   children,
-  sidebarCloseOnLoad,
-  sidebarCloseOnLoadDelayMs,
 }: AppLayoutShellProps) {
   return (
-    <SidebarProvider
-      defaultOpen
-      {...(sidebarCloseOnLoad !== undefined
-        ? {closeOnLoad: sidebarCloseOnLoad}
-        : {})}
-      {...(sidebarCloseOnLoadDelayMs !== undefined
-        ? {closeOnLoadDelayMs: sidebarCloseOnLoadDelayMs}
-        : {})}
-    >
+    <SidebarProvider>
       <ControlCenterElevationProvider>
         <NeutralWorkbenchProvider>
           <AppSidebar />
@@ -133,7 +119,7 @@ export function AppSidebar() {
             NS
           </div>
           <div className="min-w-0 flex flex-col gap-1.25 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-[0.8125rem] font-mono uppercase text-trim-both">Neutral System</p>
+            <p className="truncate text-label font-mono uppercase text-trim-both">Neutral System</p>
             <p className="truncate text-[0.625rem] leading-tight text-sidebar-foreground/70 text-trim-both">Draft v0.1</p>
           </div>
         </div>

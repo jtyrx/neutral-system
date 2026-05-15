@@ -15,9 +15,9 @@ function PairTable({label, tokens}: {label: string; tokens: SystemToken[]}) {
   if (pairs.length === 0) return null
   return (
     <div className="space-y-2">
-      <p className="text-[0.65rem] font-medium uppercase tracking-[0.12em] text-muted">{label}</p>
+      <p className="text-micro font-medium uppercase tracking-[0.12em] text-muted">{label}</p>
       <div className="overflow-x-auto rounded-xl border border-hairline">
-        <table className="w-full min-w-[20rem] text-left text-[0.65rem]">
+        <table className="w-full min-w-[20rem] text-left text-micro">
           <thead className="border-b border-hairline text-disabled">
             <tr>
               <th className="px-2 py-1.5 font-medium">Pair</th>

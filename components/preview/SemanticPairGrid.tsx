@@ -76,7 +76,7 @@ function SwatchOrSamePrimitive({
   }
   return (
     <span
-      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-disabled"
+      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-overlay-soft text-[0.7rem] text-disabled"
       title={`Same primitive as above · ${title}`}
       aria-label="Same color swatch as earlier row"
     >
@@ -103,11 +103,11 @@ const PairRow = memo(function PairRow({
   const lightCard =
     emphasis === 'light'
       ? 'border-[var(--chrome-amber-border-strong)] bg-[var(--chrome-amber-surface-strong)] ring-1 ring-[var(--chrome-amber-ring)]'
-      : 'border-hairline bg-[var(--ns-surface-raised)]'
+      : 'border-hairline bg-raised'
   const darkCard =
     emphasis === 'dark'
       ? 'border-[var(--chrome-sky-border-strong)] bg-[var(--chrome-sky-surface-strong)] ring-1 ring-[var(--chrome-sky-ring)]'
-      : 'border-hairline bg-[var(--ns-surface-raised)]'
+      : 'border-hairline bg-raised'
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
@@ -122,7 +122,7 @@ const PairRow = memo(function PairRow({
         />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-default">{humanizeRole(lt.role)}</p>
-          <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{lt.name}</p>
+          <p className="mt-0.5 font-mono text-micro text-muted">{lt.name}</p>
           <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {lt.sourceGlobalIndex}</p>
         </div>
       </div>
@@ -137,7 +137,7 @@ const PairRow = memo(function PairRow({
         />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-default">{humanizeRole(dt.role)}</p>
-          <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{dt.name}</p>
+          <p className="mt-0.5 font-mono text-micro text-muted">{dt.name}</p>
           <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {dt.sourceGlobalIndex}</p>
         </div>
       </div>
@@ -203,7 +203,7 @@ function SemanticPairGridInner({
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-[0.65rem] text-disabled">{hint}</p> : null}
+              {hint ? <p className="mt-1 text-micro text-disabled">{hint}</p> : null}
             </div>
             <div className="space-y-3">
               <div className="mb-1 hidden gap-4 sm:grid sm:grid-cols-2">
@@ -238,7 +238,7 @@ const singleAccentClass = (accent?: 'amber' | 'sky') =>
     ? 'border-[var(--chrome-amber-border-medium)] bg-[var(--chrome-amber-surface-soft)] ring-1 ring-[var(--chrome-amber-ring-soft)]'
     : accent === 'sky'
       ? 'border-[var(--chrome-sky-border-medium)] bg-[var(--chrome-sky-surface-soft)] ring-1 ring-[var(--chrome-sky-ring-soft)]'
-      : 'border-hairline bg-[var(--ns-surface-raised)]'
+      : 'border-hairline bg-raised'
 
 const SingleTokenRow = memo(function SingleTokenRow({
   t,
@@ -262,7 +262,7 @@ const SingleTokenRow = memo(function SingleTokenRow({
         />
       ) : (
         <span
-          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-(--ns-overlay-soft) text-[0.7rem] text-disabled"
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-overlay-soft text-[0.7rem] text-disabled"
           title={`Same primitive as above · idx ${t.sourceGlobalIndex}`}
           aria-label="Same color swatch as earlier row"
         >
@@ -271,7 +271,7 @@ const SingleTokenRow = memo(function SingleTokenRow({
       )}
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-default">{humanizeRole(t.role)}</p>
-        <p className="mt-0.5 font-mono text-[0.65rem] text-muted">{t.name}</p>
+        <p className="mt-0.5 font-mono text-micro text-muted">{t.name}</p>
         <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {t.sourceGlobalIndex}</p>
       </div>
     </div>
@@ -322,7 +322,7 @@ function SemanticSingleThemeGridInner({
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-[0.65rem] text-disabled">{hint}</p> : null}
+              {hint ? <p className="mt-1 text-micro text-disabled">{hint}</p> : null}
             </div>
             <div className="space-y-3">
               {toks.map((t, rowIndex) => (

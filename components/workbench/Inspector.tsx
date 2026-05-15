@@ -114,7 +114,7 @@ function GlobalSwatchInspector({
         <button
           type="button"
           onClick={handleClose}
-          className="shrink-0 rounded-lg border border-hairline bg-(--chrome-chip) px-2.5 py-1 text-[0.65rem] font-medium text-muted transition-colors hover:bg-raised hover:text-default"
+          className="shrink-0 rounded-lg border border-hairline bg-(--chrome-chip) px-2.5 py-1 text-micro font-medium text-muted transition-colors hover:bg-raised hover:text-default"
           aria-label="Close global swatch inspector"
         >
           Close
@@ -124,7 +124,7 @@ function GlobalSwatchInspector({
         className="h-20 w-full rounded-xl border border-hairline"
         style={{backgroundColor: s.serialized.hex}}
       />
-      <dl className="grid grid-cols-1 gap-2 font-mono text-[0.65rem] text-default nsb-lg:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-2 font-mono text-micro text-default nsb-lg:grid-cols-2">
         <div>
           <dt className="text-muted">Label</dt>
           <dd>{s.label}</dd>
@@ -244,11 +244,11 @@ function InspectorInner({
         style={{backgroundColor: token.serialized.hex}}
       />
       <p className="font-mono text-[0.7rem] text-default">{token.role}</p>
-      <p className="text-[0.65rem] text-muted">
+      <p className="text-micro text-muted">
         Hover the card for OKLCH, index, and contrast.
       </p>
       <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover/ins:max-h-112 group-hover/ins:opacity-100">
-        <dl className="space-y-2 border-t border-hairline pt-3 font-mono text-[0.65rem] text-default">
+        <dl className="space-y-2 border-t border-hairline pt-3 font-mono text-micro text-default">
           <div>
             <dt className="text-muted">Name</dt>
             <dd>{token.name}</dd>

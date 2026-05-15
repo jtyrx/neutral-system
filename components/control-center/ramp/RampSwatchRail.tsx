@@ -45,7 +45,7 @@ function RampSwatchRailInner({
   size = 'panel',
   className,
   accentClassName,
-  invertDisplay = false,
+  invertDisplay,
   previewThemeOverride,
   segmentLabels = false,
 }: RampSwatchRailProps) {
@@ -60,10 +60,12 @@ function RampSwatchRailInner({
     return previewTheme === 'light' ? wb.lightRamp : wb.darkRamp
   }, [wb, previewTheme])
 
+  const effectiveInvert = invertDisplay ?? (previewTheme === 'dark')
+
   const orderedSwatches = useMemo(() => {
-    if (invertDisplay) return [...ramp].reverse()
+    if (effectiveInvert) return [...ramp].reverse()
     return ramp
-  }, [ramp, invertDisplay])
+  }, [ramp, effectiveInvert])
 
   const tier1Mode = useMemo(
     () => tier1ExportModeForRamp(architecture, previewTheme),
@@ -79,10 +81,6 @@ function RampSwatchRailInner({
       i === 0 && 'cc-ramp-edge-start-card',
       i === last && 'cc-ramp-edge-end-card',
     )
-
-  /** Internal vertical divider only — outer top/bottom/left/right come from `[data-slot=ramp-swatch-rail]`. */
-  const railSegmentDivider = (i: number) =>
-    i > 0 ? 'cc-ramp-segment-divider' : ''
 
   const interactiveShellClass = cn(
     'cc-ramp-rail cc-ramp-rail-live',
@@ -179,7 +177,7 @@ function RampSwatchRailInner({
         className={cn(placeholderShellClass, className)}
         data-slot="ramp-swatch-rail"
         data-ramp-state="placeholder"
-        data-ramp-invert={invertDisplay ? 'true' : undefined}
+        data-ramp-invert={effectiveInvert ? 'true' : undefined}
         role="img"
         aria-label="Neutral ramp preview — waiting for workbench"
       >
@@ -192,7 +190,6 @@ function RampSwatchRailInner({
                 data-ramp-variant="placeholder"
                 className={cn(
                   'cc-ramp-segment cc-ramp-segment-labeled',
-                  railSegmentDivider(i),
                   'ramp-swatch-segment',
                   railSegmentRound(i, lastPlaceholder),
                 )}
@@ -212,7 +209,6 @@ function RampSwatchRailInner({
                 data-ramp-variant="placeholder"
                 className={cn(
                   'cc-ramp-segment ramp-swatch-segment cc-ramp-segment-placeholder',
-                  railSegmentDivider(i),
                   railSegmentRound(i, lastPlaceholder),
                 )}
               />
@@ -235,7 +231,7 @@ function RampSwatchRailInner({
       data-ramp-state="live"
       data-ramp-size={size}
       data-ramp-theme={previewTheme}
-      data-ramp-invert={invertDisplay ? 'true' : undefined}
+      data-ramp-invert={effectiveInvert ? 'true' : undefined}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       onBlur={handleBlur}
@@ -263,7 +259,6 @@ function RampSwatchRailInner({
                   title={`${facingLabel} · ${cssName}`}
                   className={cn(
                     'group cc-ramp-segment cc-ramp-segment-live ramp-swatch-segment',
-                    railSegmentDivider(i),
                     segmentLabels && 'cc-ramp-segment-labeled',
                     railSegmentRound(i, lastRailIndex),
                   )}

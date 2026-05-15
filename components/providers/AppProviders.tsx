@@ -37,9 +37,9 @@ function AppProviderContent({children}: Props) {
         toastOptions={{
           classNames: {
             toast:
-              'backdrop-blur-xl border-[color:var(--ns-hairline-strong)] bg-[color:var(--ns-toaster-bg)]',
-            title: 'text-[color:var(--ns-text)]',
-            description: 'text-[color:var(--ns-text-muted)]',
+              'backdrop-blur-xl border-[color:var(--chrome-hairline-strong)] bg-[color:var(--chrome-toaster-bg)]',
+            title: 'text-[color:var(--color-text-default)]',
+            description: 'text-[color:var(--color-text-muted)]',
           },
         }}
       />

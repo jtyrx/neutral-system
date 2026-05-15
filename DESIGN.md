@@ -94,6 +94,8 @@ components:
     padding: "0.5rem 0.75rem"
 ---
 
+> **On-demand reference.** Load this file explicitly when working on design system decisions, visual aesthetics, or component style conventions. It is not auto-loaded on every agent turn.
+
 # Design System: Neutral System Builder
 
 ## 1. Overview

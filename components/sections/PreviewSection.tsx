@@ -69,7 +69,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
     >
       <div className="mx-auto max-w-3xl">
         <p
-          className="text-[0.65rem] font-medium uppercase tracking-[0.12em]"
+          className="text-micro font-medium uppercase tracking-[0.12em]"
           style={{color: t(3)}}
         >
           UI mock · surface ramp
@@ -116,7 +116,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
               <p className="mt-3 text-xs leading-snug" style={{color: t(2)}}>
                 Sidebar on muted fill
               </p>
-              <p className="mt-2 text-[0.65rem] leading-snug" style={{color: t(4)}}>
+              <p className="mt-2 text-micro leading-snug" style={{color: t(4)}}>
                 Quiet rail
               </p>
             </aside>
@@ -167,7 +167,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
                       Sticky actions, sheets, and high-elevation chrome.
                     </p>
                   </div>
-                  <span className="text-[0.65rem] font-mono tabular-nums" style={{color: t(4)}}>
+                  <span className="text-micro font-mono tabular-nums" style={{color: t(4)}}>
                     disabled
                   </span>
                 </div>

@@ -121,7 +121,8 @@ function TooltipContent({
                 tooltipPopupBodyPadding,
               )}
             >
-              {content}
+
+              <div className="text-label leading-snug text-trim-both">{content}</div>
             </div>
           </div>
         </TooltipPrimitive.Popup>

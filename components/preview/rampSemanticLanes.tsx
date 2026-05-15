@@ -23,7 +23,11 @@ export type SemanticLanesBuckets = {
   other: SystemToken[]
 }
 
-/** Ladder-ordered S#/B#/T# badges; interactive/emphasis use a neutral dot. */
+/**
+ * Ladder-ordered S#/B#/T# badges; interactive/emphasis use a neutral dot.
+ * Badge colors (emerald, amber, sky) are fixed design constants for this preview visualization —
+ * intentionally not tokenized since they serve as categorical color codes, not UI surface tokens.
+ */
 export function stripRoleBadge(role: string): {
   text: string
   className: string

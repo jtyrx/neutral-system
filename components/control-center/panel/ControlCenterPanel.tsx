@@ -30,6 +30,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuList,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -234,18 +235,18 @@ function PanelBody({
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
+                    variant="panel"
                     align="end"
                     sideOffset={10}
-                    className="cc-ramp-preview-menu"
                   >
-                    <DropdownMenuLabel className="cc-ramp-preview-menu-label">
+                    <DropdownMenuLabel>
                       Ramp preview
                     </DropdownMenuLabel>
                     <p className="cc-ramp-preview-menu-desc">
                       Choose which neutral ladder appears in the strip below.
                     </p>
-                    <DropdownMenuSeparator className="cc-ramp-preview-menu-separator" />
-                    <div className="cc-ramp-preview-menu-list">
+                    <DropdownMenuSeparator />
+                    <DropdownMenuList>
                       {RAMP_PREVIEW_ORDER.map((mode) => {
                         const selected = rampPreviewMode === mode
                         return (
@@ -253,7 +254,6 @@ function PanelBody({
                             key={mode}
                             onClick={() => setRampPreviewMode(mode)}
                             data-active={selected ? 'true' : undefined}
-                            className="cc-ramp-preview-menu-item"
                           >
                             <div className="cc-ramp-preview-menu-item-body">
                               <div className="cc-ramp-preview-menu-item-title">
@@ -274,7 +274,7 @@ function PanelBody({
                           </DropdownMenuItem>
                         )
                       })}
-                    </div>
+                    </DropdownMenuList>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

@@ -6,6 +6,9 @@ import {
   useSpring,
   type MotionValue,
   type SpringOptions,
+  type TargetAndTransition,
+  type Transition,
+  type VariantLabels,
 } from 'motion/react'
 import {
   createContext,
@@ -92,7 +95,7 @@ export const DOCK_MAGNIFY_GAP_PX = 8
 export const DOCK_MAGNIFY_PADDING_X_PX = 8
 
 /** Top padding baseline (`pt-1.5`) — grows with magnification. */
-export const DOCK_MAGNIFY_PADDING_TOP_PX = 6
+export const DOCK_MAGNIFY_PADDING_TOP_PX = 8
 
 export type DockItemRegistration = {
   magnifyIndex: number
@@ -397,12 +400,7 @@ export function MagnifyingDockShell({
             paddingTop: shellPadTopSpring,
           }),
     }),
-    [
-      reduceMotion,
-      shellPadTopSpring,
-      shellPadXSpring,
-      shellStyle,
-    ],
+    [reduceMotion, shellPadTopSpring, shellPadXSpring, shellStyle],
   )
 
   return (
@@ -434,6 +432,10 @@ export type DockMagnifyItemProps = {
   magnifyIndex: number
   className?: string
   'data-dock-item'?: string
+  initial?: VariantLabels | TargetAndTransition | boolean
+  animate?: VariantLabels | TargetAndTransition | boolean
+  exit?: VariantLabels | TargetAndTransition
+  transition?: Transition
 }
 
 export function DockMagnifyItem({
@@ -441,6 +443,10 @@ export function DockMagnifyItem({
   magnifyIndex,
   className,
   'data-dock-item': dataDockItem,
+  initial,
+  animate,
+  exit,
+  transition,
 }: DockMagnifyItemProps) {
   const {spring, reduceMotion} = useMagnifyingDockShell()
   const {registerItem, unregisterItem} = useDockRegistry()
@@ -474,13 +480,22 @@ export function DockMagnifyItem({
 
   return (
     <motion.div
-      ref={ref}
       data-slot="dock-item"
       data-dock-item={dataDockItem}
-      style={itemMotionStyle}
       className={cn('cc-dock-item rounded-dock-item', className)}
+      initial={initial}
+      animate={animate}
+      exit={exit}
+      transition={transition}
     >
-      {children}
+      <motion.div
+        ref={ref}
+        data-slot="dock-item-magnify"
+        style={itemMotionStyle}
+        className="cc-dock-item-magnify"
+      >
+        {children}
+      </motion.div>
     </motion.div>
   )
 }

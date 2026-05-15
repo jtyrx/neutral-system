@@ -27,7 +27,7 @@ export function Workbench() {
   return (
     <div
       id="nsb-workbench"
-      className="ns-workbench bg-(--ns-app-bg) text-(--ns-text)"
+      className="ns-workbench bg-sunken text-default"
     >
       <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 

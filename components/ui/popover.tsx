@@ -9,7 +9,16 @@ import {
   floatingPopupSlideAllSides,
   floatingPopupTransitionDuration,
   popoverElevatedSurface,
-} from '@/components/ui/floating-popup-styles'
+} from './floating-popup-styles'
+
+const popoverContentBase = cn(
+  'z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 p-2.5',
+  'text-sm outline-hidden',
+)
+
+const popoverHeaderBase = 'flex flex-col gap-0.5 text-label'
+const popoverTitleBase = 'font-normal'
+const popoverDescriptionBase = 'text-muted-foreground'
 
 function Popover({...props}: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
@@ -60,7 +69,7 @@ function PopoverContent({
         <PopoverPrimitive.Popup
           data-slot="popover-content"
           className={cn(
-            'z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 p-2.5 text-sm outline-hidden',
+            popoverContentBase,
             popoverElevatedSurface,
             floatingPopupTransitionDuration,
             floatingPopupSlideAllSides,
@@ -78,7 +87,7 @@ function PopoverHeader({className, ...props}: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="popover-header"
-      className={cn('flex flex-col gap-0.5 text-label', className)}
+      className={cn(popoverHeaderBase, className)}
       {...props}
     />
   )
@@ -88,7 +97,7 @@ function PopoverTitle({className, ...props}: PopoverPrimitive.Title.Props) {
   return (
     <PopoverPrimitive.Title
       data-slot="popover-title"
-      className={cn('font-normal', className)}
+      className={cn(popoverTitleBase, className)}
       {...props}
     />
   )
@@ -101,11 +110,18 @@ function PopoverDescription({
   return (
     <PopoverPrimitive.Description
       data-slot="popover-description"
-      className={cn('text-muted-foreground', className)}
+      className={cn(popoverDescriptionBase, className)}
       {...props}
     />
   )
 }
+
+Popover.displayName = 'Popover'
+PopoverTrigger.displayName = 'PopoverTrigger'
+PopoverContent.displayName = 'PopoverContent'
+PopoverHeader.displayName = 'PopoverHeader'
+PopoverTitle.displayName = 'PopoverTitle'
+PopoverDescription.displayName = 'PopoverDescription'
 
 export {
   Popover,

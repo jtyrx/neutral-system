@@ -11,26 +11,31 @@ import {floatingPopupOpenClose} from '@/components/ui/floating-popup-styles'
 
 type DropdownMenuVariant = 'default' | 'panel'
 
-const DropdownMenuVariantContext = React.createContext<DropdownMenuVariant>('default')
+const DropdownMenuVariantContext =
+  React.createContext<DropdownMenuVariant>('default')
 
 // ─── CVA definitions ─────────────────────────────────────────────────────────
 
-const dropdownMenuContentVariants = cva('z-50 overflow-hidden border shadow-md', {
-  variants: {
-    variant: {
-      default: cn(
-        'min-w-32 rounded-md border-border bg-default p-1',
-        'text-text-default',
-      ),
-      panel: cn(
-        'min-w-[min(20rem,calc(100vw-2rem))] max-w-[min(22rem,calc(100vw-2rem))]',
-        'rounded-2xl border-border/90 bg-popover p-0',
-        'text-popover-foreground shadow-xl',
-      ),
+const dropdownMenuContentVariants = cva(
+  cn('z-50 overflow-hidden border shadow-md'),
+  {
+    variants: {
+      variant: {
+        default: cn(
+          'min-w-32 rounded-md border-border bg-default p-1',
+          'text-text-default',
+        ),
+        panel: cn(
+          'min-w-[min(20rem,calc(100vw-2rem))]',
+          'max-w-[min(22rem,calc(100vw-2rem))]',
+          'rounded-2xl border-border/90 bg-popover p-0',
+          'text-popover-foreground shadow-xl',
+        ),
+      },
     },
+    defaultVariants: {variant: 'default'},
   },
-  defaultVariants: {variant: 'default'},
-})
+)
 
 const dropdownMenuLabelVariants = cva('', {
   variants: {
@@ -53,11 +58,20 @@ const dropdownMenuSeparatorVariants = cva('h-px', {
 })
 
 const dropdownMenuItemVariants = cva(
-  'relative flex cursor-default select-none items-center gap-2 rounded-sm text-sm transition-colors outline-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*="size-"])]:size-4',
+  cn(
+    'relative flex cursor-default select-none items-center gap-2 rounded-sm',
+    'text-sm transition-colors outline-none',
+    'data-disabled:pointer-events-none data-disabled:opacity-50',
+    '[&_svg]:pointer-events-none [&_svg]:shrink-0',
+    '[&_svg:not([class*="size-"])]:size-4',
+  ),
   {
     variants: {
       variant: {
-        default: cn('px-2 py-1.5', 'focus:bg-accent focus:text-accent-foreground'),
+        default: cn(
+          'px-2 py-1.5',
+          'focus:bg-accent focus:text-accent-foreground',
+        ),
         panel: cn(
           'mb-0.5 cursor-pointer items-start justify-between gap-3 rounded-xl p-2.5',
           'text-left font-light text-foreground last:mb-0',
@@ -111,13 +125,13 @@ function DropdownMenuTrigger({
 function DropdownMenuPortal({
   ...props
 }: React.ComponentProps<typeof MenuPrimitive.Portal>) {
-  return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
+  return <MenuPrimitive.Portal {...props} />
 }
 
 type DropdownMenuContentProps = React.ComponentProps<typeof MenuPrimitive.Popup> & {
   sideOffset?: number
-  side?: 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
-  align?: 'start' | 'center' | 'end'
+  side?: React.ComponentProps<typeof MenuPrimitive.Positioner>['side']
+  align?: React.ComponentProps<typeof MenuPrimitive.Positioner>['align']
   variant?: DropdownMenuVariant
 }
 
@@ -132,7 +146,11 @@ function DropdownMenuContent({
   return (
     <DropdownMenuVariantContext.Provider value={variant}>
       <DropdownMenuPortal>
-        <MenuPrimitive.Positioner sideOffset={sideOffset} side={side} align={align}>
+        <MenuPrimitive.Positioner
+          sideOffset={sideOffset}
+          side={side}
+          align={align}
+        >
           <MenuPrimitive.Popup
             data-slot="dropdown-menu-content"
             className={cn(
@@ -152,7 +170,11 @@ type DropdownMenuItemProps = React.ComponentProps<typeof MenuPrimitive.Item> & {
   variant?: DropdownMenuVariant
 }
 
-function DropdownMenuItem({className, variant: variantProp, ...props}: DropdownMenuItemProps) {
+function DropdownMenuItem({
+  className,
+  variant: variantProp,
+  ...props
+}: DropdownMenuItemProps) {
   const fromContext = React.useContext(DropdownMenuVariantContext)
   const variant = variantProp ?? fromContext
   return (
@@ -168,7 +190,11 @@ type DropdownMenuLabelProps = React.ComponentProps<'div'> & {
   variant?: DropdownMenuVariant
 }
 
-function DropdownMenuLabel({className, variant: variantProp, ...props}: DropdownMenuLabelProps) {
+function DropdownMenuLabel({
+  className,
+  variant: variantProp,
+  ...props
+}: DropdownMenuLabelProps) {
   const fromContext = React.useContext(DropdownMenuVariantContext)
   const variant = variantProp ?? fromContext
   return (
@@ -180,17 +206,20 @@ function DropdownMenuLabel({className, variant: variantProp, ...props}: Dropdown
   )
 }
 
-type DropdownMenuSeparatorProps = React.ComponentProps<'div'> & {
+type DropdownMenuSeparatorProps = React.ComponentProps<typeof MenuPrimitive.Separator> & {
   variant?: DropdownMenuVariant
 }
 
-function DropdownMenuSeparator({className, variant: variantProp, ...props}: DropdownMenuSeparatorProps) {
+function DropdownMenuSeparator({
+  className,
+  variant: variantProp,
+  ...props
+}: DropdownMenuSeparatorProps) {
   const fromContext = React.useContext(DropdownMenuVariantContext)
   const variant = variantProp ?? fromContext
   return (
-    <div
+    <MenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      role="separator"
       className={cn(dropdownMenuSeparatorVariants({variant}), className)}
       {...props}
     />
@@ -201,7 +230,11 @@ type DropdownMenuListProps = React.ComponentProps<'div'> & {
   variant?: DropdownMenuVariant
 }
 
-function DropdownMenuList({className, variant: variantProp, ...props}: DropdownMenuListProps) {
+function DropdownMenuList({
+  className,
+  variant: variantProp,
+  ...props
+}: DropdownMenuListProps) {
   const fromContext = React.useContext(DropdownMenuVariantContext)
   const variant = variantProp ?? fromContext
   return (
@@ -218,6 +251,16 @@ function DropdownMenuGroup({
 }: React.ComponentProps<typeof MenuPrimitive.Group>) {
   return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
 }
+
+DropdownMenu.displayName = 'DropdownMenu'
+DropdownMenuTrigger.displayName = 'DropdownMenuTrigger'
+DropdownMenuPortal.displayName = 'DropdownMenuPortal'
+DropdownMenuContent.displayName = 'DropdownMenuContent'
+DropdownMenuItem.displayName = 'DropdownMenuItem'
+DropdownMenuLabel.displayName = 'DropdownMenuLabel'
+DropdownMenuSeparator.displayName = 'DropdownMenuSeparator'
+DropdownMenuList.displayName = 'DropdownMenuList'
+DropdownMenuGroup.displayName = 'DropdownMenuGroup'
 
 export {
   DropdownMenu,

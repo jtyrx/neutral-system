@@ -12,7 +12,7 @@ import {cn} from '@/lib/utils'
 const buttonBase = cn(
   'group/button inline-flex shrink-0 items-center justify-center',
   'rounded-input border border-transparent bg-clip-padding',
-  'text-label font-medium whitespace-nowrap',
+  'text-label text-trim-both whitespace-nowrap',
   'transition-all outline-none select-none',
   'cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
   // Exclude popups and already-pressed toggles from the nudge — pressing an

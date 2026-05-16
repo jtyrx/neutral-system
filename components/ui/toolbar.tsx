@@ -2,7 +2,7 @@
 
 /**
  * Base UI toolbar layout primitives (chip + controls). Rich tooltips with an integrated
- * caret use `components/ui/tooltip.tsx` and `components/ui/floating-popup-styles.ts`.
+ * caret use `components/ui/tooltip` and `components/ui/floating-popup-styles.ts`.
  */
 import * as React from 'react'
 
@@ -15,71 +15,91 @@ import {
   type ToolbarSeparatorProps,
   type ToolbarSeparatorState,
 } from '@base-ui/react/toolbar'
-import { cn } from '@/lib/utils'
+import {cn} from '@/lib/utils'
 
-const rootInset =
-  'flex flex-wrap items-center gap-0.5 rounded-md border border-hairline bg-(--chrome-chip) p-0.5 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35'
+const toolbarRootBase = cn(
+  'flex flex-wrap items-center gap-0.5 rounded-md border border-hairline',
+  'bg-(--chrome-chip) p-0.5 outline-none',
+  'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
+)
 
-const Root = React.forwardRef(function ToolbarRoot(
-  { className, ...props }: ToolbarRootProps,
-  ref: React.Ref<HTMLDivElement>,
-) {
+const toolbarButtonBase = cn(
+  '-my-px inline-flex size-8 shrink-0 items-center justify-center rounded-md',
+  'text-subtle outline-none transition',
+  'hover:bg-muted hover:text-default',
+  'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
+  'disabled:pointer-events-none disabled:opacity-45',
+  '[&_svg]:pointer-events-none [&_svg]:size-4',
+)
+
+const toolbarSeparatorBase =
+  'mx-0.5 h-5 shrink-0 bg-border data-[orientation=vertical]:w-px'
+
+function ToolbarRoot({
+  className,
+  ref,
+  ...props
+}: ToolbarRootProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <ToolbarPrimitive.Root
       ref={ref}
+      data-slot="toolbar"
       className={
         typeof className === 'function'
-          ? (state: ToolbarRootState) => cn(rootInset, className(state))
-          : cn(rootInset, className)
+          ? (state: ToolbarRootState) => cn(toolbarRootBase, className(state))
+          : cn(toolbarRootBase, className)
       }
       {...props}
     />
   )
-})
+}
+ToolbarRoot.displayName = 'Toolbar.Root'
 
-const buttonInset =
-  '-my-px inline-flex size-8 shrink-0 items-center justify-center rounded-md text-subtle outline-none transition hover:bg-sidebar-border hover:text-default focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35 disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4'
-
-const Button = React.forwardRef(function ToolbarButtonComp(
-  { className, ...props }: ToolbarButtonProps,
-  ref: React.Ref<HTMLButtonElement>,
-) {
+function ToolbarButton({
+  className,
+  ref,
+  ...props
+}: ToolbarButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <ToolbarPrimitive.Button
       ref={ref}
+      data-slot="toolbar-button"
       className={
         typeof className === 'function'
-          ? (state: ToolbarButtonState) => cn(buttonInset, className(state))
-          : cn(buttonInset, className)
+          ? (state: ToolbarButtonState) => cn(toolbarButtonBase, className(state))
+          : cn(toolbarButtonBase, className)
       }
       {...props}
     />
   )
-})
+}
+ToolbarButton.displayName = 'Toolbar.Button'
 
-const separatorInset = 'mx-0.5 h-5 shrink-0 bg-border data-[orientation=vertical]:w-px'
-
-const Separator = React.forwardRef(function ToolbarSeparatorComp(
-  { className, ...props }: ToolbarSeparatorProps,
-  ref: React.Ref<HTMLDivElement>,
-) {
+function ToolbarSeparator({
+  className,
+  ref,
+  ...props
+}: ToolbarSeparatorProps & { ref?: React.Ref<HTMLDivElement> }) {
   return (
     <ToolbarPrimitive.Separator
       ref={ref}
+      data-slot="toolbar-separator"
       className={
         typeof className === 'function'
-          ? (state: ToolbarSeparatorState) => cn(separatorInset, className(state))
-          : cn(separatorInset, className)
+          ? (state: ToolbarSeparatorState) =>
+              cn(toolbarSeparatorBase, className(state))
+          : cn(toolbarSeparatorBase, className)
       }
       {...props}
     />
   )
-})
+}
+ToolbarSeparator.displayName = 'Toolbar.Separator'
 
 const Toolbar = {
-  Root,
-  Button,
-  Separator,
+  Root: ToolbarRoot,
+  Button: ToolbarButton,
+  Separator: ToolbarSeparator,
   Group: ToolbarPrimitive.Group,
   Link: ToolbarPrimitive.Link,
   Input: ToolbarPrimitive.Input,

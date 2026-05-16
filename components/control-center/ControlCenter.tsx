@@ -22,8 +22,8 @@ import {
   MagnifyingDockShell,
   useDockReducedMotion,
 } from '@/components/control-center/dock/MagnifyingDockShell'
-import {ElevationProgressiveBlur} from '@/components/ui/elevation-progressive-blur'
-import {PageProgressiveBlur} from '@/components/ui/page-progressive-blur'
+import {ElevationProgressiveBlur} from '@/components/ui/elevation-progressive-blur.tsx'
+import {PageProgressiveBlur} from '@/components/ui/page-progressive-blur.tsx'
 import {cn} from '@/lib/utils'
 import {easeSurface} from '@/lib/effects/easings'
 

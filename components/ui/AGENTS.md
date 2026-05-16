@@ -13,8 +13,27 @@ This folder wraps Base UI primitives in shadcn-style components. Changes here af
 
 ## File Shape
 
-- All primitives are **single flat `.tsx` files** in this directory. Do not create subdirectories or barrel `index.ts` files.
-- Direct imports from the file path are the convention: `@/components/ui/radio-group`, not `@/components/ui/radio-group/index`.
+Each primitive is a **single flat file** at `components/ui/<name>.tsx`:
+
+```
+components/ui/
+├── button.tsx
+├── slider.tsx
+├── tooltip.tsx
+├── floating-popup-styles.ts   — shared style utility; not a component
+└── ...
+```
+
+**No subdirectories. No `index.ts` barrel files.** Do not create a `components/ui/<name>/` folder for UI primitives.
+
+**Import convention:** consumers always import with the explicit `.tsx` extension:
+
+```tsx
+import { Button } from '@/components/ui/button.tsx'
+import { Slider } from '@/components/ui/slider.tsx'
+```
+
+**`floating-popup-styles.ts`** is a shared style utility at the `components/ui/` root. Import it from `'./floating-popup-styles'` (relative) within sibling UI files, or `@/components/ui/floating-popup-styles` from outside.
 
 ## Component Rules
 

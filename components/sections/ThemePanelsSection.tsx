@@ -3,6 +3,7 @@
 import {memo, useCallback, useMemo, useState} from 'react'
 import {cva} from 'class-variance-authority'
 
+import {Button} from '@/components/ui/button.tsx'
 import {cn} from '@/lib/utils'
 
 import {friendlySemanticCategoryLabel, humanizeRole} from '@/components/preview/previewLabels'
@@ -170,13 +171,14 @@ function ThemeTokenColumn({
         <p className={cn('eyebrow', themeColumnHeadingVariants({tone}))}>{eyebrow}</p>
         <h3 className="mt-1 text-lg font-semibold text-default">{title}</h3>
         <p className="mt-1 text-xs text-muted">{hint}</p>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="xs"
           onClick={toggle}
-          className="mt-3 rounded-full border border-hairline px-2.5 py-1 text-micro text-subtle hover:bg-(--chrome-chip) hover:text-default"
+          className="mt-3 rounded-full"
         >
           {showTable ? 'Visual view' : 'Data table'}
-        </button>
+        </Button>
         {showTable ? (
           <p className="mt-2 text-[0.6rem] leading-snug text-disabled">
             Primitive column uses tier‑1 CSS names (

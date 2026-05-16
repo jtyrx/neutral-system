@@ -4,7 +4,7 @@ import {useSyncExternalStore, type ReactNode} from 'react'
 import {useTheme} from 'next-themes'
 
 import {ThemeProvider} from '@/components/providers/ThemeProvider'
-import {TooltipProvider} from '@/components/ui/tooltip'
+import {TooltipProvider} from '@/components/ui/tooltip.tsx'
 import {Toaster} from 'sonner'
 
 type Props = {

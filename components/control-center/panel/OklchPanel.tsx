@@ -5,7 +5,7 @@ import {memo, useMemo} from 'react'
 
 import {GamutBadge} from '@/components/picker/GamutBadge'
 import {OklchPickerMainBlocks} from '@/components/picker/OklchPickerMainBlocks'
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
 import {liveWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 import {useDisplayGamut} from '@/hooks/useDisplayGamut'

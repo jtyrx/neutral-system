@@ -38,7 +38,7 @@ export type PageProgressiveBlurProps = {
  *
  * ### `backdrop-filter` roots
  * [`app/layout.tsx`](../../app/layout.tsx) wraps the tree in `isolate`, which defines a
- * backdrop root. If the scrim samples “empty” content, move it or adjust stacking so it
+ * backdrop root. If the scrim samples "empty" content, move it or adjust stacking so it
  * sits where the intended backdrop lives (often as a direct `body` child via a portal).
  *
  * ### Chromium caveat

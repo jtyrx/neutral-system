@@ -18,21 +18,21 @@ import {
   Sun,
 } from 'lucide-react'
 
-import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input'
+import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input.tsx'
 import {
   Popover,
   PopoverContent,
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from '@/components/ui/popover.tsx'
 import {
   ResponsiveSelect,
   type ResponsiveSelectOption,
-} from '@/components/ui/responsive-select'
-import {SelectPrimitives} from '@/components/ui/select'
-import {Slider, SliderControlled} from '@/components/ui/slider'
-import {Toolbar} from '@/components/ui/toolbar'
+} from '@/components/ui/responsive-select.tsx'
+import {SelectPrimitives} from '@/components/ui/select.tsx'
+import {Slider, SliderControlled} from '@/components/ui/slider.tsx'
+import {Toolbar} from '@/components/ui/toolbar.tsx'
 import {ChromaModeComparisonRail} from '@/components/viz/ChromaModeComparisonRail'
 import {LightnessSparkline} from '@/components/viz/LightnessSparkline'
 import {GlobalScaleRampVisualization} from '@/components/sections/GlobalScaleRampVisualization'
@@ -49,7 +49,7 @@ import type {
   LCurve,
   NamingStyle,
 } from '@/lib/neutral-engine/types'
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 
 export type RampPatchFn = <K extends keyof GlobalScaleConfig>(
   key: K,

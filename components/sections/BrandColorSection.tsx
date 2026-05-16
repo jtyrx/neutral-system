@@ -5,7 +5,8 @@ import {useCallback, useEffect, useMemo, useState} from 'react'
 
 import {OklchControls} from '@/components/picker/OklchControls'
 import {SegmentedControl, type SegmentedOption} from '@/components/preview/SegmentedControl'
-import {Input} from '@/components/ui/input'
+import {Button} from '@/components/ui/button.tsx'
+import {Input} from '@/components/ui/input.tsx'
 import {useDisplayGamut} from '@/hooks/useDisplayGamut'
 import {canonicalBrandOklchCss, tryParseBrandOklch} from '@/lib/neutral-engine/brandColor'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
@@ -111,15 +112,14 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          className="rounded-lg border border-(--chrome-amber-border-strong) bg-(--chrome-amber-surface-bold) px-3 py-1.5 text-xs font-semibold text-(--chrome-amber-text) transition hover:bg-(--chrome-amber-hover)"
-          onClick={() => {
-            setControlsOpen((o) => !o)
-          }}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setControlsOpen((o) => !o)}
+          className="border-(--chrome-amber-border-strong) bg-(--chrome-amber-surface-bold) font-semibold text-(--chrome-amber-text) hover:bg-(--chrome-amber-hover)"
         >
           Custom Brand
-        </button>
+        </Button>
         <span
           className="inline-block h-8 w-8 shrink-0 rounded-md border border-hairline-strong shadow-inner"
           style={{background: previewCss}}

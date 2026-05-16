@@ -12,15 +12,15 @@ import {type ReactNode} from 'react'
 import {SlidersHorizontal} from 'lucide-react'
 
 import {useDockElevationTuning, type ElevationTuningValue} from '@/components/control-center/debug/ControlCenterElevationProvider'
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import {
   Popover,
   PopoverContent,
   PopoverTitle,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import {Slider} from '@/components/ui/slider'
-import type {PageProgressiveBlurDirection} from '@/components/ui/page-progressive-blur'
+} from '@/components/ui/popover.tsx'
+import {Slider} from '@/components/ui/slider.tsx'
+import type {PageProgressiveBlurDirection} from '@/components/ui/page-progressive-blur.tsx'
 import type {BlurCurve} from '@/lib/effects/progressiveBlurStack'
 import {cn} from '@/lib/utils'
 

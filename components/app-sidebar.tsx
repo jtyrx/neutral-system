@@ -20,7 +20,7 @@ import {
   SidebarResizer,
   SidebarSeparator,
   SidebarTrigger,
-} from '@/components/ui/sidebar'
+} from '@/components/ui/sidebar.tsx'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu.tsx'
 import {ControlCenter} from '@/components/control-center/ControlCenter'
 import {ControlCenterElevationProvider} from '@/components/control-center/debug/ControlCenterElevationProvider'
 import {ControlCenterDebugGate} from '@/components/control-center/debug/ControlCenterDebugGate'

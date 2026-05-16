@@ -11,13 +11,31 @@ import {
   type RefObject,
 } from 'react'
 
-import type {DockItemRegistration} from '@/components/control-center/dock/MagnifyingDockShell'
-import {
-  DOCK_MAGNIFY_GAP_PX,
-  DOCK_MAGNIFY_PADDING_TOP_PX,
-  DOCK_MAGNIFY_PADDING_X_PX,
-  DOCK_MAGNIFY_DISTANCE_REM,
-} from '@/components/control-center/dock/MagnifyingDockShell'
+// ─── Shared constants ─────────────────────────────────────────────────────────
+
+/**
+ * Magnification falloff half-width in **rem** (plan default ~9rem ≈ 144px at 16px root).
+ * Matched to `clientX` / layout measurements in CSS px via ×16 in `useDockMagnification`.
+ */
+export const DOCK_MAGNIFY_DISTANCE_REM = 9 as const
+
+/** `gap-2` between dock toolbar items. */
+export const DOCK_MAGNIFY_GAP_PX = 8
+
+/** Horizontal padding from `px-2` on the dock panel. */
+export const DOCK_MAGNIFY_PADDING_X_PX = 8
+
+/** Top padding baseline (`pt-1.5`) — grows with magnification. */
+export const DOCK_MAGNIFY_PADDING_TOP_PX = 8
+
+// ─── Shared types ─────────────────────────────────────────────────────────────
+
+export type DockItemRegistration = {
+  magnifyIndex: number
+  itemRef: RefObject<HTMLDivElement | null>
+  scaleTarget: import('motion/react').MotionValue<number>
+  xTarget: import('motion/react').MotionValue<number>
+}
 
 const DEFAULT_MAGNIFY_DISTANCE_PX = DOCK_MAGNIFY_DISTANCE_REM * 16
 

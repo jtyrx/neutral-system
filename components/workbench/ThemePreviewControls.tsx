@@ -1,7 +1,7 @@
 'use client'
 
 import {memo, useCallback} from 'react'
-import {Check, ChevronDown} from 'lucide-react'
+import {Check} from 'lucide-react'
 
 import {GlobalThemeToggleButton} from '@/components/workbench/GlobalThemeToggleButton'
 import {
@@ -12,7 +12,8 @@ import {
   DropdownMenuList,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu.tsx'
+import {Button} from '@/components/ui/button.tsx'
 import {cn} from '@/lib/cn'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
 
@@ -27,7 +28,12 @@ type Props = {
   showThemeToggle?: boolean
 }
 
-const EMPHASIS_ORDER: ContrastEmphasis[] = ['subtle', 'default', 'strong', 'inverse']
+const EMPHASIS_ORDER: ContrastEmphasis[] = [
+  'subtle',
+  'default',
+  'strong',
+  'inverse',
+]
 
 const EMPHASIS_LABEL: Record<ContrastEmphasis, string> = {
   subtle: 'Subtle',
@@ -96,16 +102,10 @@ function ThemePreviewControlsInner({
       ) : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            className="group flex items-center gap-1.5 rounded-xl border border-transparent bg-transparent px-2.5 py-1.5 text-xs font-light text-subtle transition-colors hover:bg-chip hover:text-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
-          >
-            <span>Contrast</span>
-            <span className="font-medium text-default">
-              {EMPHASIS_LABEL[contrastEmphasis]}
-            </span>
-            <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
-          </button>
+          <Button.MenuTrigger
+            label="Contrast"
+            value={EMPHASIS_LABEL[contrastEmphasis]}
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent variant="panel" align="start" sideOffset={8}>
           <DropdownMenuLabel>Contrast mapping</DropdownMenuLabel>
@@ -120,11 +120,18 @@ function ThemePreviewControlsInner({
                   data-active={selected ? 'true' : undefined}
                 >
                   <div>
-                    <div className="text-sm font-normal">{EMPHASIS_LABEL[e]}</div>
-                    <p className="text-xs text-muted-foreground">{EMPHASIS_DESC[e]}</p>
+                    <div className="text-sm font-normal">
+                      {EMPHASIS_LABEL[e]}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {EMPHASIS_DESC[e]}
+                    </p>
                   </div>
                   {selected ? (
-                    <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 text-primary"
+                      aria-hidden
+                    />
                   ) : (
                     <span className="size-4 shrink-0" aria-hidden />
                   )}

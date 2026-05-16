@@ -1,6 +1,7 @@
 'use client'
 
 import {cn} from '@/lib/cn'
+import {Button} from '@/components/ui/button.tsx'
 
 type Props = {
   active: boolean
@@ -9,12 +10,13 @@ type Props = {
 
 export function InspectionToggle({active, onToggle}: Props) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={onToggle}
       aria-pressed={active}
       className={cn(
-        'ns-control-item ns-pill border tracking-[0.12em] uppercase',
+        'ns-control-item ns-pill',
         active
           ? 'border-emerald-400/50 bg-emerald-400/15 text-emerald-100'
           : 'border-hairline bg-overlay-soft text-subtle hover:text-default',
@@ -27,7 +29,7 @@ export function InspectionToggle({active, onToggle}: Props) {
           active ? 'bg-emerald-300' : 'bg-overlay-strong',
         )}
       />
-      Inspection {active ? 'on' : 'off'}
-    </button>
+      <span className="">Inspection {active ? 'on' : 'off'}</span>
+    </Button>
   )
 }

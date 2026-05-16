@@ -2,7 +2,7 @@
 
 import {memo} from 'react'
 
-import {cn} from '@/lib/cn'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group.tsx'
 import {logPresetGroup, presetDebugEnabled} from '@/lib/debug/presetDebug'
 import {applyVariantToConfig, VARIANT_PRESETS} from '@/lib/neutral-engine/variants'
 import type {GlobalScaleConfig, NeutralVariantId} from '@/lib/neutral-engine/types'
@@ -43,32 +43,26 @@ function VariantsSectionInner({config, onChange}: Props) {
           Custom keeps your sliders.
         </p>
       </header>
-      <div className="flex flex-wrap gap-2">
+      <RadioGroup
+        variant="scrim"
+        value={config.variantId}
+        onValueChange={(id) => {
+          const v = VARIANT_PRESETS.find((p) => p.id === id)
+          if (!v) return
+          const t0 = presetDebugEnabled() && typeof performance !== 'undefined' ? performance.now() : 0
+          const next = applyVariantToConfig(config, id as NeutralVariantId)
+          logPresetGroup('variant', v.label, diffConfig(config, next))
+          if (presetDebugEnabled()) {
+            const dt = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
+            console.log('PresetPerf', 'applyVariantToConfig(ms)=', dt.toFixed(2))
+          }
+          onChange(next, v.label)
+        }}
+      >
         {VARIANT_PRESETS.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            onClick={() => {
-              const t0 = presetDebugEnabled() && typeof performance !== 'undefined' ? performance.now() : 0
-              const next = applyVariantToConfig(config, v.id as NeutralVariantId)
-              logPresetGroup('variant', v.label, diffConfig(config, next))
-              if (presetDebugEnabled()) {
-                const dt = (typeof performance !== 'undefined' ? performance.now() : 0) - t0
-                console.log('PresetPerf', 'applyVariantToConfig(ms)=', dt.toFixed(2))
-              }
-              onChange(next, v.label)
-            }}
-            className={cn(
-              'ns-control-item border px-3 py-1.5 text-xs transition',
-              config.variantId === v.id
-                ? 'border-hairline-strong bg-overlay-strong text-default'
-                : 'border-hairline bg-chip text-subtle hover:bg-(--chrome-hairline)',
-            )}
-          >
-            {v.label}
-          </button>
+          <RadioGroupItem key={v.id} value={v.id}>{v.label}</RadioGroupItem>
         ))}
-      </div>
+      </RadioGroup>
     </section>
   )
 }

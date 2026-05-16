@@ -95,6 +95,25 @@
 /* Base theme tokens */
 @layer base {
   :root {
+    /* --color-neutral-0: oklch(100.000% 0 none);
+    --color-neutral-1: oklch(99.536% 0 none);
+    --color-neutral-2: oklch(98.142% 0 none);
+    --color-neutral-3: oklch(95.820% 0 none);
+    --color-neutral-4: oklch(92.568% 0 none);
+    --color-neutral-5: oklch(88.388% 0 none);
+    --color-neutral-6: oklch(83.278% 0 none);
+    --color-neutral-7: oklch(77.240% 0 none);
+    --color-neutral-8: oklch(70.272% 0 none);
+    --color-neutral-9: oklch(62.376% 0 none);
+    --color-neutral-10: oklch(53.550% 0 none);
+    --color-neutral-11: oklch(43.796% 0 none);
+    --color-neutral-12: oklch(33.112% 0 none);
+    --color-neutral-13: oklch(21.500% 0 none);
+    --color-neutral-100a: oklch(21.500% 0 none / 3.14%);
+    --color-neutral-200a: oklch(21.500% 0 none / 5.88%);
+    --color-neutral-300a: oklch(21.500% 0 none / 7.84%);
+    --color-neutral-400a: oklch(21.500% 0 none / 14.12%);
+    --color-neutral-500a: oklch(21.500% 0 none / 23.92%); */
     /* ─── First-paint fallbacks: tier-2 OKLCH dark values ───
      * Used for the very first paint before LiveThemeStyles writes the live
      * `[data-theme="light|dark"] { --color-*: … }` stylesheet. They match the
@@ -480,6 +499,16 @@
     /* Neutral alpha alternative 100% */
     --color-neutral-alpha-alt-100: oklch(0% 0 0 / 0.06);
   }
+
+  /* [data-theme='dark'] {
+    --color-neutral-dark-100a: oklch(100% 0 none / 3.14%);
+    --color-neutral-dark-200a: oklch(100% 0 none / 5.88%);
+    --color-neutral-dark-250a: oklch(100% 0 none / 7.84%);
+    --color-neutral-dark-300a: oklch(100% 0 none / 12.16%);
+    --color-neutral-dark-350a: oklch(100% 0 none / 16.08%);
+    --color-neutral-dark-400a: oklch(100% 0 none / 23.92%);
+    --color-neutral-dark-500a: oklch(100% 0 none / 32.16%);
+  } */
 
   [data-theme='dark'] {
     /* Neutral tier-2 inherits from `:root` / live tokens; keep destructive + charts as static accents. */

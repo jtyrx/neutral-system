@@ -2,14 +2,14 @@
 
 import {memo} from 'react'
 
-import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input'
+import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input.tsx'
 import {cn} from '@/lib/utils'
 import {ExportSection} from '@/components/sections/ExportSection'
 import {GlobalScaleSection} from '@/components/sections/GlobalScaleSection'
 import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
 import {VariantsSection} from '@/components/sections/VariantsSection'
 import {OkhslSectionBlock} from '@/components/picker/OkhslSectionBlock'
-import {PillChip} from '@/components/ui/chip'
+import {PillChip} from '@/components/ui/chip.tsx'
 import {useOklchPickerSectionProps} from '@/hooks/useOklchPickerSectionProps'
 import type {WorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 

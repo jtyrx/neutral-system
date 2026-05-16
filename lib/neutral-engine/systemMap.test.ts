@@ -1,14 +1,13 @@
 import {expect, test} from 'vitest'
 
+import {DEFAULT_SYSTEM_MAPPING, migrateSystemMappingConfig} from '@/lib/neutral-engine/defaultSystemMapping'
 import {
   clampSystemMappingToLadderLength,
-  DEFAULT_SYSTEM_MAPPING,
-  migrateSystemMappingConfig,
   pickDarkIndices,
   previewResolvedRoleIndices,
   resolveDarkTextStartOffset,
   resolveLightTextStartIndex,
-} from '@/lib/neutral-engine'
+} from '@/lib/neutral-engine/systemMap'
 
 test('dynamic text fitting preserves legacy 41-step light/dark text seeds', () => {
   const cfg = migrateSystemMappingConfig({})

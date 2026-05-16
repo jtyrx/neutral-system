@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import {memo, useCallback} from 'react'
 
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import type {WorkbenchAdapterMode} from '@/hooks/useWorkbenchAdapter'
 import type {GlobalScaleConfig} from '@/lib/neutral-engine/types'
 import type {NeutralArchitectureMode} from '@/lib/neutral-engine/types'

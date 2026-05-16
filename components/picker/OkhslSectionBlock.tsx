@@ -3,7 +3,7 @@
 import {memo} from 'react'
 
 import {OkhslSection} from '@/components/sections/OkhslSection'
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import {DEFAULT_GLOBAL} from '@/hooks/useNeutralWorkbench'
 import type {WorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 import {cn} from '@/lib/utils'

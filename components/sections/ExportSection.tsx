@@ -2,7 +2,8 @@
 
 import {memo, useCallback, useMemo, useState} from 'react'
 
-import {cn} from '@/lib/cn'
+import {Button} from '@/components/ui/button.tsx'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group.tsx'
 import {
   exportCssVariables,
   exportCsv,
@@ -202,36 +203,33 @@ function ExportSectionInner({
         </p>
       </header>
 
-      <div className="flex flex-wrap gap-2">
-        {(['json', 'css', 'csv', 'tailwind'] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={cn(
-              'ns-control-item border px-3 py-1.5 text-xs capitalize',
-              tab === t
-                ? 'border-hairline-strong bg-overlay-strong text-default'
-                : 'border-hairline text-subtle',
-            )}
-          >
-            {t === 'tailwind' ? '@theme' : t}
-          </button>
-        ))}
-        <button
-          type="button"
+      <div className="flex flex-wrap items-center gap-2">
+        <RadioGroup
+          variant="scrim"
+          value={tab}
+          onValueChange={(v) => setTab(v as typeof tab)}
+        >
+          {(['json', 'css', 'csv', 'tailwind'] as const).map((t) => (
+            <RadioGroupItem key={t} value={t}>
+              {t === 'tailwind' ? '@theme' : t}
+            </RadioGroupItem>
+          ))}
+        </RadioGroup>
+        <Button
+          variant="outline"
+          size="sm"
           onClick={copy}
-          className="ns-control-item ml-auto border border-hairline bg-chip px-3 py-1.5 text-xs text-default"
+          className="ml-auto"
         >
           {copied ? 'Copied' : 'Copy'}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => download(`neutral-export.${tab === 'tailwind' ? 'css' : tab}`, text, 'text/plain')}
-          className="ns-control-item border border-hairline px-3 py-1.5 text-xs text-default"
         >
           Download
-        </button>
+        </Button>
       </div>
 
       <pre className="max-h-80 overflow-auto rounded-xl border border-hairline bg-raised p-4 font-mono text-micro leading-relaxed text-default">
@@ -239,13 +237,9 @@ function ExportSectionInner({
       </pre>
 
       <div className="flex flex-wrap gap-3 border-t border-hairline pt-4">
-        <button
-          type="button"
-          onClick={downloadPreset}
-          className="ns-control-item border border-hairline bg-chip px-3 py-1.5 text-xs text-default"
-        >
+        <Button variant="outline" size="sm" onClick={downloadPreset}>
           Download preset (config JSON)
-        </button>
+        </Button>
         <label className="ns-control-item cursor-pointer border border-hairline bg-chip px-3 py-1.5 text-xs text-default">
           Load preset
           <input

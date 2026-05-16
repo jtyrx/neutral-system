@@ -1,7 +1,7 @@
 'use client'
 
 import {Tabs} from '@base-ui/react/tabs'
-import {Check, ChevronDown, X} from 'lucide-react'
+import {Check, X} from 'lucide-react'
 import {
   useCallback,
   useEffect,
@@ -24,7 +24,7 @@ import {
   isPopupHaloEnabled,
 } from '@/components/control-center/debug/ControlCenterElevationProvider'
 import {useDockReducedMotion} from '@/components/control-center/dock/MagnifyingDockShell'
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,9 +33,9 @@ import {
   DropdownMenuList,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu.tsx'
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
-import {ElevationProgressiveBlur} from '@/components/ui/elevation-progressive-blur'
+import {ElevationProgressiveBlur} from '@/components/ui/elevation-progressive-blur.tsx'
 import {
   getDockPickerInitialState,
   writeDockPickerUi,
@@ -230,27 +230,13 @@ function PanelBody({
               <div data-slot="dock-picker-ramp-preview-wrap">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
+                    <Button.MenuTrigger
                       aria-label={`Ramp preview: ${RAMP_PREVIEW_LABEL[rampPreviewMode]}`}
                       data-slot="control-center-ramp-preview"
+                      label="Ramp preview"
+                      value={RAMP_PREVIEW_LABEL[rampPreviewMode]}
                       className={rampPreviewTriggerClassName}
-                    >
-                      <span className="shrink-0 leading-none tracking-normal text-foreground">
-                        Ramp preview
-                      </span>
-                      <span className="flex min-w-0 items-center gap-1">
-                        <span className="overflow-hidden text-ellipsis whitespace-nowrap leading-[1.3] text-muted-foreground">
-                          {RAMP_PREVIEW_LABEL[rampPreviewMode]}
-                        </span>
-                        <ChevronDown
-                          className="size-3.5 shrink-0 text-muted-foreground opacity-95"
-                          aria-hidden
-                        />
-                      </span>
-                    </Button>
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     variant="panel"

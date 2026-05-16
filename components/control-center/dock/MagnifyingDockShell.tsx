@@ -4,7 +4,6 @@ import {
   motion,
   useMotionValue,
   useSpring,
-  type MotionValue,
   type SpringOptions,
   type TargetAndTransition,
   type Transition,
@@ -18,11 +17,13 @@ import {
   useRef,
   type CSSProperties,
   type ReactNode,
-  type RefObject,
 } from 'react'
 import {useSyncExternalStore} from 'react'
 
-import {useDockMagnification} from '@/components/control-center/dock/useDockMagnification'
+import {
+  useDockMagnification,
+  type DockItemRegistration,
+} from '@/components/control-center/dock/useDockMagnification'
 import {cn} from '@/lib/utils'
 
 // ─── Reduced-motion subscription ─────────────────────────────────────────────
@@ -75,30 +76,6 @@ export function useDockReducedMotion(): boolean {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const defaultSpring: SpringOptions = {mass: 0.1, stiffness: 180, damping: 14}
-
-/**
- * Magnification falloff half-width in **rem** (plan default ~9rem ≈ 144px at 16px root).
- * Matched to `clientX` / layout measurements in CSS px via ×16 in `useDockMagnification`.
- */
-export const DOCK_MAGNIFY_DISTANCE_REM = 9 as const
-
-/** `gap-2` between dock toolbar items. */
-export const DOCK_MAGNIFY_GAP_PX = 8
-
-/** Horizontal padding from `px-2` on the dock panel. */
-export const DOCK_MAGNIFY_PADDING_X_PX = 8
-
-/** Top padding baseline (`pt-1.5`) — grows with magnification. */
-export const DOCK_MAGNIFY_PADDING_TOP_PX = 8
-
-// ─── Shared types ─────────────────────────────────────────────────────────────
-
-export type DockItemRegistration = {
-  magnifyIndex: number
-  itemRef: RefObject<HTMLDivElement | null>
-  scaleTarget: MotionValue<number>
-  xTarget: MotionValue<number>
-}
 
 // ─── Contexts ─────────────────────────────────────────────────────────────────
 

@@ -77,18 +77,7 @@ const radioGroupItemVariants = cva(
   },
 )
 
-const radioGroupIndicatorVariants = cva('size-2 rounded-full', {
-  variants: {
-    variant: {
-      default: 'bg-primary',
-      scrim: 'bg-surface-subtle',
-      icon: 'bg-surface-subtle',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-})
+const radioGroupIndicatorClass = 'size-2 rounded-full bg-primary'
 
 type RadioGroupVariant = NonNullable<
   VariantProps<typeof radioGroupVariants>['variant']
@@ -104,6 +93,10 @@ function showsIndicator(variant: RadioGroupVariant): boolean {
 const RadioGroupVariantContext = React.createContext<RadioGroupVariant | null>(
   null,
 )
+
+export function useRadioGroupVariant(): RadioGroupVariant {
+  return React.useContext(RadioGroupVariantContext) ?? 'default'
+}
 
 type RadioGroupProps = React.ComponentProps<typeof RadioGroupPrimitive> & {
   variant?: RadioGroupVariant
@@ -152,7 +145,7 @@ function RadioGroupItem({
           data-slot="radio-group-indicator"
           className="flex items-center justify-center"
         >
-          <div className={radioGroupIndicatorVariants({variant})} />
+          <div className={radioGroupIndicatorClass} />
         </RadioPrimitive.Indicator>
       )}
     </RadioPrimitive.Root>
@@ -165,8 +158,8 @@ RadioGroupItem.displayName = 'RadioGroupItem'
 export {
   RadioGroup,
   RadioGroupItem,
-  radioGroupIndicatorVariants,
   radioGroupItemVariants,
   radioGroupVariants,
   showsIndicator,
 }
+export type {RadioGroupProps, RadioGroupItemProps, RadioGroupVariant}

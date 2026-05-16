@@ -1,6 +1,6 @@
 'use client'
 
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group.tsx'
 import {cn} from '@/lib/cn'
 import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
 

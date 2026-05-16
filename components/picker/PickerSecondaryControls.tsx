@@ -16,11 +16,11 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input'
-import {ResponsiveSelect} from '@/components/ui/responsive-select'
-import {SelectPrimitives} from '@/components/ui/select'
-import {Slider} from '@/components/ui/slider'
+} from '@/components/ui/popover.tsx'
+import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input.tsx'
+import {ResponsiveSelect} from '@/components/ui/responsive-select.tsx'
+import {SelectPrimitives} from '@/components/ui/select.tsx'
+import {Slider} from '@/components/ui/slider.tsx'
 import {cn} from '@/lib/utils'
 import {
   clampGlobalScaleSteps,

@@ -4,8 +4,8 @@ import {Fragment, memo, useSyncExternalStore} from 'react'
 import {Monitor, Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group.tsx'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip.tsx'
 import {useFinePointerHover} from '@/hooks/use-fine-pointer-hover'
 import {cn} from '@/lib/cn'
 

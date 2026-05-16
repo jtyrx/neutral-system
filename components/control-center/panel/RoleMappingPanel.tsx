@@ -11,7 +11,7 @@ import {
 import {useControlCenterPanelContext} from '@/components/control-center/ControlCenterPanelContext'
 import {StepsPanel} from '@/components/control-center/panel/StepsPanel'
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
-import {Input} from '@/components/ui/input'
+import {Input} from '@/components/ui/input.tsx'
 import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
 import {
   BORDER_STANDARD_SLOT_COUNT,

@@ -8,7 +8,7 @@ import {OklchPickerEmbeddedTuneBlocks} from '@/components/picker/OklchPickerEmbe
 import {OklchPickerMainBlocks} from '@/components/picker/OklchPickerMainBlocks'
 import {OklchPickerStandaloneSettings} from '@/components/picker/OklchPickerStandaloneSettings'
 import {GamutBadge} from '@/components/picker/GamutBadge'
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import type {WorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 import {useDisplayGamut} from '@/hooks/useDisplayGamut'
 import {cn} from '@/lib/utils'

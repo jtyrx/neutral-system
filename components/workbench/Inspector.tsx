@@ -4,6 +4,7 @@ import Color from 'colorjs.io'
 import {memo, useCallback, useEffect, useRef, useState} from 'react'
 
 import {cn} from '@/lib/utils'
+import {Button} from '@/components/ui/button.tsx'
 import {analyzeSwatch} from '@/lib/neutral-engine/heuristics'
 import {parseColorFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {
@@ -111,14 +112,14 @@ function GlobalSwatchInspector({
     >
       <div className="flex items-start justify-between gap-3">
         <p className="eyebrow">Global swatch</p>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="xs"
           onClick={handleClose}
-          className="shrink-0 rounded-lg border border-hairline bg-(--chrome-chip) px-2.5 py-1 text-micro font-medium text-muted transition-colors hover:bg-raised hover:text-default"
           aria-label="Close global swatch inspector"
         >
           Close
-        </button>
+        </Button>
       </div>
       <div
         className="h-20 w-full rounded-xl border border-hairline"

@@ -10,12 +10,12 @@ import {
 } from 'react'
 import {useTheme} from 'next-themes'
 
-import {Button} from '@/components/ui/button'
+import {Button} from '@/components/ui/button.tsx'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@/components/ui/tooltip.tsx'
 import {cn} from '@/lib/utils'
 import {dockActionClassName} from '@/components/control-center/dock/dockStyles'
 

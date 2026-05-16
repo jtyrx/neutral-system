@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react'
 
-import type {PageProgressiveBlurDirection} from '@/components/ui/page-progressive-blur'
+import type {PageProgressiveBlurDirection} from '@/components/ui/page-progressive-blur.tsx'
 import type {BlurCurve} from '@/lib/effects/progressiveBlurStack'
 
 export type PageBlurTuning = {

@@ -2,8 +2,8 @@
 
 import {memo} from 'react'
 import {useNeutralWorkbenchOptional} from '@/components/providers/NeutralWorkbenchProvider'
-import {Button} from '@/components/ui/button'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Button} from '@/components/ui/button.tsx'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip.tsx'
 import {cn} from '@/lib/utils'
 import {dockActionClassName} from '@/components/control-center/dock/dockStyles'
 import type {ComponentPropsWithoutRef} from 'react'

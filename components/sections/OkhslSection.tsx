@@ -2,8 +2,8 @@
 
 import {memo} from 'react'
 
-import {Input} from '@/components/ui/input'
-import {Slider} from '@/components/ui/slider'
+import {Input} from '@/components/ui/input.tsx'
+import {Slider} from '@/components/ui/slider.tsx'
 import type {OkhslEdit, OkhslView} from '@/lib/neutral-engine/okhsl'
 
 type Props = {

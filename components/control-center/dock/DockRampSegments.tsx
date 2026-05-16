@@ -21,7 +21,7 @@ import {
   rampTier1FacingLabel,
 } from '@/components/preview/primitiveTokenTable'
 import {useNeutralWorkbenchOptional} from '@/components/providers/NeutralWorkbenchProvider'
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip.tsx'
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 import {cn} from '@/lib/utils'
 

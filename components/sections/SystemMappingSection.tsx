@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from 'react'
 
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/ui/input.tsx'
 import { OffsetMapDiagram } from '@/components/viz/OffsetMapDiagram'
 import { ThemeRangeBar } from '@/components/viz/ThemeRangeBar'
 import { previewResolvedRoleIndices } from '@/lib/neutral-engine/systemMap'

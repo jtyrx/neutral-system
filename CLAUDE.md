@@ -64,7 +64,8 @@ Logically distinct control regions are extracted as named components, not inline
 ## Import Policy
 
 - **No runtime barrel imports.** `lib/neutral-engine/index.ts` is type-only. Import runtime values directly from their source files (e.g. `@/lib/neutral-engine/systemMap`, `@/lib/neutral-engine/tokenViews`). `import type { ... } from '@/lib/neutral-engine'` is fine.
-- No broad runtime barrels in `components/` or `lib/`. New barrel files must be `export type` only.
+- **`components/ui/` uses flat files.** Each primitive is `components/ui/<name>.tsx` — no subdirectories, no `index.ts`. Import with the explicit extension: `import { Button } from '@/components/ui/button.tsx'`.
+- No broad runtime barrels anywhere in `components/` or `lib/`. New barrel files must be `export type` only.
 
 ## Token Rules
 
@@ -90,7 +91,7 @@ Logically distinct control regions are extracted as named components, not inline
 - **`displayName` required** on every exported component function.
 - **No CSS selector hacks** to suppress sub-elements (`**:data-[slot=...]`, `*:hidden`). Use conditional render: `{showsIndicator(variant) && <Indicator />}`.
 - **Variant context** cascades via inline `React.createContext` in the same file; the context object is never exported.
-- **All primitives are single flat `.tsx` files** — no subdirectories, no barrel `index.ts`.
+- **Each primitive is a flat file** at `components/ui/<name>.tsx`. Import with the explicit `.tsx` extension: `import { RadioGroup } from '@/components/ui/radio-group.tsx'`. No subdirectories, no `index.ts`.
 
 ## Debugging
 

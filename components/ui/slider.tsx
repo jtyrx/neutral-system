@@ -11,8 +11,40 @@ type SliderValue = number | readonly number[]
 type SliderChangeDetails = SliderPrimitiveRoot.ChangeEventDetails
 type SliderCommitDetails = SliderPrimitiveRoot.CommitEventDetails
 
+const sliderRootBase = cn(
+  'relative flex w-full touch-none items-center select-none',
+  'data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40',
+  'data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col',
+  'data-disabled:opacity-50',
+)
+
+const sliderControlBase = cn(
+  'relative flex w-full flex-1 items-center',
+  'data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto',
+  'data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch',
+)
+
+const sliderTrackBase = cn(
+  'relative grow overflow-hidden rounded-full',
+  'data-[orientation=horizontal]:w-full',
+  'data-[orientation=vertical]:h-full',
+)
+
+const sliderRangeBase = cn(
+  'absolute select-none',
+  'data-[orientation=horizontal]:h-full',
+  'data-[orientation=vertical]:w-full',
+)
+
+const sliderThumbBase = cn(
+  'relative block shrink-0 rounded-full border bg-background',
+  'ring-ring/50 transition-[color,box-shadow] select-none',
+  'after:absolute hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden',
+  'active:ring-3 disabled:pointer-events-none disabled:opacity-50',
+)
+
 const sliderRootVariants = cva(
-  'relative flex w-full touch-none items-center select-none data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-disabled:opacity-50',
+  sliderRootBase,
   {
     variants: {
       size: {
@@ -48,7 +80,10 @@ const sliderFieldVariants = cva('grid w-full', {
     },
     layout: {
       stacked: '',
-      inline: 'grid-cols-[minmax(0,1fr)_minmax(8rem,2fr)] items-center gap-x-3',
+      inline: cn(
+        'grid-cols-[minmax(0,1fr)_minmax(8rem,2fr)]',
+        'items-center gap-x-3',
+      ),
     },
   },
   defaultVariants: {
@@ -89,7 +124,7 @@ const sliderLabelVariants = cva('text-subtle', {
 })
 
 const sliderValueVariants = cva(
-  'shrink-0 text-right font-mono tabular-nums text-muted-foreground',
+  cn('shrink-0 text-right font-mono tabular-nums text-muted-foreground'),
   {
     variants: {
       size: {
@@ -118,7 +153,7 @@ const sliderValueVariants = cva(
 )
 
 const sliderControlVariants = cva(
-  'relative flex w-full flex-1 items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-stretch',
+  sliderControlBase,
   {
     variants: {
       density: {
@@ -134,13 +169,22 @@ const sliderControlVariants = cva(
 )
 
 const sliderTrackVariants = cva(
-  'relative grow overflow-hidden rounded-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full',
+  sliderTrackBase,
   {
     variants: {
       size: {
-        sm: 'data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5',
-        default: 'data-[orientation=horizontal]:h-1 data-[orientation=vertical]:w-1',
-        lg: 'data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:w-1.5',
+        sm: cn(
+          'data-[orientation=horizontal]:h-0.5',
+          'data-[orientation=vertical]:w-0.5',
+        ),
+        default: cn(
+          'data-[orientation=horizontal]:h-1',
+          'data-[orientation=vertical]:w-1',
+        ),
+        lg: cn(
+          'data-[orientation=horizontal]:h-1.5',
+          'data-[orientation=vertical]:w-1.5',
+        ),
       },
       tone: {
         default: 'bg-muted',
@@ -156,7 +200,7 @@ const sliderTrackVariants = cva(
 )
 
 const sliderRangeVariants = cva(
-  'absolute select-none data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full',
+  sliderRangeBase,
   {
     variants: {
       tone: {
@@ -172,7 +216,7 @@ const sliderRangeVariants = cva(
 )
 
 const sliderThumbVariants = cva(
-  'relative block shrink-0 rounded-full border bg-background ring-ring/50 transition-[color,box-shadow] select-none after:absolute hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50',
+  sliderThumbBase,
   {
     variants: {
       size: {

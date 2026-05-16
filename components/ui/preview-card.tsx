@@ -39,7 +39,7 @@ function PreviewCardPositioner({
   return (
     <PreviewCardPrimitive.Positioner
       data-slot="preview-card-positioner"
-      className={className}
+      className={cn(className)}
       {...props}
     />
   )
@@ -52,7 +52,7 @@ function PreviewCardPopup({
   return (
     <PreviewCardPrimitive.Popup
       data-slot="preview-card-popup"
-      className={className}
+      className={cn(className)}
       {...props}
     />
   )
@@ -78,6 +78,13 @@ function PreviewCardArrow({
     />
   )
 }
+
+const previewCardContentBase = cn(
+  'z-50 max-w-md rounded-sm border border-hairline bg-default p-4 text-default shadow-md outline-none',
+  'data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95',
+  'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95',
+  'data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+)
 
 type PreviewCardContentProps = Omit<
   React.ComponentProps<typeof PreviewCardPrimitive.Popup>,
@@ -107,10 +114,7 @@ function PreviewCardContent({
       >
         <PreviewCardPrimitive.Popup
           data-slot="preview-card-content"
-          className={cn(
-            'z-50 max-w-md rounded-sm border border-hairline bg-default p-4 text-default shadow-md outline-none data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-            className,
-          )}
+          className={cn(previewCardContentBase, className)}
           {...popupProps}
         >
           <PreviewCardPrimitive.Viewport>{children}</PreviewCardPrimitive.Viewport>
@@ -181,6 +185,16 @@ function AdditionalInfoPreviewCard({
   )
 }
 
+PreviewCardRoot.displayName = 'PreviewCard.Root'
+PreviewCardTrigger.displayName = 'PreviewCard.Trigger'
+PreviewCardPortal.displayName = 'PreviewCard.Portal'
+PreviewCardPositioner.displayName = 'PreviewCard.Positioner'
+PreviewCardPopup.displayName = 'PreviewCard.Popup'
+PreviewCardViewport.displayName = 'PreviewCard.Viewport'
+PreviewCardArrow.displayName = 'PreviewCard.Arrow'
+PreviewCardContent.displayName = 'PreviewCard.Content'
+AdditionalInfoPreviewCard.displayName = 'AdditionalInfoPreviewCard'
+
 export {
   PreviewCardRoot,
   PreviewCardTrigger,
@@ -192,3 +206,4 @@ export {
   PreviewCardContent,
   AdditionalInfoPreviewCard,
 }
+export type {PreviewCardContentProps, AdditionalInfoPreviewCardProps}

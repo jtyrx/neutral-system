@@ -1,14 +1,22 @@
 'use client'
 
 import * as React from 'react'
-import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
+import {Tooltip as TooltipPrimitive} from '@base-ui/react/tooltip'
 
-import { cn } from '@/lib/utils'
+import {cn} from '@/lib/utils'
 import {
   tooltipPopupBodyPadding,
   tooltipPopupContentBaseClassName,
   tooltipPopupInnerSurface,
-} from '@/components/ui/floating-popup-styles'
+} from './floating-popup-styles'
+
+const tooltipBodyBase = cn(
+  'relative z-10 flex min-h-0 min-w-0 flex-1 flex-col',
+  'items-stretch gap-1.5 whitespace-normal text-left',
+  '[&_p]:m-0',
+)
+
+const tooltipTextBase = 'text-label leading-snug text-trim-both'
 
 function TooltipProvider({
   delayDuration = 0,
@@ -95,21 +103,6 @@ function TooltipContent({
           className={cn(tooltipPopupContentBaseClassName, className)}
           {...props}
         >
-          {/* <TooltipPrimitive.Arrow
-            aria-hidden={true}
-            className={cn(
-              'z-1 shrink-0',
-              'data-[side=top]:bottom-0 data-[side=top]:translate-y-[calc(50%-1px)]',
-              'data-[side=bottom]:top-0 data-[side=bottom]:translate-y-[calc(-50%+1px)]',
-              'data-[side=left]:right-0 data-[side=left]:translate-x-[calc(50%-1px)]',
-              'data-[side=right]:left-0 data-[side=right]:translate-x-[calc(-50%+1px)]',
-              'data-[side=inline-start]:right-0 data-[side=inline-start]:translate-x-[calc(50%-1px)]',
-              'data-[side=inline-end]:left-0 data-[side=inline-end]:translate-x-[calc(-50%+1px)]',
-              '[&>div]:box-border [&>div]:size-2.5 [&>div]:shrink-0 [&>div]:rotate-45 [&>div]:bg-popover',
-            )}
-          >
-            <div aria-hidden={true} />
-          </TooltipPrimitive.Arrow> */}
           {/*
             Block wrapper (not <span>): callers often pass <p> and lists — phrasing-only <span>
             breaks HTML parsing (browser hoists <p>), destroying layout and hiding text in flex.
@@ -117,12 +110,11 @@ function TooltipContent({
           <div className={cn(tooltipPopupInnerSurface)}>
             <div
               className={cn(
-                'relative z-2 flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 items-stretch whitespace-normal text-left [&_p]:m-0',
+                tooltipBodyBase,
                 tooltipPopupBodyPadding,
               )}
             >
-
-              <div className="text-label leading-snug text-trim-both">{content}</div>
+              <div className={tooltipTextBase}>{content}</div>
             </div>
           </div>
         </TooltipPrimitive.Popup>
@@ -131,4 +123,10 @@ function TooltipContent({
   )
 }
 
+TooltipProvider.displayName = 'TooltipProvider'
+Tooltip.displayName = 'Tooltip'
+TooltipTrigger.displayName = 'TooltipTrigger'
+TooltipContent.displayName = 'TooltipContent'
+
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
+export type { TooltipContentProps }

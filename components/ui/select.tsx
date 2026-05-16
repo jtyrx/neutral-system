@@ -9,10 +9,48 @@ import {
   floatingPopupSlideAllSides,
   floatingPopupTransitionDuration,
   popoverElevatedSurface,
-} from '@/components/ui/floating-popup-styles'
+} from './floating-popup-styles'
 import {ChevronDownIcon, CheckIcon, ChevronUpIcon} from 'lucide-react'
 
 const Select = SelectPrimitive.Root
+
+const selectTriggerBase = cn(
+  // base
+  'flex w-fit items-center justify-between gap-1.5 rounded-input border border-input bg-transparent',
+  'py-2 pr-2 pl-2.5 text-sm whitespace-nowrap outline-none select-none transition-colors',
+  // sizing
+  'data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)]',
+  // placeholder
+  'data-placeholder:text-muted-foreground',
+  // value slot
+  '*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5',
+  // focus
+  'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+  // disabled
+  'disabled:cursor-not-allowed disabled:opacity-50',
+  // invalid
+  'aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20',
+  // svg
+  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  // dark
+  'dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
+)
+
+const selectItemBase = cn(
+  // base
+  'relative flex w-full cursor-default items-center gap-1.5 rounded-select py-1 pr-1.5 pl-1.5',
+  'text-sm outline-hidden select-none',
+  // focus
+  'focus:bg-accent focus:text-accent-foreground',
+  // not-destructive text fix
+  'not-data-[variant=destructive]:focus:**:text-accent-foreground',
+  // disabled
+  'data-disabled:pointer-events-none data-disabled:opacity-50',
+  // svg
+  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  // span layout (last span = indicator container)
+  '*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2',
+)
 
 function SelectGroup({className, ...props}: SelectPrimitive.Group.Props) {
   return (
@@ -46,10 +84,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       data-size={size}
-      className={cn(
-        "flex w-fit items-center justify-between gap-1.5 rounded-input border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className,
-      )}
+      className={cn(selectTriggerBase, className)}
       {...props}
     >
       {children}
@@ -127,10 +162,7 @@ function SelectItem({
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
-      className={cn(
-        "relative flex w-full cursor-default items-center gap-1.5 rounded-select py-1 pr-1.5 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
-        className,
-      )}
+      className={cn(selectItemBase, className)}
       {...props}
     >
       <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
@@ -195,6 +227,16 @@ function SelectScrollDownButton({
     </SelectPrimitive.ScrollDownArrow>
   )
 }
+
+SelectGroup.displayName = 'SelectGroup'
+SelectValue.displayName = 'SelectValue'
+SelectTrigger.displayName = 'SelectTrigger'
+SelectContent.displayName = 'SelectContent'
+SelectLabel.displayName = 'SelectLabel'
+SelectItem.displayName = 'SelectItem'
+SelectSeparator.displayName = 'SelectSeparator'
+SelectScrollUpButton.displayName = 'SelectScrollUpButton'
+SelectScrollDownButton.displayName = 'SelectScrollDownButton'
 
 export {
   Select,

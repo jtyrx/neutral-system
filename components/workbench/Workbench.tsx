@@ -32,8 +32,6 @@ export function Workbench() {
       <WorkbenchLoadingToast busy={wb.inputBusy} label={wb.busyInputLabel} />
 
       <WorkbenchHeader
-        previewTheme={wb.previewTheme}
-        onPreviewTheme={wb.setPreviewTheme}
         contrastEmphasis={wb.contrastEmphasis}
         onContrastEmphasis={wb.setContrastEmphasis}
         showContrastPairs={wb.showContrastPairs}

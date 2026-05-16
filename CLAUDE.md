@@ -1,8 +1,5 @@
 # CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-Instructions for Claude Code. Cursor Agent and Composer use `AGENTS.md`. Keep this file compact because it is loaded often.
+<!-- Keep this file compact — it is loaded on every session. -->
 
 ## Commands
 
@@ -60,6 +57,10 @@ State is persisted to `localStorage` via `lib/workbench/workbenchStorage.ts` (ke
 
 `components/control-center/` hosts a floating control panel system: `ControlCenter.tsx` orchestrates a magnifying dock (`dock/`) and detachable panels (`panel/`) with their own `ControlCenterPanelContext`. Picker state is managed separately in `hooks/useOklchPickerWorkbench.ts`, bridged to the main workbench via `hooks/useWorkbenchAdapter.ts`.
 
+### Workbench components (`components/workbench/**`)
+
+Logically distinct control regions are extracted as named components, not inlined in their parent. Example: `ComparisonLayoutPicker.tsx` and `InspectionToggle.tsx` rather than inline JSX in `WorkbenchHeader.tsx`. Headers and shells read as orchestration; controls are independently composable.
+
 ## Token Rules
 
 - React-facing color data must be `SerializedColor`, never live `Color` instances.
@@ -73,9 +74,18 @@ State is persisted to `localStorage` via `lib/workbench/workbenchStorage.ts` (ke
 ## UI And Styling
 
 - Tailwind v4; tokens in `app/globals.css`; no `tailwind.config.*`.
-- For `components/ui/**`, `components/ui/AGENTS.md` is authoritative.
-- `cn()` for merging; `nsb-lg:`/`nsb-xl:` for workbench layout; viewport breakpoints for shell/mobile only.
+- `cn()` from `@/lib/cn` (workbench) or `@/lib/utils` (ui primitives); never string-concatenate classes.
+- `nsb-lg:`/`nsb-xl:` for workbench layout breakpoints; viewport breakpoints for shell/mobile only.
 - Style: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports.
+
+### UI Primitives (`components/ui/**`)
+
+`components/ui/AGENTS.md` is authoritative. Key rules that prevent regressions:
+
+- **`displayName` required** on every exported component function.
+- **No CSS selector hacks** to suppress sub-elements (`**:data-[slot=...]`, `*:hidden`). Use conditional render: `{showsIndicator(variant) && <Indicator />}`.
+- **Variant context** cascades via inline `React.createContext` in the same file; the context object is never exported.
+- **All primitives are single flat `.tsx` files** — no subdirectories, no barrel `index.ts`.
 
 ## Debugging
 

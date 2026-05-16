@@ -11,6 +11,11 @@ Rules for shared UI primitives under `components/ui/**`. These override root `AG
 
 This folder wraps Base UI primitives in shadcn-style components. Changes here affect the app broadly, so keep edits small, compatible, accessible, and aligned with neighboring files.
 
+## File Shape
+
+- All primitives are **single flat `.tsx` files** in this directory. Do not create subdirectories or barrel `index.ts` files.
+- Direct imports from the file path are the convention: `@/components/ui/radio-group`, not `@/components/ui/radio-group/index`.
+
 ## Component Rules
 
 - Use `@base-ui/react` subpaths already used in this folder.
@@ -20,6 +25,26 @@ This folder wraps Base UI primitives in shadcn-style components. Changes here af
 - Avoid duplicating primitive-managed state such as `open`, `value`, or `checked`.
 - Use existing composition patterns: `asChild`, Base UI `render`, `useRender`, slots, refs, and `data-*` state attributes.
 - For floating primitives, preserve the required portal/positioner/popup structure.
+- Set `displayName` on every exported component: `MyComponent.displayName = 'MyComponent'`. This is required for React DevTools legibility across the design system.
+
+## Variant And Context Propagation
+
+- When a parent component must cascade a `variant` (or similar enum) to children without explicit prop threading, use `React.createContext` inline in the same file. Keep context internal — do not export the context object or provider; export only a `use<Name>()` hook if consumers need to read it.
+- The context hook must fall back to a safe default when called outside its provider so standalone child usage doesn't throw: `return React.useContext(Ctx) ?? 'default'`.
+- Variant logic must be typed: define a `type MyVariant = NonNullable<VariantProps<typeof myVariants>['variant']>` and use it as the context value type.
+
+## Render Decisions Belong In JSX, Not CSS
+
+- **Never use descendant CSS selectors (`**:data-[slot=...]`, `*:hidden`, etc.) to hide or suppress sub-components.** This mounts invisible DOM nodes and creates fragile coupling to Base UI internal attribute names.
+- If a sub-element (indicator, icon, suffix) should not appear for a given variant or state, use a conditional render in JSX: `{shouldShow && <Indicator />}`.
+- Document the render condition with a named predicate: `function showsIndicator(variant: MyVariant): boolean`.
+
+## Exports
+
+- Export the component function(s) and their prop types.
+- Export CVA variant functions when consumers legitimately extend or restyle the component (e.g. building a custom item on the same scale). Prefix them clearly: `radioGroupVariants`, `radioGroupItemVariants`.
+- Do **not** export internal context objects, providers, or implementation-detail helpers.
+- Use `type` imports for all type-only references.
 
 ## Accessibility
 

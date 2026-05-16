@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import {cva, type VariantProps} from 'class-variance-authority'
 
 import {cn} from '@/lib/utils'
 
@@ -11,29 +12,30 @@ export type PillChipActiveStyle = 'pill' | 'surface-soft'
 const pillChipBase = cn(
   'rounded-full border px-3 py-1.5',
   'text-xs font-medium transition',
+  'disabled:pointer-events-none disabled:opacity-50',
 )
 
 const pillChipInactive = 'border-hairline bg-(--chrome-chip)'
 
-const pillChipActiveVariants: Record<
-  PillChipTone,
-  Record<PillChipActiveStyle, string>
-> = {
-  amber: {
-    pill: 'border-(--chrome-amber-border) bg-(--chrome-amber-pill)',
-    'surface-soft': cn(
-      'border-(--chrome-amber-border)',
-      'bg-(--chrome-amber-surface-soft)',
-    ),
+const pillChipVariants = cva(pillChipBase, {
+  variants: {
+    tone: {
+      amber: '',
+      sky: '',
+    },
+    activeStyle: {
+      pill: '',
+      'surface-soft': '',
+    },
   },
-  sky: {
-    pill: 'border-(--chrome-sky-border) bg-(--chrome-sky-pill)',
-    'surface-soft': cn(
-      'border-(--chrome-sky-border)',
-      'bg-(--chrome-sky-surface-soft)',
-    ),
-  },
-}
+  compoundVariants: [
+    {tone: 'amber', activeStyle: 'pill', className: 'border-(--chrome-amber-border) bg-(--chrome-amber-pill)'},
+    {tone: 'amber', activeStyle: 'surface-soft', className: 'border-(--chrome-amber-border) bg-(--chrome-amber-surface-soft)'},
+    {tone: 'sky', activeStyle: 'pill', className: 'border-(--chrome-sky-border) bg-(--chrome-sky-pill)'},
+    {tone: 'sky', activeStyle: 'surface-soft', className: 'border-(--chrome-sky-border) bg-(--chrome-sky-surface-soft)'},
+  ],
+  defaultVariants: {tone: 'amber', activeStyle: 'pill'},
+})
 
 export type PillChipProps = React.ComponentProps<'button'> & {
   /** When true, shows the tone's selected chrome. */
@@ -61,9 +63,11 @@ export function PillChip({
       ref={ref}
       type={type}
       aria-pressed={selected}
+      data-slot="pill-chip"
+      data-variant={tone}
+      data-pressed={selected ? 'true' : undefined}
       className={cn(
-        pillChipBase,
-        selected ? pillChipActiveVariants[tone][activeStyle] : pillChipInactive,
+        selected ? pillChipVariants({tone, activeStyle}) : cn(pillChipBase, pillChipInactive),
         className,
       )}
       {...props}
@@ -75,8 +79,9 @@ PillChip.displayName = 'PillChip'
 
 const pillButtonBase = cn(
   'rounded-full border border-hairline bg-(--chrome-chip) px-3 py-1.5',
-  'text-xs font-medium text-subtle transition hover:bg-sidebar-border',
+  'text-xs font-medium text-subtle transition hover:bg-muted',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:border-ring',
+  'disabled:pointer-events-none disabled:opacity-50',
 )
 
 export type PillButtonProps = React.ComponentProps<'button'>
@@ -92,6 +97,7 @@ export function PillButton({
     <button
       ref={ref}
       type={type}
+      data-slot="pill-button"
       className={cn(pillButtonBase, className)}
       {...props}
     />
@@ -99,3 +105,5 @@ export function PillButton({
 }
 
 PillButton.displayName = 'PillButton'
+
+export {pillChipVariants}

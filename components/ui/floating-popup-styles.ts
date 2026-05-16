@@ -28,13 +28,13 @@ const tooltipPopupShell =
 
 /** Inner rounded panel: fill only; hairline + elevation come from tooltipPopupShell filter. */
 export const tooltipPopupInnerSurface =
-  'relative z-0 min-h-0 min-w-0 w-full flex flex-1 flex-col rounded-menu bg-popover/92 text-popover-foreground '
+  'relative z-0 min-h-0 min-w-0 w-full flex flex-1 flex-col rounded-menu bg-popover/92 text-popover-foreground'
 
 /** Padding for tooltip body; applied inside tooltipPopupInnerSurface. */
 export const tooltipPopupBodyPadding = 'px-3 py-2'
 
 /** Tooltip uses physical sides only (matches previous tooltip.tsx). */
-export const tooltipPopupSlideSides =
+export const tooltipPopupInnerShell =
   'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 w-full overflow-visible rounded-menu border border-hairline ring-ring/20 supports-backdrop-filter:backdrop-blur-sm'
 
 export const tooltipPopupStartingStyle =
@@ -46,7 +46,7 @@ const tooltipPopupKbdSlot =
 /** Default tooltip popup classes (caller merges `className`). */
 export const tooltipPopupContentBaseClassName = cn(
   tooltipPopupShell,
-  tooltipPopupSlideSides,
+  tooltipPopupInnerShell,
   tooltipPopupKbdSlot,
   tooltipPopupStartingStyle,
   floatingPopupOpenClose,

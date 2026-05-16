@@ -2,11 +2,11 @@
 
 import * as React from 'react'
 
-import { INPUT_WORKBENCH_FIELD_CLASS } from '@/components/ui/input'
+import {INPUT_WORKBENCH_FIELD_CLASS} from '@/components/ui/input.tsx'
 import {
   NativeSelect,
   NativeSelectOption,
-} from '@/components/ui/native-select'
+} from '@/components/ui/native-select.tsx'
 import {
   Select,
   SelectContent,
@@ -14,9 +14,24 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/select.tsx'
+import {useIsMobile} from '@/hooks/use-mobile'
+import {cn} from '@/lib/utils'
+
+const responsiveNativeSelectBase = cn(
+  INPUT_WORKBENCH_FIELD_CLASS,
+  'mb-0 appearance-none pr-8',
+)
+
+const responsiveSelectTriggerBase = cn(
+  INPUT_WORKBENCH_FIELD_CLASS,
+  'flex h-auto min-h-9 w-full min-w-0 justify-between gap-2',
+  'py-2 pr-2.5 text-left font-normal whitespace-normal',
+  '[&_svg]:shrink-0',
+  '*:data-[slot=select-value]:min-w-0',
+  '*:data-[slot=select-value]:flex-1',
+  '*:data-[slot=select-value]:text-left',
+)
 
 export type ResponsiveSelectOption = {
   value: string
@@ -24,6 +39,10 @@ export type ResponsiveSelectOption = {
   disabled?: boolean
 }
 
+/**
+ * Props for ResponsiveSelect. This component is controlled-only:
+ * `value` and `onValueChange` are required; there is no `defaultValue` support.
+ */
 export type ResponsiveSelectProps = {
   id?: string
   value: string
@@ -48,17 +67,22 @@ export function ResponsiveSelect({
     [options],
   )
 
-  const mergedSelectClassName = cn(
-    INPUT_WORKBENCH_FIELD_CLASS,
-    'appearance-none pr-8 mb-0',
-    className,
+  const handleNativeChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      onValueChange(event.target.value)
+    },
+    [onValueChange],
   )
 
-  const mergedTriggerClassName = cn(
-    INPUT_WORKBENCH_FIELD_CLASS,
-    'flex h-auto min-h-9 w-full min-w-0 justify-between gap-2 py-2 pr-2.5 text-left font-normal whitespace-normal [&_svg]:shrink-0',
-    '*:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:text-left',
-    className,
+  const handleValueChange = React.useCallback<
+    NonNullable<React.ComponentProps<typeof Select>['onValueChange']>
+  >(
+    (next) => {
+      if (next !== null && next !== undefined) {
+        onValueChange(String(next))
+      }
+    },
+    [onValueChange],
   )
 
   if (isMobile) {
@@ -67,8 +91,8 @@ export function ResponsiveSelect({
         id={id}
         value={value}
         disabled={disabled}
-        className={mergedSelectClassName}
-        onChange={(e) => onValueChange(e.target.value)}
+        className={cn(responsiveNativeSelectBase, className)}
+        onChange={handleNativeChange}
       >
         {options.map((o) => (
           <NativeSelectOption key={o.value} value={o.value} disabled={o.disabled}>
@@ -84,13 +108,13 @@ export function ResponsiveSelect({
       disabled={disabled}
       items={items}
       value={value}
-      onValueChange={(next) => {
-        if (next !== null && next !== undefined) {
-          onValueChange(String(next))
-        }
-      }}
+      onValueChange={handleValueChange}
     >
-      <SelectTrigger id={id} size="default" className={mergedTriggerClassName}>
+      <SelectTrigger
+        id={id}
+        size="default"
+        className={cn(responsiveSelectTriggerBase, className)}
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent alignItemWithTrigger>
@@ -105,3 +129,5 @@ export function ResponsiveSelect({
     </Select>
   )
 }
+
+ResponsiveSelect.displayName = 'ResponsiveSelect'

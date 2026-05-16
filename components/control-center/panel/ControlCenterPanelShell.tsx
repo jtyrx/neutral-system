@@ -24,14 +24,10 @@ export function ControlCenterPanelShell({
   className,
   children,
 }: ControlCenterPanelShellProps) {
-  const pickerSurfaceDuration = reduceMotionDock ? 0.12 : 0.22
   const surfaceMotionTransition = useMemo(() => {
     if (reduceMotionDock) return undefined
-    return {
-      duration: pickerSurfaceDuration,
-      ease: easeSurface,
-    } as const
-  }, [reduceMotionDock, pickerSurfaceDuration])
+    return {duration: 0.22, ease: easeSurface} as const
+  }, [reduceMotionDock])
 
   if (reduceMotionDock) {
     return (

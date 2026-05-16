@@ -103,7 +103,7 @@ export const DEFAULT_POPUP_HALO_TUNING: PopupHaloTuning = {
   curve: 'exponential',
 }
 
-type Value = {
+export type ElevationTuningValue = {
   pageBlur: PageBlurTuning
   setPageBlur: (p: Partial<PageBlurTuning>) => void
   halo: HaloTuning
@@ -115,74 +115,48 @@ type Value = {
   resetAll: () => void
 }
 
-const Ctx = createContext<Value | null>(null)
-
-export function ControlCenterElevationProvider({children}: {children: ReactNode}) {
-  const [pageBlur, setPageBlurState] = useState(DEFAULT_PAGE_BLUR_TUNING)
-  const [halo, setHaloState] = useState(DEFAULT_HALO_TUNING)
-  const [dockChrome, setDockChromeState] = useState(DEFAULT_DOCK_CHROME_TUNING)
-  const [popupHalo, setPopupHaloState] = useState(DEFAULT_POPUP_HALO_TUNING)
-
-  const setPageBlur = useCallback((p: Partial<PageBlurTuning>) => {
-    setPageBlurState((s) => ({...s, ...p}))
-  }, [])
-  const setHalo = useCallback((p: Partial<HaloTuning>) => {
-    setHaloState((s) => ({...s, ...p}))
-  }, [])
-  const setDockChrome = useCallback((p: Partial<DockChromeTuning>) => {
-    setDockChromeState((s) => ({...s, ...p}))
-  }, [])
-  const setPopupHalo = useCallback((p: Partial<PopupHaloTuning>) => {
-    setPopupHaloState((s) => ({...s, ...p}))
-  }, [])
-  const resetAll = useCallback(() => {
-    setPageBlurState(DEFAULT_PAGE_BLUR_TUNING)
-    setHaloState(DEFAULT_HALO_TUNING)
-    setDockChromeState(DEFAULT_DOCK_CHROME_TUNING)
-    setPopupHaloState(DEFAULT_POPUP_HALO_TUNING)
-  }, [])
-
-  const value = useMemo(
-    () => ({
-      pageBlur,
-      setPageBlur,
-      halo,
-      setHalo,
-      dockChrome,
-      setDockChrome,
-      popupHalo,
-      setPopupHalo,
-      resetAll,
-    }),
-    [
-      pageBlur,
-      setPageBlur,
-      halo,
-      setHalo,
-      dockChrome,
-      setDockChrome,
-      popupHalo,
-      setPopupHalo,
-      resetAll,
-    ],
-  )
-
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
+function usePatchState<T>(initial: T): [T, (patch: Partial<T>) => void] {
+  const [state, setState] = useState<T>(initial)
+  const patch = useCallback((p: Partial<T>) => setState((s) => ({...s, ...p})), [])
+  return [state, patch]
 }
 
-export function useDockElevationTuning(): Value {
-  const v = useContext(Ctx)
-  if (!v) {
-    throw new Error(
-      'useDockElevationTuning must be used within ControlCenterElevationProvider',
-    )
-  }
+const ElevationTuningContext = createContext<ElevationTuningValue | null>(null)
+ElevationTuningContext.displayName = 'ElevationTuningContext'
+
+export function ControlCenterElevationProvider({children}: {children: ReactNode}) {
+  const [pageBlur, setPageBlur] = usePatchState(DEFAULT_PAGE_BLUR_TUNING)
+  const [halo, setHalo] = usePatchState(DEFAULT_HALO_TUNING)
+  const [dockChrome, setDockChrome] = usePatchState(DEFAULT_DOCK_CHROME_TUNING)
+  const [popupHalo, setPopupHalo] = usePatchState(DEFAULT_POPUP_HALO_TUNING)
+
+  const resetAll = useCallback(() => {
+    setPageBlur(DEFAULT_PAGE_BLUR_TUNING)
+    setHalo(DEFAULT_HALO_TUNING)
+    setDockChrome(DEFAULT_DOCK_CHROME_TUNING)
+    setPopupHalo(DEFAULT_POPUP_HALO_TUNING)
+  }, [setPageBlur, setHalo, setDockChrome, setPopupHalo])
+
+  const value = useMemo<ElevationTuningValue>(
+    () => ({pageBlur, setPageBlur, halo, setHalo, dockChrome, setDockChrome, popupHalo, setPopupHalo, resetAll}),
+    [pageBlur, setPageBlur, halo, setHalo, dockChrome, setDockChrome, popupHalo, setPopupHalo, resetAll],
+  )
+
+  return <ElevationTuningContext.Provider value={value}>{children}</ElevationTuningContext.Provider>
+}
+
+export function useDockElevationTuning(): ElevationTuningValue {
+  const v = useContext(ElevationTuningContext)
+  if (!v) throw new Error('useDockElevationTuning must be used within ControlCenterElevationProvider')
   return v
 }
 
-export function isDockHaloBarEnabled(h: HaloTuning): boolean {
+export function isDockHaloEnabled(h: HaloTuning): boolean {
   return h.enabled
 }
+
+/** @deprecated Use {@link isDockHaloEnabled} */
+export const isDockHaloBarEnabled = isDockHaloEnabled
 
 export function isDockChromeTuningEnabled(c: DockChromeTuning): boolean {
   return c.enabled

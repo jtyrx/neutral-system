@@ -16,33 +16,27 @@ import {
   presetDebugEnabled,
   setLastPreset,
 } from '@/lib/debug/presetDebug'
-import {
-  applyContrastEmphasisToSystemMapping,
-  applyOkhslEdit,
-  buildArchitectureRamps,
-  buildTokenView,
-  clampSystemMappingToLadderLength,
-  DEFAULT_ALPHA_NEUTRAL_CONFIG,
-  DEFAULT_SYSTEM_MAPPING,
-  deriveAlphaBaseIndices,
-  deriveBrandSurfaceToken,
-  deriveSystemTokens,
-  okhslViewFromConfig,
-  rampForTheme,
-  type AlphaNeutralConfig,
-  type ArchitectureRamps,
-  type ContrastEmphasis,
-  type GlobalScaleConfig,
-  type GlobalSwatch,
-  type NeutralArchitectureMode,
-  type OkhslEdit,
-  type OkhslView,
-  type SystemMappingConfig,
-  type SystemToken,
-  type ThemeMode,
-  type TokenView,
-  type WorkbenchSelection,
-} from '@/lib/neutral-engine'
+import {DEFAULT_ALPHA_NEUTRAL_CONFIG, deriveAlphaBaseIndices} from '@/lib/neutral-engine/alphaNeutralTokens'
+import {buildArchitectureRamps, rampForTheme} from '@/lib/neutral-engine/architectureRamps'
+import {DEFAULT_SYSTEM_MAPPING} from '@/lib/neutral-engine/defaultSystemMapping'
+import {applyContrastEmphasisToSystemMapping} from '@/lib/neutral-engine/effectiveMapping'
+import {applyOkhslEdit, okhslViewFromConfig} from '@/lib/neutral-engine/okhsl'
+import {clampSystemMappingToLadderLength, deriveBrandSurfaceToken, deriveSystemTokens} from '@/lib/neutral-engine/systemMap'
+import {buildTokenView} from '@/lib/neutral-engine/tokenViews'
+import type {
+  AlphaNeutralConfig,
+  ArchitectureRamps,
+  GlobalScaleConfig,
+  GlobalSwatch,
+  NeutralArchitectureMode,
+  SystemMappingConfig,
+  SystemToken,
+  ThemeMode,
+  WorkbenchSelection,
+} from '@/lib/neutral-engine/types'
+import type {ContrastEmphasis} from '@/lib/neutral-engine/semanticNaming'
+import type {OkhslEdit, OkhslView} from '@/lib/neutral-engine/okhsl'
+import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 import {
   DEFAULT_ADVANCED_DARK_SCALE,
   DEFAULT_ADVANCED_LIGHT_SCALE,

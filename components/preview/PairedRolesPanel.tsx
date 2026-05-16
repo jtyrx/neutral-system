@@ -13,14 +13,10 @@ import {
 } from '@/components/preview/SemanticPairGrid'
 import {SemanticRoleTable, type SemanticLayerFilter} from '@/components/preview/SemanticRoleTable'
 import {UsedNeutralPrimitivesTable} from '@/components/preview/UsedNeutralPrimitivesTable'
-import {
-  tier1ExportModeFromTheme,
-  usedGlobalIndicesFromTokenView,
-  usedGlobalIndicesFromTokenViews,
-  type GlobalSwatch,
-  type NeutralArchitectureMode,
-  type TokenView,
-} from '@/lib/neutral-engine'
+import {tier1ExportModeFromTheme} from '@/lib/neutral-engine/chromeAliases'
+import {usedGlobalIndicesFromTokenView, usedGlobalIndicesFromTokenViews} from '@/lib/neutral-engine/tokenViews'
+import type {GlobalSwatch, NeutralArchitectureMode} from '@/lib/neutral-engine/types'
+import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 
 export type PairedRolesPanelVariant = 'split' | 'focus'
 
@@ -57,10 +53,6 @@ const DISPLAY_OPTIONS: SegmentedOption<DisplayMode>[] = [
   {value: 'visual', label: 'Visual pairs', shortLabel: 'Visual'},
   {value: 'usedPrimitives', label: 'Used primitives', shortLabel: 'Used'},
 ]
-
-function layerFilterFromScope(scope: RoleScope): SemanticLayerFilter {
-  return scope
-}
 
 function neutralThemeContext(
   variant: PairedRolesPanelVariant,
@@ -102,7 +94,7 @@ export function PairedRolesPanel({
   const [roleScope, setRoleScope] = useState<RoleScope>('all')
   const [displayMode, setDisplayMode] = useState<DisplayMode>('table')
 
-  const layerFilter = useMemo(() => layerFilterFromScope(roleScope), [roleScope])
+  const layerFilter = roleScope as SemanticLayerFilter
 
   const pairEmphasis = useMemo(() => {
     if (variant === 'focus') return 'both' as const

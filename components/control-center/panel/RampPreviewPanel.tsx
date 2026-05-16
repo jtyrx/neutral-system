@@ -19,6 +19,8 @@ import {
   INVERT_DARK_RAMP_STRIP,
 } from '@/lib/workbench/rampPreviewCopy'
 import type {RampPreviewMode} from '@/lib/workbench/dockPickerStorage'
+import type {GlobalSwatch} from '@/lib/neutral-engine/types'
+import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 
 export type {RampPreviewMode}
 
@@ -43,6 +45,9 @@ type RampPreviewBlockProps = {
   eyebrow: string
   title: string
   badgeLabel: string
+  ramp: GlobalSwatch[]
+  tokenView: TokenView
+  alphaBase: number
 }
 
 function RampPreviewBlock({
@@ -53,13 +58,10 @@ function RampPreviewBlock({
   eyebrow,
   title,
   badgeLabel,
+  ramp,
+  tokenView,
+  alphaBase,
 }: RampPreviewBlockProps) {
-  const wb = useNeutralWorkbenchContext()
-
-  const ramp = effectivePreviewTheme === 'light' ? wb.lightRamp : wb.darkRamp
-  const tokenView =
-    effectivePreviewTheme === 'light' ? wb.lightTokenView : wb.darkTokenView
-
   const invertVisual =
     effectivePreviewTheme === 'dark' ? INVERT_DARK_RAMP_STRIP : false
 
@@ -75,11 +77,6 @@ function RampPreviewBlock({
       ),
     [orderedSegment, tokenView],
   )
-
-  const alphaBase =
-    effectivePreviewTheme === 'light'
-      ? wb.alphaBaseIndices.lightBase
-      : wb.alphaBaseIndices.darkBase
 
   return (
     <div
@@ -180,11 +177,28 @@ export function RampPreviewPanel({
         className={rampPreviewDualClassName}
         data-slot="control-center-ramp-preview-dual"
       >
-        <RampPreviewBlock {...dualLightProps} />
-        <RampPreviewBlock {...dualDarkProps} />
+        <RampPreviewBlock
+          {...dualLightProps}
+          ramp={wb.lightRamp}
+          tokenView={wb.lightTokenView}
+          alphaBase={wb.alphaBaseIndices.lightBase}
+        />
+        <RampPreviewBlock
+          {...dualDarkProps}
+          ramp={wb.darkRamp}
+          tokenView={wb.darkTokenView}
+          alphaBase={wb.alphaBaseIndices.darkBase}
+        />
       </div>
     )
   }
 
-  return <RampPreviewBlock {...singleRampProps} />
+  return (
+    <RampPreviewBlock
+      {...singleRampProps}
+      ramp={effectivePreviewTheme === 'light' ? wb.lightRamp : wb.darkRamp}
+      tokenView={effectivePreviewTheme === 'light' ? wb.lightTokenView : wb.darkTokenView}
+      alphaBase={effectivePreviewTheme === 'light' ? wb.alphaBaseIndices.lightBase : wb.alphaBaseIndices.darkBase}
+    />
+  )
 }

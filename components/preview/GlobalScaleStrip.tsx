@@ -31,12 +31,8 @@ function shouldWrapScaleRows(length: number): boolean {
 }
 
 /** Display order preserves absolute `swatch.index`; order only changes visual traversal. */
-function displayOrderedSwatches(
-  global: GlobalSwatch[],
-  invertDisplay: boolean,
-): GlobalSwatch[] {
-  const list = invertDisplay ? [...global].reverse() : [...global]
-  return list
+function displayOrderedSwatches(global: GlobalSwatch[], invertDisplay: boolean): GlobalSwatch[] {
+  return invertDisplay ? [...global].reverse() : global
 }
 
 /**

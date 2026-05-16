@@ -5,6 +5,7 @@ import {useNeutralWorkbenchOptional} from '@/components/providers/NeutralWorkben
 import {Button} from '@/components/ui/button'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
 import {cn} from '@/lib/utils'
+import {dockActionClassName} from '@/components/control-center/dock/dockStyles'
 import type {ComponentPropsWithoutRef} from 'react'
 
 export type RampRangeButtonProps = Omit<
@@ -15,9 +16,6 @@ export type RampRangeButtonProps = Omit<
 }
 
 const EMPTY_RAMP: never[] = []
-
-const dockActionClassName =
-  'size-11 shrink-0 touch-manipulation rounded-dock-item border-[color:var(--chrome-hairline)] bg-raised text-default backdrop-blur-none hover:bg-overlay hover:text-default active:bg-[color-mix(in_oklch,var(--color-surface-overlay)_92%,var(--color-text-default))] focus-visible:border-[color:var(--ring)] focus-visible:shadow-[var(--shadow-raised),0_0_0_3px_color-mix(in_oklch,var(--ring)_35%,transparent)] [&_svg]:size-[1.125rem]'
 
 export const RampRangeButton = memo(function RampRangeButton({
   onOpen,

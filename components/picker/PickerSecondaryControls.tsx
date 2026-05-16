@@ -60,12 +60,9 @@ const stepOptions: number[] = Array.from(
 )
 
 const STEPS_SELECT_VISIBLE_ROW_COUNT = 9
-
-function stepsSelectListMaxHeightStyle(): {maxHeight: string} {
-  return {
-    maxHeight: `calc(2.375rem * ${STEPS_SELECT_VISIBLE_ROW_COUNT})`,
-  }
-}
+const STEPS_SELECT_LIST_STYLE = {
+  maxHeight: `calc(2.375rem * ${STEPS_SELECT_VISIBLE_ROW_COUNT})`,
+} as const
 
 type Props = {
   secondary: OklchPickerSecondary
@@ -163,7 +160,7 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
                     </SelectPrimitives.ScrollUpArrow>
                     <SelectPrimitives.List
                       className="min-h-0 overflow-y-auto py-0"
-                      style={stepsSelectListMaxHeightStyle()}
+                      style={STEPS_SELECT_LIST_STYLE}
                     >
                       {stepOptions.map((n) => (
                         <SelectPrimitives.Item

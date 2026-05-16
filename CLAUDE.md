@@ -60,6 +60,11 @@ State is persisted to `localStorage` via `lib/workbench/workbenchStorage.ts` (ke
 
 `components/control-center/` hosts a floating control panel system: `ControlCenter.tsx` orchestrates a magnifying dock (`dock/`) and detachable panels (`panel/`) with their own `ControlCenterPanelContext`. Picker state is managed separately in `hooks/useOklchPickerWorkbench.ts`, bridged to the main workbench via `hooks/useWorkbenchAdapter.ts`.
 
+## Import Policy
+
+- **No runtime barrel imports.** `lib/neutral-engine/index.ts` is type-only. Import runtime values directly from their source files (e.g. `@/lib/neutral-engine/systemMap`, `@/lib/neutral-engine/tokenViews`). `import type { ... } from '@/lib/neutral-engine'` is fine.
+- No broad runtime barrels in `components/` or `lib/`. New barrel files must be `export type` only.
+
 ## Token Rules
 
 - React-facing color data must be `SerializedColor`, never live `Color` instances.

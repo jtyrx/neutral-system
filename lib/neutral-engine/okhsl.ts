@@ -69,15 +69,12 @@ export function okhslViewFromConfig(cfg: GlobalScaleConfig): OkhslView {
     saturation = S ?? 0
   }
 
-  // lHigh / lLow: on the achromatic axis, OKHSL L ≡ OKLCH L
-  const [, , lHighOkhsl] = okhslToOklch(hue, 0, cfg.lHigh)
-  const [, , lLowOkhsl] = okhslToOklch(hue, 0, cfg.lLow)
-
+  // lHigh / lLow: on the achromatic axis OKHSL L ≡ OKLCH L — no conversion needed.
   return {
     hue,
     saturation,
-    lHigh: lHighOkhsl !== 0 ? cfg.lHigh : cfg.lHigh, // achromatic axis: OKLCH L == OKHSL L
-    lLow: lLowOkhsl !== 0 ? cfg.lLow : cfg.lLow,
+    lHigh: cfg.lHigh,
+    lLow: cfg.lLow,
     isAchromatic,
   }
 }

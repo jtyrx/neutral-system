@@ -49,6 +49,13 @@ const rampTooltipBreakClassName =
 const rampGamutWarningClassName =
   'rounded border border-amber-border-soft bg-amber-surface-bold px-1.5 py-0.5 font-sans text-[0.6rem] text-amber-text'
 
+function railSegmentRound(i: number, last: number) {
+  return cn(
+    i === 0 && rampEdgeStartCardClassName,
+    i === last && rampEdgeEndCardClassName,
+  )
+}
+
 export type RampSwatchRailProps = {
   /** Full-width fused rail for panel chrome. */
   size?: 'panel'
@@ -103,30 +110,18 @@ function RampSwatchRailInner({
     [architecture, previewTheme],
   )
 
-  /**
-   * Index-based rounding — Tooltip wrappers break `first:`/`last:` on segments.
-   * First segment: `rounded-l-card`; last segment: `rounded-r-card` (clips paint to outer rail corners).
-   */
-  const railSegmentRound = (i: number, last: number) =>
-    cn(
-      i === 0 && rampEdgeStartCardClassName,
-      i === last && rampEdgeEndCardClassName,
-    )
-
   const interactiveShellClass = cn(
     rampRailBaseClassName,
     rampRailLiveClassName,
     segmentLabels ? rampRailLabeledClassName : rampRailUnlabeledClassName,
-    accentClassName ? accentClassName : cn(''),
-    // accentClassName ? accentClassName : cn('ring-1 ring-ring/20'),
+    accentClassName,
   )
 
   const placeholderShellClass = cn(
     rampRailBaseClassName,
     rampRailPlaceholderClassName,
     segmentLabels ? rampRailLabeledClassName : rampRailUnlabeledClassName,
-    accentClassName ?? '',
-    // accentClassName ?? 'ring-1 ring-ring/20',
+    accentClassName,
   )
 
   const clampIdx = useCallback(
@@ -302,11 +297,6 @@ function RampSwatchRailInner({
                   )}
                   onClick={() => pickGlobalSwatch(s.index)}
                 >
-                  {/* {segmentLabels ? (
-                  <span className={rampRailSegmentLabelClass}>
-                    {facingLabel}
-                  </span>
-                ) : null} */}
                   <span
                     data-slot="ramp-swatch-paint"
                     className={cn(
@@ -318,11 +308,6 @@ function RampSwatchRailInner({
                     style={{backgroundColor: s.serialized.hex}}
                     aria-hidden
                   />
-                  {/* {segmentLabels ? (
-                  <span className={rampRailSegmentLabelClass}>
-                    {facingLabel}
-                  </span>
-                ) : null} */}
                 </span>
               </TooltipTrigger>
               <TooltipContent
@@ -332,12 +317,6 @@ function RampSwatchRailInner({
               >
                 <p className={rampTooltipTitleClassName}>{facingLabel}</p>
                 <p className={rampTooltipBreakClassName}>{cssName}</p>
-                {/* <p className="text-muted-foreground">
-                ramp index {s.index}
-                {previewTheme === 'dark'
-                  ? ` · dark display ${displayLadderIndex(ramp, s.index, previewTheme)}`
-                  : ''}
-              </p> */}
                 <p className={rampTooltipBreakClassName}>{s.serialized.hex}</p>
                 <p className={rampTooltipBreakClassName}>{s.serialized.oklchCss}</p>
                 {outOfSrgb ? (

@@ -13,7 +13,7 @@ import {
   useNeutralWorkbench,
   type NeutralWorkbench,
 } from '@/hooks/useNeutralWorkbench'
-import {migrateSystemMappingConfig} from '@/lib/neutral-engine'
+import {migrateSystemMappingConfig} from '@/lib/neutral-engine/defaultSystemMapping'
 import {DEFAULT_GLOBAL_SCALE_CONFIG} from '@/lib/neutral-engine/defaultGlobalScaleConfig'
 import {clampGlobalScaleSteps} from '@/lib/neutral-engine/globalScale'
 import type {
@@ -23,6 +23,7 @@ import type {
 } from '@/lib/neutral-engine/types'
 
 const NeutralWorkbenchContext = createContext<NeutralWorkbench | null>(null)
+NeutralWorkbenchContext.displayName = 'NeutralWorkbenchContext'
 
 function WorkbenchThemeBridge({wb}: {wb: NeutralWorkbench}) {
   const {resolvedTheme} = useTheme()
@@ -36,6 +37,78 @@ function WorkbenchThemeBridge({wb}: {wb: NeutralWorkbench}) {
   return null
 }
 
+type PresetDetail = {
+  globalConfig?: GlobalScaleConfig
+  architecture?: NeutralArchitectureMode
+  globalScale?: GlobalScaleConfig
+  lightScale?: GlobalScaleConfig
+  darkScale?: GlobalScaleConfig
+  systemConfig?: SystemMappingConfig
+}
+
+function applyPresetDetail(
+  d: PresetDetail,
+  setters: {
+    setSystemConfig: (cfg: SystemMappingConfig, label: string) => void
+    setNeutralArchitecture: (arch: NeutralArchitectureMode, label: string) => void
+    setGlobalScale: (cfg: GlobalScaleConfig, label: string) => void
+    setLightScale: (updater: (prev: GlobalScaleConfig) => GlobalScaleConfig, label: string) => void
+    setDarkScale: (updater: (prev: GlobalScaleConfig) => GlobalScaleConfig, label: string) => void
+  },
+): void {
+  if (d.systemConfig) {
+    setters.setSystemConfig(migrateSystemMappingConfig(d.systemConfig), 'System mapping')
+  }
+
+  const legacyOnlyGlobal =
+    Boolean(d.globalConfig) &&
+    d.globalScale === undefined &&
+    d.lightScale === undefined &&
+    d.darkScale === undefined
+
+  if (legacyOnlyGlobal) {
+    setters.setNeutralArchitecture(
+      (d.architecture ?? 'simple') as NeutralArchitectureMode,
+      'Preset · load',
+    )
+    setters.setGlobalScale(
+      {
+        ...DEFAULT_GLOBAL_SCALE_CONFIG,
+        ...d.globalConfig,
+        steps: clampGlobalScaleSteps(d.globalConfig!.steps ?? 16),
+      },
+      'Global scale',
+    )
+    return
+  }
+
+  if (d.architecture != null) {
+    setters.setNeutralArchitecture(d.architecture, 'Preset · architecture')
+  }
+  if (d.globalScale) {
+    setters.setGlobalScale(
+      {
+        ...DEFAULT_GLOBAL_SCALE_CONFIG,
+        ...d.globalScale,
+        steps: clampGlobalScaleSteps(d.globalScale.steps),
+      },
+      'Global scale',
+    )
+  }
+  if (d.lightScale) {
+    setters.setLightScale(
+      (prev) => ({...prev, ...d.lightScale, steps: clampGlobalScaleSteps(d.lightScale!.steps)}),
+      'Light scale',
+    )
+  }
+  if (d.darkScale) {
+    setters.setDarkScale(
+      (prev) => ({...prev, ...d.darkScale, steps: clampGlobalScaleSteps(d.darkScale!.steps)}),
+      'Dark scale',
+    )
+  }
+}
+
 export function NeutralWorkbenchProvider({children}: {children: ReactNode}) {
   const wb = useNeutralWorkbench()
   const {
@@ -47,74 +120,11 @@ export function NeutralWorkbenchProvider({children}: {children: ReactNode}) {
   } = wb
 
   useEffect(() => {
+    const setters = {setSystemConfig, setNeutralArchitecture, setGlobalScale, setLightScale, setDarkScale}
     function onLoad(e: Event) {
-      const ce = e as CustomEvent<{
-        globalConfig?: GlobalScaleConfig
-        architecture?: NeutralArchitectureMode
-        globalScale?: GlobalScaleConfig
-        lightScale?: GlobalScaleConfig
-        darkScale?: GlobalScaleConfig
-        systemConfig?: SystemMappingConfig
-      }>
-      const d = ce.detail
+      const d = (e as CustomEvent<PresetDetail>).detail
       if (!d) return
-      if (d.systemConfig) {
-        setSystemConfig(migrateSystemMappingConfig(d.systemConfig), 'System mapping')
-      }
-
-      const legacyOnlyGlobal =
-        Boolean(d.globalConfig) &&
-        d.globalScale === undefined &&
-        d.lightScale === undefined &&
-        d.darkScale === undefined
-
-      if (legacyOnlyGlobal) {
-        const arch = d.architecture ?? 'simple'
-        setNeutralArchitecture(arch as NeutralArchitectureMode, 'Preset · load')
-        setGlobalScale(
-          {
-            ...DEFAULT_GLOBAL_SCALE_CONFIG,
-            ...d.globalConfig,
-            steps: clampGlobalScaleSteps(d.globalConfig!.steps ?? 16),
-          },
-          'Global scale',
-        )
-        return
-      }
-
-      if (d.architecture != null) {
-        setNeutralArchitecture(d.architecture, 'Preset · architecture')
-      }
-      if (d.globalScale) {
-        setGlobalScale(
-          {
-            ...DEFAULT_GLOBAL_SCALE_CONFIG,
-            ...d.globalScale,
-            steps: clampGlobalScaleSteps(d.globalScale.steps),
-          },
-          'Global scale',
-        )
-      }
-      if (d.lightScale) {
-        setLightScale(
-          (prev) => ({
-            ...prev,
-            ...d.lightScale,
-            steps: clampGlobalScaleSteps(d.lightScale!.steps),
-          }),
-          'Light scale',
-        )
-      }
-      if (d.darkScale) {
-        setDarkScale(
-          (prev) => ({
-            ...prev,
-            ...d.darkScale,
-            steps: clampGlobalScaleSteps(d.darkScale!.steps),
-          }),
-          'Dark scale',
-        )
-      }
+      applyPresetDetail(d, setters)
     }
     window.addEventListener('neutral-system:load-preset', onLoad)
     return () => window.removeEventListener('neutral-system:load-preset', onLoad)

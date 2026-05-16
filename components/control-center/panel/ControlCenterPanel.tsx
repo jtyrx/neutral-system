@@ -149,18 +149,8 @@ export function ControlCenterPanel({
   return (
     <ControlCenterPanelContext.Provider value={{rampPreviewMode, effectiveRampContext}}>
       {/* `overflow-visible` so overlay-tier `box-shadow` is not clipped; tier z-index paints shadow over controls. */}
-      {isPopupHaloEnabled(popupHalo) ? (
-        <ElevationProgressiveBlur
-          spread={popupHalo.spread}
-          layerCount={popupHalo.layerCount}
-          maxBlurPx={popupHalo.maxBlurPx}
-          curve={popupHalo.curve}
-          tension={popupHalo.tension}
-          radius="var(--radius-compact-toolbar)"
-          bias={popupHalo.bias}
-          softness={popupHalo.softness}
-          className={popupWidthClassName}
-        >
+      {(() => {
+        const shell = (
           <ControlCenterPanelShell
             reduceMotionDock={reduceMotionDock}
             className={panelSurfaceClassName}
@@ -173,23 +163,25 @@ export function ControlCenterPanel({
               handleClose={handleClose}
             />
           </ControlCenterPanelShell>
-        </ElevationProgressiveBlur>
-      ) : (
-        <div className={popupWidthClassName}>
-          <ControlCenterPanelShell
-            reduceMotionDock={reduceMotionDock}
-            className={panelSurfaceClassName}
+        )
+        return isPopupHaloEnabled(popupHalo) ? (
+          <ElevationProgressiveBlur
+            spread={popupHalo.spread}
+            layerCount={popupHalo.layerCount}
+            maxBlurPx={popupHalo.maxBlurPx}
+            curve={popupHalo.curve}
+            tension={popupHalo.tension}
+            radius="var(--radius-compact-toolbar)"
+            bias={popupHalo.bias}
+            softness={popupHalo.softness}
+            className={popupWidthClassName}
           >
-            <PanelBody
-              activeTab={activeTab}
-              rampPreviewMode={rampPreviewMode}
-              setRampPreviewMode={setRampPreviewMode}
-              setActiveTab={setActiveTab}
-              handleClose={handleClose}
-            />
-          </ControlCenterPanelShell>
-        </div>
-      )}
+            {shell}
+          </ElevationProgressiveBlur>
+        ) : (
+          <div className={popupWidthClassName}>{shell}</div>
+        )
+      })()}
     </ControlCenterPanelContext.Provider>
   )
 }
@@ -238,8 +230,10 @@ function PanelBody({
               <div data-slot="dock-picker-ramp-preview-wrap">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       aria-label={`Ramp preview: ${RAMP_PREVIEW_LABEL[rampPreviewMode]}`}
                       data-slot="control-center-ramp-preview"
                       className={rampPreviewTriggerClassName}
@@ -256,7 +250,7 @@ function PanelBody({
                           aria-hidden
                         />
                       </span>
-                    </button>
+                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     variant="panel"

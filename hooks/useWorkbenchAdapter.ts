@@ -6,7 +6,7 @@ import Color from 'colorjs.io'
 import type {OklchPickerWorkbenchState} from '@/hooks/useOklchPickerWorkbench'
 import type {NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
 import {DEFAULT_SYSTEM} from '@/hooks/useNeutralWorkbench'
-import {DEFAULT_ALPHA_NEUTRAL_CONFIG} from '@/lib/neutral-engine'
+import {DEFAULT_ALPHA_NEUTRAL_CONFIG} from '@/lib/neutral-engine/alphaNeutralTokens'
 import {
   DEFAULT_ADVANCED_DARK_SCALE,
   DEFAULT_ADVANCED_LIGHT_SCALE,

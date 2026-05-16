@@ -61,6 +61,11 @@ State is persisted to `localStorage` via `lib/workbench/workbenchStorage.ts` (ke
 
 Logically distinct control regions are extracted as named components, not inlined in their parent. Example: `ComparisonLayoutPicker.tsx` and `InspectionToggle.tsx` rather than inline JSX in `WorkbenchHeader.tsx`. Headers and shells read as orchestration; controls are independently composable.
 
+## Import Policy
+
+- **No runtime barrel imports.** `lib/neutral-engine/index.ts` is type-only. Import runtime values directly from their source files (e.g. `@/lib/neutral-engine/systemMap`, `@/lib/neutral-engine/tokenViews`). `import type { ... } from '@/lib/neutral-engine'` is fine.
+- No broad runtime barrels in `components/` or `lib/`. New barrel files must be `export type` only.
+
 ## Token Rules
 
 - React-facing color data must be `SerializedColor`, never live `Color` instances.

@@ -272,37 +272,18 @@ function ResolvedIndicesSummary({
   )
 }
 
-function LightColumn() {
-  return (
-    <ThemeColumnPanel theme="light" active>
-      <div className={roleColumnHeadingClassName}>
-        <Sun className="size-3.5 shrink-0 opacity-80" aria-hidden />
-        Light
-      </div>
-      <div className={roleFieldHeaderRowClassName}>
-        {(['Start', 'Count', 'Step'] as const).map((h) => (
-          <span key={h} className={roleFieldHeaderClassName}>{h}</span>
-        ))}
-      </div>
-      <div className={roleCellStackClassName}>
-        {ROLE_LADDERS.map(({id}) => (
-          <div key={id} className={roleCellRowClassName}>
-            <LadderCell ladder={id} theme="light" field="start" />
-            <LadderCell ladder={id} theme="light" field="count" />
-            <LadderCell ladder={id} theme="light" field="step" />
-          </div>
-        ))}
-      </div>
-    </ThemeColumnPanel>
-  )
-}
+const THEME_COLUMN_META = {
+  light: {Icon: Sun, label: 'Light'},
+  dark: {Icon: Moon, label: 'Dark'},
+} as const
 
-function DarkColumn() {
+function ThemeColumn({theme}: {theme: 'light' | 'dark'}) {
+  const {Icon, label} = THEME_COLUMN_META[theme]
   return (
-    <ThemeColumnPanel theme="dark" active>
+    <ThemeColumnPanel theme={theme} active>
       <div className={roleColumnHeadingClassName}>
-        <Moon className="size-3.5 shrink-0 opacity-80" aria-hidden />
-        Dark
+        <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
+        {label}
       </div>
       <div className={roleFieldHeaderRowClassName}>
         {(['Start', 'Count', 'Step'] as const).map((h) => (
@@ -312,9 +293,9 @@ function DarkColumn() {
       <div className={roleCellStackClassName}>
         {ROLE_LADDERS.map(({id}) => (
           <div key={id} className={roleCellRowClassName}>
-            <LadderCell ladder={id} theme="dark" field="start" />
-            <LadderCell ladder={id} theme="dark" field="count" />
-            <LadderCell ladder={id} theme="dark" field="step" />
+            <LadderCell ladder={id} theme={theme} field="start" />
+            <LadderCell ladder={id} theme={theme} field="count" />
+            <LadderCell ladder={id} theme={theme} field="step" />
           </div>
         ))}
       </div>
@@ -363,11 +344,11 @@ function RoleMappingGrid() {
           </div>
 
           <div className={roleColumnsClassName}>
-            {effectiveRampContext !== 'dark' && <LightColumn />}
+            {effectiveRampContext !== 'dark' && <ThemeColumn theme="light" />}
             {effectiveRampContext === 'both' && (
               <div className={roleColumnDividerClassName} aria-hidden />
             )}
-            {effectiveRampContext !== 'light' && <DarkColumn />}
+            {effectiveRampContext !== 'light' && <ThemeColumn theme="dark" />}
           </div>
         </div>
 
@@ -385,7 +366,7 @@ function RoleMappingPanelInner() {
   return (
     <div className={panelStackClassName} data-slot="control-center-panel-role-mapping">
       <section
-        // aria-labelledby="control-center-role-ladder-steps-heading"
+        aria-labelledby="control-center-role-ladder-steps-heading"
         className={panelSectionClassName}
       >
         <h3

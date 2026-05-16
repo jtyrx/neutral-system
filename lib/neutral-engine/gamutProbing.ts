@@ -3,7 +3,8 @@ import Color from 'colorjs.io'
 import {serializeColor} from '@/lib/neutral-engine/serialize'
 import type {SerializedColor} from '@/lib/neutral-engine/types'
 
-const DEFAULT_C_CEILING = 0.4
+/** Default upper chroma bound for gamut probing and sweep functions. */
+export const DEFAULT_C_CEILING = 0.4
 
 export type OklchGamutTarget = 'srgb' | 'p3' | 'rec2020'
 

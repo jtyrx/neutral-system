@@ -4,16 +4,6 @@ import {memo, useMemo} from 'react'
 
 import {useControlCenterPanelContext} from '@/components/control-center/ControlCenterPanelContext'
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
-import {Button} from '@/components/ui/button'
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -26,6 +16,27 @@ import {
   GLOBAL_SCALE_STEP_MAX,
   GLOBAL_SCALE_STEP_MIN,
 } from '@/lib/neutral-engine/globalScale'
+
+const panelInsetClassName = 'px-1 pb-1'
+const cardClassName =
+  'rounded-xl border border-[color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] bg-[color-mix(in_oklch,var(--muted)_20%,transparent)] px-4 py-3 shadow-sm'
+const cardTitleClassName =
+  'text-[0.8125rem] leading-[1.3] tracking-normal text-foreground'
+const stepsRowClassName =
+  'flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6'
+const stepsDescClassName =
+  'mt-1 max-w-md text-[0.7rem] leading-[1.375] text-muted-foreground'
+const stepsValueClassName =
+  'flex shrink-0 items-center justify-end gap-2 self-end sm:self-center'
+const stepsLabelClassName =
+  'text-xs leading-4 text-muted-foreground tabular-nums'
+const stepsValueClusterClassName =
+  'flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:max-w-none sm:items-end'
+const stepsValueRowClassName =
+  'flex w-full min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-2 sm:w-auto sm:flex-nowrap'
+const stepsValuePairClassName = 'flex items-center gap-2'
+const stepsDividerClassName =
+  'hidden h-8 w-px shrink-0 bg-[color-mix(in_oklch,var(--border)_90%,transparent)] sm:block'
 
 const stepOptions: number[] = Array.from(
   {length: GLOBAL_SCALE_STEP_MAX - GLOBAL_SCALE_STEP_MIN + 1},
@@ -106,23 +117,23 @@ function StepsPanelInner() {
 
   if (neutralArchitecture === 'simple') {
     return (
-      <div className="cc-panel-inset" data-slot="dock-picker-steps-simple">
-        <div className="cc-card">
-          <div className="cc-steps-row">
+      <div className={panelInsetClassName} data-slot="dock-picker-steps-simple">
+        <div className={cardClassName}>
+          <div className={stepsRowClassName}>
             <div className="min-w-0 flex-1">
-              <p className="cc-card-title">Color Scale</p>
-              <p className="cc-steps-desc">
+              <p className={cardTitleClassName}>Color Scale</p>
+              <p className={stepsDescClassName}>
                 One ladder length drives both light and dark theme ramps.
               </p>
             </div>
-            <div className="cc-steps-value">
+            <div className={stepsValueClassName}>
               <RampStepsSelect
                 id="dock-picker-steps-global"
                 ariaLabel="Neutral scale step count"
                 steps={globalSteps}
                 onCommit={(next) => patchGlobal('steps', next, 'Steps')}
               />
-              <span className="cc-steps-label">steps</span>
+              <span className={stepsLabelClassName}>steps</span>
             </div>
           </div>
         </div>
@@ -132,16 +143,16 @@ function StepsPanelInner() {
 
   if (effectiveRampContext === 'light') {
     return (
-      <div className="cc-panel-inset" data-slot="dock-picker-steps-light">
-        <div className="cc-card">
-          <div className="cc-steps-row">
+      <div className={panelInsetClassName} data-slot="dock-picker-steps-light">
+        <div className={cardClassName}>
+          <div className={stepsRowClassName}>
             <div className="min-w-0 flex-1">
-              <p className="cc-card-title">Color Scale (light ramp)</p>
-              <p className="cc-steps-desc">
+              <p className={cardTitleClassName}>Color Scale (light ramp)</p>
+              <p className={stepsDescClassName}>
                 Tier-1 stop count on the light global ramp.
               </p>
             </div>
-            <div className="cc-steps-value">
+            <div className={stepsValueClassName}>
               <RampStepsSelect
                 id="dock-picker-steps-light"
                 ariaLabel="Light ramp step count"
@@ -150,7 +161,7 @@ function StepsPanelInner() {
                   patchLight('steps', next, 'Light ramp steps')
                 }
               />
-              <span className="cc-steps-label">steps</span>
+              <span className={stepsLabelClassName}>steps</span>
             </div>
           </div>
         </div>
@@ -160,36 +171,16 @@ function StepsPanelInner() {
 
   if (effectiveRampContext === 'dark') {
     return (
-      <div className="cc-panel-inset" data-slot="dock-picker-steps-dark">
-        {/* <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle>Login to your account</CardTitle>
-            <CardDescription>
-              Enter your email below to login to your account
-            </CardDescription>
-            <CardAction>
-              <Button variant="link">Sign Up</Button>
-            </CardAction>
-          </CardHeader>
-          <CardContent></CardContent>
-          <CardFooter className="flex-col gap-2">
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-            <Button variant="outline" className="w-full">
-              Login with Google
-            </Button>
-          </CardFooter>
-        </Card> */}
-        <div className="cc-card">
-          <div className="cc-steps-row">
+      <div className={panelInsetClassName} data-slot="dock-picker-steps-dark">
+        <div className={cardClassName}>
+          <div className={stepsRowClassName}>
             <div className="min-w-0 flex-1">
-              <p className="cc-card-title">Color Scale (dark ramp)</p>
-              <p className="cc-steps-desc">
+              <p className={cardTitleClassName}>Color Scale (dark ramp)</p>
+              <p className={stepsDescClassName}>
                 Tier-1 stop count on the dark elevated ramp.
               </p>
             </div>
-            <div className="cc-steps-value">
+            <div className={stepsValueClassName}>
               <RampStepsSelect
                 id="dock-picker-steps-dark"
                 ariaLabel="Dark elevated ramp step count"
@@ -198,7 +189,7 @@ function StepsPanelInner() {
                   patchDark('steps', next, 'Dark elevated steps')
                 }
               />
-              <span className="cc-steps-label">steps</span>
+              <span className={stepsLabelClassName}>steps</span>
             </div>
           </div>
         </div>
@@ -207,22 +198,22 @@ function StepsPanelInner() {
   }
 
   return (
-    <div className="cc-panel-inset" data-slot="dock-picker-steps-advanced">
-      <div className="cc-card">
-        <div className="cc-steps-row">
+    <div className={panelInsetClassName} data-slot="dock-picker-steps-advanced">
+      <div className={cardClassName}>
+        <div className={stepsRowClassName}>
           <div className="min-w-0 flex-1">
-            <p className="cc-card-title">Color Scale (ramp)</p>
-            <p className="cc-steps-desc">
+            <p className={cardTitleClassName}>Color Scale (ramp)</p>
+            <p className={stepsDescClassName}>
               Number of tier-1 stops on each global ramp (low index is lightest
               on the light ramp).
             </p>
           </div>
           <div
-            className="cc-steps-value-cluster"
+            className={stepsValueClusterClassName}
             data-slot="dock-picker-steps-light-dark-cluster"
           >
-            <div className="cc-steps-value-row">
-              <div className="cc-steps-value-pair">
+            <div className={stepsValueRowClassName}>
+              <div className={stepsValuePairClassName}>
                 <RampStepsSelect
                   id="dock-picker-steps-light"
                   ariaLabel="Light ramp step count"
@@ -231,10 +222,10 @@ function StepsPanelInner() {
                     patchLight('steps', next, 'Light ramp steps')
                   }
                 />
-                <span className="cc-steps-label">steps</span>
+                <span className={stepsLabelClassName}>steps</span>
               </div>
-              <div className="cc-steps-divider" aria-hidden />
-              <div className="cc-steps-value-pair">
+              <div className={stepsDividerClassName} aria-hidden />
+              <div className={stepsValuePairClassName}>
                 <RampStepsSelect
                   id="dock-picker-steps-dark"
                   ariaLabel="Dark elevated ramp step count"
@@ -243,7 +234,7 @@ function StepsPanelInner() {
                     patchDark('steps', next, 'Dark elevated steps')
                   }
                 />
-                <span className="cc-steps-label">steps</span>
+                <span className={stepsLabelClassName}>steps</span>
               </div>
             </div>
           </div>

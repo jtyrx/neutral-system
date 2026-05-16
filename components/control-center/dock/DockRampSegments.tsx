@@ -27,6 +27,26 @@ import {cn} from '@/lib/utils'
 
 const PLACEHOLDER_COUNT = RAMP_SWATCH_DOCK_PLACEHOLDER_COUNT
 const EMPTY_RAMP: GlobalSwatch[] = []
+const dockRampItemClassName = 'min-w-(--ramp-swatch-min-width) flex-1'
+const dockRampSegmentClassName =
+  'flex min-h-8 w-full flex-col'
+const dockRampSegmentPlaceholderClassName = 'bg-raised'
+const dockRampSegmentLiveClassName =
+  'cursor-pointer touch-manipulation border-0 outline-none transition-shadow duration-75 focus-visible:border-ring focus-visible:shadow-[var(--shadow-raised),0_0_0_3px_color-mix(in_oklch,var(--ring)_35%,transparent)] data-[kbd=true]:z-2 data-[kbd=true]:shadow-[0_0_0_2px_var(--ring),var(--shadow-raised)]'
+const rampSegmentPaintClassName =
+  'pointer-events-none shrink-0 transition-[filter] duration-150 group-hover:brightness-[0.98]'
+const rampSegmentPaintFillClassName = 'min-h-0 flex-1'
+const rampEdgeStartXlClassName = 'rounded-l-xl'
+const rampEdgeEndXlClassName = 'rounded-r-xl'
+const rampTooltipClassName =
+  'max-w-[min(90vw,18rem)] whitespace-normal text-left font-mono text-[0.7rem] leading-[1.375]'
+const rampTooltipTitleClassName =
+  'font-sans text-[0.65rem] font-semibold text-popover-foreground'
+const rampTooltipMutedClassName = 'text-muted-foreground'
+const rampTooltipBreakClassName =
+  '[overflow-wrap:anywhere] text-muted-foreground'
+const rampGamutWarningClassName =
+  'rounded border border-amber-border-soft bg-amber-surface-bold px-1.5 py-0.5 font-sans text-[0.6rem] text-amber-text'
 
 type DockRampSegmentModel = {
   ariaLabel: string
@@ -51,8 +71,8 @@ type DockPlaceholderSegmentModel = {
 
 function dockSegmentEdgeClassName(i: number, last: number) {
   return cn(
-    i === 0 && 'cc-ramp-edge-start-xl',
-    i === last && 'cc-ramp-edge-end-xl',
+    i === 0 && rampEdgeStartXlClassName,
+    i === last && rampEdgeEndXlClassName,
   )
 }
 
@@ -73,13 +93,16 @@ const DockRampPlaceholderSegment = memo(function DockRampPlaceholderSegment({
       data-ramp-variant="placeholder"
       data-dock-item={dataDockItem}
       className={cn(
-        'ramp-swatch-segment cc-dock-ramp-item cc-dock-ramp-segment cc-dock-ramp-segment-placeholder',
+        'ramp-swatch-segment',
+        dockRampItemClassName,
+        dockRampSegmentClassName,
+        dockRampSegmentPlaceholderClassName,
         edgeClassName,
         hasTrailingDivider && 'border-r border-hairline/50',
       )}
     >
       <span
-        className="cc-ramp-segment-paint-fill bg-(--color-surface-raised)"
+        className={cn(rampSegmentPaintFillClassName, 'bg-(--color-surface-raised)')}
         aria-hidden
       />
     </div>
@@ -153,7 +176,10 @@ const DockRampSegment = memo(function DockRampSegment({
           data-kbd={isKbd ? 'true' : undefined}
           title={title}
           className={cn(
-            'ramp-swatch-segment cc-dock-ramp-item cc-dock-ramp-segment cc-dock-ramp-segment-live',
+            'ramp-swatch-segment',
+            dockRampItemClassName,
+            dockRampSegmentClassName,
+            dockRampSegmentLiveClassName,
             edgeClassName,
             hasTrailingDivider && 'border-r border-hairline/50',
           )}
@@ -164,23 +190,27 @@ const DockRampSegment = memo(function DockRampSegment({
           onClick={handleClick}
         >
           <span
-            className="cc-ramp-segment-paint cc-ramp-segment-paint-fill rounded-dock-item"
+            className={cn(
+              rampSegmentPaintClassName,
+              rampSegmentPaintFillClassName,
+              'rounded-dock-item',
+            )}
             style={paintStyle}
             aria-hidden
           />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="top" sideOffset={6} className="cc-ramp-tooltip">
-        <p className="cc-ramp-tooltip-title">{facingLabel}</p>
-        <p className="cc-ramp-tooltip-break">{cssName}</p>
-        <p className="cc-ramp-tooltip-muted">
+      <TooltipContent side="top" sideOffset={6} className={rampTooltipClassName}>
+        <p className={rampTooltipTitleClassName}>{facingLabel}</p>
+        <p className={rampTooltipBreakClassName}>{cssName}</p>
+        <p className={rampTooltipMutedClassName}>
           ramp index {index}
           {previewTheme === 'dark' ? ` · dark display ${displayIndex}` : ''}
         </p>
-        <p className="cc-ramp-tooltip-break">{hex}</p>
-        <p className="cc-ramp-tooltip-break">{oklchCss}</p>
+        <p className={rampTooltipBreakClassName}>{hex}</p>
+        <p className={rampTooltipBreakClassName}>{oklchCss}</p>
         {outOfSrgb ? (
-          <p className="cc-ramp-gamut-warning">Out of sRGB (display clipped)</p>
+          <p className={rampGamutWarningClassName}>Out of sRGB (display clipped)</p>
         ) : null}
       </TooltipContent>
     </Tooltip>

@@ -22,6 +22,19 @@ import type {RampPreviewMode} from '@/lib/workbench/dockPickerStorage'
 
 export type {RampPreviewMode}
 
+const rampPreviewScrollClassName = 'mt-2 w-full overflow-x-auto'
+const rampPreviewStackClassName = 'flex min-w-0 flex-col'
+const rampRailFlushClassName = 'rounded-b-none'
+const rampLanesFlushClassName =
+  '-mt-px rounded-t-none border-t border-t-transparent'
+const rampPreviewFooterClassName =
+  'mt-2 flex items-center justify-between text-[0.65rem]'
+const rampPreviewCaptionClassName =
+  'font-medium tracking-normal text-muted'
+const rampPreviewHintClassName =
+  'leading-[1.375] text-disabled'
+const rampPreviewDualClassName = 'flex flex-col gap-3'
+
 type RampPreviewBlockProps = {
   tone: PreviewChromeTone
   effectivePreviewTheme: 'light' | 'dark'
@@ -81,15 +94,15 @@ function RampPreviewBlock({
         tone={tone}
         badgeLabel={badgeLabel}
       />
-      <div className="cc-ramp-preview-scroll">
-        <div className="cc-ramp-preview-stack">
+      <div className={rampPreviewScrollClassName}>
+        <div className={rampPreviewStackClassName}>
           <RampSwatchRail
             size="panel"
             segmentLabels
             previewThemeOverride={effectivePreviewTheme}
             accentClassName={rampCardAccentClass(tone, 'soft')}
             invertDisplay={invertVisual}
-            className="cc-ramp-rail-flush"
+            className={rampRailFlushClassName}
           />
           {orderedSegment.length > 0 ? (
             <RampSemanticLanesGrid
@@ -97,14 +110,14 @@ function RampPreviewBlock({
               lanesByColumn={lanesByColumn}
               alphaBaseLogicalIndex={alphaBase}
               keyPrefix={`dock-picker-${effectivePreviewTheme}`}
-              className="cc-ramp-lanes-flush"
+              className={rampLanesFlushClassName}
             />
           ) : null}
         </div>
       </div>
-      <div className="cc-ramp-preview-footer">
-        <p className="cc-ramp-preview-caption">{caption}</p>
-        <p className="cc-ramp-preview-hint">{directionHint}</p>
+      <div className={rampPreviewFooterClassName}>
+        <p className={rampPreviewCaptionClassName}>{caption}</p>
+        <p className={rampPreviewHintClassName}>{directionHint}</p>
       </div>
     </div>
   )
@@ -164,7 +177,7 @@ export function RampPreviewPanel({
   if (rampPreviewMode === 'both') {
     return (
       <div
-        className="cc-ramp-preview-dual"
+        className={rampPreviewDualClassName}
         data-slot="control-center-ramp-preview-dual"
       >
         <RampPreviewBlock {...dualLightProps} />

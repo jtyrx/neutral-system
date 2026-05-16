@@ -77,6 +77,27 @@ const REST_ANIMATE = {opacity: 1, y: 0, scale: 1}
 const REST_EXIT = {opacity: 0, y: 18, scale: 0.98}
 const REST_EXIT_REDUCED = {opacity: 0}
 
+const rootClassName =
+  'pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:pb-[max(0.75rem,env(safe-area-inset-bottom))] [--cc-dock-bottom-offset:max(0.5rem,env(safe-area-inset-bottom))] sm:[--cc-dock-bottom-offset:max(0.75rem,env(safe-area-inset-bottom))]'
+
+const pageBlurClassName =
+  'absolute inset-x-0 bottom-0 z-40 max-w-none'
+
+const viewportBaseClassName =
+  'pointer-events-auto relative z-50 flex min-h-0 w-full max-w-[min(92vw,62rem)] flex-col items-center overflow-x-hidden overscroll-y-contain px-2 [contain:layout_style] [max-height:var(--cc-viewport-max-height,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-1.5rem))] data-[state=expanded]:fixed data-[state=expanded]:top-auto data-[state=expanded]:left-1/2 data-[state=expanded]:bottom-(--cc-dock-bottom-offset) data-[state=expanded]:w-[min(calc(var(--cc-visual-width,100vw)-1rem),62rem)] data-[state=expanded]:max-w-[min(calc(var(--cc-visual-width,100vw)-1rem),62rem)] data-[state=expanded]:-translate-x-1/2 data-[state=expanded]:overflow-y-visible'
+
+const panelStageClassName =
+  'flex min-h-0 max-h-(--cc-viewport-max-height) w-full shrink-0 justify-center overflow-visible [contain:layout_style]'
+
+const dockSystemClassName =
+  'relative isolate flex w-max max-w-full origin-bottom items-end justify-center gap-1.5 overflow-visible motion-safe:will-change-transform [--cc-secondary-dock-width:min(26rem,max(9rem,calc(92vw-11.75rem)))]'
+
+const secondaryDockClassName =
+  'relative z-0 flex h-15 min-w-0 w-(--cc-secondary-dock-width) origin-left items-stretch rounded-2xl border border-hairline bg-[color-mix(in_oklch,var(--color-surface-overlay)_55%,transparent)] p-2 shadow-[0_18px_48px_-20px_rgb(0_0_0_/_0.45),0_4px_12px_-6px_rgb(0_0_0_/_0.28)] [contain:layout_style_paint] before:absolute before:top-[0.5625rem] before:bottom-[0.5625rem] before:left-[-0.75rem] before:-z-1 before:w-5 before:rounded-full before:bg-[color-mix(in_oklch,var(--color-surface-overlay)_58%,transparent)] before:shadow-[0_10px_26px_-16px_rgb(0_0_0_/_0.5),inset_0_0_0_1px_color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] before:blur-[0.25px] supports-[backdrop-filter:blur(1px)]:backdrop-blur-[24px] supports-[backdrop-filter:blur(1px)]:backdrop-saturate-125 dark:bg-[color-mix(in_oklch,var(--color-surface-overlay)_48%,transparent)] dark:before:bg-[color-mix(in_oklch,var(--color-surface-overlay)_52%,transparent)] motion-safe:will-change-[transform,opacity,clip-path,filter]'
+
+const secondaryDockRailClassName =
+  'h-full min-h-0 rounded-dock-item'
+
 
 /** Picker dock: OKLCH launcher, live ramp swatch, theme cycle; expands to steps controls. */
 export function ControlCenter() {
@@ -158,7 +179,7 @@ export function ControlCenter() {
   }, [expanded, viewportBounds])
 
   // Animate --cc-viewport-max-height imperatively so the CSS variable cascade
-  // (cc-panel-surface, cc-panel-shell-body, etc.) transitions smoothly on tab switches.
+  // transitions smoothly on tab switches.
   useEffect(() => {
     if (finalMaxHeight === null) return
     const viewport = viewportRef.current
@@ -254,7 +275,7 @@ export function ControlCenter() {
       <motion.div
         data-slot="dock-system"
         data-swatch-dock-open={swatchDockOpen ? 'true' : undefined}
-        className="cc-dock-system"
+        className={dockSystemClassName}
         layout="position"
         transition={restTransition}
       >
@@ -294,13 +315,13 @@ export function ControlCenter() {
               key="secondary-ramp-rail"
               data-slot="dock-item"
               data-dock-item="ramp-rail"
-              className="cc-secondary-dock"
+              className={secondaryDockClassName}
               initial={secondaryDockInitial}
               animate={secondaryDockIn}
               exit={secondaryDockExit}
               transition={secondaryDockTransition}
             >
-              <RampSwatchRail className="cc-secondary-dock-rail" />
+              <RampSwatchRail className={secondaryDockRailClassName} />
             </motion.div>
           ) : null}
         </AnimatePresence>
@@ -324,11 +345,11 @@ export function ControlCenter() {
       ref={dockShellRef}
       data-slot="app-dock"
       id="app-dock"
-      className="cc-root"
+      className={rootClassName}
     >
       {pageBlur.enabled ? (
         <PageProgressiveBlur
-          className="cc-page-blur"
+          className={pageBlurClassName}
           direction={pageBlur.direction}
           layerCount={pageBlur.layerCount}
           maxBlurPx={pageBlur.maxBlurPx}
@@ -344,7 +365,7 @@ export function ControlCenter() {
         data-slot="app-dock-viewport"
         data-state={expanded ? 'expanded' : 'collapsed'}
         className={cn(
-          'cc-viewport',
+          viewportBaseClassName,
           expanded
             ? 'overflow-y-visible'
             : collapsedHaloNeedsViewportBleed
@@ -357,7 +378,7 @@ export function ControlCenter() {
           {expanded ? (
             <motion.div
               key="picker-surface"
-              className="cc-panel-stage"
+              className={panelStageClassName}
               initial={EXPANDED_INITIAL}
               animate={EXPANDED_ANIMATE}
               exit={EXPANDED_EXIT}
@@ -373,7 +394,7 @@ export function ControlCenter() {
             <motion.div
               key="dock-rest"
               data-slot="cc-rest-stage"
-              className="cc-rest-stage"
+              className="flex w-full justify-center"
               initial={false}
               animate={REST_ANIMATE}
               exit={restExit}
@@ -390,7 +411,7 @@ export function ControlCenter() {
                   radius="1rem"
                   bias={halo.bias}
                   softness={halo.softness}
-                  className="cc-rest-stage"
+                  className="flex w-full justify-center"
                 >
                   {dockToolbar}
                 </ElevationProgressiveBlur>

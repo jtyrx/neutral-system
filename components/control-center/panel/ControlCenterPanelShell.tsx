@@ -12,6 +12,9 @@ export type ControlCenterPanelShellProps = {
   children: ReactNode
 }
 
+const shellBodyClassName =
+  'flex min-h-0 max-h-(--cc-viewport-max-height) w-full flex-col bg-default'
+
 /**
  * Dialog surface for the dock picker. The outer app-dock viewport owns height
  * measurement so this shell only animates visual transform.
@@ -40,7 +43,7 @@ export function ControlCenterPanelShell({
         aria-modal="true"
         aria-labelledby="dock-picker-title"
       >
-        <div className="cc-panel-shell-body">{children}</div>
+        <div className={shellBodyClassName}>{children}</div>
       </div>
     )
   }
@@ -60,7 +63,7 @@ export function ControlCenterPanelShell({
       animate={{y: 0, scale: 1}}
       transition={surfaceMotionTransition}
     >
-      <div className="cc-panel-shell-body">{children}</div>
+      <div className={shellBodyClassName}>{children}</div>
     </motion.div>
   )
 }

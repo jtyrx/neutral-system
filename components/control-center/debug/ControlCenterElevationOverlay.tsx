@@ -28,6 +28,33 @@ import {cn} from '@/lib/utils'
 
 const SPREAD_MIN = 0
 const SPREAD_MAX = 72
+const debugTriggerAnchorClassName =
+  'pointer-events-none fixed bottom-24 left-3 z-60'
+const debugTriggerClassName =
+  'pointer-events-auto size-10 rounded-full border border-hairline shadow-lg'
+const debugPopoverClassName =
+  'z-60 max-h-[min(80vh,36rem)] w-[min(22rem,calc(100vw-2rem))] flex-col gap-0 overflow-y-auto p-3 sm:max-h-[min(85vh,40rem)]'
+const debugHeaderClassName =
+  'flex items-center justify-between gap-2 border-b border-hairline pb-2'
+const debugBodyClassName = 'mt-2 flex flex-col gap-3'
+const debugSectionClassName =
+  'rounded-lg border border-[color-mix(in_oklch,var(--chrome-hairline)_60%,transparent)] p-2'
+const debugSummaryClassName = 'cursor-pointer text-[0.7rem] font-medium'
+const debugSectionDescriptionClassName =
+  'mt-2 text-[0.58rem] leading-[1.375] text-muted'
+const debugSectionBodyClassName = 'mt-3 flex flex-col gap-3 pb-1'
+const debugFieldClassName = 'flex flex-col gap-1.5'
+const debugFieldHeaderClassName =
+  'flex justify-between gap-2 text-[0.65rem]'
+const debugLabelClassName = 'text-[0.65rem] font-medium text-foreground'
+const debugValueClassName = 'font-mono text-muted tabular-nums'
+const debugDescriptionClassName =
+  'text-[0.58rem] leading-[1.375] text-muted'
+const debugInputBaseClassName =
+  'mt-1 h-8 w-full rounded-md border border-input bg-transparent px-2 text-xs'
+const debugCheckboxRowClassName = 'flex items-center gap-2 text-[0.65rem]'
+const debugTextInputClassName = 'font-mono'
+const debugNoteClassName = 'mt-3 text-[0.6rem] leading-[1.375] text-muted'
 
 function LabeledSlider({
   label,
@@ -48,14 +75,14 @@ function LabeledSlider({
   onChange: (n: number) => void
 }) {
   return (
-    <div className="cc-debug-field">
+    <div className={debugFieldClassName}>
       <div>
-        <div className="cc-debug-field-header">
-          <span className="cc-debug-label">{label}</span>
-          <span className="cc-debug-value">{value}</span>
+        <div className={debugFieldHeaderClassName}>
+          <span className={debugLabelClassName}>{label}</span>
+          <span className={debugValueClassName}>{value}</span>
         </div>
         {description ? (
-          <p className="cc-debug-description">{description}</p>
+          <p className={debugDescriptionClassName}>{description}</p>
         ) : null}
       </div>
       <Slider
@@ -83,13 +110,13 @@ function DescribedSelect({
   children: ReactNode
 }) {
   return (
-    <label className="cc-debug-field">
-      <span className="cc-debug-label">{label}</span>
+    <label className={debugFieldClassName}>
+      <span className={debugLabelClassName}>{label}</span>
       {description ? (
-        <p className="cc-debug-description">{description}</p>
+        <p className={debugDescriptionClassName}>{description}</p>
       ) : null}
       <select
-        className="ns-input cc-debug-input-base"
+        className={cn('ns-input', debugInputBaseClassName)}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -114,7 +141,7 @@ function ControlCenterElevationForm({
 }: Tuning) {
   return (
     <>
-      <div className="cc-debug-header">
+      <div className={debugHeaderClassName}>
         <PopoverTitle className="text-xs font-semibold">
           Blur &amp; dock tuning
         </PopoverTitle>
@@ -123,18 +150,18 @@ function ControlCenterElevationForm({
         </Button>
       </div>
 
-      <div className="cc-debug-body">
-        <details open className="cc-debug-section">
-          <summary className="cc-debug-summary">
+      <div className={debugBodyClassName}>
+        <details open className={debugSectionClassName}>
+          <summary className={debugSummaryClassName}>
             Page progressive blur
           </summary>
-          <p className="cc-debug-section-description">
+          <p className={debugSectionDescriptionClassName}>
             Full-width frosted band behind the dock region (above the strip). Toggle applies
             live to <span className="font-mono">PageProgressiveBlur</span>; sliders always edit
             the preset.
           </p>
-          <div className="cc-debug-section-body">
-            <label className="cc-debug-checkbox-row">
+          <div className={debugSectionBodyClassName}>
+            <label className={debugCheckboxRowClassName}>
               <input
                 type="checkbox"
                 checked={pageBlur.enabled}
@@ -205,16 +232,20 @@ function ControlCenterElevationForm({
               value={pageBlur.tintOpacityPercent}
               onChange={(n) => setPageBlur({tintOpacityPercent: n})}
             />
-            <label className="cc-debug-field">
-              <span className="cc-debug-label">Host radius (CSS)</span>
-              <p className="cc-debug-description">
+            <label className={debugFieldClassName}>
+              <span className={debugLabelClassName}>Host radius (CSS)</span>
+              <p className={debugDescriptionClassName}>
                 Border radius of the blur host; must match rounded corners or Chrome may clip
                 backdrop incorrectly.
               </p>
               <input
                 type="text"
                 spellCheck={false}
-                className="ns-input cc-debug-input-base cc-debug-text-input"
+                className={cn(
+                  'ns-input',
+                  debugInputBaseClassName,
+                  debugTextInputClassName,
+                )}
                 value={pageBlur.radius}
                 placeholder="0px"
                 onChange={(e) => setPageBlur({radius: e.target.value})}
@@ -223,18 +254,18 @@ function ControlCenterElevationForm({
           </div>
         </details>
 
-        <details open className="cc-debug-section">
-          <summary className="cc-debug-summary">
+        <details open className={debugSectionClassName}>
+          <summary className={debugSummaryClassName}>
             Dock halo bar
           </summary>
-          <p className="cc-debug-section-description">
+          <p className={debugSectionDescriptionClassName}>
             Backdrop halo around the <strong>collapsed</strong> dock toolbar only (
             <span className="font-mono">ElevationProgressiveBlur</span> wrapping{' '}
             <span className="font-mono">MagnifyingDockShell</span>). Spread 0 keeps the halo box
             flush with the panel (no outward bleed).
           </p>
-          <div className="cc-debug-section-body">
-            <label className="cc-debug-checkbox-row">
+          <div className={debugSectionBodyClassName}>
+            <label className={debugCheckboxRowClassName}>
               <input
                 type="checkbox"
                 checked={halo.enabled}
@@ -305,17 +336,17 @@ function ControlCenterElevationForm({
           </div>
         </details>
 
-        <details open className="cc-debug-section">
-          <summary className="cc-debug-summary">
+        <details open className={debugSectionClassName}>
+          <summary className={debugSummaryClassName}>
             Dock chrome
           </summary>
-          <p className="cc-debug-section-description">
+          <p className={debugSectionDescriptionClassName}>
             Inline styles on <span className="font-mono">#app-dock-panel</span>: ring plus drop
             shadow and optional surface blend. Replaces default Tailwind ring/shadow when apply is
             on.
           </p>
-          <div className="cc-debug-section-body">
-            <label className="cc-debug-checkbox-row">
+          <div className={debugSectionBodyClassName}>
+            <label className={debugCheckboxRowClassName}>
               <input
                 type="checkbox"
                 checked={dockChrome.enabled}
@@ -374,17 +405,17 @@ function ControlCenterElevationForm({
           </div>
         </details>
 
-        <details open className="cc-debug-section">
-          <summary className="cc-debug-summary">
+        <details open className={debugSectionClassName}>
+          <summary className={debugSummaryClassName}>
             Popup halo
           </summary>
-          <p className="cc-debug-section-description">
+          <p className={debugSectionDescriptionClassName}>
             Wraps <span className="font-mono">#dock-picker-surface</span> when the OKLCH picker
             is open. Open the picker to preview. Spread 0 aligns the halo bounds with the card
             (no extra bleed).
           </p>
-          <div className="cc-debug-section-body">
-            <label className="cc-debug-checkbox-row">
+          <div className={debugSectionBodyClassName}>
+            <label className={debugCheckboxRowClassName}>
               <input
                 type="checkbox"
                 checked={popupHalo.enabled}
@@ -456,7 +487,7 @@ function ControlCenterElevationForm({
         </details>
       </div>
 
-      <p className="cc-debug-note">
+      <p className={debugNoteClassName}>
         Opt-in: <span className="font-mono">?dockElevationDebug=1</span> or{' '}
         <span className="font-mono">localStorage ns:dockElevationDebug=1</span>. Development
         only.
@@ -475,14 +506,14 @@ export function ControlCenterElevationOverlay() {
     <Popover>
       <div
         data-slot="dock-elevation-dev-overlay"
-        className="cc-debug-trigger-anchor"
+        className={debugTriggerAnchorClassName}
       >
         <PopoverTrigger asChild>
           <Button
             type="button"
             size="icon"
             variant="secondary"
-            className="cc-debug-trigger"
+            className={debugTriggerClassName}
             aria-label="Open blur tuning (development)"
           >
             <SlidersHorizontal className="size-4" aria-hidden />
@@ -494,7 +525,7 @@ export function ControlCenterElevationOverlay() {
         align="start"
         sideOffset={10}
         className={cn(
-          'cc-debug-popover',
+          debugPopoverClassName,
         )}
       >
         <ControlCenterElevationForm {...tuning} />

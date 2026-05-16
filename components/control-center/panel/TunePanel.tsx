@@ -6,13 +6,15 @@ import {OklchPickerStandaloneSettings} from '@/components/picker/OklchPickerStan
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
 import {liveWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 
+const panelStackClassName = 'px-1 pb-3'
+
 /** Architecture -> scale ladders -> OKHSL -> variants -> mapping -> alpha -> export (/picker parity). */
 function TunePanelInner() {
   const wb = useNeutralWorkbenchContext()
   const adapter = useMemo(() => liveWorkbenchAdapter(wb), [wb])
 
   return (
-    <div className="cc-panel-stack" data-slot="control-center-panel-tune">
+    <div className={panelStackClassName} data-slot="control-center-panel-tune">
       <OklchPickerStandaloneSettings adapter={adapter} />
     </div>
   )

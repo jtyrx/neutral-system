@@ -97,6 +97,15 @@ export const DOCK_MAGNIFY_PADDING_X_PX = 8
 /** Top padding baseline (`pt-1.5`) — grows with magnification. */
 export const DOCK_MAGNIFY_PADDING_TOP_PX = 8
 
+const dockPanelClassName =
+  'relative z-1 isolate flex items-end justify-center gap-2 rounded-2xl border border-hairline bg-[color-mix(in_oklch,var(--color-surface-overlay)_55%,transparent)] pb-2 shadow-[0_18px_48px_-20px_rgb(0_0_0_/_0.55),0_4px_12px_-6px_rgb(0_0_0_/_0.35)] [contain:layout_style] supports-[backdrop-filter:blur(1px)]:backdrop-blur-[24px] supports-[backdrop-filter:blur(1px)]:backdrop-saturate-125 dark:bg-[color-mix(in_oklch,var(--color-surface-overlay)_48%,transparent)]'
+
+const dockItemClassName =
+  'flex origin-bottom items-end justify-center rounded-dock-item motion-safe:will-change-[opacity,transform,clip-path]'
+
+const dockItemMagnifyClassName =
+  'flex min-w-0 w-full origin-bottom items-end justify-center rounded-[inherit] motion-safe:will-change-transform'
+
 export type DockItemRegistration = {
   magnifyIndex: number
   itemRef: RefObject<HTMLDivElement | null>
@@ -415,7 +424,7 @@ export function MagnifyingDockShell({
           onPointerLeave={handlePointerLeave}
           data-custom-surface={shellStyle?.backgroundColor ? 'true' : undefined}
           data-custom-elevation={shellStyle?.boxShadow ? 'true' : undefined}
-          className={cn('cc-dock-panel', className)}
+          className={cn(dockPanelClassName, className)}
           role="toolbar"
           aria-label="Picker dock"
         >
@@ -482,7 +491,7 @@ export function DockMagnifyItem({
     <motion.div
       data-slot="dock-item"
       data-dock-item={dataDockItem}
-      className={cn('cc-dock-item rounded-dock-item', className)}
+      className={cn(dockItemClassName, className)}
       initial={initial}
       animate={animate}
       exit={exit}
@@ -492,7 +501,7 @@ export function DockMagnifyItem({
         ref={ref}
         data-slot="dock-item-magnify"
         style={itemMotionStyle}
-        className="cc-dock-item-magnify"
+        className={dockItemMagnifyClassName}
       >
         {children}
       </motion.div>

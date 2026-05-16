@@ -17,6 +17,37 @@ import {cn} from '@/lib/utils'
 
 /** Bulk CSS: `[data-slot='ramp-swatch']` + class `ramp-swatch-segment`. Rail: `[data-slot='ramp-swatch-rail']`. Variants: `ramp-swatch:*`. Dock magnify: `data-dock-item`. */
 const PLACEHOLDER_COUNT = RAMP_SWATCH_PLACEHOLDER_COUNT
+const rampRailBaseClassName =
+  'box-border flex min-h-0 w-full overflow-x-auto overflow-y-hidden rounded-card'
+const rampRailLiveClassName =
+  'cursor-default outline-none focus-visible:border-ring focus-visible:shadow-[var(--shadow-lg),0_0_0_3px_color-mix(in_oklch,var(--ring)_35%,transparent)]'
+const rampRailPlaceholderClassName = 'bg-raised'
+const rampRailRowClassName =
+  'flex min-h-0 min-w-min w-full flex-1 flex-row self-stretch items-stretch'
+const rampRailLabeledClassName = 'min-h-[3.35rem]'
+const rampRailUnlabeledClassName = 'h-full min-h-8'
+const rampSegmentBaseClassName =
+  'relative z-0 box-border flex min-h-0 flex-1 flex-col overflow-hidden'
+const rampSegmentLiveClassName =
+  'cursor-pointer shadow-[inset_0_0_0_2px_transparent] transition-shadow duration-[275ms] hover:z-1 data-[kbd=true]:z-3 data-[kbd=true]:shadow-[inset_0_0_0_2px_color-mix(in_oklch,var(--ring)_80%,transparent)] data-[ramp-selected=true]:z-2 data-[ramp-selected=true]:shadow-[inset_0_0_0_2px_rgb(255_255_255_/_0.75)] active:[&_[data-slot=ramp-swatch-paint]]:brightness-[0.92]'
+const rampSegmentLabeledClassName = 'flex flex-col'
+const rampSegmentPlaceholderClassName = 'bg-raised'
+const rampSegmentLabelClassName =
+  'block min-h-3 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap px-0.5 pt-1 text-center font-mono text-[0.5rem] leading-none text-default tabular-nums'
+const rampSegmentPaintClassName =
+  'pointer-events-none shrink-0 transition-[filter] duration-150 group-hover:brightness-[0.98]'
+const rampSegmentPaintLabeledClassName = 'min-h-[3.25rem] flex-1'
+const rampSegmentPaintFillClassName = 'min-h-0 flex-1'
+const rampEdgeStartCardClassName = 'rounded-l-input'
+const rampEdgeEndCardClassName = 'rounded-r-input'
+const rampTooltipClassName =
+  'max-w-[min(90vw,18rem)] whitespace-normal text-left font-mono text-[0.7rem] leading-[1.375]'
+const rampTooltipTitleClassName =
+  'font-sans text-[0.65rem] font-semibold text-popover-foreground'
+const rampTooltipBreakClassName =
+  '[overflow-wrap:anywhere] text-muted-foreground'
+const rampGamutWarningClassName =
+  'rounded border border-amber-border-soft bg-amber-surface-bold px-1.5 py-0.5 font-sans text-[0.6rem] text-amber-text'
 
 export type RampSwatchRailProps = {
   /** Full-width fused rail for panel chrome. */
@@ -78,20 +109,22 @@ function RampSwatchRailInner({
    */
   const railSegmentRound = (i: number, last: number) =>
     cn(
-      i === 0 && 'cc-ramp-edge-start-card',
-      i === last && 'cc-ramp-edge-end-card',
+      i === 0 && rampEdgeStartCardClassName,
+      i === last && rampEdgeEndCardClassName,
     )
 
   const interactiveShellClass = cn(
-    'cc-ramp-rail cc-ramp-rail-live',
-    segmentLabels ? 'cc-ramp-rail-labeled' : 'cc-ramp-rail-unlabeled',
+    rampRailBaseClassName,
+    rampRailLiveClassName,
+    segmentLabels ? rampRailLabeledClassName : rampRailUnlabeledClassName,
     accentClassName ? accentClassName : cn(''),
     // accentClassName ? accentClassName : cn('ring-1 ring-ring/20'),
   )
 
   const placeholderShellClass = cn(
-    'cc-ramp-rail cc-ramp-rail-placeholder',
-    segmentLabels ? 'cc-ramp-rail-labeled' : 'cc-ramp-rail-unlabeled',
+    rampRailBaseClassName,
+    rampRailPlaceholderClassName,
+    segmentLabels ? rampRailLabeledClassName : rampRailUnlabeledClassName,
     accentClassName ?? '',
     // accentClassName ?? 'ring-1 ring-ring/20',
   )
@@ -181,7 +214,7 @@ function RampSwatchRailInner({
         role="img"
         aria-label="Neutral ramp preview — waiting for workbench"
       >
-        <span className="cc-ramp-rail-row">
+        <span className={rampRailRowClassName}>
           {Array.from({length: PLACEHOLDER_COUNT}, (_, i) =>
             segmentLabels ? (
               <span
@@ -189,16 +222,17 @@ function RampSwatchRailInner({
                 data-slot="ramp-swatch"
                 data-ramp-variant="placeholder"
                 className={cn(
-                  'cc-ramp-segment cc-ramp-segment-labeled',
+                  rampSegmentBaseClassName,
+                  rampSegmentLabeledClassName,
                   'ramp-swatch-segment',
                   railSegmentRound(i, lastPlaceholder),
                 )}
               >
-                <span className="cc-ramp-segment-label opacity-0" aria-hidden>
+                <span className={cn(rampSegmentLabelClassName, 'opacity-0')} aria-hidden>
                   ·
                 </span>
                 <span
-                  className="cc-ramp-segment-paint-fill bg-raised"
+                  className={cn(rampSegmentPaintFillClassName, 'bg-raised')}
                   aria-hidden
                 />
               </span>
@@ -208,7 +242,9 @@ function RampSwatchRailInner({
                 data-slot="ramp-swatch"
                 data-ramp-variant="placeholder"
                 className={cn(
-                  'cc-ramp-segment ramp-swatch-segment cc-ramp-segment-placeholder',
+                  rampSegmentBaseClassName,
+                  'ramp-swatch-segment',
+                  rampSegmentPlaceholderClassName,
                   railSegmentRound(i, lastPlaceholder),
                 )}
               />
@@ -236,7 +272,7 @@ function RampSwatchRailInner({
       onFocus={handleFocus}
       onBlur={handleBlur}
     >
-      <span className="cc-ramp-rail-row">
+      <span className={rampRailRowClassName}>
         {orderedSwatches.map((s, i) => {
           const cssName = primitiveNeutralExportName(ramp, s.index, tier1Mode)
           const facingLabel = rampTier1FacingLabel(ramp, s.index, tier1Mode)
@@ -258,8 +294,10 @@ function RampSwatchRailInner({
                   role="presentation"
                   title={`${facingLabel} · ${cssName}`}
                   className={cn(
-                    'group cc-ramp-segment cc-ramp-segment-live ramp-swatch-segment',
-                    segmentLabels && 'cc-ramp-segment-labeled',
+                    'group ramp-swatch-segment',
+                    rampSegmentBaseClassName,
+                    rampSegmentLiveClassName,
+                    segmentLabels && rampSegmentLabeledClassName,
                     railSegmentRound(i, lastRailIndex),
                   )}
                   onClick={() => pickGlobalSwatch(s.index)}
@@ -272,10 +310,10 @@ function RampSwatchRailInner({
                   <span
                     data-slot="ramp-swatch-paint"
                     className={cn(
-                      'cc-ramp-segment-paint',
+                      rampSegmentPaintClassName,
                       segmentLabels
-                        ? 'cc-ramp-segment-paint-labeled'
-                        : 'cc-ramp-segment-paint-fill',
+                        ? rampSegmentPaintLabeledClassName
+                        : rampSegmentPaintFillClassName,
                     )}
                     style={{backgroundColor: s.serialized.hex}}
                     aria-hidden
@@ -290,20 +328,20 @@ function RampSwatchRailInner({
               <TooltipContent
                 side="bottom"
                 sideOffset={8}
-                className="cc-ramp-tooltip"
+                className={rampTooltipClassName}
               >
-                <p className="cc-ramp-tooltip-title">{facingLabel}</p>
-                <p className="cc-ramp-tooltip-break">{cssName}</p>
+                <p className={rampTooltipTitleClassName}>{facingLabel}</p>
+                <p className={rampTooltipBreakClassName}>{cssName}</p>
                 {/* <p className="text-muted-foreground">
                 ramp index {s.index}
                 {previewTheme === 'dark'
                   ? ` · dark display ${displayLadderIndex(ramp, s.index, previewTheme)}`
                   : ''}
               </p> */}
-                <p className="cc-ramp-tooltip-break">{s.serialized.hex}</p>
-                <p className="cc-ramp-tooltip-break">{s.serialized.oklchCss}</p>
+                <p className={rampTooltipBreakClassName}>{s.serialized.hex}</p>
+                <p className={rampTooltipBreakClassName}>{s.serialized.oklchCss}</p>
                 {outOfSrgb ? (
-                  <p className="cc-ramp-gamut-warning">
+                  <p className={rampGamutWarningClassName}>
                     Out of sRGB (display clipped)
                   </p>
                 ) : null}

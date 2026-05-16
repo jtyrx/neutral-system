@@ -29,6 +29,9 @@ const subscribeMounted = () => () => {}
 const getMountedSnapshot = () => true
 const getServerMountedSnapshot = () => false
 
+const dockActionClassName =
+  'size-11 shrink-0 touch-manipulation rounded-dock-item border-[color:var(--chrome-hairline)] bg-raised text-default backdrop-blur-none hover:bg-overlay hover:text-default active:bg-[color-mix(in_oklch,var(--color-surface-overlay)_92%,var(--color-text-default))] focus-visible:border-[color:var(--ring)] focus-visible:shadow-[var(--shadow-raised),0_0_0_3px_color-mix(in_oklch,var(--ring)_35%,transparent)] [&_svg]:size-[1.125rem]'
+
 export const OklchLauncherButton = memo(forwardRef<
   HTMLButtonElement,
   OklchLauncherButtonProps
@@ -41,7 +44,7 @@ export const OklchLauncherButton = memo(forwardRef<
           type="button"
           variant="outline"
           size="icon"
-          className={cn('cc-dock-action', className)}
+          className={cn(dockActionClassName, className)}
           aria-label="Open OKLCH picker surface"
           data-slot="dock-oklch-launcher"
           id="dock-oklch-launcher"
@@ -101,7 +104,7 @@ export const ThemeCycleButton = memo(function ThemeCycleButton() {
           type="button"
           variant="outline"
           size="icon"
-          className="cc-dock-action"
+          className={dockActionClassName}
           aria-label={label}
           data-slot="dock-theme-toggle"
           id="dock-theme-toggle"

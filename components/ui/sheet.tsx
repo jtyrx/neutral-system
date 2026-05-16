@@ -2,10 +2,22 @@
 
 import * as React from 'react'
 import { Dialog as SheetPrimitive } from '@base-ui/react/dialog'
+import {cva} from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button.tsx'
+import { Button, buttonVariants } from '@/components/ui/button.tsx'
 import { XIcon } from 'lucide-react'
+
+const sheetSizeVariants = cva('', {
+  variants: {
+    size: {
+      sm: 'data-[side=left]:sm:max-w-xs data-[side=right]:sm:max-w-xs',
+      default: 'data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm',
+      lg: 'data-[side=left]:sm:max-w-lg data-[side=right]:sm:max-w-lg',
+    },
+  },
+  defaultVariants: {size: 'default'},
+})
 
 const sheetContentBase = cn(
   // base positioning + layout
@@ -17,8 +29,6 @@ const sheetContentBase = cn(
   'data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r',
   'data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l',
   'data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b',
-  // size caps
-  'data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm',
   // open animations
   'data-open:animate-in data-open:fade-in-0',
   'data-[side=bottom]:data-open:slide-in-from-bottom-10',
@@ -61,9 +71,16 @@ function SheetTrigger({
 SheetTrigger.displayName = 'SheetTrigger'
 
 function SheetClose({
+  className,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Close>) {
-  return <SheetPrimitive.Close data-slot='sheet-close' {...props} />
+  return (
+    <SheetPrimitive.Close
+      data-slot='sheet-close'
+      className={cn(buttonVariants({variant: 'ghost', size: 'icon-sm'}), className)}
+      {...props}
+    />
+  )
 }
 SheetClose.displayName = 'SheetClose'
 
@@ -96,10 +113,12 @@ function SheetContent({
   className,
   children,
   side = 'right',
+  size = 'default',
   showCloseButton = true,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Popup> & {
   side?: 'top' | 'right' | 'bottom' | 'left'
+  size?: 'sm' | 'default' | 'lg'
   showCloseButton?: boolean
 }) {
   return (
@@ -108,7 +127,7 @@ function SheetContent({
       <SheetPrimitive.Popup
         data-slot='sheet-content'
         data-side={side}
-        className={cn(sheetContentBase, className)}
+        className={cn(sheetContentBase, sheetSizeVariants({size}), className)}
         {...props}
       >
         {children}
@@ -190,6 +209,8 @@ export {
   Sheet,
   SheetTrigger,
   SheetClose,
+  SheetPortal,
+  SheetOverlay,
   SheetContent,
   SheetHeader,
   SheetFooter,

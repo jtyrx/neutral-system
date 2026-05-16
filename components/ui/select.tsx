@@ -48,8 +48,6 @@ const selectItemBase = cn(
   'data-disabled:pointer-events-none data-disabled:opacity-50',
   // svg
   "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-  // span layout (last span = indicator container)
-  '*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2',
 )
 
 function SelectGroup({className, ...props}: SelectPrimitive.Group.Props) {
@@ -250,6 +248,8 @@ export {
   SelectTrigger,
   SelectValue,
 }
+
+export type SelectScrollButtonProps = React.ComponentProps<typeof SelectPrimitive.ScrollUpArrow>
 
 /** Full `@base-ui/react/select` namespace — use with Toolbar + `render` composition. */
 export {SelectPrimitive as SelectPrimitives}

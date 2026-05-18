@@ -23,14 +23,13 @@ const responsiveNativeSelectBase = cn(
   'mb-0 appearance-none pr-8',
 )
 
+const responsiveSelectValueClass = cn('min-w-0 flex-1 text-left')
+
 const responsiveSelectTriggerBase = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
   'flex h-auto min-h-9 w-full min-w-0 justify-between gap-2',
   'py-2 pr-2.5 text-left font-normal whitespace-normal',
   '[&_svg]:shrink-0',
-  '*:data-[slot=select-value]:min-w-0',
-  '*:data-[slot=select-value]:flex-1',
-  '*:data-[slot=select-value]:text-left',
 )
 
 export type ResponsiveSelectOption = {
@@ -91,6 +90,7 @@ export function ResponsiveSelect({
         id={id}
         value={value}
         disabled={disabled}
+        data-slot="responsive-select"
         className={cn(responsiveNativeSelectBase, className)}
         onChange={handleNativeChange}
       >
@@ -109,13 +109,14 @@ export function ResponsiveSelect({
       items={items}
       value={value}
       onValueChange={handleValueChange}
+      data-slot="responsive-select"
     >
       <SelectTrigger
         id={id}
         size="default"
         className={cn(responsiveSelectTriggerBase, className)}
       >
-        <SelectValue />
+        <SelectValue className={responsiveSelectValueClass} />
       </SelectTrigger>
       <SelectContent alignItemWithTrigger>
         <SelectGroup>

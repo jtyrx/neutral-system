@@ -71,9 +71,8 @@ type TooltipContentProps = Omit<
     children?: React.ReactNode
     /**
      * When true, wraps content with `Viewport` for animations when hopping between triggers.
-     * Default tooltips omit this — it enables extra positioning middleware.
      */
-    withViewport?: boolean
+    enableViewportHopping?: boolean
   }
 
 function TooltipContent({
@@ -82,10 +81,10 @@ function TooltipContent({
   side = 'top',
   align = 'center',
   children,
-  withViewport = false,
+  enableViewportHopping = false,
   ...props
 }: TooltipContentProps) {
-  const content = withViewport ? (
+  const content = enableViewportHopping ? (
     <TooltipPrimitive.Viewport>{children}</TooltipPrimitive.Viewport>
   ) : (
     children
@@ -107,6 +106,7 @@ function TooltipContent({
             Block wrapper (not <span>): callers often pass <p> and lists — phrasing-only <span>
             breaks HTML parsing (browser hoists <p>), destroying layout and hiding text in flex.
           */}
+          {/* Inner surface is a separate element from the popup shell so the filter: drop-shadow stack composes correctly without clipping the caret. */}
           <div className={cn(tooltipPopupInnerSurface)}>
             <div
               className={cn(

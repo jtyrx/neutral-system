@@ -7,6 +7,7 @@ import {ComparisonLayoutPicker} from '@/components/workbench/ComparisonLayoutPic
 import {InspectionToggle} from '@/components/workbench/InspectionToggle'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
+import { Button } from '../ui/button'
 
 // A1: previewTheme / onPreviewTheme removed — never consumed in this component.
 type Props = {
@@ -78,6 +79,11 @@ function WorkbenchHeaderInner({
           id="nsb-workbench-controls"
           className="flex min-w-0 flex-wrap items-center gap-2 nsb-lg:justify-end"
         >
+
+          <Button>
+            <span>Comparison Layout</span>
+            <span>{comparisonLayout}</span>
+          </Button>
           <ComparisonLayoutPicker
             value={comparisonLayout}
             onChange={onComparisonLayoutChange}

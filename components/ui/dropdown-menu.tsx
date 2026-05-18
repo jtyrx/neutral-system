@@ -153,6 +153,7 @@ function DropdownMenuContent({
         >
           <MenuPrimitive.Popup
             data-slot="dropdown-menu-content"
+            data-variant={variant}
             className={cn(
               dropdownMenuContentVariants({variant}),
               floatingPopupOpenClose,
@@ -199,6 +200,7 @@ function DropdownMenuLabel({
   const variant = variantProp ?? fromContext
   return (
     <div
+      role="group"
       data-slot="dropdown-menu-label"
       className={cn(dropdownMenuLabelVariants({variant}), className)}
       {...props}

@@ -18,12 +18,12 @@ export function PreviewBlockSection({index, eyebrow, title, intent, children}: P
   return (
     <section
       aria-labelledby={`preview-block-${index}-title`}
-      className="ns-overlay-card space-y-3"
+      className="ns-overlay-card space-y-12"
     >
-      <header className="flex flex-col gap-1 border-b border-hairline pb-3">
-        <div className="flex items-center gap-2 text-[0.6rem] font-medium font-mono uppercase tracking-[0.14em] text-muted">
+      <header className="flex flex-col gap-4 border-b border-hairline pb-12">
+        <div className="flex items-center gap-8 text-[0.6rem] font-medium font-mono uppercase tracking-[0.14em] text-muted">
           <span className="tabular-nums">{String(index).padStart(2, '0')}</span>
-          <span aria-hidden className="h-px w-4 bg-overlay-strong" />
+          <span aria-hidden className="h-px w-16 bg-overlay-strong" />
           <span>{eyebrow}</span>
         </div>
         <h3 id={`preview-block-${index}-title`} className="text-sm font-semibold tracking-tight text-default">

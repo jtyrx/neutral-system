@@ -71,7 +71,7 @@ function PreviewComparisonInner({
     const directionHint = rampWorkbenchFocusDirection(neutralArchitecture, lane)
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-16">
         <div className={previewChromePanelVariants({tone, layout: 'focus'})}>
           <PreviewPanelHeading
             eyebrow={title}
@@ -117,8 +117,8 @@ function PreviewComparisonInner({
   const darkCaption = rampWorkbenchSplitDarkCaption(neutralArchitecture)
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:gap-4">
+    <div className="space-y-32">
+      <div className="grid gap-16 nsb-lg:grid-cols-1 nsb-lg:gap-16">
         <div
           className={previewChromePanelVariants({
             tone: 'amber',

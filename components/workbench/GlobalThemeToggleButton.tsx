@@ -41,14 +41,14 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
       <div
         aria-hidden={true}
         className={cn(
-          'inline-flex h-8 shrink-0 items-center gap-0.25 rounded-full bg-toolbar-control-surface-sunken p-1',
+          'inline-flex h-32 shrink-0 items-center gap-1 rounded-full bg-toolbar-control-surface-sunken p-4',
           className,
         )}
       >
         {OPTIONS.map((option) => (
           <span
             key={option.value}
-            className="inline-flex size-6.75 items-center justify-center rounded-full border border-transparent text-disabled"
+            className="inline-flex size-27 items-center justify-center rounded-full border border-transparent text-disabled"
           />
         ))}
       </div>
@@ -79,7 +79,7 @@ function GlobalThemeToggleButtonInner({className}: {className?: string}) {
             variant="icon"
             aria-label={option.label}
           >
-            <Icon className="size-3.75" aria-hidden={true} />
+            <Icon className="size-15" aria-hidden={true} />
             <span className="sr-only">{option.label}</span>
           </RadioGroupItem>
         )

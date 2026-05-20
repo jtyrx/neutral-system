@@ -66,7 +66,7 @@ function WorkbenchPreviewColumnInner({
       <div
         id="nsb-preview-blocks"
         aria-label="Semantic preview blocks"
-        className="flex flex-col gap-10 px-4 py-6 sm:px-6 sm:py-8 nsb-lg:px-8"
+        className="flex flex-col gap-40 px-16 py-24 sm:px-24 sm:py-32 nsb-lg:px-32"
       >
         <section aria-label="Semantic preview blocks" className="mx-auto w-full">
           <SemanticPreviewWorkbench

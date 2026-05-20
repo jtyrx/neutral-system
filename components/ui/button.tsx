@@ -10,86 +10,76 @@ import {ChevronDown} from 'lucide-react'
 import {cn} from '@/lib/utils'
 
 const buttonBase = cn(
-  'group/button inline-flex shrink-0 items-center justify-center',
-  'rounded-input border border-transparent bg-clip-padding',
-  'text-sm font-medium whitespace-nowrap',
-  'transition-all outline-none select-none',
-  'cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+  'btn-sys',
+  'group/button shrink-0',
+  'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
   // Exclude popups and already-pressed toggles from the nudge — pressing an
   // active toggle would double-fire the translate and look broken.
-  'active:not-aria-[haspopup]:not-aria-pressed:translate-y-px',
+  // 'active:not-aria-[haspopup]:not-aria-pressed:translate-y-px',
   'disabled:pointer-events-none disabled:opacity-50',
   'aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20',
   'dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
-  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-16",
 )
 
 const buttonVariants = cva(buttonBase, {
   variants: {
     variant: {
-      default: 'bg-primary text-primary-foreground hover:bg-primary/80',
+      default: '',
       outline: cn(
-        'bg-background hover:bg-muted hover:text-foreground',
         'aria-expanded:bg-muted aria-expanded:text-foreground',
         'aria-pressed:bg-muted aria-pressed:text-foreground',
-        'dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+        'dark:border-input dark:bg-input/30',
       ),
       secondary: cn(
-        'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         'aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
         'aria-pressed:bg-secondary aria-pressed:text-secondary-foreground',
       ),
       ghost: cn(
-        'hover:bg-muted hover:text-foreground',
         'aria-expanded:bg-muted aria-expanded:text-foreground',
         'aria-pressed:bg-muted aria-pressed:text-foreground',
-        'dark:hover:bg-muted/50',
       ),
       destructive: cn(
-        'bg-destructive/10 text-destructive hover:bg-destructive/20',
         'focus-visible:border-destructive/40 focus-visible:ring-destructive/20',
-        'dark:bg-destructive/20 dark:hover:bg-destructive/30',
         'dark:focus-visible:ring-destructive/40',
       ),
-      link: 'text-primary underline-offset-4 hover:underline',
+      link: '',
     },
     size: {
-      default: cn(
-        'h-8 gap-1.5 px-2.5',
-        'has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-      ),
+      // btn-sys owns min-height + padding via data-size trackers.
+      // CVA retains only slot overrides and icon-specific shapes.
       xs: cn(
-        'h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs',
         'in-data-[slot=button-group]:rounded-input',
-        'has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5',
-        "[&_svg:not([class*='size-'])]:size-3",
+        'has-data-[icon=inline-end]:pr-6 has-data-[icon=inline-start]:pl-6',
+        "[&_svg:not([class*='size-'])]:size-12",
       ),
       sm: cn(
-        'h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem]',
         'in-data-[slot=button-group]:rounded-input',
-        'has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5',
-        "[&_svg:not([class*='size-'])]:size-3.5",
+        'has-data-[icon=inline-end]:pr-6 has-data-[icon=inline-start]:pl-6',
+        "[&_svg:not([class*='size-'])]:size-14",
+      ),
+      md: cn(
+        'has-data-[icon=inline-end]:pr-8 has-data-[icon=inline-start]:pl-8',
       ),
       lg: cn(
-        'h-9 gap-1.5 px-2.5',
-        'has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+        'has-data-[icon=inline-end]:pr-8 has-data-[icon=inline-start]:pl-8',
       ),
-      icon: 'size-8.25',
+      icon: 'size-33',
       'icon-xs': cn(
-        'size-6 rounded-[min(var(--radius-md),10px)]',
+        'size-24 rounded-[min(var(--radius-md),10px)]',
         'in-data-[slot=button-group]:rounded-input',
-        "[&_svg:not([class*='size-'])]:size-3",
+        "[&_svg:not([class*='size-'])]:size-12",
       ),
       'icon-sm': cn(
-        'size-7 rounded-[min(var(--radius-md),12px)]',
+        'size-28 rounded-[min(var(--radius-md),12px)]',
         'in-data-[slot=button-group]:rounded-input',
       ),
-      'icon-lg': 'size-9',
+      'icon-lg': 'size-36',
     },
   },
   defaultVariants: {
     variant: 'default',
-    size: 'default',
+    size: 'md',
   },
 })
 
@@ -110,7 +100,7 @@ type ButtonProps = React.ComponentProps<'button'> &
 function Button({
   className,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   asChild = false,
   nativeButton = true,
   disabled,
@@ -158,7 +148,7 @@ export type ButtonLinkProps = React.ComponentProps<'a'> &
 function ButtonLink({
   className,
   variant = 'default',
-  size = 'default',
+  size = 'md',
   asChild = false,
   ref,
   children,
@@ -187,23 +177,40 @@ type MenuTriggerButtonProps = Omit<ButtonProps, 'variant' | 'size'> & {
   value?: React.ReactNode
 }
 
-function MenuTriggerButton({label, value, className, ...props}: MenuTriggerButtonProps) {
+function MenuTriggerButton({
+  label,
+  value,
+  className,
+  ...props
+}: MenuTriggerButtonProps) {
   return (
     <Button
       variant="ghost"
       size="sm"
-      className={cn('gap-1.5 font-light', className)}
+      className={cn('gap-6 font-light', className)}
       {...props}
     >
       <span className="text-subtle">{label}</span>
-      {value != null && <span className="font-medium text-default">{value}</span>}
-      <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+      {value != null && (
+        <span className="font-medium text-default">{value}</span>
+      )}
+      <ChevronDown
+        className="size-12 shrink-0 text-muted-foreground"
+        aria-hidden
+      />
     </Button>
   )
 }
 MenuTriggerButton.displayName = 'Button.MenuTrigger'
 
-const ButtonWithMenuTrigger = Object.assign(Button, {MenuTrigger: MenuTriggerButton})
+const ButtonWithMenuTrigger = Object.assign(Button, {
+  MenuTrigger: MenuTriggerButton,
+})
 
-export {ButtonWithMenuTrigger as Button, ButtonLink, MenuTriggerButton as ButtonMenuTrigger, buttonVariants}
+export {
+  ButtonWithMenuTrigger as Button,
+  ButtonLink,
+  MenuTriggerButton as ButtonMenuTrigger,
+  buttonVariants,
+}
 export type {ButtonProps, MenuTriggerButtonProps as ButtonMenuTriggerProps}

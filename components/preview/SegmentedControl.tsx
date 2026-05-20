@@ -27,7 +27,7 @@ export function SegmentedControl<T extends string>({
   'aria-label': ariaLabel,
   size = 'sm',
 }: Props<T>) {
-  const pad = size === 'sm' ? 'px-2.5 py-1.5 text-micro' : 'px-3 py-2 text-xs'
+  const pad = size === 'sm' ? 'px-10 py-6 text-micro' : 'px-12 py-8 text-xs'
 
   return (
     <div
@@ -69,7 +69,7 @@ export function ControlTier({
   children: ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-2 sm:gap-4">
+    <div className="flex flex-col gap-8 sm:gap-16">
       <p className="shrink-0 text-[0.6rem] font-medium uppercase tracking-wide text-disabled sm:min-w-[7.5rem]">
         {label}
       </p>

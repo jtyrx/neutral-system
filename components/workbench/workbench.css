@@ -1,0 +1,181 @@
+/**
+ * Workbench layout, header chrome, inspector scroll, and `#nsb-preview-blocks`
+ * decoration. Owned by `components/workbench/`. Imported globally so Tailwind
+ * v4 picks up the `@custom-variant` declarations and the layer rules apply
+ * across the route.
+ */
+
+/** Workbench inset: respond to `#nsb-viewport` width (not viewport), for resizable sidebar. */
+@custom-variant nsb-lg (@container nsb-workbench (width >= 56rem));
+@custom-variant nsb-xl (@container nsb-workbench (width >= 72rem));
+
+@layer base {
+  /**
+   * Builder `<details>` panels: animate disclosure body height where supported
+   * (`::details-content`, `interpolate-size`; e.g. Chrome 129+, Safari 17.4+).
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .ns-collapsible-details {
+      interpolate-size: allow-keywords;
+    }
+
+    .ns-collapsible-details::details-content {
+      overflow: hidden;
+      transition:
+        height 200ms var(--ease-out-quart),
+        content-visibility 200ms allow-discrete;
+    }
+
+    .ns-collapsible-details:not([open])::details-content {
+      height: 0;
+    }
+
+    .ns-collapsible-details[open]::details-content {
+      height: auto;
+    }
+  }
+
+  .ns-workbench {
+    --ns-workbench-header-height: 0px;
+    display: grid;
+    min-height: 100dvh;
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'header'
+      'main'
+      'inspector';
+  }
+
+  .ns-workbench__header {
+    grid-area: header;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    cursor: pointer;
+    border-bottom: 1px solid var(--chrome-hairline);
+    background-color: var(--color-surface-subtle);
+  }
+
+  .ns-workbench__preview-col {
+    grid-area: main;
+  }
+
+  .ns-workbench__inspector-col {
+    grid-area: inspector;
+  }
+
+  .ns-workbench__inspector-scroll {
+    position: sticky;
+    top: var(--ns-workbench-header-height);
+    max-height: calc(100dvh - var(--ns-workbench-header-height));
+    overflow-y: auto;
+  }
+
+  @container nsb-workbench (width >= 56rem) {
+    .ns-workbench {
+      grid-template-columns: minmax(0, 1fr) minmax(0, min(20rem, 50cqi));
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        'header header'
+        'main inspector';
+      align-items: start;
+    }
+  }
+
+  @container nsb-workbench (width >= 72rem) {
+    .ns-workbench {
+      grid-template-columns: minmax(0, 1fr) minmax(0, min(28rem, 52cqi));
+    }
+  }
+
+  /*
+    #nsb-preview-blocks — workbench surface decoration (gradient/vignette/dot-mask layers
+    temporarily disabled). Active: flat background + dot-grid custom properties only.
+    Restore the full treatment from git history if needed.
+  */
+  #nsb-preview-blocks {
+    position: relative;
+    isolation: isolate;
+    background: var(--color-surface-sunken);
+    --ns-preview-dot-grid: 1rem;
+    /* Dot size ≥1px: avoids subpixel collapse in some engines at non-1 DPR. */
+    --ns-preview-dot-size: 1px;
+    --ns-preview-dot-offset-x: -0.5px;
+    --ns-preview-dot-offset-y: -0.5px;
+    --ns-preview-dot-opacity: 0.22;
+  }
+
+  #nsb-preview-blocks > * {
+    position: relative;
+    z-index: 0;
+  }
+
+  #nsb-preview-blocks::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Behind in-flow: z-index -1 is the reliable decorative layer under flex children. */
+    z-index: -1;
+    pointer-events: none;
+    background: var(--color-surface-sunken);
+    mix-blend-mode: normal;
+  }
+
+  /* ::after: dot "blueprint" on the vignette, still below real children, z -1. */
+  #nsb-preview-blocks::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image: radial-gradient(
+      circle,
+      var(--ns-preview-dot-color) var(--ns-preview-dot-size),
+      transparent calc(var(--ns-preview-dot-size) + 0.5px)
+    );
+    background-repeat: repeat;
+    background-size: var(--ns-preview-dot-grid) var(--ns-preview-dot-grid);
+    background-position: var(--ns-preview-dot-offset-x)
+      var(--ns-preview-dot-offset-y);
+    transition: opacity 200ms ease;
+  }
+
+  /* [data-theme=light] field: paper + faint grid, workbench surface. */
+  [data-theme='light'] #nsb-preview-blocks {
+    --ns-preview-dot-grid: 1rem;
+    --ns-preview-dot-size: 0.5px;
+    --ns-preview-dot-offset-x: -0.5px;
+    --ns-preview-dot-offset-y: -0.5px;
+    --ns-preview-dot-color: color-mix(
+      in oklch,
+      var(--color-text-default) 37%,
+      transparent
+    );
+    --ns-preview-dot-opacity: 0.25;
+  }
+
+  [data-theme='light'] #nsb-preview-blocks::before {
+    opacity: 0.55;
+  }
+
+  /* [data-theme=dark] field: deeper neutral, restrained top glow, quieter grid. */
+  [data-theme='dark'] #nsb-preview-blocks {
+    --ns-preview-dot-grid: 1rem;
+    --ns-preview-dot-size: 0.75px;
+    --ns-preview-dot-offset-x: -0.5px;
+    --ns-preview-dot-offset-y: -0.5px;
+    --ns-preview-dot-color: color-mix(
+      in oklch,
+      var(--color-text-default) 11%,
+      transparent
+    );
+    --ns-preview-dot-opacity: 0.22;
+  }
+
+  [data-theme='dark'] #nsb-preview-blocks::before {
+    opacity: 0.35;
+  }
+}

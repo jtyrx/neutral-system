@@ -19,7 +19,7 @@ function PickerRampStripInner({ramp, caption, className}: Props) {
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-8', className)}>
       {caption ? (
         <p className="text-caption font-medium tracking-wide text-muted">
           {caption}
@@ -27,7 +27,7 @@ function PickerRampStripInner({ramp, caption, className}: Props) {
       ) : null}
       <div className="overflow-x-auto rounded-xl border border-hairline bg-raised">
         <div
-          className="flex min-h-16"
+          className="flex min-h-64"
           style={{minWidth: `${Math.max(ramp.length * 8, 280)}px`}}
           role="img"
           aria-label={`Neutral ramp, ${ramp.length} steps`}

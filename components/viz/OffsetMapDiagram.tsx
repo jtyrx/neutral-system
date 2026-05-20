@@ -33,9 +33,9 @@ type RowProps = {
 
 const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, tickIndices}: RowProps) {
   return (
-    <div className="flex items-center gap-2 text-micro">
-      <span className="w-16 shrink-0 font-medium text-muted">{label}</span>
-      <div className="relative h-4 flex-1 rounded bg-chip">
+    <div className="flex items-center gap-8 text-micro">
+      <span className="w-64 shrink-0 font-medium text-muted">{label}</span>
+      <div className="relative h-16 flex-1 rounded bg-chip">
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded"
           aria-hidden
@@ -43,7 +43,7 @@ const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, ti
           {tickIndices.map((i) => (
             <div
               key={i}
-              className="absolute bottom-1 top-1 w-px -translate-x-1/2 bg-chip"
+              className="absolute bottom-4 top-4 w-px -translate-x-1/2 bg-chip"
               style={{left: indexToLeftPercent(i, steps)}}
             />
           ))}
@@ -53,7 +53,7 @@ const OffsetMapRow = memo(function OffsetMapRow({label, indices, tone, steps, ti
           return (
             <span
               key={`${label}-${k}-${idx}`}
-              className={`absolute top-0 z-10 h-full w-1 -translate-x-1/2 rounded-sm ${tone}`}
+              className={`absolute top-0 z-10 h-full w-4 -translate-x-1/2 rounded-sm ${tone}`}
               style={{left}}
             />
           )
@@ -77,7 +77,7 @@ function OffsetMapDiagramInner({
   const tickIndices = useMemo(() => Array.from({length: n}, (_, i) => i), [n])
 
   return (
-    <div className="space-y-2 rounded-xl border border-hairline bg-raised px-4 py-3">
+    <div className="space-y-8 rounded-xl border border-hairline bg-raised px-16 py-12">
       <p className="eyebrow">Offset mapping · {themeLabel}</p>
       <p className="text-[0.7rem] text-muted">{description}</p>
       <OffsetMapRow label="Surface" indices={surfaceIndices} tone="bg-emerald-400/90" steps={steps} tickIndices={tickIndices} />

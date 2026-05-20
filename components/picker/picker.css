@@ -1,0 +1,43 @@
+/**
+ * Picker-subsystem shared utilities. Owned by `components/picker/`.
+ * Imported globally so Tailwind v4 picks up the `@utility` declarations.
+ */
+
+/** Caption text: replaces text-[0.65rem] text-muted across picker components. */
+@utility picker-caption {
+  font-size: var(--text-caption);
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+
+/** Monospaced numeric readout at caption scale. */
+@utility picker-numeric {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--text-caption);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/** Horizontal action/badge row — replaces flex flex-wrap items-center gap-8. */
+@utility picker-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/** Distributed section header row — replaces flex flex-wrap items-center justify-between gap-12. */
+@utility picker-section-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/** Section divider — replaces space-y-24 + border-t border-hairline pt-24. */
+@utility picker-section-divider {
+  border-top: 1px solid var(--chrome-hairline);
+  padding-top: 1.5rem;
+}

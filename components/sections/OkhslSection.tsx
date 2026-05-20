@@ -52,8 +52,8 @@ function SliderField({
   onInputChange,
 }: FieldProps) {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
+    <div className="space-y-8">
+      <div className="flex items-center justify-between gap-12">
         <span className="ns-label">{label}</span>
         <Input
           type="number"
@@ -64,7 +64,7 @@ function SliderField({
           value={displayValue}
           disabled={disabled}
           onChange={(e) => onInputChange(e.target.value)}
-          className="w-16 shrink-0"
+          className="w-64 shrink-0"
         />
       </div>
       <Slider
@@ -85,16 +85,16 @@ function SliderField({
 
 function OkhslSectionInner({view, onEdit, resolvedConfig}: Props) {
   return (
-    <section className="space-y-5">
+    <section className="space-y-20">
       <header>
         <p className="eyebrow">OKHSL authoring</p>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
+        <p className="mt-4 max-w-2xl text-sm text-muted">
           Edit the ramp via gamut-relative coordinates. Changes commit back to the canonical OKLCH
           config — OKHSL is a view, not separate state.
         </p>
       </header>
 
-      <div className="space-y-5">
+      <div className="space-y-20">
         <SliderField
           label="Hue (°)"
           value={Math.round(view.hue * 10) / 10}
@@ -108,7 +108,7 @@ function OkhslSectionInner({view, onEdit, resolvedConfig}: Props) {
 
         <SliderField
           label={
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-4">
               Saturation (0–1)
               <span
                 title="Saturation is gamut-relative — S=0.2 at L=0.5 differs from S=0.2 at L=0.95."
@@ -155,8 +155,8 @@ function OkhslSectionInner({view, onEdit, resolvedConfig}: Props) {
         />
       </div>
 
-      <div className="border-t border-hairline pt-4">
-        <p className="ns-label mb-2">Resolved OKLCH</p>
+      <div className="border-t border-hairline pt-16">
+        <p className="ns-label mb-8">Resolved OKLCH</p>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-micro text-muted">
           <div>
             <dt className="text-muted/60">Hue (°)</dt>

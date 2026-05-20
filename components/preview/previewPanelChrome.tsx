@@ -22,17 +22,17 @@ export const previewChromePanelVariants = cva('rounded-titlebar border-none', {
       sky: 'bg-transparent',
     },
     layout: {
-      focus: 'p-3 sm:p-4',
-      splitLight: 'px-3 py-3 sm:px-3.5 sm:py-4',
-      splitDark: 'p-3 sm:p-4',
+      focus: 'p-12 sm:p-16',
+      splitLight: 'px-12 py-12 sm:px-14 sm:py-16',
+      splitDark: 'p-12 sm:p-16',
       /** Dock picker ramp cards — snug padding alongside chrome tint */
-      dock: 'px-3 py-3 sm:px-0.5 sm:py-0.5',
+      dock: 'px-12 py-12 sm:px-2 sm:py-2',
     },
   },
 })
 
 export const previewThemeBadgeVariants = cva(
-  'rounded-titlebar px-2 py-0.5 font-mono text-[0.6rem]',
+  'rounded-titlebar px-8 py-2 font-mono text-[0.6rem]',
   {
     variants: {
       tone: {
@@ -44,7 +44,7 @@ export const previewThemeBadgeVariants = cva(
 )
 
 export const previewPanelHeaderRowClass =
-  'mb-3 flex flex-wrap items-baseline justify-between gap-2'
+  'mb-12 flex flex-wrap items-baseline justify-between gap-8'
 
 export function rampCardAccentClass(
   tone: PreviewChromeTone,
@@ -81,7 +81,7 @@ export function PreviewPanelHeading({
     <div className={previewPanelHeaderRowClass}>
       <div>
         <p className="sr-only">{eyebrow}</p>
-        <p className="mt-0.5 text-[0.75rem] text-muted">
+        <p className="mt-2 text-[0.75rem] text-muted">
           {title}
         </p>
       </div>

@@ -78,7 +78,7 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all', 
 
   if (primitiveIndices.length === 0) {
     return (
-      <p className="rounded-lg border border-hairline bg-raised px-3 py-2 text-xs text-muted">
+      <p className="rounded-lg border border-hairline bg-raised px-12 py-8 text-xs text-muted">
         {layerFilter !== 'all'
           ? 'No tokens for this layer filter.'
           : 'No mapped roles for this theme.'}
@@ -91,11 +91,11 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all', 
       <table className="w-full min-w-md text-left text-micro">
         <thead className="border-b border-hairline font-mono text-muted">
           <tr>
-            <th className="px-2 py-1.5 font-medium">Primitive</th>
-            <th className="w-12 px-2 py-1.5 font-medium">Swatch</th>
-            <th className="px-2 py-1.5 font-medium hidden sm:table-cell">Hex</th>
-            <th className="min-w-40 px-2 py-1.5 font-medium hidden sm:table-cell">OKLCH</th>
-            <th className="px-2 py-1.5 text-right font-medium">Idx</th>
+            <th className="px-8 py-6 font-medium">Primitive</th>
+            <th className="w-48 px-8 py-6 font-medium">Swatch</th>
+            <th className="px-8 py-6 font-medium hidden sm:table-cell">Hex</th>
+            <th className="min-w-160 px-8 py-6 font-medium hidden sm:table-cell">OKLCH</th>
+            <th className="px-8 py-6 text-right font-medium">Idx</th>
           </tr>
         </thead>
         <tbody className="font-mono">
@@ -108,19 +108,19 @@ function SemanticRoleTableInner({tokenView, global, label, layerFilter = 'all', 
             const swatchBg = hex.startsWith('#') ? hex : undefined
             return (
               <tr key={`prim-${idx}`} className="border-b border-hairline">
-                <td className="px-2 py-1.5 align-middle">
+                <td className="px-8 py-6 align-middle">
                   <span className="font-medium text-default">{prim}</span>
                 </td>
-                <td className="px-2 py-1.5 align-middle">
+                <td className="px-8 py-6 align-middle">
                   <span
-                    className="inline-block h-9 w-9 shrink-0 rounded border border-hairline-strong shadow-inner"
+                    className="inline-block h-36 w-36 shrink-0 rounded border border-hairline-strong shadow-inner"
                     style={swatchBg ? {backgroundColor: swatchBg} : undefined}
                     title={`${prim} · ${hex}`}
                   />
                 </td>
-                <td className="px-2 py-1.5 align-middle tabular-nums text-subtle hidden sm:table-cell">{hex}</td>
-                <td className="max-w-[min(28rem,55vw)] px-2 py-1.5 align-middle break-all text-subtle hidden sm:table-cell">{oklch}</td>
-                <td className="px-2 py-1.5 text-right align-middle tabular-nums text-muted">{displayIndex}</td>
+                <td className="px-8 py-6 align-middle tabular-nums text-subtle hidden sm:table-cell">{hex}</td>
+                <td className="max-w-[min(28rem,55vw)] px-8 py-6 align-middle break-all text-subtle hidden sm:table-cell">{oklch}</td>
+                <td className="px-8 py-6 text-right align-middle tabular-nums text-muted">{displayIndex}</td>
               </tr>
             )
           })}

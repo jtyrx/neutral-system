@@ -1,11 +1,16 @@
 'use client'
 
 import {useSyncExternalStore, type ReactNode} from 'react'
+import dynamic from 'next/dynamic'
 import {useTheme} from 'next-themes'
 
 import {ThemeProvider} from '@/components/providers/ThemeProvider'
 import {TooltipProvider} from '@/components/ui/tooltip.tsx'
-import {Toaster} from 'sonner'
+
+const Toaster = dynamic(
+  () => import('sonner').then((m) => ({default: m.Toaster})),
+  {ssr: false, loading: () => null},
+)
 
 type Props = {
   children: ReactNode

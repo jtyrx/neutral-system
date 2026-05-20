@@ -24,13 +24,13 @@ function OklchPreviewSwatchInner({
       )}
     >
       <div
-        className="h-24 w-full sm:h-28"
+        className="h-96 w-full sm:h-112"
         style={{backgroundColor: color.hex}}
       />
-      <div className="space-y-1 border-t border-hairline p-3 font-mono text-caption tabular-nums">
+      <div className="space-y-4 border-t border-hairline p-12 font-mono text-caption tabular-nums">
         <div className="picker-control-row">
           {!color.inSrgbGamut ? (
-            <span className="rounded bg-amber-500/20 px-1.5 py-px text-[0.6rem] font-medium text-amber-900 dark:text-amber-200">
+            <span className="rounded bg-amber-500/20 px-6 py-px text-[0.6rem] font-medium text-amber-900 dark:text-amber-200">
               Out of sRGB · preview clipped
             </span>
           ) : null}

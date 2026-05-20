@@ -6,7 +6,7 @@ import {OklchPickerStandaloneSettings} from '@/components/picker/OklchPickerStan
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
 import {liveWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 
-const panelStackClassName = 'px-1 pb-3'
+const panelStackClassName = 'px-4 pb-12'
 
 /** Architecture -> scale ladders -> OKHSL -> variants -> mapping -> alpha -> export (/picker parity). */
 function TunePanelInner() {

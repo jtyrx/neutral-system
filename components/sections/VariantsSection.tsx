@@ -34,11 +34,11 @@ function diffConfig(prev: GlobalScaleConfig, next: GlobalScaleConfig) {
 
 function VariantsSectionInner({config, onChange}: Props) {
   return (
-    <section id="variants" className="scroll-mt-6 space-y-4">
+    <section id="variants" className="scroll-mt-24 space-y-16">
       <header>
         <p className="eyebrow">5 · Neutral variants</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Hue & chroma presets</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
+        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Hue & chroma presets</h2>
+        <p className="mt-8 max-w-2xl text-sm text-muted">
           Pure neutral locks chroma to zero. Warm / cool / bluish apply low chroma at a fixed hue.
           Custom keeps your sliders.
         </p>

@@ -1,11 +1,11 @@
 'use client'
 
 import {memo, useMemo} from 'react'
+import dynamic from 'next/dynamic'
 
 import {Blend, Braces, Map, Paintbrush, Palette, Route} from 'lucide-react'
 
 import {BrandColorSection} from '@/components/sections/BrandColorSection'
-import {ExportSection} from '@/components/sections/ExportSection'
 import {GlobalScaleSection} from '@/components/sections/GlobalScaleSection'
 import {OkhslSection} from '@/components/sections/OkhslSection'
 import {SystemMappingSection} from '@/components/sections/SystemMappingSection'
@@ -17,6 +17,14 @@ import {CollapsibleControlGroup} from '@/components/workbench/CollapsibleControl
 import {DEFAULT_GLOBAL, type NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
 import {useOklchPickerWorkbench} from '@/hooks/useOklchPickerWorkbench'
 import {sandboxWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
+
+const ExportSection = dynamic(
+  () =>
+    import('@/components/sections/ExportSection').then((m) => ({
+      default: m.ExportSection,
+    })),
+  {ssr: false, loading: () => null},
+)
 
 type Props = {
   wb: NeutralWorkbench
@@ -35,7 +43,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       ? wb.darkRamp
       : wb.lightRamp
   return (
-    <div className="flex flex-col gap-4 pb-12">
+    <div className="flex flex-col gap-16 pb-48">
       <CollapsibleControlGroup
         id="neutral-workbench-controls-scale"
         icon={Blend}
@@ -58,19 +66,19 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         // }
         defaultOpen
       >
-        <div className="space-y-4">
+        <div className="space-y-16">
           <div>
-            <div className="mt-1 space-y-2 text-xs text-muted">
+            <div className="mt-4 space-y-8 text-xs text-muted">
               {simpleArch
                 ? 'Steps, lightness range, chroma shaping, and hue variants.'
                 : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'}
             </div>
             <p className="text-xs font-medium text-default">Architecture</p>
-            <p className="mt-1 text-micro text-muted">
+            <p className="mt-4 text-micro text-muted">
               Simple mirrors one ramp into both themes by mapping. Advanced
               keeps independent ramps for optics.
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-8 flex flex-wrap gap-8">
               <PillChip
                 selected={simpleArch}
                 tone="amber"
@@ -95,11 +103,11 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
               <p className="text-xs font-medium text-default">
                 Edit target ramp
               </p>
-              <p className="mt-1 text-micro text-muted">
+              <p className="mt-4 text-micro text-muted">
                 Hue variants and OKHSL commits apply here. Inspect the other
                 ramp visually in previews.
               </p>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-8 flex flex-wrap gap-8">
                 <PillChip
                   selected={wb.scaleEditTarget === 'light'}
                   tone="amber"
@@ -136,9 +144,9 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         {/* OKHSL authoring overlay */}
         <div
           id="nsb-workbench-controls-okhsl"
-          className="mt-6  border-hairline pt-6"
+          className="mt-24  border-hairline pt-24"
         >
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-12">
             <div>
               <p className="text-xs font-medium text-default">
                 OKHSL authoring overlay
@@ -148,7 +156,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 config.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-8">
               {wb.okhslEnabled ? (
                 <PillButton
                   type="button"
@@ -179,7 +187,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
             </div>
           </div>
           {wb.okhslEnabled ? (
-            <div className="mt-4">
+            <div className="mt-16">
               <OkhslSection
                 view={wb.okhslView}
                 resolvedConfig={{
@@ -195,7 +203,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
             </div>
           ) : null}
         </div>
-        <div className="mt-6">
+        <div className="mt-24">
           {/*
             Passing `setScaleConfigPreset` keeps commits on the active edit target (Simple: global ramp;
             Advanced: light vs dark sibling) so `memo(VariantsSection)` stays stable when only the target swaps.
@@ -213,12 +221,12 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         title="OKLCH picker (parallel)"
         defaultOpen={false}
       >
-        <div className="mt-1 space-y-2 text-xs text-muted">
+        <div className="mt-4 space-y-8 text-xs text-muted">
           Gamut-aware L / C / H exploration on a separate engine config. Use{' '}
           <span className="font-medium text-default">Apply to global scale</span> to copy the
           resulting ramp into Simple mode (single ladder).
         </div>
-        <div className="mt-4">
+        <div className="mt-16">
           <OklchPickerPanel variant="embedded" adapter={sandboxAdapter} />
         </div>
       </CollapsibleControlGroup>
@@ -230,7 +238,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         // additionalInfo="Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview, exports, and the Color.js picker."
         defaultOpen
       >
-        <div className="mt-1 space-y-2 text-xs text-muted">
+        <div className="mt-4 space-y-8 text-xs text-muted">
           Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview,
           exports, and the Color.js picker.
         </div>
@@ -247,7 +255,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         // additionalInfo="Contrast distance, step intervals, starts, and token counts per role ladder."
         defaultOpen
       >
-        <div className="mt-1 space-y-2 text-xs text-muted">
+        <div className="mt-4 space-y-8 text-xs text-muted">
           Contrast distance, step intervals, starts, and token counts per role
           ladder.
         </div>
@@ -261,7 +269,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           stepsDark={wb.ladderDarkSteps}
           alphaBaseIndices={wb.alphaBaseIndices}
         />
-        <div className="mt-6 space-y-3  border-hairline pt-6">
+        <div className="mt-24 space-y-12  border-hairline pt-24">
           <div>
             <p className="text-xs font-medium text-default">
               Alpha neutral base offset
@@ -273,8 +281,8 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
               {wb.alphaBaseIndices.darkBase}
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1">
+          <div className="grid grid-cols-2 gap-12">
+            <label className="flex flex-col gap-4">
               <span className="text-xs text-muted">Light offset</span>
               <input
                 type="number"
@@ -287,10 +295,10 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                     lightIndexOffset: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded border border-hairline bg-field px-2 py-1 text-right font-mono text-xs"
+                className="w-full rounded border border-hairline bg-field px-8 py-4 text-right font-mono text-xs"
               />
             </label>
-            <label className="flex flex-col gap-1">
+            <label className="flex flex-col gap-4">
               <span className="text-xs text-muted">Dark offset</span>
               <input
                 type="number"
@@ -303,7 +311,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                     darkIndexOffset: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded border border-hairline bg-field px-2 py-1 text-right font-mono text-xs"
+                className="w-full rounded border border-hairline bg-field px-8 py-4 text-right font-mono text-xs"
               />
             </label>
           </div>
@@ -317,7 +325,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
         // additionalInfo="Theme panels, ramp usage, and role tables."
         defaultOpen={false}
       >
-        <div className="mt-1 space-y-2 text-xs text-muted">Theme panels, ramp usage, and role tables.</div>
+        <div className="mt-4 space-y-8 text-xs text-muted">Theme panels, ramp usage, and role tables.</div>
         <ThemePanelsSection
           globalLight={wb.lightRamp}
           globalDark={wb.darkRamp}

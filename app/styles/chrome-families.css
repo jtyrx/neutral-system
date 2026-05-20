@@ -1,0 +1,205 @@
+/**
+ * Chrome accent families (Amber / Sky) — static OKLCH anchors + alpha-mix derivations.
+ * Not part of the engine `[data-theme]` neutral remapping; static design constants
+ * inherited by every theme. Theme-aware text variants (`--chrome-{family}-text`)
+ * are overridden in `[data-theme='light']` inside `tokens.css`.
+ *
+ * Extend with new families by adding `--chrome-{name}-light|dark` endpoints and
+ * the parallel mix grid below.
+ */
+
+@layer base {
+  :root {
+    /* ─── Fixed anchors ─── */
+    --chrome-amber-light: oklch(90% 0.12 92);
+    --chrome-amber-dark: oklch(72% 0.17 70);
+    --chrome-sky-light: oklch(88% 0.08 230);
+    --chrome-sky-dark: oklch(70% 0.14 235);
+
+    /* Anchor — every mix is built off the darker endpoint for stable alpha. */
+    --chrome-amber: var(--chrome-amber-dark);
+    --chrome-sky: var(--chrome-sky-dark);
+
+    /* Theme-aware readable text (light theme overrides in tokens.css). */
+    --chrome-amber-text: var(--chrome-amber-light);
+    --chrome-sky-text: var(--chrome-sky-light);
+
+    /* ─── Amber family ─── */
+    --chrome-amber-border-faint: color-mix(
+      in oklch,
+      var(--chrome-amber) 15%,
+      transparent
+    );
+    --chrome-amber-border-soft: color-mix(
+      in oklch,
+      var(--chrome-amber) 20%,
+      transparent
+    );
+    --chrome-amber-border: color-mix(
+      in oklch,
+      var(--chrome-amber) 25%,
+      transparent
+    );
+    --chrome-amber-border-medium: color-mix(
+      in oklch,
+      var(--chrome-amber) 30%,
+      transparent
+    );
+    --chrome-amber-border-strong: color-mix(
+      in oklch,
+      var(--chrome-amber) 35%,
+      transparent
+    );
+    --chrome-amber-border-bold: color-mix(
+      in oklch,
+      var(--chrome-amber) 40%,
+      transparent
+    );
+    --chrome-amber-surface-faint: color-mix(
+      in oklch,
+      var(--chrome-amber) 5%,
+      transparent
+    );
+    --chrome-amber-surface: color-mix(
+      in oklch,
+      var(--chrome-amber) 6%,
+      transparent
+    );
+    --chrome-amber-surface-soft: color-mix(
+      in oklch,
+      var(--chrome-amber) 7%,
+      transparent
+    );
+    --chrome-amber-surface-strong: color-mix(
+      in oklch,
+      var(--chrome-amber) 8%,
+      transparent
+    );
+    --chrome-amber-surface-bold: color-mix(
+      in oklch,
+      var(--chrome-amber) 10%,
+      transparent
+    );
+    --chrome-amber-pill: color-mix(
+      in oklch,
+      var(--chrome-amber) 15%,
+      transparent
+    );
+    --chrome-amber-hover: color-mix(
+      in oklch,
+      var(--chrome-amber) 20%,
+      transparent
+    );
+    --chrome-amber-fill: color-mix(
+      in oklch,
+      var(--chrome-amber) 80%,
+      transparent
+    );
+    --chrome-amber-fill-strong: color-mix(
+      in oklch,
+      var(--chrome-amber) 90%,
+      transparent
+    );
+    --chrome-amber-ring-faint: color-mix(
+      in oklch,
+      var(--chrome-amber) 12%,
+      transparent
+    );
+    --chrome-amber-ring-soft: color-mix(
+      in oklch,
+      var(--chrome-amber) 15%,
+      transparent
+    );
+    --chrome-amber-ring: color-mix(
+      in oklch,
+      var(--chrome-amber) 20%,
+      transparent
+    );
+    --chrome-amber-ring-strong: color-mix(
+      in oklch,
+      var(--chrome-amber) 25%,
+      transparent
+    );
+
+    /* ─── Sky family ─── */
+    --chrome-sky-border-faint: color-mix(
+      in oklch,
+      var(--chrome-sky) 15%,
+      transparent
+    );
+    --chrome-sky-border-soft: color-mix(
+      in oklch,
+      var(--chrome-sky) 20%,
+      transparent
+    );
+    --chrome-sky-border: color-mix(
+      in oklch,
+      var(--chrome-sky) 25%,
+      transparent
+    );
+    --chrome-sky-border-medium: color-mix(
+      in oklch,
+      var(--chrome-sky) 30%,
+      transparent
+    );
+    --chrome-sky-border-strong: color-mix(
+      in oklch,
+      var(--chrome-sky) 35%,
+      transparent
+    );
+    --chrome-sky-border-bold: color-mix(
+      in oklch,
+      var(--chrome-sky) 40%,
+      transparent
+    );
+    --chrome-sky-surface-faint: color-mix(
+      in oklch,
+      var(--chrome-sky) 5%,
+      transparent
+    );
+    --chrome-sky-surface: color-mix(
+      in oklch,
+      var(--chrome-sky) 6%,
+      transparent
+    );
+    --chrome-sky-surface-soft: color-mix(
+      in oklch,
+      var(--chrome-sky) 7%,
+      transparent
+    );
+    --chrome-sky-surface-strong: color-mix(
+      in oklch,
+      var(--chrome-sky) 8%,
+      transparent
+    );
+    --chrome-sky-surface-bold: color-mix(
+      in oklch,
+      var(--chrome-sky) 10%,
+      transparent
+    );
+    --chrome-sky-pill: color-mix(in oklch, var(--chrome-sky) 15%, transparent);
+    --chrome-sky-hover: color-mix(in oklch, var(--chrome-sky) 20%, transparent);
+    --chrome-sky-fill: color-mix(in oklch, var(--chrome-sky) 80%, transparent);
+    --chrome-sky-fill-strong: color-mix(
+      in oklch,
+      var(--chrome-sky) 90%,
+      transparent
+    );
+    --chrome-sky-ring-faint: color-mix(
+      in oklch,
+      var(--chrome-sky) 12%,
+      transparent
+    );
+    --chrome-sky-ring-soft: color-mix(
+      in oklch,
+      var(--chrome-sky) 15%,
+      transparent
+    );
+    --chrome-sky-ring: color-mix(in oklch, var(--chrome-sky) 20%, transparent);
+    --chrome-sky-ring-strong: color-mix(
+      in oklch,
+      var(--chrome-sky) 25%,
+      transparent
+    );
+  }
+}

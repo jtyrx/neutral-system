@@ -190,11 +190,11 @@ function ExportSectionInner({
   )
 
   return (
-    <section id="workbench-export" className="scroll-mt-6 space-y-4">
+    <section id="workbench-export" className="scroll-mt-24 space-y-16">
       <header>
         <p className="eyebrow">7 · Export</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Tokens</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
+        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Tokens</h2>
+        <p className="mt-8 max-w-2xl text-sm text-muted">
           JSON bundles tier-1 primitives + light/dark semantic roles (same shape as before). CSS uses{' '}
           <span className="font-mono">--color-neutral-*</span> tier‑1 primitives (literal OKLCH) and{' '}
           <span className="font-mono">--color-surface-default</span>,{' '}
@@ -203,7 +203,7 @@ function ExportSectionInner({
         </p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-8">
         <RadioGroup
           variant="scrim"
           value={tab}
@@ -232,15 +232,15 @@ function ExportSectionInner({
         </Button>
       </div>
 
-      <pre className="max-h-80 overflow-auto rounded-xl border border-hairline bg-raised p-4 font-mono text-micro leading-relaxed text-default">
+      <pre className="max-h-320 overflow-auto rounded-xl border border-hairline bg-raised p-16 font-mono text-micro leading-relaxed text-default">
         {text}
       </pre>
 
-      <div className="flex flex-wrap gap-3 border-t border-hairline pt-4">
+      <div className="flex flex-wrap gap-12 border-t border-hairline pt-16">
         <Button variant="outline" size="sm" onClick={downloadPreset}>
           Download preset (config JSON)
         </Button>
-        <label className="ns-control-item cursor-pointer border border-hairline bg-chip px-3 py-1.5 text-xs text-default">
+        <label className="ns-control-item cursor-pointer border border-hairline bg-chip px-12 py-6 text-xs text-default">
           Load preset
           <input
             type="file"

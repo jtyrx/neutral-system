@@ -11,11 +11,11 @@ const radioGroupBase = 'ns-control-group'
 
 const radioGroupSegmentedBase = cn(
   'inline-flex items-center rounded-full',
-  'h-8.25 bg-toolbar-control-surface-sunken py-1 px-0.5',
+  'h-33 bg-toolbar-control-surface-sunken py-4 px-2',
 )
 
 const radioGroupItemBase = cn(
-  'h-6.75 shrink-0 rounded-full border text-primary shadow-xs',
+  'h-27 shrink-0 rounded-full border text-primary shadow-xs',
   'transition-colors outline-none focus-visible:ring-3',
   'disabled:cursor-not-allowed disabled:opacity-50',
 )
@@ -57,7 +57,7 @@ const radioGroupItemVariants = cva(
           'data-checked:border-transparent',
         ),
         scrim: cn(
-          'inline-flex h-6.75 cursor-pointer items-center justify-center',
+          'inline-flex h-27 cursor-pointer items-center justify-center',
           radioGroupControlItemBase,
           'text-muted',
           'hover:text-default',
@@ -65,7 +65,7 @@ const radioGroupItemVariants = cva(
           'data-checked:bg-raised data-checked:text-default data-checked:border-transparent',
         ),
         icon: cn(
-          'inline-flex aspect-square size-6.75 cursor-pointer',
+          'inline-flex aspect-square size-27 cursor-pointer',
           'items-center justify-center',
           radioGroupControlItemBase,
         ),
@@ -77,7 +77,7 @@ const radioGroupItemVariants = cva(
   },
 )
 
-const radioGroupIndicatorClass = 'size-2 rounded-full bg-primary'
+const radioGroupIndicatorClass = 'size-8 rounded-full bg-primary'
 
 type RadioGroupVariant = NonNullable<
   VariantProps<typeof radioGroupVariants>['variant']

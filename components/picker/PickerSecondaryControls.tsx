@@ -83,8 +83,8 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
       icon={Settings2}
       defaultOpen={false}
     >
-      <div className="space-y-4 text-xs">
-        <div className="space-y-2">
+      <div className="space-y-16 text-xs">
+        <div className="space-y-8">
           <p className="ns-label">Lightness range (lLow … lHigh)</p>
           <p className="picker-caption">
             The ramp is re-centered on picker L; this span sets how wide the ladder is
@@ -110,8 +110,8 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
           </p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="space-y-1">
+        <div className="grid gap-12 sm:grid-cols-2">
+          <label className="space-y-4">
             <span className="ns-label">Steps</span>
             <SelectPrimitives.Root
               id="picker-steps-select"
@@ -125,7 +125,7 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
                 type="button"
                 className={cn(
                   INPUT_WORKBENCH_FIELD_CLASS,
-                  'flex h-8 min-h-8 w-full min-w-0 items-center justify-between gap-2 px-3 py-0 text-left font-mono text-xs outline-none select-none',
+                  'flex h-32 min-h-32 w-full min-w-0 items-center justify-between gap-8 px-12 py-0 text-left font-mono text-xs outline-none select-none',
                   'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
                   'data-placeholder:text-muted-foreground',
                 )}
@@ -136,7 +136,7 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
                   }
                 </SelectPrimitives.Value>
                 <SelectPrimitives.Icon className="pointer-events-none flex shrink-0">
-                  <ChevronsUpDown className="size-4 opacity-60" aria-hidden />
+                  <ChevronsUpDown className="size-16 opacity-60" aria-hidden />
                 </SelectPrimitives.Icon>
               </SelectPrimitives.Trigger>
               <SelectPrimitives.Portal>
@@ -149,14 +149,14 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
                 >
                   <SelectPrimitives.Popup
                     className={cn(
-                      'relative isolate z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-hidden rounded-lg border border-hairline bg-popover px-1 py-1 text-popover-foreground shadow-md ring-1 ring-ring/35 outline-none',
+                      'relative isolate z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-hidden rounded-lg border border-hairline bg-popover px-4 py-4 text-popover-foreground shadow-md ring-1 ring-ring/35 outline-none',
                     )}
                   >
                     <SelectPrimitives.ScrollUpArrow
-                      className="top-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4"
+                      className="top-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-4 [&_svg:not([class*='size-'])]:size-16"
                       keepMounted={false}
                     >
-                      <ChevronUp className="size-4 opacity-70" aria-hidden />
+                      <ChevronUp className="size-16 opacity-70" aria-hidden />
                     </SelectPrimitives.ScrollUpArrow>
                     <SelectPrimitives.List
                       className="min-h-0 overflow-y-auto py-0"
@@ -166,22 +166,22 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
                         <SelectPrimitives.Item
                           key={n}
                           value={String(n)}
-                          className="relative flex cursor-default items-center gap-2 rounded-md py-2 pr-10 pl-2.5 text-sm outline-none select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
+                          className="relative flex cursor-default items-center gap-8 rounded-md py-8 pr-40 pl-10 text-sm outline-none select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
                         >
                           <SelectPrimitives.ItemText className="font-mono">
                             {String(n)}
                           </SelectPrimitives.ItemText>
-                          <SelectPrimitives.ItemIndicator className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                            <Check className="size-3.5" />
+                          <SelectPrimitives.ItemIndicator className="pointer-events-none absolute inset-y-0 right-8 flex items-center">
+                            <Check className="size-14" />
                           </SelectPrimitives.ItemIndicator>
                         </SelectPrimitives.Item>
                       ))}
                     </SelectPrimitives.List>
                     <SelectPrimitives.ScrollDownArrow
-                      className="bottom-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4"
+                      className="bottom-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-4 [&_svg:not([class*='size-'])]:size-16"
                       keepMounted={false}
                     >
-                      <ChevronDown className="size-4 opacity-70" aria-hidden />
+                      <ChevronDown className="size-16 opacity-70" aria-hidden />
                     </SelectPrimitives.ScrollDownArrow>
                   </SelectPrimitives.Popup>
                 </SelectPrimitives.Positioner>
@@ -189,11 +189,11 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
             </SelectPrimitives.Root>
           </label>
 
-          <label className="space-y-1">
+          <label className="space-y-4">
             <span className="ns-label">Naming</span>
             <ResponsiveSelect
               id="picker-naming"
-              className="h-8 w-full py-1 text-xs"
+              className="h-32 w-full py-4 text-xs"
               value={secondary.namingStyle}
               options={namingOptions.map((o) => ({value: o.id, label: o.label}))}
               onValueChange={(v) =>
@@ -202,11 +202,11 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
             />
           </label>
 
-          <label className="space-y-1">
+          <label className="space-y-4">
             <span className="ns-label">Chroma mode</span>
             <ResponsiveSelect
               id="picker-chroma-mode"
-              className="h-8 w-full py-1 text-xs"
+              className="h-32 w-full py-4 text-xs"
               value={secondary.chromaMode}
               options={chromaOptions.map((o) => ({
                 value: o.id,
@@ -218,11 +218,11 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
             />
           </label>
 
-          <label className="space-y-1">
+          <label className="space-y-4">
             <span className="ns-label">L curve</span>
             <ResponsiveSelect
               id="picker-l-curve"
-              className="h-8 w-full py-1 text-xs"
+              className="h-32 w-full py-4 text-xs"
               value={curve}
               options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
               onValueChange={(v) => patchSecondary({lCurve: v as LCurve})}
@@ -230,27 +230,27 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
           </label>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-8">
           <Popover>
             <PopoverTrigger
               type="button"
               disabled={isLinear}
               aria-label="L curve strength"
               className={cn(
-                'inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-hairline bg-raised text-subtle outline-none transition',
+                'inline-flex size-32 shrink-0 items-center justify-center rounded-md border border-hairline bg-raised text-subtle outline-none transition',
                 'hover:bg-sidebar-border hover:text-default',
                 'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
                 'disabled:pointer-events-none disabled:opacity-45',
-                '[&_svg]:pointer-events-none [&_svg]:size-4',
+                '[&_svg]:pointer-events-none [&_svg]:size-16',
               )}
             >
-              <Settings2 className="size-3.5" aria-hidden />
+              <Settings2 className="size-14" aria-hidden />
             </PopoverTrigger>
-            <PopoverContent className="w-80 gap-4" align="start" sideOffset={8}>
+            <PopoverContent className="w-320 gap-16" align="start" sideOffset={8}>
               <PopoverHeader>
                 <PopoverTitle>L curve strength</PopoverTitle>
               </PopoverHeader>
-              <div className="space-y-2">
+              <div className="space-y-8">
                 <span className="text-xs font-medium text-muted tabular-nums">
                   Strength {strengthPct}%
                 </span>

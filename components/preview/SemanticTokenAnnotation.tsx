@@ -34,7 +34,7 @@ function SemanticTokenAnnotationInner({role, label, inspection, theme, onSelect,
           e.stopPropagation()
           onSelect(role, theme)
         }}
-        className={`${base} cursor-pointer rounded px-1 py-0.5 transition hover:bg-chip hover:text-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${className}`}
+        className={`${base} cursor-pointer rounded px-4 py-2 transition hover:bg-chip hover:text-default focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 ${className}`}
         aria-label={`Inspect ${role}`}
         data-role={role}
       >

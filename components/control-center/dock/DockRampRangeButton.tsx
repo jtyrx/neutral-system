@@ -52,7 +52,7 @@ export const RampRangeButton = memo(function RampRangeButton({
           {...rest}
         >
           <span
-            className="relative block size-5 overflow-hidden rounded-dock-item-small"
+            className="relative block size-20 overflow-hidden rounded-dock-item-small"
             aria-hidden
           >
             <span

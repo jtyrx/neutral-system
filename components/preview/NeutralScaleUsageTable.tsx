@@ -60,13 +60,13 @@ function NeutralScaleUsageTableInner({
     return null
   }
 
-  const outer = embedded ? 'mt-6 space-y-3 border-t border-hairline pt-6' : 'space-y-3'
+  const outer = embedded ? 'mt-24 space-y-12 border-t border-hairline pt-24' : 'space-y-12'
 
   return (
     <div className={outer}>
       <div>
         <p className="eyebrow">Scale usage</p>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-4 text-xs text-muted">
           Full ladder with mapping coverage. <span className="text-emerald-200/85">Used</span> = at
           least one Light or Dark system token references this global index (same derivation as
           exports). Unused steps stay visible for comparison.
@@ -80,14 +80,14 @@ function NeutralScaleUsageTableInner({
         <table className="w-full min-w-lg text-left text-micro">
           <thead className="border-b border-hairline text-muted">
             <tr>
-              <th className="px-2 py-1.5 font-medium">Mapping</th>
-              <th className="px-2 py-1.5 font-medium">Idx</th>
-              <th className="px-2 py-1.5 font-medium">Token label</th>
-              <th className="px-2 py-1.5 text-right font-medium">L</th>
-              <th className="px-2 py-1.5 font-medium">Swatch</th>
-              <th className="px-2 py-1.5 font-medium">Hex</th>
-              <th className="min-w-40 px-2 py-1.5 font-medium">OKLCH</th>
-              <th className="px-2 py-1.5 font-medium">Export key</th>
+              <th className="px-8 py-6 font-medium">Mapping</th>
+              <th className="px-8 py-6 font-medium">Idx</th>
+              <th className="px-8 py-6 font-medium">Token label</th>
+              <th className="px-8 py-6 text-right font-medium">L</th>
+              <th className="px-8 py-6 font-medium">Swatch</th>
+              <th className="px-8 py-6 font-medium">Hex</th>
+              <th className="min-w-160 px-8 py-6 font-medium">OKLCH</th>
+              <th className="px-8 py-6 font-medium">Export key</th>
             </tr>
           </thead>
           <tbody>
@@ -102,33 +102,33 @@ function NeutralScaleUsageTableInner({
                       : 'bg-raised text-disabled opacity-[0.72]'
                   }`}
                 >
-                  <td className="px-2 py-1.5 align-middle">
+                  <td className="px-8 py-6 align-middle">
                     {used ? (
-                      <span className="inline-block rounded-full bg-emerald-500/25 px-2 py-0.5 text-[0.55rem] font-semibold uppercase tracking-wide text-emerald-100/95">
+                      <span className="inline-block rounded-full bg-emerald-500/25 px-8 py-2 text-[0.55rem] font-semibold uppercase tracking-wide text-emerald-100/95">
                         Used
                       </span>
                     ) : (
-                      <span className="inline-block rounded-full border border-hairline bg-raised px-2 py-0.5 text-[0.55rem] font-medium uppercase tracking-wide text-disabled">
+                      <span className="inline-block rounded-full border border-hairline bg-raised px-8 py-2 text-[0.55rem] font-medium uppercase tracking-wide text-disabled">
                         Unused
                       </span>
                     )}
                   </td>
                   <td
-                    className={`px-2 py-1.5 font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
+                    className={`px-8 py-6 font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
                   >
                     {displayIdx(s)}
                   </td>
-                  <td className={`px-2 py-1.5 font-mono ${used ? 'text-default' : 'text-disabled'}`}>
+                  <td className={`px-8 py-6 font-mono ${used ? 'text-default' : 'text-disabled'}`}>
                     {displayLabel(s)}
                   </td>
                   <td
-                    className={`px-2 py-1.5 text-right font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
+                    className={`px-8 py-6 text-right font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
                   >
                     {oklchL(s).toFixed(4)}
                   </td>
-                  <td className="px-2 py-1.5">
+                  <td className="px-8 py-6">
                     <span
-                      className={`inline-block h-5 w-10 shrink-0 rounded border ${
+                      className={`inline-block h-20 w-40 shrink-0 rounded border ${
                         used ? 'border-hairline-strong' : 'border-hairline opacity-70'
                       }`}
                       style={{backgroundColor: s.serialized.hex}}
@@ -136,17 +136,17 @@ function NeutralScaleUsageTableInner({
                     />
                   </td>
                   <td
-                    className={`px-2 py-1.5 font-mono text-[0.6rem] ${used ? 'text-subtle' : 'text-disabled'}`}
+                    className={`px-8 py-6 font-mono text-[0.6rem] ${used ? 'text-subtle' : 'text-disabled'}`}
                   >
                     {s.serialized.hex}
                   </td>
                   <td
-                    className={`max-w-56 truncate px-2 py-1.5 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
+                    className={`max-w-224 truncate px-8 py-6 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
                   >
                     {s.serialized.oklchCss}
                   </td>
                   <td
-                    className={`px-2 py-1.5 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
+                    className={`px-8 py-6 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
                   >
                     {exportTokenKey(displayLabel(s), tier1ExportMode)}
                   </td>

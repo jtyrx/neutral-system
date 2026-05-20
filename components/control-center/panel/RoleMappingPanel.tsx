@@ -107,32 +107,32 @@ function cellAriaLabel(
   return `${ramp} ${role} ladder step interval`
 }
 
-const panelStackClassName = 'flex flex-col gap-3 px-1 pb-3'
-const panelSectionClassName = 'flex flex-col gap-3'
+const panelStackClassName = 'flex flex-col gap-12 px-4 pb-12'
+const panelSectionClassName = 'flex flex-col gap-12'
 const sectionHeadingClassName =
   'text-xs leading-[1.3] tracking-normal text-muted [text-box:trim-both_cap_alphabetic]'
-const panelInsetClassName = 'px-1 pb-1'
+const panelInsetClassName = 'px-4 pb-4'
 const cardClassName =
-  'rounded-xl border border-[color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] bg-[color-mix(in_oklch,var(--muted)_20%,transparent)] px-4 py-3 shadow-sm'
+  'rounded-xl border border-[color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] bg-[color-mix(in_oklch,var(--muted)_20%,transparent)] px-16 py-12 shadow-sm'
 const cardTitleClassName =
   'text-[0.8125rem] leading-[1.3] tracking-normal text-foreground'
 const roleThemeColumnClassName =
-  'min-w-0 flex-1 rounded-lg bg-[color-mix(in_oklch,var(--muted)_10%,transparent)] p-2 transition-[background-color,box-shadow] aria-[current=true]:bg-[color-mix(in_oklch,var(--muted)_30%,transparent)] aria-[current=true]:shadow-[0_0_0_1px_color-mix(in_oklch,var(--ring)_20%,transparent)]'
+  'min-w-0 flex-1 rounded-lg bg-[color-mix(in_oklch,var(--muted)_10%,transparent)] p-8 transition-[background-color,box-shadow] aria-[current=true]:bg-[color-mix(in_oklch,var(--muted)_30%,transparent)] aria-[current=true]:shadow-[0_0_0_1px_color-mix(in_oklch,var(--ring)_20%,transparent)]'
 const roleCellInputClassName =
-  'h-8 min-h-8 w-14 min-w-14 shrink-0 [appearance:textfield] rounded-full border border-[color-mix(in_oklch,var(--chrome-hairline)_90%,transparent)] bg-[color-mix(in_oklch,var(--muted)_35%,transparent)] px-1.5 text-center font-mono text-xs leading-4 text-foreground tabular-nums shadow-none outline-none transition-[color,background-color,border-color,box-shadow] hover:bg-[color-mix(in_oklch,var(--muted)_50%,transparent)] focus-visible:border-ring focus-visible:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_35%,transparent)] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
+  'h-32 min-h-32 w-56 min-w-56 shrink-0 [appearance:textfield] rounded-full border border-[color-mix(in_oklch,var(--chrome-hairline)_90%,transparent)] bg-[color-mix(in_oklch,var(--muted)_35%,transparent)] px-6 text-center font-mono text-xs leading-4 text-foreground tabular-nums shadow-none outline-none transition-[color,background-color,border-color,box-shadow] hover:bg-[color-mix(in_oklch,var(--muted)_50%,transparent)] focus-visible:border-ring focus-visible:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_35%,transparent)] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
 const roleCardHeaderClassName =
-  'mb-3 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4'
-const roleGridClassName = 'flex min-w-0 gap-2'
+  'mb-12 flex min-w-0 flex-col gap-8 sm:flex-row sm:items-center sm:justify-between sm:gap-16'
+const roleGridClassName = 'flex min-w-0 gap-8'
 const roleLabelRailClassName =
   'flex w-[4.75rem] shrink-0 flex-col gap-y-1.5 pt-[2.125rem]'
 const roleLabelClassName =
-  'flex h-8 min-h-8 items-center gap-2 text-xs leading-4 font-medium text-foreground'
-const roleDotClassName = 'size-1.5 shrink-0 rounded-full'
-const roleColumnsClassName = 'flex min-w-0 flex-1 gap-2'
+  'flex h-32 min-h-32 items-center gap-8 text-xs leading-4 font-medium text-foreground'
+const roleDotClassName = 'size-6 shrink-0 rounded-full'
+const roleColumnsClassName = 'flex min-w-0 flex-1 gap-8'
 const roleColumnHeadingClassName =
-  'flex items-center justify-center gap-1 pb-1.5 text-xs leading-4 font-medium text-foreground'
+  'flex items-center justify-center gap-4 pb-6 text-xs leading-4 font-medium text-foreground'
 const roleFieldHeaderRowClassName =
-  'mb-1.5 grid grid-cols-3 gap-x-1'
+  'mb-6 grid grid-cols-3 gap-x-1'
 const roleFieldHeaderClassName =
   'text-center text-[0.62rem] font-medium text-muted-foreground'
 const roleCellStackClassName = 'flex flex-col gap-y-1.5'
@@ -140,17 +140,17 @@ const roleCellRowClassName = 'grid grid-cols-3 gap-x-1'
 const roleColumnDividerClassName =
   'w-px shrink-0 self-stretch bg-[color-mix(in_oklch,var(--border)_90%,transparent)]'
 const resolvedSummaryClassName =
-  'mt-3 border-t border-[color-mix(in_oklch,var(--chrome-hairline)_60%,transparent)] pt-3'
+  'mt-12 border-t border-[color-mix(in_oklch,var(--chrome-hairline)_60%,transparent)] pt-12'
 const resolvedKickerClassName =
   'text-[0.6rem] font-medium tracking-normal text-muted uppercase'
 const resolvedCaptionClassName =
-  'mt-0.5 text-[0.6rem] text-muted-foreground'
+  'mt-2 text-[0.6rem] text-muted-foreground'
 const resolvedListClassName =
-  'mt-2 flex flex-col gap-1 font-mono text-[0.7rem] leading-[1.625] text-default'
+  'mt-8 flex flex-col gap-4 font-mono text-[0.7rem] leading-[1.625] text-default'
 const resolvedRowClassName =
   'flex min-w-0 flex-wrap gap-x-2 gap-y-0.5'
 const resolvedTermClassName =
-  'w-14 shrink-0 text-muted-foreground'
+  'w-56 shrink-0 text-muted-foreground'
 
 
 function ThemeColumnPanel({
@@ -282,7 +282,7 @@ function ThemeColumn({theme}: {theme: 'light' | 'dark'}) {
   return (
     <ThemeColumnPanel theme={theme} active>
       <div className={roleColumnHeadingClassName}>
-        <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
+        <Icon className="size-14 shrink-0 opacity-80" aria-hidden />
         {label}
       </div>
       <div className={roleFieldHeaderRowClassName}>

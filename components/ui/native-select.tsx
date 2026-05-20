@@ -1,7 +1,7 @@
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
-import { ChevronDownIcon } from 'lucide-react'
+import {cn} from '@/lib/utils'
+import {ChevronDownIcon} from 'lucide-react'
 
 type NativeSelectProps = Omit<React.ComponentProps<'select'>, 'size'> & {
   size?: 'sm' | 'default'
@@ -9,8 +9,8 @@ type NativeSelectProps = Omit<React.ComponentProps<'select'>, 'size'> & {
 
 const nativeSelectBase = cn(
   // base
-  'h-8 min-h-0 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent',
-  'py-1 pr-8 pl-2.5 text-sm outline-none select-none transition-colors',
+  'h-32 min-h-0 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent',
+  'py-4 pr-32 pl-10 text-sm outline-none select-none transition-colors',
   // text
   'placeholder:text-muted-foreground',
   'selection:bg-primary selection:text-primary-foreground',
@@ -21,7 +21,7 @@ const nativeSelectBase = cn(
   // invalid
   'aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20',
   // size variant
-  'data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5',
+  'data-[size=sm]:h-28 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-2',
   // dark
   'dark:bg-input/30 dark:hover:bg-input/50',
   'dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
@@ -34,17 +34,16 @@ function NativeSelect({
 }: NativeSelectProps) {
   return (
     <div
-      className='group/native-select relative w-full min-w-0 has-[select:disabled]:opacity-50'
+      className='relative w-full min-w-0 has-[select:disabled]:opacity-50'
       data-slot='native-select-wrapper'
       data-size={size}
     >
       <select
         data-slot='native-select'
-        data-size={size}
         className={cn(nativeSelectBase, className)}
         {...props}
       />
-      <ChevronDownIcon className='pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground select-none' aria-hidden='true' data-slot='native-select-icon' />
+      <ChevronDownIcon className='pointer-events-none absolute top-1/2 right-10 size-16 -translate-y-1/2 text-muted-foreground select-none' aria-hidden='true' data-slot='native-select-icon' />
     </div>
   )
 }
@@ -73,7 +72,7 @@ function NativeSelectOptGroup({
   return (
     <optgroup
       data-slot='native-select-optgroup'
-      className={cn('bg-[Canvas] text-[CanvasText]', className)}
+      className={cn('bg-[Canvas] text-[CanvasText] font-medium text-[0.7rem] uppercase tracking-widest', className)}
       {...props}
     />
   )

@@ -10,18 +10,11 @@ import {cn} from '@/lib/utils'
 const toggleGroupVariants = cva('flex', {
   variants: {
     variant: {
-      default: 'gap-1',
-      outline: 'rounded-md border border-input p-0.5 gap-0.5',
-    },
-    size: {
-      default: '',
-      sm: '',
+      default: 'gap-4',
+      outline: 'rounded-md border border-input p-2 gap-2',
     },
   },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
+  defaultVariants: {variant: 'default'},
 })
 
 const toggleGroupItemVariants = cva(
@@ -30,7 +23,7 @@ const toggleGroupItemVariants = cva(
     'bg-transparent text-sm font-medium text-text-default transition-colors',
     'hover:bg-surface-raised hover:text-text-default',
     'data-pressed:bg-surface-raised data-pressed:text-text-default',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
     'disabled:pointer-events-none disabled:opacity-50',
   ),
   {
@@ -40,8 +33,8 @@ const toggleGroupItemVariants = cva(
         outline: 'rounded-sm',
       },
       size: {
-        default: 'h-8 px-2.5 py-1.5',
-        sm: 'h-7 px-2 py-1 text-xs',
+        default: 'h-32 px-10 py-6',
+        sm: 'h-28 px-8 py-4 text-xs',
       },
     },
     defaultVariants: {
@@ -53,33 +46,54 @@ const toggleGroupItemVariants = cva(
 
 type ToggleGroupVariant = 'default' | 'outline'
 
-const ToggleGroupVariantContext = React.createContext<ToggleGroupVariant>('default')
+type ToggleGroupContextValue = {
+  variant: ToggleGroupVariant
+  size: 'default' | 'sm'
+}
 
-export function useToggleGroupVariant(): ToggleGroupVariant {
+const ToggleGroupVariantContext = React.createContext<ToggleGroupContextValue>({
+  variant: 'default',
+  size: 'default',
+})
+
+export function useToggleGroupVariant(): ToggleGroupContextValue {
   return React.useContext(ToggleGroupVariantContext)
 }
 
 export type ToggleGroupProps<Value extends string = string> =
-  ToggleGroupPrimitive.Props<Value> &
-  VariantProps<typeof toggleGroupVariants>
+  ToggleGroupPrimitive.Props<Value> & {
+    variant?: ToggleGroupVariant
+    size?: 'default' | 'sm'
+    orientation?: 'horizontal' | 'vertical'
+  }
 
 export function ToggleGroup<Value extends string = string>({
   className,
   variant = 'default',
   size = 'default',
+  orientation = 'horizontal',
   ...props
 }: ToggleGroupProps<Value>) {
   return (
-    <ToggleGroupVariantContext.Provider value={variant ?? 'default'}>
+    <ToggleGroupVariantContext.Provider value={{variant: variant ?? 'default', size: size ?? 'default'}}>
       <ToggleGroupPrimitive
         data-slot="toggle-group"
         data-variant={variant}
         data-size={size}
+        data-orientation={orientation}
         {...props}
         className={
           typeof className === 'function'
-            ? (state) => cn(toggleGroupVariants({variant, size}), className(state))
-            : cn(toggleGroupVariants({variant, size}), className)
+            ? (state) => cn(
+                toggleGroupVariants({variant}),
+                orientation === 'vertical' && 'flex-col',
+                className(state),
+              )
+            : cn(
+                toggleGroupVariants({variant}),
+                orientation === 'vertical' && 'flex-col',
+                className,
+              )
         }
       />
     </ToggleGroupVariantContext.Provider>
@@ -99,9 +113,9 @@ export function ToggleGroupItem({
   ref,
   ...props
 }: ToggleGroupItemProps) {
-  const contextVariant = useToggleGroupVariant()
+  const {variant: contextVariant, size: contextSize} = useToggleGroupVariant()
   const variant = variantProp ?? contextVariant
-  const size = sizeProp ?? 'default'
+  const size = sizeProp ?? contextSize
 
   return (
     <TogglePrimitive

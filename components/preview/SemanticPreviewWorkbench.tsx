@@ -66,7 +66,7 @@ function BlockRow({
 
   const content =
     comparisonLayout === 'split' ? (
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+      <div className="grid grid-cols-1 gap-20 md:grid-cols-2 md:gap-24">
         <ThemeComparisonFrame theme="light" label="Light">
           {lightPane}
         </ThemeComparisonFrame>
@@ -97,7 +97,7 @@ function BlockRow({
 export const SemanticPreviewWorkbench = memo(function SemanticPreviewWorkbench(props: Props) {
   return (
     <div
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-20"
       data-inspection={props.inspectionMode ? 'on' : 'off'}
     >
       {PREVIEW_BLOCK_CASES.map((block, i) => (

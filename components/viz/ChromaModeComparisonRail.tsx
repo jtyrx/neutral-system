@@ -36,7 +36,7 @@ function ChromaModeComparisonRailInner({config}: Props) {
       role="region"
       aria-label="Neutral ladder comparison rail"
       aria-describedby="neutral-ladder-comparison-rail-description"
-      className="space-y-3"
+      className="space-y-12"
     >
       <p
         id="neutral-ladder-comparison-rail-description"
@@ -46,11 +46,11 @@ function ChromaModeComparisonRailInner({config}: Props) {
         Four engine modes side by side: same step count, lightness ramp, hue, and base chroma —
         only chroma distribution changes per row.
       </p>
-      <div className="space-y-3 px-2 py-2 bg-sunken rounded-lg border border-hairline">
+      <div className="space-y-12 px-8 py-8 bg-sunken rounded-lg border border-hairline">
         {rows.map(({ chromaMode, label, swatches }) => (
           <div
             key={chromaMode}
-            className="grid gap-2 sm:grid-cols-1 sm:items-stretch sm:gap-2"
+            className="grid gap-8 sm:grid-cols-1 sm:items-stretch sm:gap-8"
           >
             <div className="flex items-center ">
               <p className="text-left text-micro font-medium font-mono uppercase tracking-wide text-disabled">
@@ -59,7 +59,7 @@ function ChromaModeComparisonRailInner({config}: Props) {
             </div>
             <div className="min-w-0 overflow-x-auto rounded-lg border border-hairline bg-raised">
               <div
-                className="flex min-h-18"
+                className="flex min-h-72"
                 style={{ minWidth: `${minStripWidth}px` }}
                 role="img"
                 aria-label={`${label}: ${swatches.length} steps`}

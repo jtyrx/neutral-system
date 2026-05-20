@@ -12,11 +12,18 @@ import {
 } from './floating-popup-styles'
 
 const popoverContentBase = cn(
-  'z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 p-2.5',
+  'z-50 flex origin-(--transform-origin) flex-col gap-10 p-10',
   'text-sm outline-hidden',
 )
 
-const popoverHeaderBase = 'flex flex-col gap-0.5 text-label'
+const popoverSizeClass: Record<'sm' | 'default' | 'lg' | 'auto', string> = {
+  sm: 'w-240',
+  default: 'w-288',
+  lg: 'w-384',
+  auto: '',
+}
+
+const popoverHeaderBase = 'flex flex-col gap-2'
 const popoverTitleBase = 'font-normal'
 const popoverDescriptionBase = 'text-muted-foreground'
 
@@ -51,12 +58,15 @@ function PopoverContent({
   alignOffset = 0,
   side = 'bottom',
   sideOffset = 4,
+  size = 'default',
   ...props
 }: PopoverPrimitive.Popup.Props &
   Pick<
     PopoverPrimitive.Positioner.Props,
     'align' | 'alignOffset' | 'side' | 'sideOffset'
-  >) {
+  > & {
+    size?: 'sm' | 'default' | 'lg' | 'auto'
+  }) {
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Positioner
@@ -70,6 +80,7 @@ function PopoverContent({
           data-slot="popover-content"
           className={cn(
             popoverContentBase,
+            popoverSizeClass[size],
             popoverElevatedSurface,
             floatingPopupTransitionDuration,
             floatingPopupSlideAllSides,

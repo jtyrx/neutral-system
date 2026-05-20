@@ -65,7 +65,7 @@ function GlobalScaleStripInner({
   const len = global.length
   if (len === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-hairline-strong p-4 text-center text-xs text-muted">
+      <div className="rounded-xl border border-dashed border-hairline-strong p-16 text-center text-xs text-muted">
         No swatches — check global scale configuration.
       </div>
     )
@@ -84,7 +84,7 @@ function GlobalScaleStripInner({
     invertDisplay ? len - 1 - swatchIndex : swatchIndex
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-8">
       <p className="text-micro font-medium tracking-wide text-muted">
         {caption}
       </p>
@@ -93,11 +93,11 @@ function GlobalScaleStripInner({
         role="group"
         aria-label="Global ramp: color ramp and semantic lanes (surface, border, text, alpha)"
         className={cn(
-          'w-full overflow-x-auto rounded-xl border border-hairline bg-raised p-2',
+          'w-full overflow-x-auto rounded-xl border border-hairline bg-raised p-8',
           accentClassName,
         )}
       >
-        <div className="flex min-w-0 flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-12">
           {segments.map((segment, segIdx) => {
             const cols = segment.length <= 0 ? 1 : segment.length
             const rangeLabel =
@@ -119,7 +119,7 @@ function GlobalScaleStripInner({
                     ? `Ramp segment ${segIdx + 1} of ${segments.length}${rangeLabel ? ` (${rangeLabel})` : ''}`
                     : undefined
                 }
-                className="space-y-1.5"
+                className="space-y-6"
               >
                 {segments.length > 1 ? (
                   <p className="text-[0.55rem] font-medium tracking-wider text-muted uppercase">
@@ -138,11 +138,11 @@ function GlobalScaleStripInner({
                       className="flex min-w-0 flex-col items-stretch font-mono"
                       title={`${s.label} · idx ${s.index} · display ${getDisplayIdx(s.index)}`}
                     >
-                      <span className="shrink-0 px-0.5 py-1 text-center text-[0.5rem] leading-none text-default">
+                      <span className="shrink-0 px-2 py-4 text-center text-[0.5rem] leading-none text-default">
                         {getDisplayIdx(s.index)}
                       </span>
                       <div
-                        className="h-8 w-full shrink-0 sm:h-9 nsb-lg:h-10"
+                        className="h-32 w-full shrink-0 sm:h-36 nsb-lg:h-40"
                         style={{backgroundColor: s.serialized.hex}}
                       />
                     </div>

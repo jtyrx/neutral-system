@@ -65,12 +65,12 @@ export function CollapsibleControlGroup({
       open={defaultOpen}
       className="ns-collapsible-details group origin-top scale-[0.997] rounded-sm border border-hairline bg-subtle motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out open:scale-100"
     >
-      <summary className="cursor-pointer list-none px-4 py-3 sm:px-4 sm:py-3 [&::-webkit-details-marker]:hidden">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-2">
+      <summary className="cursor-pointer list-none px-16 py-12 sm:px-16 sm:py-12 [&::-webkit-details-marker]:hidden">
+        <div className="flex items-start justify-between gap-12">
+          <div className="flex min-w-0 flex-1 items-start gap-8">
             {Icon ? (
               <Icon
-                className="mt-0.5 size-4 shrink-0 text-muted"
+                className="mt-2 size-16 shrink-0 text-muted"
                 aria-hidden
               />
             ) : null}
@@ -79,16 +79,16 @@ export function CollapsibleControlGroup({
                 {title}
               </p>
               {additionalInfo ? (
-                <div className="mt-1 space-y-2 text-xs text-muted">
+                <div className="mt-4 space-y-8 text-xs text-muted">
                   {additionalInfo}
                 </div>
               ) : null}
             </div>
           </div>
-          <ChevronDown className="mt-0.5 size-4 shrink-0 text-disabled motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out group-open:rotate-180" />
+          <ChevronDown className="mt-2 size-16 shrink-0 text-disabled motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out group-open:rotate-180" />
         </div>
       </summary>
-      <div id={id} className=" border-hairline px-4 pt-3 pb-5">
+      <div id={id} className=" border-hairline px-16 pt-12 pb-20">
         {children}
       </div>
     </details>

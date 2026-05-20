@@ -13,7 +13,7 @@ type SliderCommitDetails = SliderPrimitiveRoot.CommitEventDetails
 
 const sliderRootBase = cn(
   'relative flex w-full touch-none items-center select-none',
-  'data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40',
+  'data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-160',
   'data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col',
   'data-disabled:opacity-50',
 )
@@ -48,9 +48,9 @@ const sliderRootVariants = cva(
   {
     variants: {
       size: {
-        sm: 'min-h-5',
-        default: 'min-h-6',
-        lg: 'min-h-7',
+        sm: 'min-h-20',
+        default: 'min-h-24',
+        lg: 'min-h-28',
       },
       density: {
         compact: '',
@@ -74,9 +74,9 @@ const sliderRootVariants = cva(
 const sliderFieldVariants = cva('grid w-full', {
   variants: {
     density: {
-      compact: 'gap-1.5',
-      default: 'gap-2',
-      relaxed: 'gap-3',
+      compact: 'gap-6',
+      default: 'gap-8',
+      relaxed: 'gap-12',
     },
     layout: {
       stacked: '',
@@ -92,7 +92,7 @@ const sliderFieldVariants = cva('grid w-full', {
   },
 })
 
-const sliderHeaderVariants = cva('flex items-center justify-between gap-2', {
+const sliderHeaderVariants = cva('flex items-center justify-between gap-8', {
   variants: {
     layout: {
       stacked: '',
@@ -174,16 +174,16 @@ const sliderTrackVariants = cva(
     variants: {
       size: {
         sm: cn(
-          'data-[orientation=horizontal]:h-0.5',
-          'data-[orientation=vertical]:w-0.5',
+          'data-[orientation=horizontal]:h-2',
+          'data-[orientation=vertical]:w-2',
         ),
         default: cn(
-          'data-[orientation=horizontal]:h-1',
-          'data-[orientation=vertical]:w-1',
+          'data-[orientation=horizontal]:h-4',
+          'data-[orientation=vertical]:w-4',
         ),
         lg: cn(
-          'data-[orientation=horizontal]:h-1.5',
-          'data-[orientation=vertical]:w-1.5',
+          'data-[orientation=horizontal]:h-6',
+          'data-[orientation=vertical]:w-6',
         ),
       },
       tone: {
@@ -220,9 +220,9 @@ const sliderThumbVariants = cva(
   {
     variants: {
       size: {
-        sm: 'size-2.5 after:-inset-2',
-        default: 'size-3 after:-inset-2',
-        lg: 'size-4 after:-inset-2.5',
+        sm: 'size-10 after:-inset-8',
+        default: 'size-12 after:-inset-8',
+        lg: 'size-16 after:-inset-10',
       },
       tone: {
         default: 'border-ring',

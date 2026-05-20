@@ -14,15 +14,15 @@ type Props = {
 function WorkbenchControlsShellInner({wb, selectedGlobalIndex}: Props) {
   return (
     <div className="flex max-h-[min(100dvh,100%)] min-h-0 flex-col border-hairline nsb-lg:max-h-dvh">
-      <div className="shrink-0 border-b border-hairline px-4 py-4 sm:px-5">
+      <div className="shrink-0 border-b border-hairline px-16 py-16 sm:px-20">
         <p className="eyebrow">Workbench</p>
-        <h1 className="mt-1 text-lg font-semibold tracking-tight text-default">Neutral System</h1>
-        <p className="mt-2 text-xs text-muted">
+        <h1 className="mt-4 text-lg font-semibold tracking-tight text-default">Neutral System</h1>
+        <p className="mt-8 text-xs text-muted">
           Role-first neutrals · OKLCH ramp · Light / Dark elevated from one scale.
         </p>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto py-4">
-        <div className="mb-6">
+      <div className="min-h-0 flex-1 overflow-y-auto py-16">
+        <div className="mb-24">
           {/* <SidebarNav /> */}
         </div>
         <BuilderControlsSections wb={wb} selectedGlobalIndex={selectedGlobalIndex} />

@@ -18,7 +18,7 @@ type Props = {
 
 const fieldClass = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
-  'h-8 w-full max-w-28 shrink rounded-md px-2.5 py-1 font-mono text-xs tabular-nums',
+  'h-32 w-full max-w-112 shrink rounded-md px-10 py-4 font-mono text-xs tabular-nums',
 )
 
 type AxisSliderFieldProps = {
@@ -38,9 +38,9 @@ function AxisSliderField({axis, value, min, max, step, picker, displayTier, onCh
   const inputMode = step < 1 ? 'decimal' : 'numeric'
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-8">
       <div className="picker-control-row">
-        <label htmlFor={id} className="ns-label min-w-12 shrink-0">
+        <label htmlFor={id} className="ns-label min-w-48 shrink-0">
           {axis}
         </label>
         <Slider
@@ -84,7 +84,7 @@ function OklchControlsInner({picker, patchPicker, displayTier}: Props) {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-24">
       <AxisSliderField axis="L" value={picker.L} min={0} max={1} step={0.001} picker={picker} displayTier={displayTier} onChange={setL} />
       <AxisSliderField axis="C" value={picker.C} min={0} max={0.4} step={0.001} picker={picker} displayTier={displayTier} onChange={setC} />
       <AxisSliderField axis="H" value={picker.H} min={0} max={360} step={1} picker={picker} displayTier={displayTier} onChange={setH} />

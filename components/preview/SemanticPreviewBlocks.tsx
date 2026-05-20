@@ -39,8 +39,8 @@ function PreviewBlock({
   children: React.ReactNode
 }) {
   return (
-    <section className="space-y-3 rounded-lg border border-white/10 bg-black/25 p-3 sm:p-4">
-      <header className="space-y-1 border-b border-white/10 pb-2">
+    <section className="space-y-12 rounded-lg border border-white/10 bg-black/25 p-12 sm:p-16">
+      <header className="space-y-4 border-b border-white/10 pb-8">
         <p className="text-[0.6rem] font-medium uppercase tracking-wide text-white/40">{eyebrow}</p>
         <h3 className="text-sm font-semibold tracking-tight text-white">{title}</h3>
         <p className="text-micro leading-snug text-white/45">{intent}</p>
@@ -116,7 +116,7 @@ function Block1AppLayout({c}: {c: ResolvedColors}) {
       intent="Layered shell: recessed nav well, primary canvas, grouped workspace. Quiet nav vs active selection."
     >
       <div
-        className="flex min-h-44 overflow-hidden rounded-md border"
+        className="flex min-h-176 overflow-hidden rounded-md border"
         style={{backgroundColor: c.page, borderColor: c.bs}}
       >
         <aside
@@ -124,18 +124,18 @@ function Block1AppLayout({c}: {c: ResolvedColors}) {
           style={{backgroundColor: c.sunken, borderColor: c.bs}}
         >
           <p
-            className="border-b px-2 py-1.5 text-[0.6rem] font-medium uppercase tracking-wide"
+            className="border-b px-8 py-6 text-[0.6rem] font-medium uppercase tracking-wide"
             style={{borderColor: c.bs, color: c.tm}}
           >
             Navigation
           </p>
-          <nav className="flex flex-col gap-0.5 p-2">
+          <nav className="flex flex-col gap-2 p-8">
             {['Overview', 'Reports', 'Settings'].map((item, i) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setActiveNav(i)}
-                className="rounded px-2 py-1.5 text-left text-xs transition-colors"
+                className="rounded px-8 py-6 text-left text-xs transition-colors"
                 style={{
                   backgroundColor: activeNav === i ? c.page : 'transparent',
                   color: activeNav === i ? c.td : c.ts,
@@ -146,21 +146,21 @@ function Block1AppLayout({c}: {c: ResolvedColors}) {
               </button>
             ))}
           </nav>
-          <p className="mt-auto px-2 pb-2 text-[0.55rem] leading-snug" style={{color: c.ts}}>
+          <p className="mt-auto px-8 pb-8 text-[0.55rem] leading-snug" style={{color: c.ts}}>
             <CssVar role="surface.sunken" /> sidebar · <CssVar role="surface.default" /> active ·{' '}
             <CssVar role="text.subtle" /> / <CssVar role="text.default" />
           </p>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="border-b px-3 py-2 text-xs" style={{borderColor: c.bs, color: c.td}}>
+          <div className="border-b px-12 py-8 text-xs" style={{borderColor: c.bs, color: c.td}}>
             Main workspace <CssVar role="surface.default" />
           </div>
-          <div className="flex-1 p-2 sm:p-3">
-            <div className="rounded-md border p-2 sm:p-3" style={{backgroundColor: c.subtle, borderColor: c.bs}}>
+          <div className="flex-1 p-8 sm:p-12">
+            <div className="rounded-md border p-8 sm:p-12" style={{backgroundColor: c.subtle, borderColor: c.bs}}>
               <p className="text-xs font-medium" style={{color: c.td}}>
                 Panel · <CssVar role="surface.subtle" />
               </p>
-              <p className="mt-1 text-micro leading-relaxed" style={{color: c.ts}}>
+              <p className="mt-4 text-micro leading-relaxed" style={{color: c.ts}}>
                 Section dividers use <CssVar role="border.subtle" /> so structure reads without heavy chrome.
               </p>
             </div>
@@ -180,14 +180,14 @@ function Block2DataCard({c}: {c: ResolvedColors}) {
       intent="Raised surface = lifted analytics tile. Focus ring uses the dedicated focus token — keyboard-first, not a default border."
     >
       <div
-        className="rounded-lg border p-3 sm:p-4"
+        className="rounded-lg border p-12 sm:p-16"
         style={{
           backgroundColor: c.raised,
           borderColor: c.bd,
           boxShadow: '0 1px 0 rgba(0,0,0,0.05), 0 10px 24px rgba(0,0,0,0.1)',
         }}
       >
-        <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-8">
           <h4 className="text-sm font-semibold" style={{color: c.td}}>
             Active users
           </h4>
@@ -195,12 +195,12 @@ function Block2DataCard({c}: {c: ResolvedColors}) {
             Updated 14:02 UTC
           </span>
         </div>
-        <p className="mt-3 text-2xl font-semibold tabular-nums tracking-tight" style={{color: c.td}}>
+        <p className="mt-12 text-2xl font-semibold tabular-nums tracking-tight" style={{color: c.td}}>
           12.4k
         </p>
         <button
           type="button"
-          className="mt-4 rounded-md border px-3 py-1.5 text-xs font-medium outline-none transition-shadow"
+          className="mt-16 rounded-md border px-12 py-6 text-xs font-medium outline-none transition-shadow"
           style={{
             backgroundColor: c.page,
             borderColor: c.bd,
@@ -212,7 +212,7 @@ function Block2DataCard({c}: {c: ResolvedColors}) {
         >
           View breakdown
         </button>
-        <p className="mt-2 text-[0.55rem]" style={{color: c.tm}}>
+        <p className="mt-8 text-[0.55rem]" style={{color: c.tm}}>
           Focus ring = <CssVar role="border.focus" /> (distinct from <CssVar role="border.default" />)
         </p>
       </div>
@@ -227,13 +227,13 @@ function Block3FormInput({c}: {c: ResolvedColors}) {
       title="Form & input field"
       intent="Strong border = control boundary. Muted placeholder vs disabled read-only vs subtle help — distinct semantics."
     >
-      <div className="space-y-3">
-        <label className="block space-y-1">
+      <div className="space-y-12">
+        <label className="block space-y-4">
           <span className="text-micro font-medium" style={{color: c.ts}}>
             Company
           </span>
           <div
-            className="flex min-h-9 items-center rounded-md border px-2 py-1.5 text-sm"
+            className="flex min-h-36 items-center rounded-md border px-8 py-6 text-sm"
             style={{borderColor: c.bStr}}
           >
             <span style={{color: c.tm}}>Search accounts…</span>
@@ -242,7 +242,7 @@ function Block3FormInput({c}: {c: ResolvedColors}) {
             Placeholder tone = <CssVar role="text.muted" /> · field edge = <CssVar role="border.strong" />
           </span>
         </label>
-        <label className="block space-y-1">
+        <label className="block space-y-4">
           <span className="text-micro font-medium" style={{color: c.ts}}>
             Read-only
           </span>
@@ -250,7 +250,7 @@ function Block3FormInput({c}: {c: ResolvedColors}) {
             type="text"
             readOnly
             aria-readonly="true"
-            className="w-full cursor-default rounded-md border bg-transparent px-2 py-1.5 text-sm"
+            className="w-full cursor-default rounded-md border bg-transparent px-8 py-6 text-sm"
             style={{borderColor: c.bd, color: c.tdis}}
             defaultValue="INV-20418 · locked"
           />
@@ -273,32 +273,32 @@ function Block4Callout({c, brandPlaneOklch}: {c: ResolvedColors; brandPlaneOklch
       title="Notification & on-brand callout"
       intent="Inverse strip = semantic ramp flip. Brand strip uses surface.brand with text.on for saturated-plane ink."
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+      <div className="flex flex-col gap-8 sm:flex-row sm:items-stretch">
         <div
-          className="flex-1 rounded-md border px-3 py-2.5"
+          className="flex-1 rounded-md border px-12 py-10"
           style={{backgroundColor: c.inverse, borderColor: c.bd}}
         >
           <p className="text-[0.6rem] font-semibold uppercase tracking-wide" style={{color: c.ton}}>
             System
           </p>
-          <p className="mt-1 text-xs leading-snug" style={{color: c.ton}}>
+          <p className="mt-4 text-xs leading-snug" style={{color: c.ton}}>
             Policy saved — your workspace will sync on next load.
           </p>
-          <p className="mt-2 text-[0.55rem]" style={{color: c.ton, opacity: 0.85}}>
+          <p className="mt-8 text-[0.55rem]" style={{color: c.ton, opacity: 0.85}}>
             <CssVar role="surface.inverse" /> + <CssVar role="text.on" />
           </p>
         </div>
         <div
-          className="flex-1 rounded-md border px-3 py-2.5"
+          className="flex-1 rounded-md border px-12 py-10"
           style={{backgroundColor: trimCssColorValue(brandPlaneOklch), borderColor: c.bd}}
         >
           <p className="text-[0.6rem] font-semibold uppercase tracking-wide" style={{color: c.ton}}>
             Brand
           </p>
-          <p className="mt-1 text-xs leading-snug" style={{color: c.ton}}>
+          <p className="mt-4 text-xs leading-snug" style={{color: c.ton}}>
             Upgrade to Pro for audit trails and SSO.
           </p>
-          <p className="mt-2 text-[0.55rem]" style={{color: c.ton, opacity: 0.9}}>
+          <p className="mt-8 text-[0.55rem]" style={{color: c.ton, opacity: 0.9}}>
             <CssVar role="surface.brand" /> + <CssVar role="text.on" />
           </p>
         </div>
@@ -314,7 +314,7 @@ function Block5OverlayMenu({c}: {c: ResolvedColors}) {
       title="Action menu overlay"
       intent="Overlay = top elevation plane for ephemeral UI. Scrim dims the canvas; menu uses overlay + default border."
     >
-      <div className="relative min-h-28 rounded-md border p-3" style={{backgroundColor: c.page, borderColor: c.bs}}>
+      <div className="relative min-h-112 rounded-md border p-12" style={{backgroundColor: c.page, borderColor: c.bs}}>
         <p className="text-xs" style={{color: c.ts}}>
           Anchor region
         </p>
@@ -324,20 +324,20 @@ function Block5OverlayMenu({c}: {c: ResolvedColors}) {
           aria-hidden
         />
         <div
-          className="absolute left-3 top-10 z-10 min-w-44 rounded-md border py-1 shadow-xl"
+          className="absolute left-12 top-40 z-10 min-w-176 rounded-md border py-4 shadow-xl"
           style={{backgroundColor: c.overlay, borderColor: c.bd, boxShadow: '0 16px 40px rgba(0,0,0,0.18)'}}
         >
           {(['Duplicate', 'Archive'] as const).map((action) => (
-            <button key={action} type="button" className="block w-full px-3 py-2 text-left text-xs" style={{color: c.td}}>
+            <button key={action} type="button" className="block w-full px-12 py-8 text-left text-xs" style={{color: c.td}}>
               {action}
             </button>
           ))}
-          <div className="my-1 border-t" style={{borderColor: c.bs}} />
-          <button type="button" className="block w-full px-3 py-2 text-left text-xs" style={{color: c.td}}>
+          <div className="my-4 border-t" style={{borderColor: c.bs}} />
+          <button type="button" className="block w-full px-12 py-8 text-left text-xs" style={{color: c.td}}>
             Delete…
           </button>
         </div>
-        <p className="absolute bottom-2 left-3 right-3 text-[0.55rem]" style={{color: c.tm}}>
+        <p className="absolute bottom-8 left-12 right-12 text-[0.55rem]" style={{color: c.tm}}>
           <CssVar role="surface.overlay" /> · <CssVar role="border.default" /> · <CssVar role="text.default" /> ·
           scrim <span className="font-mono text-white/40">overlay.scrim</span>
         </p>
@@ -377,7 +377,7 @@ export const SemanticPreviewBlocks = memo(function SemanticPreviewBlocks({
   )
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-16">
       <Block1AppLayout c={c} />
       <Block2DataCard c={c} />
       <Block3FormInput c={c} />

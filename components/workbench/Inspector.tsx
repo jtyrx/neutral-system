@@ -104,13 +104,13 @@ function GlobalSwatchInspector({
       role="region"
       aria-label="Global swatch inspector"
       className={cn(
-        'space-y-4 rounded-sm border ns-panel p-4',
+        'space-y-16 rounded-sm border ns-panel p-16',
         exiting
-          ? 'pointer-events-none translate-y-0.5 scale-[0.995] opacity-0 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]'
+          ? 'pointer-events-none translate-y-2 scale-[0.995] opacity-0 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]'
           : 'animate-inspector-enter',
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-12">
         <p className="eyebrow">Global swatch</p>
         <Button
           variant="ghost"
@@ -122,10 +122,10 @@ function GlobalSwatchInspector({
         </Button>
       </div>
       <div
-        className="h-20 w-full rounded-xl border border-hairline"
+        className="h-80 w-full rounded-xl border border-hairline"
         style={{backgroundColor: s.serialized.hex}}
       />
-      <dl className="grid grid-cols-1 gap-2 font-mono text-micro text-default nsb-lg:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-8 font-mono text-micro text-default nsb-lg:grid-cols-2">
         <div>
           <dt className="text-muted">Label</dt>
           <dd>{s.label}</dd>
@@ -205,9 +205,9 @@ function InspectorInner({
 
   if (!selection) {
     return (
-      <div className="rounded-sm border ns-panel px-4 py-3">
+      <div className="rounded-sm border ns-panel px-16 py-12">
         <p className="eyebrow">Inspector</p>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-8 text-sm text-muted">
           Select a swatch or system token from the canvas.
         </p>
       </div>
@@ -238,18 +238,18 @@ function InspectorInner({
   const cr = parseColorFromSerialized(token.serialized).contrastWCAG21(bg)
 
   return (
-    <div className="group/ins space-y-3 rounded-md border ns-panel p-4">
+    <div className="group/ins space-y-12 rounded-md border ns-panel p-16">
       <p className="eyebrow">System token</p>
       <div
-        className="h-16 w-full rounded-xl border border-hairline"
+        className="h-64 w-full rounded-xl border border-hairline"
         style={{backgroundColor: token.serialized.hex}}
       />
       <p className="font-mono text-[0.7rem] text-default">{token.role}</p>
       <p className="text-micro text-muted">
         Hover the card for OKLCH, index, and contrast.
       </p>
-      <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover/ins:max-h-112 group-hover/ins:opacity-100">
-        <dl className="space-y-2 border-t border-hairline pt-3 font-mono text-micro text-default">
+      <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover/ins:max-h-448 group-hover/ins:opacity-100">
+        <dl className="space-y-8 border-t border-hairline pt-12 font-mono text-micro text-default">
           <div>
             <dt className="text-muted">Name</dt>
             <dd>{token.name}</dd>

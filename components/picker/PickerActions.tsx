@@ -69,12 +69,12 @@ function PickerActionsInner({
       <Button
         type="button"
         variant={liveHint ? 'outline' : 'default'}
-        size={embedded ? 'sm' : 'default'}
+        size={embedded ? 'sm' : 'md'}
         onClick={sendToWorkbench}
       >
         {liveHint ? 'Live theme active' : embedded ? 'Apply to global scale' : 'Send to workbench'}
       </Button>
-      <Button type="button" variant="outline" size={embedded ? 'sm' : 'default'} onClick={copyOklch}>
+      <Button type="button" variant="outline" size={embedded ? 'sm' : 'md'} onClick={copyOklch}>
         Copy OKLCH
       </Button>
       {!embedded ? (

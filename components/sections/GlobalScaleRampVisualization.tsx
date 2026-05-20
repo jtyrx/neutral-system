@@ -25,7 +25,7 @@ export const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisuali
     <>
       <div className="overflow-x-auto rounded-select border border-hairline">
         <div
-          className="flex min-h-18"
+          className="flex min-h-72"
           style={{minWidth: `${Math.max(global.length * 8, 320)}px`}}
         >
           {global.map((s) => (
@@ -44,13 +44,13 @@ export const GlobalScaleRampVisualization = memo(function GlobalScaleRampVisuali
         </div>
       </div>
 
-      <div className="grid gap-4 nsb-lg:grid-cols-[1fr_14rem]">
+      <div className="grid gap-16 nsb-lg:grid-cols-[1fr_14rem]">
         <LightnessLadder
           swatches={global}
           onSelect={onSelectSwatch}
           selectedIndex={ringIndex}
           className={cn(
-            'col-span-full h-28 w-full rounded-xl border border-hairline bg-raised',
+            'col-span-full h-112 w-full rounded-xl border border-hairline bg-raised',
           )}
         />
       </div>

@@ -12,7 +12,7 @@ import {
 
 const tooltipBodyBase = cn(
   'relative z-10 flex min-h-0 min-w-0 flex-1 flex-col',
-  'items-stretch gap-1.5 whitespace-normal text-left',
+  'items-stretch gap-6 whitespace-normal text-left',
   '[&_p]:m-0',
 )
 

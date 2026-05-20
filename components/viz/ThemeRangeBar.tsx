@@ -12,9 +12,9 @@ export function ThemeRangeBar({steps, darkSegmentLength}: Props) {
   const darkPct = (seg / (n - 1)) * 100
 
   return (
-    <div className="space-y-2 rounded-xl border border-hairline bg-raised px-4 py-3">
+    <div className="space-y-8 rounded-xl border border-hairline bg-raised px-16 py-12">
       <p className="eyebrow">Theme range</p>
-      <div className="flex h-8 w-full overflow-hidden rounded-lg border border-hairline">
+      <div className="flex h-32 w-full overflow-hidden rounded-lg border border-hairline">
         <div
           className="flex items-center justify-center bg-linear-to-r from-white/25 to-white/5 text-[0.6rem] text-black"
           style={{width: `${lightPct}%`}}

@@ -36,7 +36,7 @@ export function ComparisonLayoutPicker({value, onChange}: Props) {
           key={layout}
           value={layout}
           variant="scrim"
-          className="px-2.5 py-1 capitalize"
+          className="px-10 py-4 capitalize"
         >
           {layout}
         </RadioGroupItem>

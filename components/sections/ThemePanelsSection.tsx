@@ -80,10 +80,10 @@ function RoleTokenTable({
       <table className="w-full min-w-[18rem] text-left text-micro">
         <thead className="border-b border-hairline font-mono text-muted">
           <tr>
-            <th className="px-2 py-1.5">Primitive</th>
-            <th className="px-2 py-1.5">Semantic role</th>
-            <th className="px-2 py-1.5 text-right">Idx</th>
-            <th className="w-14 px-2 py-1.5">Swatch</th>
+            <th className="px-8 py-6">Primitive</th>
+            <th className="px-8 py-6">Semantic role</th>
+            <th className="px-8 py-6 text-right">Idx</th>
+            <th className="w-56 px-8 py-6">Swatch</th>
           </tr>
         </thead>
         <tbody className="font-mono">
@@ -92,22 +92,22 @@ function RoleTokenTable({
             const displayIndex = isDarkAdvanced ? n - 1 - t.sourceGlobalIndex : t.sourceGlobalIndex
             return (
               <tr key={t.id} className="border-b border-hairline">
-                <td className="px-2 py-1.5 font-medium text-default" title={t.name}>
+                <td className="px-8 py-6 font-medium text-default" title={t.name}>
                   {prim}
                 </td>
-                <td className="max-w-44 px-2 py-1.5 text-muted">
+                <td className="max-w-176 px-8 py-6 text-muted">
                   <span className="block truncate" title={humanizeRole(t.role)}>
                     {humanizeRole(t.role)}
                   </span>
-                  <span className="mt-0.5 block truncate text-[0.6rem] text-disabled" title={t.name}>
+                  <span className="mt-2 block truncate text-[0.6rem] text-disabled" title={t.name}>
                     {t.name}
                   </span>
                 </td>
-                <td className="px-2 py-1.5 text-right tabular-nums text-muted">{displayIndex}</td>
-                <td className="px-2 py-1.5 align-middle">
+                <td className="px-8 py-6 text-right tabular-nums text-muted">{displayIndex}</td>
+                <td className="px-8 py-6 align-middle">
                   <button
                     type="button"
-                    className="h-8 w-8 shrink-0 rounded border border-hairline shadow-inner"
+                    className="h-32 w-32 shrink-0 rounded border border-hairline shadow-inner"
                     style={{backgroundColor: t.serialized.hex}}
                     title={`${prim} · ${humanizeRole(t.role)}`}
                     onClick={() => onSelect(t.id)}
@@ -122,7 +122,7 @@ function RoleTokenTable({
   )
 }
 
-const themeColumnShellVariants = cva('rounded-2xl border p-4 sm:p-5', {
+const themeColumnShellVariants = cva('rounded-2xl border p-16 sm:p-20', {
   variants: {
     tone: {
       light: 'border-(--chrome-amber-border) bg-(--chrome-amber-surface)',
@@ -167,20 +167,20 @@ function ThemeTokenColumn({
 
   return (
     <div className={themeColumnShellVariants({tone})}>
-      <header className="border-b border-hairline pb-4">
+      <header className="border-b border-hairline pb-16">
         <p className={cn('eyebrow', themeColumnHeadingVariants({tone}))}>{eyebrow}</p>
-        <h3 className="mt-1 text-lg font-semibold text-default">{title}</h3>
-        <p className="mt-1 text-xs text-muted">{hint}</p>
+        <h3 className="mt-4 text-lg font-semibold text-default">{title}</h3>
+        <p className="mt-4 text-xs text-muted">{hint}</p>
         <Button
           variant="ghost"
           size="xs"
           onClick={toggle}
-          className="mt-3 rounded-full"
+          className="mt-12 rounded-full"
         >
           {showTable ? 'Visual view' : 'Data table'}
         </Button>
         {showTable ? (
-          <p className="mt-2 text-[0.6rem] leading-snug text-disabled">
+          <p className="mt-8 text-[0.6rem] leading-snug text-disabled">
             Primitive column uses tier‑1 CSS names (
             <span className="font-mono">{variant === 'dark' ? '--color-neutral-dark-*' : '--color-neutral-*'}</span>
             ). Rows sort by ladder value; semantic role and tier‑2 token name are secondary.
@@ -188,7 +188,7 @@ function ThemeTokenColumn({
         ) : null}
       </header>
 
-      <div className="mt-6 space-y-8">
+      <div className="mt-24 space-y-32">
         {showTable ? (
           <>
             {THEME_TABLE_GROUPS.map(({section, hint: groupHint}) => {
@@ -197,7 +197,7 @@ function ThemeTokenColumn({
               const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
               const k = section.kind === 'inverse' ? 'inverse' : section.layer
               return (
-                <div key={k} className="space-y-2">
+                <div key={k} className="space-y-8">
                   <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
                     {friendlySemanticCategoryLabel(titleKey)}
                   </h4>
@@ -212,7 +212,7 @@ function ThemeTokenColumn({
               )
             })}
             {emphasisToks.length > 0 ? (
-              <div className="space-y-2 border-t border-hairline pt-6">
+              <div className="space-y-8 border-t border-hairline pt-24">
                 <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>Emphasis</h4>
                 <p className="text-micro text-disabled">Experimental accessible pairs (higher contrast).</p>
                 <RoleTokenTable
@@ -228,7 +228,7 @@ function ThemeTokenColumn({
           <>
             <SemanticSingleThemeGrid tokenView={tokenView} global={global} />
             {emphasisToks.length > 0 ? (
-              <div className="space-y-2 border-t border-hairline pt-6">
+              <div className="space-y-8 border-t border-hairline pt-24">
                 <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
                   Emphasis (experimental)
                 </h4>
@@ -249,17 +249,17 @@ function ThemeTokenColumn({
 
 function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
   return (
-    <section id="themes" className="scroll-mt-6 space-y-6">
+    <section id="themes" className="scroll-mt-24 space-y-24">
       <header>
         <p className="eyebrow">3 · Themes</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Light vs dark elevated</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
+        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Light vs dark elevated</h2>
+        <p className="mt-8 max-w-2xl text-sm text-muted">
           Default view is a primitive-token data table: neutral ladder names, semantic roles, and ramp
           indices. Switch to Visual for the paired layout.
         </p>
       </header>
 
-      <div className="grid gap-4 nsb-lg:grid-cols-2 nsb-lg:gap-4">
+      <div className="grid gap-16 nsb-lg:grid-cols-2 nsb-lg:gap-16">
         <ThemeTokenColumn
           eyebrow="Light theme"
           title="Primitive tokens"

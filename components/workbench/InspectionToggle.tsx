@@ -25,7 +25,7 @@ export function InspectionToggle({active, onToggle}: Props) {
       <span
         aria-hidden
         className={cn(
-          'h-1.5 w-1.5 rounded-full',
+          'h-6 w-6 rounded-full',
           active ? 'bg-emerald-300' : 'bg-overlay-strong',
         )}
       />

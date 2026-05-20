@@ -73,7 +73,7 @@ export function Workbench() {
         id="nsb-inspector"
         className="ns-workbench__inspector-col h-full min-w-0 border-t border-hairline bg-sunken nsb-lg:border-t-0 nsb-lg:border-l"
       >
-        <div className="ns-workbench__inspector-scroll bg-sunken p-4">
+        <div className="ns-workbench__inspector-scroll bg-sunken p-16">
           <Inspector
             selection={wb.selection}
             global={wb.inspectionGlobalRamp}

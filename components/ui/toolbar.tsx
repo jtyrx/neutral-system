@@ -19,8 +19,8 @@ import {cva, type VariantProps} from 'class-variance-authority'
 import {cn} from '@/lib/utils'
 
 const toolbarRootBase = cn(
-  'flex flex-wrap items-center gap-0.5 rounded-md border border-hairline',
-  'bg-(--chrome-chip) p-0.5 outline-none',
+  'flex flex-wrap items-center gap-2 rounded-md border border-hairline',
+  'bg-chip p-2 outline-none',
   'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
 )
 
@@ -30,22 +30,22 @@ const toolbarButtonBase = cn(
   'hover:bg-muted hover:text-default',
   'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
   'disabled:pointer-events-none disabled:opacity-45',
-  '[&_svg]:pointer-events-none [&_svg]:size-4',
+  '[&_svg]:pointer-events-none [&_svg]:size-16',
 )
 
 const toolbarButtonVariants = cva(toolbarButtonBase, {
   variants: {
     size: {
-      sm: 'size-7',
-      default: 'size-8',
-      lg: 'size-9',
+      sm: 'size-28',
+      default: 'size-32',
+      lg: 'size-36',
     },
   },
   defaultVariants: {size: 'default'},
 })
 
 const toolbarSeparatorBase =
-  'mx-0.5 h-5 shrink-0 bg-border data-[orientation=vertical]:w-px'
+  'mx-2 h-20 shrink-0 bg-border data-[orientation=vertical]:w-px'
 
 function ToolbarRoot({
   className,

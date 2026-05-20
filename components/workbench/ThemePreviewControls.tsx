@@ -81,16 +81,16 @@ function ThemePreviewControlsInner({
   }
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2', !dense && 'gap-3')}>
+    <div className={cn('flex flex-wrap items-center gap-8', !dense && 'gap-12')}>
       <div
-        className="flex items-center gap-2 border-r border-hairline pr-2 sm:pr-2.5"
+        className="flex items-center gap-8 border-r border-hairline pr-8 sm:pr-10"
         role="group"
         aria-label="Application color theme"
       >
         <GlobalThemeToggleButton />
       </div>
       {onShowContrastPairs ? (
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-subtle">
+        <label className="flex cursor-pointer items-center gap-8 text-xs text-subtle">
           <input
             type="checkbox"
             className="rounded border-hairline-strong bg-raised"
@@ -129,11 +129,11 @@ function ThemePreviewControlsInner({
                   </div>
                   {selected ? (
                     <Check
-                      className="mt-0.5 size-4 shrink-0 text-primary"
+                      className="mt-2 size-16 shrink-0 text-primary"
                       aria-hidden
                     />
                   ) : (
-                    <span className="size-4 shrink-0" aria-hidden />
+                    <span className="size-16 shrink-0" aria-hidden />
                   )}
                 </DropdownMenuItem>
               )

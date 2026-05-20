@@ -87,7 +87,7 @@ type CaseRenderProps = BlockCaseProps & {c: ResolvedBlockColors}
 function LayoutNavCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
   const [activeNav, setActiveNav] = useState(0)
   return (
-    <div className="space-y-2">
+    <div className="space-y-8">
       <div
         className="flex min-h-[11rem] overflow-hidden rounded-md border"
         style={{backgroundColor: c.page, borderColor: c.bs}}
@@ -101,18 +101,18 @@ function LayoutNavCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
           }}
         >
           <p
-            className="border-b px-2 py-1.5 text-[0.6rem] font-medium uppercase tracking-wide"
+            className="border-b px-8 py-6 text-[0.6rem] font-medium uppercase tracking-wide"
             style={{borderColor: c.bs, color: c.tm}}
           >
             Navigation
           </p>
-          <nav className="flex flex-col gap-0.5 p-2">
+          <nav className="flex flex-col gap-2 p-8">
             {['Overview', 'Reports', 'Settings'].map((item, i) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setActiveNav(i)}
-                className="rounded px-2 py-1.5 text-left text-xs transition-colors"
+                className="rounded px-8 py-6 text-left text-xs transition-colors"
                 style={{
                   backgroundColor: activeNav === i ? c.page : 'transparent',
                   color: activeNav === i ? c.td : c.ts,
@@ -125,22 +125,22 @@ function LayoutNavCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
           </nav>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="border-b px-3 py-2 text-xs" style={{borderColor: c.bs, color: c.td}}>
+          <div className="border-b px-12 py-8 text-xs" style={{borderColor: c.bs, color: c.td}}>
             Main workspace
           </div>
-          <div className="flex-1 p-2 sm:p-3">
-            <div className="rounded-md border p-2 sm:p-3" style={{backgroundColor: c.subtle, borderColor: c.bs}}>
+          <div className="flex-1 p-8 sm:p-12">
+            <div className="rounded-md border p-8 sm:p-12" style={{backgroundColor: c.subtle, borderColor: c.bs}}>
               <p className="text-xs font-medium" style={{color: c.td}}>
                 Panel
               </p>
-              <p className="mt-1 text-micro leading-relaxed" style={{color: c.ts}}>
+              <p className="mt-4 text-micro leading-relaxed" style={{color: c.ts}}>
                 Section dividers stay quiet so structure reads without heavy chrome.
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-[0.55rem] text-white/45">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-4 text-[0.55rem] text-white/45">
         <span>sidebar well</span>
         <SemanticTokenAnnotation role="surface.sunken" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         <span>·</span>
@@ -160,16 +160,16 @@ function LayoutNavCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
 function DataCardCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
   const [focused, setFocused] = useState(false)
   return (
-    <div className="space-y-2">
+    <div className="space-y-8">
       <div
-        className="rounded-lg border p-3 sm:p-4"
+        className="rounded-lg border p-12 sm:p-16"
         style={{
           backgroundColor: c.raised,
           borderColor: c.bd,
           boxShadow: '0 1px 0 rgba(0,0,0,0.06), 0 14px 30px rgba(0,0,0,0.12)',
         }}
       >
-        <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-8">
           <h4 className="text-sm font-semibold" style={{color: c.td}}>
             Active users
           </h4>
@@ -177,12 +177,12 @@ function DataCardCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
             Updated 14:02 UTC
           </span>
         </div>
-        <p className="mt-3 text-2xl font-semibold tabular-nums tracking-tight" style={{color: c.td}}>
+        <p className="mt-12 text-2xl font-semibold tabular-nums tracking-tight" style={{color: c.td}}>
           12.4k
         </p>
         <button
           type="button"
-          className="mt-4 rounded-md border px-3 py-1.5 text-xs font-medium outline-none transition-shadow"
+          className="mt-16 rounded-md border px-12 py-6 text-xs font-medium outline-none transition-shadow"
           style={{
             backgroundColor: c.page,
             borderColor: c.bd,
@@ -195,7 +195,7 @@ function DataCardCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
           View breakdown
         </button>
       </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-[0.55rem] text-white/45">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-4 text-[0.55rem] text-white/45">
         <span>card surface</span>
         <SemanticTokenAnnotation role="surface.raised" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         <span>·</span>
@@ -211,13 +211,13 @@ function DataCardCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
 
 function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
   return (
-    <div className="space-y-3">
-      <label className="block space-y-1">
+    <div className="space-y-12">
+      <label className="block space-y-4">
         <span className="text-micro font-medium text-default" style={{color: c.ts}}>
           Company
         </span>
         <div
-          className="flex min-h-[2.25rem] items-center rounded-md border px-2 py-1.5 text-sm"
+          className="flex min-h-[2.25rem] items-center rounded-md border px-8 py-6 text-sm"
           style={{borderColor: c.bStr}}
         >
           <span style={{color: c.tm}}>Search accounts…</span>
@@ -230,7 +230,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
           <SemanticTokenAnnotation role="border.strong" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         </span>
       </label>
-      <label className="block space-y-1">
+      <label className="block space-y-4">
         <span className="text-micro font-medium text-default " style={{color: c.ts}}>
           Read-only
         </span>
@@ -238,7 +238,7 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
           type="text"
           readOnly
           aria-readonly="true"
-          className="w-full cursor-default rounded-md border bg-transparent px-2 py-1.5 text-sm"
+          className="w-full cursor-default rounded-md border bg-transparent px-8 py-6 text-sm"
           style={{borderColor: c.bd, color: c.tdis}}
           defaultValue="INV-20418 · locked"
         />
@@ -257,30 +257,30 @@ function FormFieldCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) 
 
 function CalloutCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
   return (
-    <div className="space-y-2">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-        <div className="flex-1 rounded-md border px-3 py-2.5" style={{backgroundColor: c.inverse, borderColor: c.bd}}>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-8 sm:flex-row sm:items-stretch">
+        <div className="flex-1 rounded-md border px-12 py-10" style={{backgroundColor: c.inverse, borderColor: c.bd}}>
           <p className="text-[0.6rem] font-semibold uppercase tracking-wide" style={{color: c.ton}}>
             System
           </p>
-          <p className="mt-1 text-xs leading-snug" style={{color: c.ton}}>
+          <p className="mt-4 text-xs leading-snug" style={{color: c.ton}}>
             Policy saved — your workspace will sync on next load.
           </p>
         </div>
         <div
           id="brand-callout"
-          className="flex-1 rounded-md border px-3 py-2.5"
+          className="flex-1 rounded-md border px-12 py-10"
           style={{backgroundColor: c.brand, borderColor: c.bd}}
         >
           <p className="text-[0.6rem] font-semibold uppercase tracking-wide" style={{color: c.ton}}>
             Brand
           </p>
-          <p className="mt-1 text-xs leading-snug" style={{color: c.ton}}>
+          <p className="mt-4 text-xs leading-snug" style={{color: c.ton}}>
             Upgrade to Pro for audit trails and SSO.
           </p>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-[0.55rem] text-white/45">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-4 text-[0.55rem] text-white/45">
         <span>inverse strip</span>
         <SemanticTokenAnnotation role="surface.inverse" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         <span>+</span>
@@ -297,8 +297,8 @@ function CalloutCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
 
 function OverlayMenuCase({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
   return (
-    <div className="space-y-2">
-      <div className="relative min-h-[7rem] rounded-md border p-3" style={{backgroundColor: c.page, borderColor: c.bs}}>
+    <div className="space-y-8">
+      <div className="relative min-h-[7rem] rounded-md border p-12" style={{backgroundColor: c.page, borderColor: c.bs}}>
         <p className="text-xs" style={{color: c.ts}}>
           Anchor region
         </p>
@@ -308,22 +308,22 @@ function OverlayMenuCase({c, theme, inspection, onSelectSystem}: CaseRenderProps
           aria-hidden
         />
         <div
-          className="absolute left-3 top-10 z-10 min-w-[11rem] rounded-md border py-1 shadow-xl"
+          className="absolute left-12 top-40 z-10 min-w-[11rem] rounded-md border py-4 shadow-xl"
           style={{backgroundColor: c.overlay, borderColor: c.bd, boxShadow: '0 16px 40px rgba(0,0,0,0.18)'}}
         >
-          <button type="button" className="block w-full px-3 py-2 text-left text-xs" style={{color: c.td}}>
+          <button type="button" className="block w-full px-12 py-8 text-left text-xs" style={{color: c.td}}>
             Duplicate
           </button>
-          <button type="button" className="block w-full px-3 py-2 text-left text-xs" style={{color: c.td}}>
+          <button type="button" className="block w-full px-12 py-8 text-left text-xs" style={{color: c.td}}>
             Archive
           </button>
-          <div className="my-1 border-t" style={{borderColor: c.bs}} />
-          <button type="button" className="block w-full px-3 py-2 text-left text-xs" style={{color: c.td}}>
+          <div className="my-4 border-t" style={{borderColor: c.bs}} />
+          <button type="button" className="block w-full px-12 py-8 text-left text-xs" style={{color: c.td}}>
             Delete…
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-[0.55rem] text-white/45">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-4 text-[0.55rem] text-white/45">
         <span>menu plane</span>
         <SemanticTokenAnnotation role="surface.overlay" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         <span>·</span>

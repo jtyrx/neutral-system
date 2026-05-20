@@ -19,13 +19,13 @@ import {
  */
 export const DOCK_MAGNIFY_DISTANCE_REM = 9 as const
 
-/** `gap-2` between dock toolbar items. */
+/** `gap-8` between dock toolbar items. */
 export const DOCK_MAGNIFY_GAP_PX = 8
 
-/** Horizontal padding from `px-2` on the dock panel. */
+/** Horizontal padding from `px-8` on the dock panel. */
 export const DOCK_MAGNIFY_PADDING_X_PX = 8
 
-/** Top padding baseline (`pt-1.5`) — grows with magnification. */
+/** Top padding baseline (`pt-6`) — grows with magnification. */
 export const DOCK_MAGNIFY_PADDING_TOP_PX = 8
 
 // ─── Shared types ─────────────────────────────────────────────────────────────

@@ -29,7 +29,7 @@ const PLACEHOLDER_COUNT = RAMP_SWATCH_DOCK_PLACEHOLDER_COUNT
 const EMPTY_RAMP: GlobalSwatch[] = []
 const dockRampItemClassName = 'min-w-(--ramp-swatch-min-width) flex-1'
 const dockRampSegmentClassName =
-  'flex min-h-8 w-full flex-col'
+  'flex min-h-32 w-full flex-col'
 const dockRampSegmentPlaceholderClassName = 'bg-raised'
 const dockRampSegmentLiveClassName =
   'cursor-pointer touch-manipulation border-0 outline-none transition-shadow duration-75 focus-visible:border-ring focus-visible:shadow-[var(--shadow-raised),0_0_0_3px_color-mix(in_oklch,var(--ring)_35%,transparent)] data-[kbd=true]:z-2 data-[kbd=true]:shadow-[0_0_0_2px_var(--ring),var(--shadow-raised)]'
@@ -46,7 +46,7 @@ const rampTooltipMutedClassName = 'text-muted-foreground'
 const rampTooltipBreakClassName =
   '[overflow-wrap:anywhere] text-muted-foreground'
 const rampGamutWarningClassName =
-  'rounded border border-amber-border-soft bg-amber-surface-bold px-1.5 py-0.5 font-sans text-[0.6rem] text-amber-text'
+  'rounded border border-amber-border-soft bg-amber-surface-bold px-6 py-2 font-sans text-[0.6rem] text-amber-text'
 
 type DockRampSegmentModel = {
   ariaLabel: string

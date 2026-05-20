@@ -111,7 +111,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-8">
         <Button
           variant="outline"
           size="sm"
@@ -121,7 +121,7 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
           Custom Brand
         </Button>
         <span
-          className="inline-block h-8 w-8 shrink-0 rounded-md border border-hairline-strong shadow-inner"
+          className="inline-block h-32 w-32 shrink-0 rounded-md border border-hairline-strong shadow-inner"
           style={{background: previewCss}}
           title={committed}
           aria-label="Brand color preview"
@@ -129,9 +129,9 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
       </div>
 
       {controlsOpen ? (
-        <div className="mt-4 space-y-4">
+        <div className="mt-16 space-y-16">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-8">
               <label htmlFor="brand-color-input" className="block text-micro font-medium uppercase tracking-wide text-muted">
                 Brand color
               </label>
@@ -161,13 +161,13 @@ export function BrandColorSection({systemConfig, patchSystem}: Props) {
               aria-invalid={draft.trim() !== '' && !isDraftValid}
             />
             {draft.trim() !== '' && !isDraftValid ? (
-              <p className="mt-1 text-micro text-(--chrome-amber-text)">
+              <p className="mt-4 text-micro text-(--chrome-amber-text)">
                 Supported formats: OKLCH, Hex, RGB, Display-P3. Invalid values are not applied.
               </p>
             ) : null}
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-hairline bg-raised p-3">
+          <div className="overflow-hidden rounded-xl border border-hairline bg-raised p-12">
             <OklchControls picker={pickerTriple} patchPicker={patchPicker} displayTier={tier} />
           </div>
         </div>

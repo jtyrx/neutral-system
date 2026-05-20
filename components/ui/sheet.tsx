@@ -21,7 +21,7 @@ const sheetSizeVariants = cva('', {
 
 const sheetContentBase = cn(
   // base positioning + layout
-  'fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding',
+  'fixed z-50 flex flex-col gap-16 bg-popover bg-clip-padding',
   'text-sm text-popover-foreground shadow-lg',
   'transition duration-200 ease-in-out',
   // side variants
@@ -31,16 +31,16 @@ const sheetContentBase = cn(
   'data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b',
   // open animations
   'data-open:animate-in data-open:fade-in-0',
-  'data-[side=bottom]:data-open:slide-in-from-bottom-10',
-  'data-[side=left]:data-open:slide-in-from-left-10',
-  'data-[side=right]:data-open:slide-in-from-right-10',
-  'data-[side=top]:data-open:slide-in-from-top-10',
+  'data-[side=bottom]:data-open:slide-in-from-bottom-40',
+  'data-[side=left]:data-open:slide-in-from-left-40',
+  'data-[side=right]:data-open:slide-in-from-right-40',
+  'data-[side=top]:data-open:slide-in-from-top-40',
   // close animations
   'data-closed:animate-out data-closed:fade-out-0',
-  'data-[side=bottom]:data-closed:slide-out-to-bottom-10',
-  'data-[side=left]:data-closed:slide-out-to-left-10',
-  'data-[side=right]:data-closed:slide-out-to-right-10',
-  'data-[side=top]:data-closed:slide-out-to-top-10',
+  'data-[side=bottom]:data-closed:slide-out-to-bottom-40',
+  'data-[side=left]:data-closed:slide-out-to-left-40',
+  'data-[side=right]:data-closed:slide-out-to-right-40',
+  'data-[side=top]:data-closed:slide-out-to-top-40',
 )
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
@@ -137,7 +137,7 @@ function SheetContent({
             render={
               <Button
                 variant='ghost'
-                className='absolute top-3 right-3'
+                className='absolute top-12 right-12'
                 size='icon-sm'
               >
                 <XIcon />
@@ -156,7 +156,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot='sheet-header'
-      className={cn('flex flex-col gap-0.5 p-4', className)}
+      className={cn('flex flex-col gap-2 p-16', className)}
       {...props}
     />
   )
@@ -167,7 +167,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot='sheet-footer'
-      className={cn('mt-auto flex flex-col gap-2 p-4', className)}
+      className={cn('mt-auto flex flex-col gap-8 p-16', className)}
       {...props}
     />
   )

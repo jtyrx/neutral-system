@@ -95,21 +95,21 @@ export function tokensForSemanticLanes(
 
 /** Compact lane height — badge color (S/B/T/·/Aα) identifies role without row labels. */
 const LANE_CELL_MIN_H = 'min-h-[1rem]'
-const BADGE_GAP = 'flex flex-wrap content-start gap-0.5 justify-center'
+const BADGE_GAP = 'flex flex-wrap content-start gap-2 justify-center'
 
 export function LaneBadges({tokens}: {tokens: SystemToken[]}) {
   if (tokens.length === 0) {
     return <span className="text-[0.55rem] text-disabled">—</span>
   }
   return (
-    <div className={cn(BADGE_GAP, 'px-px py-0.5')}>
+    <div className={cn(BADGE_GAP, 'px-px py-2')}>
       {tokens.map((t) => {
         const badge = stripRoleBadge(t.role)
         return (
           <span
             key={t.id}
             className={cn(
-              'inline-flex max-w-full min-w-[1.05rem] justify-center rounded px-0.5 py-0.5 text-[0.58rem] text-trim-both leading-none font-semibold',
+              'inline-flex max-w-full min-w-[1.05rem] justify-center rounded px-2 py-2 text-[0.58rem] text-trim-both leading-none font-semibold',
               badge.className,
             )}
             title={`${t.name} (${t.role})`}
@@ -151,7 +151,7 @@ export function RampSemanticLaneGridRows({
             key={`${keyPrefix}-${s.index}-surf`}
             aria-label={`Index ${s.index}: surface mappings`}
             className={cn(
-              'flex min-w-0 flex-col items-center justify-start border-hairline/50 pt-0.5',
+              'flex min-w-0 flex-col items-center justify-start border-hairline/50 pt-2',
               LANE_CELL_MIN_H,
             )}
           >
@@ -201,7 +201,7 @@ export function RampSemanticLaneGridRows({
           >
             {showAlpha ? (
               <span
-                className="inline-flex min-w-[1.05rem] justify-center rounded bg-violet-400/90 px-0.5 py-px text-[0.58rem] leading-none font-semibold text-zinc-950"
+                className="inline-flex min-w-[1.05rem] justify-center rounded bg-violet-400/90 px-2 py-px text-[0.58rem] leading-none font-semibold text-zinc-950"
                 title="Alpha neutral token base"
               >
                 Aα

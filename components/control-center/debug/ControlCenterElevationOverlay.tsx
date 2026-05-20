@@ -29,27 +29,27 @@ import {cn} from '@/lib/utils'
 const SPREAD_MIN = 0
 const SPREAD_MAX = 72
 
-const triggerAnchorCn = 'pointer-events-none fixed bottom-24 left-3 z-60'
-const triggerCn = 'pointer-events-auto size-10 rounded-full border border-hairline shadow-lg'
+const triggerAnchorCn = 'pointer-events-none fixed bottom-96 left-12 z-60'
+const triggerCn = 'pointer-events-auto size-40 rounded-full border border-hairline shadow-lg'
 const popoverCn =
-  'z-60 max-h-[min(80vh,36rem)] w-[min(22rem,calc(100vw-2rem))] flex-col gap-0 overflow-y-auto p-3 sm:max-h-[min(85vh,40rem)]'
-const headerCn = 'flex items-center justify-between gap-2 border-b border-hairline pb-2'
-const bodyCn = 'mt-2 flex flex-col gap-3'
-const noteCn = 'mt-3 text-[0.6rem] leading-[1.375] text-muted'
+  'z-60 max-h-[min(80vh,36rem)] w-[min(22rem,calc(100vw-2rem))] flex-col gap-0 overflow-y-auto p-12 sm:max-h-[min(85vh,40rem)]'
+const headerCn = 'flex items-center justify-between gap-8 border-b border-hairline pb-8'
+const bodyCn = 'mt-8 flex flex-col gap-12'
+const noteCn = 'mt-12 text-[0.6rem] leading-[1.375] text-muted'
 
 const sectionCn =
-  'rounded-lg border border-[color-mix(in_oklch,var(--chrome-hairline)_60%,transparent)] p-2'
+  'rounded-lg border border-[color-mix(in_oklch,var(--chrome-hairline)_60%,transparent)] p-8'
 const summaryCn = 'cursor-pointer text-[0.7rem] font-medium'
-const sectionDescCn = 'mt-2 text-[0.58rem] leading-[1.375] text-muted'
-const sectionBodyCn = 'mt-3 flex flex-col gap-3 pb-1'
+const sectionDescCn = 'mt-8 text-[0.58rem] leading-[1.375] text-muted'
+const sectionBodyCn = 'mt-12 flex flex-col gap-12 pb-4'
 
-const fieldCn = 'flex flex-col gap-1.5'
-const fieldHeaderCn = 'flex justify-between gap-2 text-[0.65rem]'
+const fieldCn = 'flex flex-col gap-6'
+const fieldHeaderCn = 'flex justify-between gap-8 text-[0.65rem]'
 const labelCn = 'text-[0.65rem] font-medium text-foreground'
 const valueCn = 'font-mono text-muted tabular-nums'
 const descCn = 'text-[0.58rem] leading-[1.375] text-muted'
-const inputBaseCn = 'mt-1 h-8 w-full rounded-md border border-input bg-transparent px-2 text-xs'
-const checkboxRowCn = 'flex items-center gap-2 text-[0.65rem]'
+const inputBaseCn = 'mt-4 h-32 w-full rounded-md border border-input bg-transparent px-8 text-xs'
+const checkboxRowCn = 'flex items-center gap-8 text-[0.65rem]'
 
 // ─── Reusable control primitives ─────────────────────────────────────────────
 
@@ -342,7 +342,7 @@ export function ControlCenterElevationOverlay() {
             className={triggerCn}
             aria-label="Open blur tuning (development)"
           >
-            <SlidersHorizontal className="size-4" aria-hidden />
+            <SlidersHorizontal className="size-16" aria-hidden />
           </Button>
         </PopoverTrigger>
       </div>

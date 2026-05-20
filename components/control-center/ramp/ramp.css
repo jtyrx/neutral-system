@@ -1,0 +1,44 @@
+/**
+ * Ramp color UI (dock strip + picker rail) — source: `RampSwatchRail.tsx`
+ *
+ * | Hook | Use |
+ * |------|-----|
+ * | `[data-slot='ramp-swatch']` | Each color cell (live + placeholder) |
+ * | `[data-slot='ramp-swatch-rail']` | Fused rail container — use `w-full` only; **never** fixed `width` here or segments collapse |
+ * | `[data-ramp-variant='live' | 'placeholder']` | Cell state |
+ * | `[data-ramp-index]`, `[data-ramp-theme]` | Ladder index + light/dark |
+ * | `[data-dock-item]` | Dock magnification wrapper ids only (not the swatch paint) |
+ *
+ * Tailwind:
+ * - **Variants** `@custom-variant ramp-swatch` / `ramp-swatch-rail` — use as **prefixes**
+ *   (`ramp-swatch:focus-visible:ring-2`, `ramp-swatch-rail:shadow-md`). Replacing these with
+ *   only `@utility` would drop that composition; keep variants for state/stacking.
+ * - **Utility** `ramp-swatch-segment` — optional **class** preset (`className="ramp-swatch-segment …"`)
+ *   for shared segment chrome; customize by adding more utilities or overriding with arbitrary classes.
+ * Arbitrary parent: `[&_[data-slot=ramp-swatch]]:…`
+ * @theme tokens: `--ramp-swatch-placeholder-bg`, `--ramp-swatch-tap-clear`, `--ramp-swatch-min-width` (segment floor; override in `@theme` to retune).
+ */
+
+@custom-variant ramp-swatch (&:where([data-slot='ramp-swatch']));
+@custom-variant ramp-swatch-rail (&:where([data-slot='ramp-swatch-rail']));
+
+@theme {
+  /** Ramp cells / rail: reference in raw CSS as `var(--ramp-swatch-*)` or style via `ramp-swatch:` utilities. */
+  --ramp-swatch-placeholder-bg: var(--color-surface-raised);
+  --ramp-swatch-tap-clear: transparent;
+  /** Minimum width per `[data-slot='ramp-swatch']` cell — do not set width on `ramp-swatch-rail` or the flex strip collapses. */
+  --ramp-swatch-min-width: 1rem;
+  --ramp-swatch-rail-width: 100%;
+  --ramp-swatch-rail-radius: var(--radius-card);
+}
+
+/** Segment cells: add alongside `data-slot="ramp-swatch"` — tokens + tap clear; pair with `ramp-swatch:*` variants for states. */
+@utility ramp-swatch-segment {
+  min-width: var(--ramp-swatch-min-width);
+  -webkit-tap-highlight-color: var(--ramp-swatch-tap-clear);
+}
+
+@utility ramp-swatch-rail {
+  width: var(--ramp-swatch-rail-width, 100%);
+  border-radius: var(--ramp-swatch-rail-radius, var(--radius-card));
+}

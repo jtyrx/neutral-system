@@ -22,7 +22,7 @@ const dropdownMenuContentVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'min-w-32 rounded-md border-border bg-default p-1',
+          'min-w-128 rounded-md border-border bg-default p-4',
           'text-text-default',
         ),
         panel: cn(
@@ -40,8 +40,8 @@ const dropdownMenuContentVariants = cva(
 const dropdownMenuLabelVariants = cva('', {
   variants: {
     variant: {
-      default: 'px-2 py-1.5 text-xs font-medium text-muted-foreground',
-      panel: 'px-3 pt-2.5 pb-1 text-xs font-semibold text-muted-foreground',
+      default: 'px-8 py-6 text-xs font-medium text-muted-foreground',
+      panel: 'px-12 pt-10 pb-4 text-xs font-semibold text-muted-foreground',
     },
   },
   defaultVariants: {variant: 'default'},
@@ -50,8 +50,8 @@ const dropdownMenuLabelVariants = cva('', {
 const dropdownMenuSeparatorVariants = cva('h-px', {
   variants: {
     variant: {
-      default: 'my-1 bg-border',
-      panel: 'mx-3 bg-border/80',
+      default: 'my-4 bg-border',
+      panel: 'mx-12 bg-border/80',
     },
   },
   defaultVariants: {variant: 'default'},
@@ -59,21 +59,21 @@ const dropdownMenuSeparatorVariants = cva('h-px', {
 
 const dropdownMenuItemVariants = cva(
   cn(
-    'relative flex cursor-default select-none items-center gap-2 rounded-sm',
+    'relative flex cursor-default select-none items-center gap-8 rounded-sm',
     'text-sm transition-colors outline-none',
     'data-disabled:pointer-events-none data-disabled:opacity-50',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0',
-    '[&_svg:not([class*="size-"])]:size-4',
+    '[&_svg:not([class*="size-"])]:size-16',
   ),
   {
     variants: {
       variant: {
         default: cn(
-          'px-2 py-1.5',
+          'px-8 py-6',
           'focus:bg-accent focus:text-accent-foreground',
         ),
         panel: cn(
-          'mb-0.5 cursor-pointer items-start justify-between gap-3 rounded-xl p-2.5',
+          'mb-2 cursor-pointer items-start justify-between gap-12 rounded-xl p-10',
           'text-left font-light text-foreground last:mb-0',
           'focus:bg-accent/80 data-[active=true]:bg-muted/50',
         ),
@@ -87,7 +87,7 @@ const dropdownMenuListVariants = cva('', {
   variants: {
     variant: {
       default: '',
-      panel: 'p-1.5',
+      panel: 'p-6',
     },
   },
   defaultVariants: {variant: 'default'},

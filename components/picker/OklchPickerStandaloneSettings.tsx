@@ -13,7 +13,7 @@ import {PillChip} from '@/components/ui/chip.tsx'
 import {useOklchPickerSectionProps} from '@/hooks/useOklchPickerSectionProps'
 import type {WorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 
-const alphaInputClass = cn(INPUT_WORKBENCH_FIELD_CLASS, 'h-8 rounded px-2 py-1 text-right font-mono text-xs')
+const alphaInputClass = cn(INPUT_WORKBENCH_FIELD_CLASS, 'h-32 rounded px-8 py-4 text-right font-mono text-xs')
 
 /** Full picker page lower half — architecture → export (same order as standalone `/picker`). */
 function OklchPickerStandaloneSettingsInner({adapter}: {adapter: WorkbenchAdapter}) {
@@ -21,13 +21,13 @@ function OklchPickerStandaloneSettingsInner({adapter}: {adapter: WorkbenchAdapte
     useOklchPickerSectionProps(adapter)
 
   return (
-    <div className="space-y-6 picker-section-divider">
+    <div className="space-y-24 picker-section-divider">
       <div>
         <p className="text-xs font-medium text-default">Architecture</p>
-        <p className="mt-1 picker-caption">
+        <p className="mt-4 picker-caption">
           Simple mirrors one ramp into both themes. Advanced keeps independent light / dark ramps.
         </p>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-8 flex flex-wrap gap-8">
           <PillChip
             selected={simpleArch}
             tone="amber"
@@ -50,10 +50,10 @@ function OklchPickerStandaloneSettingsInner({adapter}: {adapter: WorkbenchAdapte
       {!simpleArch ? (
         <div>
           <p className="text-xs font-medium text-default">Edit target ramp</p>
-          <p className="mt-1 picker-caption">
+          <p className="mt-4 picker-caption">
             Hue variants and OKHSL commits apply here. Picker L/C/H syncs to this ladder.
           </p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-8 flex flex-wrap gap-8">
             <PillChip
               selected={adapter.scaleEditTarget === 'light'}
               tone="amber"
@@ -79,14 +79,14 @@ function OklchPickerStandaloneSettingsInner({adapter}: {adapter: WorkbenchAdapte
       <OkhslSectionBlock
         adapter={adapter}
         id="nsb-picker-controls-okhsl"
-        className="mt-6"
+        className="mt-24"
       />
 
       <VariantsSection config={adapter.okhslEditableConfig} onChange={adapter.setScaleConfigPreset} />
 
       <SystemMappingSection {...systemMappingSectionProps} />
 
-      <div className="space-y-3 border-hairline pt-6">
+      <div className="space-y-12 border-hairline pt-24">
         <div>
           <p className="text-xs font-medium text-default">Alpha neutral base offset</p>
           <p className="text-xs text-muted">
@@ -95,8 +95,8 @@ function OklchPickerStandaloneSettingsInner({adapter}: {adapter: WorkbenchAdapte
             {adapter.alphaBaseIndices.darkBase}
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-1">
+        <div className="grid grid-cols-2 gap-12">
+          <label className="flex flex-col gap-4">
             <span className="text-xs text-muted">Light offset</span>
             <input
               type="number"
@@ -112,7 +112,7 @@ function OklchPickerStandaloneSettingsInner({adapter}: {adapter: WorkbenchAdapte
               className={alphaInputClass}
             />
           </label>
-          <label className="flex flex-col gap-1">
+          <label className="flex flex-col gap-4">
             <span className="text-xs text-muted">Dark offset</span>
             <input
               type="number"

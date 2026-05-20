@@ -20,11 +20,11 @@ function LightnessLadderInner({
 }: Props) {
   if (swatches.length === 0) return null
   return (
-    <div className="col-span-full space-y-2">
+    <div className="col-span-full space-y-8">
       <p className="eyebrow">Lightness ladder</p>
       <div
         className={cn(
-          'flex h-28 w-full overflow-hidden rounded-xl border border-hairline bg-raised',
+          'flex h-112 w-full overflow-hidden rounded-xl border border-hairline bg-raised',
           className,
         )}
       >

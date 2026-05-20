@@ -7,7 +7,7 @@ import {ComparisonLayoutPicker} from '@/components/workbench/ComparisonLayoutPic
 import {InspectionToggle} from '@/components/workbench/InspectionToggle'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
-import { Button } from '../ui/button'
+import {Button} from '../ui/button'
 
 // A1: previewTheme / onPreviewTheme removed — never consumed in this component.
 type Props = {
@@ -49,11 +49,12 @@ function WorkbenchHeaderInner({
 
     const observer = new ResizeObserver(syncHeaderHeight)
     observer.observe(header)
-    window.addEventListener('resize', syncHeaderHeight)
+    const resizeOptions: AddEventListenerOptions = {passive: true}
+    window.addEventListener('resize', syncHeaderHeight, resizeOptions)
 
     return () => {
       observer.disconnect()
-      window.removeEventListener('resize', syncHeaderHeight)
+      window.removeEventListener('resize', syncHeaderHeight, resizeOptions)
       workbench.style.removeProperty('--ns-workbench-header-height')
     }
   }, [])
@@ -64,10 +65,10 @@ function WorkbenchHeaderInner({
       id="nsb-workbench-header"
       className="ns-workbench__header"
     >
-      <div className="flex flex-col gap-3 px-4 py-3 sm:px-6 nsb-lg:flex-row nsb-lg:items-center nsb-lg:justify-between nsb-lg:px-8">
-        <div className="min-w-0">
-          <p className="font-mono text-label text-muted uppercase text-trim-both leading-none">
-            <span className="mx-1.25 inline-block font-bold text-trim-both">
+      <div className="flex flex-col gap-12 px-16 py-12 sm:px-24 nsb-lg:flex-row nsb-lg:items-center nsb-lg:justify-between nsb-lg:px-32">
+        <div className="min-w-0 cursor-default">
+          <p className="font-mono text-label leading-none text-muted uppercase text-trim-both">
+            <span className="mx-5 inline-block font-bold text-trim-both">
               {FRACTION_SLASH}
             </span>
             Workbench
@@ -77,18 +78,33 @@ function WorkbenchHeaderInner({
         {/* A3: each control region is a named component */}
         <div
           id="nsb-workbench-controls"
-          className="flex min-w-0 flex-wrap items-center gap-2 nsb-lg:justify-end"
+          className="flex min-w-0 flex-wrap cursor-pointer items-center gap-8 nsb-lg:justify-end"
         >
-
+          <Button variant="default" size="xs">
+            {comparisonLayout}
+          </Button>
+          <Button variant="default" size="sm">
+            {comparisonLayout}
+          </Button>
+          <Button variant="outline" size="sm">
+            {comparisonLayout}
+          </Button>
+          <Button variant="secondary" size="sm">
+            {comparisonLayout}
+          </Button>
+          <Button variant="destructive" size="sm">
+            {comparisonLayout}
+          </Button>
+          <Button variant="default" size="md">
+            {comparisonLayout}
+          </Button>
           <Button>
-            <span>Comparison Layout</span>
             <span>{comparisonLayout}</span>
           </Button>
           <ComparisonLayoutPicker
             value={comparisonLayout}
             onChange={onComparisonLayoutChange}
           />
-
           <ThemePreviewControls
             contrastEmphasis={contrastEmphasis}
             onContrastEmphasis={onContrastEmphasis}
@@ -96,8 +112,10 @@ function WorkbenchHeaderInner({
             onShowContrastPairs={onShowContrastPairs}
             dense
           />
-
-          <InspectionToggle active={inspectionMode} onToggle={onToggleInspection} />
+          <InspectionToggle
+            active={inspectionMode}
+            onToggle={onToggleInspection}
+          />
         </div>
       </div>
     </header>

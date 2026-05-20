@@ -24,18 +24,18 @@ import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 
 export type {RampPreviewMode}
 
-const rampPreviewScrollClassName = 'mt-2 w-full overflow-x-auto'
+const rampPreviewScrollClassName = 'mt-8 w-full overflow-x-auto'
 const rampPreviewStackClassName = 'flex min-w-0 flex-col'
 const rampRailFlushClassName = 'rounded-b-none'
 const rampLanesFlushClassName =
   '-mt-px rounded-t-none border-t border-t-transparent'
 const rampPreviewFooterClassName =
-  'mt-2 flex items-center justify-between text-[0.65rem]'
+  'mt-8 flex items-center justify-between text-[0.65rem]'
 const rampPreviewCaptionClassName =
   'font-medium tracking-normal text-muted'
 const rampPreviewHintClassName =
   'leading-[1.375] text-disabled'
-const rampPreviewDualClassName = 'flex flex-col gap-3'
+const rampPreviewDualClassName = 'flex flex-col gap-12'
 
 type RampPreviewBlockProps = {
   tone: PreviewChromeTone

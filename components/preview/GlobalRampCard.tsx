@@ -33,7 +33,7 @@ function GlobalRampCardInner({
   'aria-label': ariaLabel,
 }: Props) {
   return (
-    <div className="space-y-2" id={id} role={role} aria-label={ariaLabel}>
+    <div className="space-y-8" id={id} role={role} aria-label={ariaLabel}>
       <GlobalScaleStrip
         global={global}
         tokenView={tokenView}

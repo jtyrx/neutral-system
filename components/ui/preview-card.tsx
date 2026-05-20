@@ -80,7 +80,7 @@ function PreviewCardArrow({
 }
 
 const previewCardContentBase = cn(
-  'z-50 max-w-md rounded-sm border border-hairline bg-default p-4 text-default shadow-md outline-none',
+  'z-50 max-w-md rounded-sm border border-hairline bg-default p-16 text-default shadow-md outline-none',
   'data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95',
   'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95',
   'data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',

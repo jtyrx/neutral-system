@@ -110,7 +110,7 @@ function useDockRegistry() {
 // ─── Class constants ──────────────────────────────────────────────────────────
 
 const dockPanelClassName =
-  'relative z-1 isolate flex items-end justify-center gap-2 rounded-2xl border border-hairline bg-[color-mix(in_oklch,var(--color-surface-overlay)_55%,transparent)] pb-2 shadow-[0_18px_48px_-20px_rgb(0_0_0_/_0.55),0_4px_12px_-6px_rgb(0_0_0_/_0.35)] [contain:layout_style] supports-[backdrop-filter:blur(1px)]:backdrop-blur-[24px] supports-[backdrop-filter:blur(1px)]:backdrop-saturate-125 dark:bg-[color-mix(in_oklch,var(--color-surface-overlay)_48%,transparent)]'
+  'relative z-1 isolate flex items-end justify-center gap-8 rounded-2xl border border-hairline bg-[color-mix(in_oklch,var(--color-surface-overlay)_55%,transparent)] pb-8 shadow-[0_18px_48px_-20px_rgb(0_0_0_/_0.55),0_4px_12px_-6px_rgb(0_0_0_/_0.35)] [contain:layout_style] supports-[backdrop-filter:blur(1px)]:backdrop-blur-[24px] supports-[backdrop-filter:blur(1px)]:backdrop-saturate-125 dark:bg-[color-mix(in_oklch,var(--color-surface-overlay)_48%,transparent)]'
 
 const dockItemClassName =
   'flex origin-bottom items-end justify-center rounded-dock-item motion-safe:will-change-[opacity,transform,clip-path]'

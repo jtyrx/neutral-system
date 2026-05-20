@@ -1,6 +1,7 @@
 'use client'
 
 import {useSyncExternalStore, type ReactNode} from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { BookOpen, Check, Home, Layers, Settings, Sliders } from 'lucide-react'
 
@@ -29,15 +30,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx'
-import {ControlCenter} from '@/components/control-center/ControlCenter'
-import {ControlCenterElevationProvider} from '@/components/control-center/debug/ControlCenterElevationProvider'
 import {ControlCenterDebugGate} from '@/components/control-center/debug/ControlCenterDebugGate'
+import {ControlCenterElevationProvider} from '@/components/control-center/debug/ControlCenterElevationProvider'
 import {NeutralWorkbenchProvider} from '@/components/providers/NeutralWorkbenchProvider'
 import {
   dockElevationDebugEnabled,
   subscribeDockElevationDebug,
   toggleDockElevationDebugOptIn,
 } from '@/lib/debug/dockElevationDebug'
+
+const ControlCenter = dynamic(
+  () =>
+    import('@/components/control-center/ControlCenter').then((m) => ({
+      default: m.ControlCenter,
+    })),
+  {ssr: false, loading: () => null},
+)
 
 type AppLayoutShellProps = {
   children: ReactNode
@@ -58,20 +66,20 @@ export function AppLayoutShell({
           <AppSidebar />
           <SidebarInset
             id="nsb-inset"
-            className="min-h-svh flex-1 flex-col bg-(--color-surface-sunken) text-(--color-text-default)"
+            className="min-h-svh flex-1 flex-col bg-sunken text-(--color-text-default)"
           >
             <header
               id="nsb-chrome-header"
-              className="border-b border-hairline bg-(--color-surface-raised)/80 px-3 py-2 backdrop-blur-sm md:rounded-tr-xl"
+              className="border-b border-hairline bg-(--color-surface-raised)/80 px-12 py-8 backdrop-blur-sm md:rounded-tr-xl"
             >
-              <div className="mx-auto flex h-9 items-center gap-2 sm:px-0">
+              <div className="mx-auto flex h-36 items-center gap-8 sm:px-0">
                 <SidebarTrigger />
                 <p className="eyebrow hidden text-default sm:block">Builder</p>
               </div>
             </header>
             <div
               id="nsb-viewport"
-              className="@container/nsb-workbench min-h-0 min-w-0 flex-1 z-0 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]"
+              className="@container/nsb-workbench min-h-0 min-w-0 flex-1 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]"
             >
               {children}
             </div>
@@ -99,9 +107,9 @@ function SidebarDockElevationDebugMenuItem() {
           toggleDockElevationDebugOptIn()
         }}
       >
-        <span className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="flex size-4 shrink-0 justify-center">
-            {enabled ? <Check className="size-4" aria-hidden /> : null}
+        <span className="flex min-w-0 flex-1 items-center gap-8">
+          <span className="flex size-16 shrink-0 justify-center">
+            {enabled ? <Check className="size-16" aria-hidden /> : null}
           </span>
           <span className="min-w-0">Dock blur tuning</span>
         </span>
@@ -114,11 +122,11 @@ export function AppSidebar() {
   return (
     <Sidebar id="nsb-nav" variant="inset" collapsible="icon" side="left">
       <SidebarHeader>
-        <div className="flex items-center gap-2 py-1">
-          <div className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground text-trim-both">
+        <div className="flex items-center gap-8 py-4">
+          <div className="grid size-32 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground text-trim-both">
             NS
           </div>
-          <div className="min-w-0 flex flex-col gap-1.25 group-data-[collapsible=icon]:hidden">
+          <div className="min-w-0 flex flex-col gap-5 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-label font-mono uppercase text-trim-both">Neutral System</p>
             <p className="truncate text-[0.625rem] leading-tight text-sidebar-foreground/70 text-trim-both">Draft v0.1</p>
           </div>
@@ -171,7 +179,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-2">
+      <SidebarFooter className="p-8">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

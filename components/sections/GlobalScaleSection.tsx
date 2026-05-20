@@ -118,7 +118,7 @@ const stepOptions: number[] = Array.from(
   (_, i) => GLOBAL_SCALE_STEP_MIN + i,
 )
 
-/** Cap visible options (`py-2` + `text-sm` / mono line box ≈ 2.375rem). */
+/** Cap visible options (`py-8` + `text-sm` / mono line box ≈ 2.375rem). */
 const STEPS_SELECT_VISIBLE_ROW_COUNT = 9
 
 function stepsSelectListMaxHeightStyle(): {maxHeight: string} {
@@ -129,11 +129,11 @@ function stepsSelectListMaxHeightStyle(): {maxHeight: string} {
 
 /** Match `Toolbar.Button` icon styling; avoid `PopoverTrigger` + `Toolbar.Button` composition (Base UI prerender #69). */
 const GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS = cn(
-  '-my-px inline-flex size-8 shrink-0 items-center justify-center rounded-select text-subtle outline-none transition',
+  '-my-px inline-flex size-32 shrink-0 items-center justify-center rounded-select text-subtle outline-none transition',
   'hover:bg-sidebar-border hover:text-default',
   'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
   'disabled:pointer-events-none disabled:opacity-45',
-  '[&_svg]:pointer-events-none [&_svg]:size-4',
+  '[&_svg]:pointer-events-none [&_svg]:size-16',
 )
 
 const HUE_OPTIONS: ResponsiveSelectOption[] = Array.from(
@@ -237,7 +237,7 @@ function useCoalescedPatch(patchGlobal: RampPatchFn) {
 
 const lightnessToolbarInputClass = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
-  'mb-0 h-8 max-w-36 min-w-16 flex-1 shrink rounded-input px-2.5 py-1',
+  'mb-0 h-32 max-w-144 min-w-64 flex-1 shrink rounded-input px-10 py-4',
   'font-mono text-xs text-default tabular-nums',
 )
 
@@ -345,7 +345,7 @@ function StepsRampSegment({
           <Plus aria-hidden />
         </Toolbar.Button> */}
       </Toolbar.Group>
-      {/* <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" /> */}
+      {/* <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" /> */}
       <SelectPrimitives.Root
         id={`${idPrefix}-steps-select`}
         value={String(clampedSteps)}
@@ -359,7 +359,7 @@ function StepsRampSegment({
           aria-haspopup="listbox"
           className={cn(
             INPUT_WORKBENCH_FIELD_CLASS,
-            'h-8 min-h-8 min-w-16 flex flex-1 shrink items-center justify-between gap-2 px-2.5 py-0 text-left font-mono text-xs tabular-nums outline-none select-none',
+            'h-32 min-h-32 min-w-64 flex flex-1 shrink items-center justify-between gap-8 px-10 py-0 text-left font-mono text-xs tabular-nums outline-none select-none',
             'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
             'data-placeholder:text-muted-foreground',
           )}
@@ -368,7 +368,7 @@ function StepsRampSegment({
             {(v) => (v != null && String(v) !== '' ? `${v} steps` : '—')}
           </SelectPrimitives.Value>
           <SelectPrimitives.Icon className="pointer-events-none flex shrink-0">
-            <ChevronsUpDown className="size-4 opacity-60" aria-hidden />
+            <ChevronsUpDown className="size-16 opacity-60" aria-hidden />
           </SelectPrimitives.Icon>
         </SelectPrimitives.Trigger>
         <SelectPrimitives.Portal>
@@ -381,14 +381,14 @@ function StepsRampSegment({
           >
             <SelectPrimitives.Popup
               className={cn(
-                'relative isolate z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-x-hidden overflow-y-hidden rounded-select border border-hairline px-1 py-1 text-popover-foreground shadow-md ring-1 ring-ring/35 outline-none',
+                'relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-hidden rounded-select border border-hairline px-4 py-4 text-popover-foreground shadow-md ring-1 ring-ring/35 outline-none',
               )}
             >
               <SelectPrimitives.ScrollUpArrow
-                className="top-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4"
+                className="top-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-4 [&_svg:not([class*='size-'])]:size-16"
                 keepMounted={false}
               >
-                <ChevronUp className="size-4 opacity-70" aria-hidden />
+                <ChevronUp className="size-16 opacity-70" aria-hidden />
               </SelectPrimitives.ScrollUpArrow>
               <SelectPrimitives.List
                 className="min-h-0 overflow-y-auto py-0"
@@ -398,22 +398,22 @@ function StepsRampSegment({
                   <SelectPrimitives.Item
                     key={n}
                     value={String(n)}
-                    className="relative flex cursor-default items-center gap-2 rounded-select py-2 pr-10 pl-2.5 text-sm outline-none select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
+                    className="relative flex cursor-default items-center gap-8 rounded-select py-8 pr-40 pl-10 text-sm outline-none select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
                   >
                     <SelectPrimitives.ItemText className="font-mono">
                       {String(n)}
                     </SelectPrimitives.ItemText>
-                    <SelectPrimitives.ItemIndicator className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-                      <Check className="size-3.5" />
+                    <SelectPrimitives.ItemIndicator className="pointer-events-none absolute inset-y-0 right-8 flex items-center">
+                      <Check className="size-14" />
                     </SelectPrimitives.ItemIndicator>
                   </SelectPrimitives.Item>
                 ))}
               </SelectPrimitives.List>
               <SelectPrimitives.ScrollDownArrow
-                className="bottom-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4"
+                className="bottom-0 left-0 z-10 flex w-full shrink-0 cursor-default items-center justify-center py-4 [&_svg:not([class*='size-'])]:size-16"
                 keepMounted={false}
               >
-                <ChevronDown className="size-4 opacity-70" aria-hidden />
+                <ChevronDown className="size-16 opacity-70" aria-hidden />
               </SelectPrimitives.ScrollDownArrow>
             </SelectPrimitives.Popup>
           </SelectPrimitives.Positioner>
@@ -442,7 +442,7 @@ function LightnessSegment({
         schedule={schedule}
         commitLabel="Lightest L"
       />
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <LightnessAnchorToolbarInput
         id={`${idPrefix}-l-low`}
         ariaLabel="Darkest OKLCH L (0–1)"
@@ -451,7 +451,7 @@ function LightnessSegment({
         schedule={schedule}
         commitLabel="Darkest L"
       />
-      <Toolbar.Separator className="m-0.25 h-4 bg-transparent data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-1 h-16 bg-transparent data-[orientation=vertical]:w-px" />
       <Popover>
         <PopoverTrigger
           type="button"
@@ -461,7 +461,7 @@ function LightnessSegment({
           <Settings2 aria-hidden />
         </PopoverTrigger>
         <PopoverContent
-          className="w-[22rem] gap-4"
+          className="w-[22rem] gap-16"
           align="start"
           sideOffset={8}
         >
@@ -520,22 +520,22 @@ function HueChromaSegment({
     <>
       <ResponsiveSelect
         id={`${idPrefix}-hue`}
-        className="h-8 max-w-[7rem] min-w-[5.75rem] flex-1 shrink py-1 text-xs"
+        className="h-32 max-w-[7rem] min-w-[5.75rem] flex-1 shrink py-4 text-xs"
         disabled={achromatic}
         value={String(hueValue)}
         options={HUE_OPTIONS}
         onValueChange={(v) => schedule('hue', Number(v), 'Hue')}
       />
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <ResponsiveSelect
         id={`${idPrefix}-base-chroma`}
-        className="h-8 max-w-[8rem] min-w-[6rem] flex-1 shrink py-1 font-mono text-xs"
+        className="h-32 max-w-[8rem] min-w-[6rem] flex-1 shrink py-4 font-mono text-xs"
         disabled={achromatic}
         value={baseChromaListed}
         options={BASE_CHROMA_OPTIONS}
         onValueChange={(v) => schedule('baseChroma', Number(v), 'Base chroma')}
       />
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <Popover>
         <PopoverTrigger
           type="button"
@@ -545,14 +545,14 @@ function HueChromaSegment({
           <Settings2 aria-hidden />
         </PopoverTrigger>
         <PopoverContent
-          className="max-h-[70vh] w-[23rem] gap-4 overflow-y-auto"
+          className="max-h-[70vh] w-[23rem] gap-16 overflow-y-auto"
           align="start"
           sideOffset={8}
         >
           <PopoverHeader>
             <PopoverTitle>Hue / chroma</PopoverTitle>
           </PopoverHeader>
-          <div className="space-y-2">
+          <div className="space-y-8">
             <span className="text-xs font-medium text-muted">
               Hue ({hueValue}°)
             </span>
@@ -568,7 +568,7 @@ function HueChromaSegment({
               }
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-8">
             <span className="text-xs font-medium text-muted">
               Base chroma ({baseChromaListed})
             </span>
@@ -590,7 +590,7 @@ function HueChromaSegment({
           </div>
           {!achromatic ? (
             <>
-              <div className="space-y-2">
+              <div className="space-y-8">
                 <span className="text-xs font-medium text-muted">
                   Hue · light end
                 </span>
@@ -605,7 +605,7 @@ function HueChromaSegment({
                   }
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-8">
                 <span className="text-xs font-medium text-muted">
                   Hue · dark end
                 </span>
@@ -620,7 +620,7 @@ function HueChromaSegment({
                   }
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-8">
                 <span className="text-xs font-medium text-muted">
                   Chroma · light end
                 </span>
@@ -639,7 +639,7 @@ function HueChromaSegment({
                   }
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-8">
                 <span className="text-xs font-medium text-muted">
                   Chroma · dark end
                 </span>
@@ -681,30 +681,30 @@ function SystemShapeSegment({
     <>
       <ResponsiveSelect
         id={`${idPrefix}-naming`}
-        className="h-8 max-w-[13rem] min-w-[9rem] flex-1 shrink py-1 text-xs"
+        className="h-32 max-w-[13rem] min-w-[9rem] flex-1 shrink py-4 text-xs"
         value={config.namingStyle}
         options={namingOptions.map((o) => ({value: o.id, label: o.label}))}
         onValueChange={(v) => schedule('namingStyle', v as NamingStyle, 'Naming')}
       />
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <ResponsiveSelect
         id={`${idPrefix}-chroma`}
-        className="h-8 max-w-[13rem] min-w-[8.25rem] flex-1 shrink py-1 text-xs"
+        className="h-32 max-w-[13rem] min-w-[8.25rem] flex-1 shrink py-4 text-xs"
         value={config.chromaMode}
         options={chromaOptions.map((o) => ({value: o.id, label: o.label}))}
         onValueChange={(v) =>
           schedule('chromaMode', v as GlobalScaleConfig['chromaMode'], 'Chroma mode')
         }
       />
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <ResponsiveSelect
         id={`${idPrefix}-l-curve`}
-        className="h-8 max-w-[13rem] min-w-[10rem] flex-1 shrink py-1 text-xs"
+        className="h-32 max-w-[13rem] min-w-160 flex-1 shrink py-4 text-xs"
         value={config.lCurve ?? 'linear'}
         options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
         onValueChange={(v) => schedule('lCurve', v as LCurve, 'L curve')}
       />
-      <Toolbar.Separator className="m-1 h-4 bg-border data-[orientation=vertical]:w-px" />
+      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <Popover>
         <PopoverTrigger
           type="button"
@@ -714,12 +714,12 @@ function SystemShapeSegment({
         >
           <Settings2 aria-hidden />
         </PopoverTrigger>
-        <PopoverContent className="w-80 gap-4" align="start" sideOffset={8}>
+        <PopoverContent className="w-320 gap-16" align="start" sideOffset={8}>
           <PopoverHeader>
             <PopoverTitle>L curve strength</PopoverTitle>
           </PopoverHeader>
           <LightnessSparkline swatches={global} />
-          <div className="space-y-2">
+          <div className="space-y-8">
             <span className="text-xs font-medium text-muted tabular-nums">
               Strength {Math.round((config.lCurveStrength ?? 1) * 100)}%
             </span>
@@ -762,20 +762,21 @@ function GlobalScaleSectionInner({
   const advanced = architecture === 'advanced'
 
   return (
-    <section id="global-scale-section" className="scroll-mt-4 space-y-4">
+    <section id="global-scale-section" className="scroll-mt-16 space-y-16">
       <header>
-        <h2 className="mt-1 text-sm font-semibold text-default">
+        <h2 className="mt-4 text-sm font-semibold text-default">
           Neutral ladder
         </h2>
       </header>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-12">
         <p className="text-xs text-muted">
           Compare chroma modes side-by-side for the current hue / base chroma.
         </p>
+        <Button variant="default" size="md">Demo mode</Button>
         <Button
           variant="outline"
-          // type="button"
+          size="md"
           nativeButton={true}
           onClick={() => setShowComparison((v) => !v)}
           aria-expanded={showComparison}
@@ -797,8 +798,8 @@ function GlobalScaleSectionInner({
         onSelectSwatch={onSelectSwatch}
       />
 
-      <div className="space-y-3">
-        <div className="space-y-1">
+      <div className="space-y-12">
+        <div className="space-y-4">
           <p
             id={GLOBAL_SCALE_TOOLBAR.steps.headingId}
             className="ns-label text-trim-both"
@@ -813,17 +814,17 @@ function GlobalScaleSectionInner({
           >
             {advanced ? (
               <>
-                <span className="mx-0.5 self-center px-1 py-1 text-[0.625rem] font-semibold tracking-wide text-disabled uppercase dark:text-amber-300">
-                  <Sun className="size-3.5" aria-hidden={true} />
+                <span className="mx-2 self-center px-4 py-4 text-[0.625rem] font-semibold tracking-wide text-disabled uppercase dark:text-amber-300">
+                  <Sun className="size-14" aria-hidden={true} />
                 </span>
                 <StepsRampSegment
                   idPrefix="global-scale-steps-light"
                   config={lightRampConfig}
                   schedule={scheduleLightRamp}
                 />
-                <Toolbar.Separator className="m-1 h-5 min-h-7 shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" />
-                <span className="mx-0.5 self-center px-1 py-1 text-[0.625rem] font-semibold tracking-wide text-disabled uppercase dark:text-sky-300">
-                  <Moon className="size-3.5" aria-hidden={true} />
+                <Toolbar.Separator className="m-4 h-20 min-h-28 shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" />
+                <span className="mx-2 self-center px-4 py-4 text-[0.625rem] font-semibold tracking-wide text-disabled uppercase dark:text-sky-300">
+                  <Moon className="size-14" aria-hidden={true} />
                 </span>
                 <StepsRampSegment
                   idPrefix="global-scale-steps-dark"
@@ -841,7 +842,7 @@ function GlobalScaleSectionInner({
           </Toolbar.Root>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-4">
           <p
             id={GLOBAL_SCALE_TOOLBAR.lightness.headingId}
             className="ns-label text-trim-both"
@@ -867,11 +868,11 @@ function GlobalScaleSectionInner({
                   <div className="flex">
                     <span
                       className={cn(
-                        'mx-0.5 self-center px-1 font-semibold tracking-wide text-disabled uppercase',
+                        'mx-2 self-center px-4 font-semibold tracking-wide text-disabled uppercase',
                         advanced && 'text-muted',
                       )}
                     >
-                      <Sun className="size-3.5" aria-hidden={true} />
+                      <Sun className="size-14" aria-hidden={true} />
                     </span>
                     <LightnessSegment
                       idPrefix="global-scale-light-l"
@@ -879,15 +880,15 @@ function GlobalScaleSectionInner({
                       schedule={scheduleLightRamp}
                     />
                   </div>
-                  {/* <Toolbar.Separator className="m-1 h-5 min-h-[1.75rem] shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" /> */}
+                  {/* <Toolbar.Separator className="m-4 h-20 min-h-28 shrink-0 self-stretch bg-border data-[orientation=vertical]:w-px" /> */}
                   <div className="flex">
                     <span
                       className={cn(
-                        'mx-0.5 self-center px-1 font-semibold tracking-wide text-disabled uppercase',
+                        'mx-2 self-center px-4 font-semibold tracking-wide text-disabled uppercase',
                         advanced && 'text-muted',
                       )}
                     >
-                      <Moon className="size-3.5" aria-hidden={true} />
+                      <Moon className="size-14" aria-hidden={true} />
                     </span>
                     <LightnessSegment
                       idPrefix="global-scale-dark-l"
@@ -908,7 +909,7 @@ function GlobalScaleSectionInner({
         </div>
 
         {/* Hue & base chroma */}
-        <div className="space-y-1">
+        <div className="space-y-4">
           <p
             id={GLOBAL_SCALE_TOOLBAR.hueChroma.headingId}
             className="ns-label text-trim-both"
@@ -932,8 +933,8 @@ function GlobalScaleSectionInner({
               {advanced ? (
                 <>
                   <div className="flex">
-                    <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
-                      <Sun className="size-3.5" aria-hidden={true} />
+                    <span className="mx-2 self-center px-4 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
+                      <Sun className="size-14" aria-hidden={true} />
                     </span>
                     <HueChromaSegment
                       idPrefix="global-scale-light-hue"
@@ -942,8 +943,8 @@ function GlobalScaleSectionInner({
                     />
                   </div>
                   <div className="flex">
-                    <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
-                      <Moon className="size-3.5" aria-hidden={true} />
+                    <span className="mx-2 self-center px-4 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
+                      <Moon className="size-14" aria-hidden={true} />
                     </span>
                     <HueChromaSegment
                       idPrefix="global-scale-dark-hue"
@@ -963,7 +964,7 @@ function GlobalScaleSectionInner({
           </div>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-4">
           <p
             id={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
             className="ns-label text-trim-both"
@@ -978,9 +979,9 @@ function GlobalScaleSectionInner({
                 className="grid w-full gap-px grid-cols-1 @min-[28rem]:grid-cols-2"
                 aria-labelledby={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
               >
-                <div className="flex flex-wrap items-center gap-1 gap-y-px">
-                  <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
-                    <Sun className="size-3.5" aria-hidden={true} />
+                <div className="flex flex-wrap items-center gap-4 gap-y-px">
+                  <span className="mx-2 self-center px-4 text-[0.625rem] font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
+                    <Sun className="size-14" aria-hidden={true} />
                   </span>
                   <SystemShapeSegment
                     idPrefix="global-scale-light-shape"
@@ -989,9 +990,9 @@ function GlobalScaleSectionInner({
                     global={global}
                   />
                 </div>
-                <div className="flex flex-wrap items-center gap-1 gap-y-px">
-                  <span className="mx-0.5 self-center px-1 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
-                    <Moon className="size-3.5" aria-hidden={true} />
+                <div className="flex flex-wrap items-center gap-4 gap-y-px">
+                  <span className="mx-2 self-center px-4 text-[0.625rem] font-semibold tracking-wide text-sky-800 uppercase dark:text-sky-300">
+                    <Moon className="size-14" aria-hidden={true} />
                   </span>
                   <SystemShapeSegment
                     idPrefix="global-scale-dark-shape"
@@ -1006,7 +1007,7 @@ function GlobalScaleSectionInner({
             <Toolbar.Root
               id={GLOBAL_SCALE_TOOLBAR.systemShape.id}
               data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.systemShape.slug}
-              className="w-full flex-wrap items-center gap-1 gap-y-px"
+              className="w-full flex-wrap items-center gap-4 gap-y-px"
               aria-labelledby={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
             >
               <SystemShapeSegment

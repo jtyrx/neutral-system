@@ -58,7 +58,7 @@ function OkhslSectionBlockInner({adapter, id, className}: OkhslSectionBlockProps
         </div>
       </div>
       {adapter.okhslEnabled ? (
-        <div className="mt-4">
+        <div className="mt-16">
           <OkhslSection
             view={adapter.okhslView}
             resolvedConfig={{

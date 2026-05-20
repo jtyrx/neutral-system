@@ -65,12 +65,12 @@ function OklchPickerMainBlocksInner({adapter, layout}: Props) {
 
       <div
         className={cn(
-          'grid gap-6',
-          isPage ? 'gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]' : 'grid-cols-1',
+          'grid gap-24',
+          isPage ? 'gap-32 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]' : 'grid-cols-1',
         )}
       >
-        <div className="space-y-5">
-          <section className="space-y-2">
+        <div className="space-y-20">
+          <section className="space-y-8">
             {controlsHeading}
             <OklchControls
               picker={adapter.picker}
@@ -84,7 +84,7 @@ function OklchPickerMainBlocksInner({adapter, layout}: Props) {
           />
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-20">
           <OklchPreviewSwatch
             color={adapter.pickerColor}
             maxChromaInGamut={adapter.maxChromaForPickerLH}

@@ -106,7 +106,7 @@ function OklchGamutSliceInner({
     loop.map((p) => `${p.x * width},${(1 - p.y) * height}`).join(' ')
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-4">
       <p className="ns-label text-caption text-muted">
         L×C @ H={Math.round(Hdeg)}° · multi-gamut slice (clipped sRGB hex)
       </p>

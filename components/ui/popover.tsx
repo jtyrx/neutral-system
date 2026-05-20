@@ -12,18 +12,18 @@ import {
 } from './floating-popup-styles'
 
 const popoverContentBase = cn(
-  'z-50 flex origin-(--transform-origin) flex-col gap-2.5 p-2.5',
+  'z-50 flex origin-(--transform-origin) flex-col gap-10 p-10',
   'text-sm outline-hidden',
 )
 
 const popoverSizeClass: Record<'sm' | 'default' | 'lg' | 'auto', string> = {
-  sm: 'w-60',
-  default: 'w-72',
-  lg: 'w-96',
+  sm: 'w-240',
+  default: 'w-288',
+  lg: 'w-384',
   auto: '',
 }
 
-const popoverHeaderBase = 'flex flex-col gap-0.5'
+const popoverHeaderBase = 'flex flex-col gap-2'
 const popoverTitleBase = 'font-normal'
 const popoverDescriptionBase = 'text-muted-foreground'
 

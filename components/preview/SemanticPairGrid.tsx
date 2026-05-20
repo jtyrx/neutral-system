@@ -68,7 +68,7 @@ function SwatchOrSamePrimitive({
   if (show) {
     return (
       <span
-        className="h-12 w-12 shrink-0 rounded-lg border border-hairline-strong shadow-inner"
+        className="h-48 w-48 shrink-0 rounded-lg border border-hairline-strong shadow-inner"
         style={{backgroundColor: hex}}
         title={label}
       />
@@ -76,7 +76,7 @@ function SwatchOrSamePrimitive({
   }
   return (
     <span
-      className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-overlay-soft text-[0.7rem] text-disabled"
+      className="inline-flex h-48 w-48 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-overlay-soft text-[0.7rem] text-disabled"
       title={`Same primitive as above · ${title}`}
       aria-label="Same color swatch as earlier row"
     >
@@ -110,9 +110,9 @@ const PairRow = memo(function PairRow({
       : 'border-hairline bg-raised'
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+    <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-16">
       <div
-        className={`flex gap-3 rounded-lg border p-3 transition-opacity ${lightCard} ${lightMuted ? 'opacity-50' : ''}`}
+        className={`flex gap-12 rounded-lg border p-12 transition-opacity ${lightCard} ${lightMuted ? 'opacity-50' : ''}`}
       >
         <SwatchOrSamePrimitive
           show={showLightSwatch}
@@ -122,12 +122,12 @@ const PairRow = memo(function PairRow({
         />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-default">{humanizeRole(lt.role)}</p>
-          <p className="mt-0.5 font-mono text-micro text-muted">{lt.name}</p>
-          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {lt.sourceGlobalIndex}</p>
+          <p className="mt-2 font-mono text-micro text-muted">{lt.name}</p>
+          <p className="mt-4 font-mono text-[0.6rem] tabular-nums text-disabled">idx {lt.sourceGlobalIndex}</p>
         </div>
       </div>
       <div
-        className={`flex gap-3 rounded-lg border p-3 transition-opacity ${darkCard} ${darkMuted ? 'opacity-50' : ''}`}
+        className={`flex gap-12 rounded-lg border p-12 transition-opacity ${darkCard} ${darkMuted ? 'opacity-50' : ''}`}
       >
         <SwatchOrSamePrimitive
           show={showDarkSwatch}
@@ -137,8 +137,8 @@ const PairRow = memo(function PairRow({
         />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-default">{humanizeRole(dt.role)}</p>
-          <p className="mt-0.5 font-mono text-micro text-muted">{dt.name}</p>
-          <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {dt.sourceGlobalIndex}</p>
+          <p className="mt-2 font-mono text-micro text-muted">{dt.name}</p>
+          <p className="mt-4 font-mono text-[0.6rem] tabular-nums text-disabled">idx {dt.sourceGlobalIndex}</p>
         </div>
       </div>
     </div>
@@ -171,7 +171,7 @@ function SemanticPairGridInner({
   pairEmphasis = 'both',
 }: Props) {
   return (
-    <div className="space-y-10">
+    <div className="space-y-40">
       {pairSections.map((section) => {
         const light = tokensForPairSection(lightTokenView, section)
         const dark = tokensForPairSection(darkTokenView, section)
@@ -193,9 +193,9 @@ function SemanticPairGridInner({
         return (
           <div
             key={section.kind === 'inverse' ? 'inverse' : section.layer}
-            className={`space-y-3 pb-10 last:pb-0 ${
+            className={`space-y-12 pb-40 last:pb-0 ${
               isInverse
-                ? 'rounded-xl border border-violet-400/15 bg-violet-500/4 p-4'
+                ? 'rounded-xl border border-violet-400/15 bg-violet-500/4 p-16'
                 : 'border-b border-hairline'
             }`}
           >
@@ -203,10 +203,10 @@ function SemanticPairGridInner({
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-micro text-disabled">{hint}</p> : null}
+              {hint ? <p className="mt-4 text-micro text-disabled">{hint}</p> : null}
             </div>
-            <div className="space-y-3">
-              <div className="mb-1 hidden gap-4 sm:grid sm:grid-cols-2">
+            <div className="space-y-12">
+              <div className="mb-4 hidden gap-16 sm:grid sm:grid-cols-2">
                 <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">Light</p>
                 <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                   Dark elevated
@@ -253,16 +253,16 @@ const SingleTokenRow = memo(function SingleTokenRow({
 }) {
   const sw = global[t.sourceGlobalIndex]
   return (
-    <div className={`flex gap-3 rounded-lg border p-3 ${singleAccentClass(accent)}`}>
+    <div className={`flex gap-12 rounded-lg border p-12 ${singleAccentClass(accent)}`}>
       {showSwatch ? (
         <span
-          className="h-12 w-12 shrink-0 rounded-lg border border-hairline-strong shadow-inner"
+          className="h-48 w-48 shrink-0 rounded-lg border border-hairline-strong shadow-inner"
           style={{backgroundColor: t.serialized.hex}}
           title={sw?.label}
         />
       ) : (
         <span
-          className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-overlay-soft text-[0.7rem] text-disabled"
+          className="inline-flex h-48 w-48 shrink-0 items-center justify-center rounded-lg border border-dashed border-hairline-strong bg-overlay-soft text-[0.7rem] text-disabled"
           title={`Same primitive as above · idx ${t.sourceGlobalIndex}`}
           aria-label="Same color swatch as earlier row"
         >
@@ -271,8 +271,8 @@ const SingleTokenRow = memo(function SingleTokenRow({
       )}
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-default">{humanizeRole(t.role)}</p>
-        <p className="mt-0.5 font-mono text-micro text-muted">{t.name}</p>
-        <p className="mt-1 font-mono text-[0.6rem] tabular-nums text-disabled">idx {t.sourceGlobalIndex}</p>
+        <p className="mt-2 font-mono text-micro text-muted">{t.name}</p>
+        <p className="mt-4 font-mono text-[0.6rem] tabular-nums text-disabled">idx {t.sourceGlobalIndex}</p>
       </div>
     </div>
   )
@@ -297,7 +297,7 @@ function SemanticSingleThemeGridInner({
 }: SingleProps) {
   const accent = themeChrome === 'light' ? 'amber' : themeChrome === 'dark' ? 'sky' : undefined
   return (
-    <div className="space-y-10">
+    <div className="space-y-40">
       {pairSections.map((section) => {
         const toks = tokensForPairSection(tokenView, section)
         if (toks.length === 0) return null
@@ -312,9 +312,9 @@ function SemanticSingleThemeGridInner({
         return (
           <div
             key={section.kind === 'inverse' ? 'inverse' : section.layer}
-            className={`space-y-3 pb-10 last:pb-0 ${
+            className={`space-y-12 pb-40 last:pb-0 ${
               isInverse
-                ? 'rounded-xl border border-violet-400/15 bg-violet-500/4 p-4'
+                ? 'rounded-xl border border-violet-400/15 bg-violet-500/4 p-16'
                 : 'border-b border-hairline'
             }`}
           >
@@ -322,9 +322,9 @@ function SemanticSingleThemeGridInner({
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {friendlySemanticCategoryLabel(titleKey)}
               </h3>
-              {hint ? <p className="mt-1 text-micro text-disabled">{hint}</p> : null}
+              {hint ? <p className="mt-4 text-micro text-disabled">{hint}</p> : null}
             </div>
-            <div className="space-y-3">
+            <div className="space-y-12">
               {toks.map((t, rowIndex) => (
                 <SingleTokenRow
                   key={t.id}

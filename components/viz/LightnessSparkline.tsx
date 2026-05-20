@@ -33,9 +33,9 @@ function LightnessSparklineInner({swatches}: Props) {
     .join(' ')
 
   return (
-    <div className="rounded-xl border border-hairline bg-raised p-3">
+    <div className="rounded-xl border border-hairline bg-raised p-12">
       <p className="eyebrow">Lightness curve</p>
-      <svg width={w} height={h} className="mt-2 text-subtle" aria-hidden>
+      <svg width={w} height={h} className="mt-8 text-subtle" aria-hidden>
         <polyline
           fill="none"
           stroke="currentColor"
@@ -43,7 +43,7 @@ function LightnessSparklineInner({swatches}: Props) {
           points={pts}
         />
       </svg>
-      <p className="mt-1 text-micro text-disabled">
+      <p className="mt-4 text-micro text-disabled">
         OKLCH L% across the global scale (linear ramp = near-straight line).
       </p>
     </div>

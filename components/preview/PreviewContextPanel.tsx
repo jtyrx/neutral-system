@@ -63,19 +63,19 @@ export function PreviewContextPanel({
       aria-label="Preview context — Light versus Dark Elevated comparison"
     >
       <div>
-        <header className="border-b border-hairline px-4 py-4 sm:px-6">
-          <div className="flex flex-col gap-4 nsb-lg:flex-row nsb-lg:items-start nsb-lg:justify-between">
+        <header className="border-b border-hairline px-16 py-16 sm:px-24">
+          <div className="flex flex-col gap-16 nsb-lg:flex-row nsb-lg:items-start nsb-lg:justify-between">
             <div className="min-w-0 flex-1">
               <p className="eyebrow">Compare themes</p>
-              <h2 className="mt-0.5 text-base font-semibold tracking-tight text-default sm:text-lg">
+              <h2 className="mt-2 text-base font-semibold tracking-tight text-default sm:text-lg">
                 Light vs Dark elevated
               </h2>
-              <p className="mt-1 max-w-2xl text-xs text-muted">
+              <p className="mt-4 max-w-2xl text-xs text-muted">
                 Ramps and paired roles use the same mapping as exports. Split = both themes; Focus =
                 one at a time. Contrast emphasis changes ladder spacing (see below).
               </p>
-              <div className="mt-4 max-w-full" id="offset-mapping-diagrams">
-                <div className="grid gap-4 nsb-lg:grid-cols-1">
+              <div className="mt-16 max-w-full" id="offset-mapping-diagrams">
+                <div className="grid gap-16 nsb-lg:grid-cols-1">
                   <OffsetMapDiagram
                     steps={ladderLightSteps}
                     themeLabel="Light"
@@ -100,7 +100,7 @@ export function PreviewContextPanel({
           </div>
         </header>
 
-        <div className="px-4 py-5 sm:px-6 sm:py-6">
+        <div className="px-16 py-20 sm:px-24 sm:py-24">
           <PreviewComparison
             layout={comparisonLayout}
             focusTheme={previewTheme}

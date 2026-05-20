@@ -32,7 +32,7 @@ function GamutBadgeInner({tier, className}: Props) {
       <TooltipTrigger
         type="button"
         className={cn(
-          'inline-flex items-center rounded-full border border-hairline bg-raised px-2.5 py-0.5 text-caption font-medium text-default tabular-nums',
+          'inline-flex items-center rounded-full border border-hairline bg-raised px-10 py-2 text-caption font-medium text-default tabular-nums',
           className,
         )}
       >

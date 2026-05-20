@@ -60,7 +60,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
   const f = (i: number) => hexAt(surfaceTokens, i, canvasFallback)
   const t = (i: number) => hexAt(textTokens, i, previewTheme === 'light' ? '#18181b' : '#fafafa')
 
-  const pad = densePadding ? 'p-4 sm:p-5' : 'p-5 sm:p-8'
+  const pad = densePadding ? 'p-16 sm:p-20' : 'p-20 sm:p-32'
 
   return (
     <div
@@ -76,7 +76,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
         </p>
 
         <div
-          className="mt-4 rounded-2xl border shadow-sm"
+          className="mt-16 rounded-2xl border shadow-sm"
           style={{
             backgroundColor: f(1),
             borderColor: stroke0,
@@ -86,25 +86,25 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
                 : '0 1px 0 rgba(255,255,255,0.04), 0 12px 40px rgba(0,0,0,0.45)',
           }}
         >
-          <div className="border-b px-5 py-3 sm:px-6" style={{borderColor: stroke0}}>
+          <div className="border-b px-20 py-12 sm:px-24" style={{borderColor: stroke0}}>
             <p className="text-[0.6rem] font-medium uppercase tracking-wide opacity-70" style={{color: t(3)}}>
               {SURFACE_LAYER_LABELS[1]}
             </p>
-            <h3 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl" style={{color: t(0)}}>
+            <h3 className="mt-4 text-xl font-semibold tracking-tight sm:text-2xl" style={{color: t(0)}}>
               {TEXT_SAMPLE_LABELS[0]}
             </h3>
-            <p className="mt-2 max-w-prose text-sm leading-relaxed" style={{color: t(1)}}>
+            <p className="mt-8 max-w-prose text-sm leading-relaxed" style={{color: t(1)}}>
               Body copy sits on the default surface using the primary text token. This block checks
               readability between fill and text ladders.
             </p>
-            <p className="mt-2 text-sm" style={{color: t(2)}}>
+            <p className="mt-8 text-sm" style={{color: t(2)}}>
               Secondary copy for subheads, metadata, and de-emphasized labels.
             </p>
           </div>
 
           <div className="grid gap-0 sm:grid-cols-[minmax(0,7.5rem)_1fr]">
             <aside
-              className="border-b p-4 sm:border-b-0 sm:border-r rounded-bl-[0.875rem]"
+              className="border-b p-16 sm:border-b-0 sm:border-r rounded-bl-[0.875rem]"
               style={{
                 backgroundColor: f(3),
                 borderColor: stroke0,
@@ -113,29 +113,29 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
               <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(3)}}>
                 {SURFACE_LAYER_LABELS[3]}
               </p>
-              <p className="mt-3 text-xs leading-snug" style={{color: t(2)}}>
+              <p className="mt-12 text-xs leading-snug" style={{color: t(2)}}>
                 Sidebar on muted fill
               </p>
-              <p className="mt-2 text-micro leading-snug" style={{color: t(4)}}>
+              <p className="mt-8 text-micro leading-snug" style={{color: t(4)}}>
                 Quiet rail
               </p>
             </aside>
 
-            <div className="space-y-4 p-5 sm:p-6">
+            <div className="space-y-16 p-20 sm:p-24">
               <div
-                className="rounded-xl border p-4"
+                className="rounded-xl border p-16"
                 style={{backgroundColor: f(2), borderColor: stroke0}}
               >
                 <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(3)}}>
                   {SURFACE_LAYER_LABELS[2]}
                 </p>
-                <p className="mt-2 text-sm" style={{color: t(2)}}>
+                <p className="mt-8 text-sm" style={{color: t(2)}}>
                   Nested content band — one step softer than the shell.
                 </p>
               </div>
 
               <div
-                className="rounded-xl border p-5"
+                className="rounded-xl border p-20"
                 style={{
                   backgroundColor: f(4),
                   borderColor: stroke1,
@@ -148,22 +148,22 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
                 <p className="text-sm font-semibold" style={{color: t(0)}}>
                   {SURFACE_LAYER_LABELS[4]}
                 </p>
-                <p className="mt-1 text-xs leading-relaxed" style={{color: t(2)}}>
+                <p className="mt-4 text-xs leading-relaxed" style={{color: t(2)}}>
                   Cards and floating panels pick up the raised fill while type hierarchy stays on the
                   text ramp.
                 </p>
               </div>
 
               <div
-                className="rounded-xl border px-4 py-3"
+                className="rounded-xl border px-16 py-12"
                 style={{backgroundColor: f(5), borderColor: stroke2}}
               >
-                <div className="flex flex-wrap items-end justify-between gap-3">
+                <div className="flex flex-wrap items-end justify-between gap-12">
                   <div>
                     <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(2)}}>
                       {SURFACE_LAYER_LABELS[5]}
                     </p>
-                    <p className="mt-1 text-xs" style={{color: t(3)}}>
+                    <p className="mt-4 text-xs" style={{color: t(3)}}>
                       Sticky actions, sheets, and high-elevation chrome.
                     </p>
                   </div>
@@ -174,16 +174,16 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
               </div>
 
               <div
-                className="rounded-lg border border-dashed px-3 py-2"
+                className="rounded-lg border border-dashed px-12 py-8"
                 style={{borderColor: stroke0}}
               >
                 <p className="text-[0.6rem] font-medium uppercase tracking-wide" style={{color: t(3)}}>
                   Text ramp
                 </p>
-                <div className="mt-2 space-y-1.5">
+                <div className="mt-8 space-y-6">
                   {TEXT_SAMPLE_LABELS.map((label, i) => (
                     <p key={label} className="text-sm leading-snug" style={{color: t(i)}}>
-                      <span className="mr-1.5 inline-block w-4 font-mono text-[0.6rem] tabular-nums opacity-55" style={{color: t(3)}}>
+                      <span className="mr-6 inline-block w-16 font-mono text-[0.6rem] tabular-nums opacity-55" style={{color: t(3)}}>
                         {i}
                       </span>
                       {label}
@@ -202,7 +202,7 @@ const SurfacesHierarchyMock = memo(function SurfacesHierarchyMock({
 function PreviewSectionInner({previewTheme, global, tokenView, hero = false}: Props) {
   if (hero) {
     return (
-      <section className="space-y-5">
+      <section className="space-y-20">
         <SurfacesHierarchyMock
           previewTheme={previewTheme}
           global={global}
@@ -214,11 +214,11 @@ function PreviewSectionInner({previewTheme, global, tokenView, hero = false}: Pr
   }
 
   return (
-    <section className="scroll-mt-6 space-y-6">
+    <section className="scroll-mt-24 space-y-24">
       <header>
         <p className="eyebrow">6 · UI preview</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Surfaces in context</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
+        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Surfaces in context</h2>
+        <p className="mt-8 max-w-2xl text-sm text-muted">
           Surface and text tokens from the active theme, layered as a compact validation surface.
         </p>
       </header>

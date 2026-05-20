@@ -17,26 +17,26 @@ import {
   GLOBAL_SCALE_STEP_MIN,
 } from '@/lib/neutral-engine/globalScale'
 
-const panelInsetClassName = 'px-1 pb-1'
+const panelInsetClassName = 'px-4 pb-4'
 const cardClassName =
-  'rounded-xl border border-[color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] bg-[color-mix(in_oklch,var(--muted)_20%,transparent)] px-4 py-3 shadow-sm'
+  'rounded-xl border border-[color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] bg-[color-mix(in_oklch,var(--muted)_20%,transparent)] px-16 py-12 shadow-sm'
 const cardTitleClassName =
   'text-[0.8125rem] leading-[1.3] tracking-normal text-foreground'
 const stepsRowClassName =
-  'flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6'
+  'flex min-w-0 flex-col gap-16 sm:flex-row sm:items-center sm:justify-between sm:gap-24'
 const stepsDescClassName =
-  'mt-1 max-w-md text-[0.7rem] leading-[1.375] text-muted-foreground'
+  'mt-4 max-w-md text-[0.7rem] leading-[1.375] text-muted-foreground'
 const stepsValueClassName =
-  'flex shrink-0 items-center justify-end gap-2 self-end sm:self-center'
+  'flex shrink-0 items-center justify-end gap-8 self-end sm:self-center'
 const stepsLabelClassName =
   'text-xs leading-4 text-muted-foreground tabular-nums'
 const stepsValueClusterClassName =
-  'flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:max-w-none sm:items-end'
+  'flex w-full min-w-0 flex-col gap-8 sm:w-auto sm:max-w-none sm:items-end'
 const stepsValueRowClassName =
   'flex w-full min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-2 sm:w-auto sm:flex-nowrap'
-const stepsValuePairClassName = 'flex items-center gap-2'
+const stepsValuePairClassName = 'flex items-center gap-8'
 const stepsDividerClassName =
-  'hidden h-8 w-px shrink-0 bg-[color-mix(in_oklch,var(--border)_90%,transparent)] sm:block'
+  'hidden h-32 w-px shrink-0 bg-[color-mix(in_oklch,var(--border)_90%,transparent)] sm:block'
 
 const stepOptions: number[] = Array.from(
   {length: GLOBAL_SCALE_STEP_MAX - GLOBAL_SCALE_STEP_MIN + 1},

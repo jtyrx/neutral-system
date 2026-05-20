@@ -51,7 +51,7 @@ function NumField({
   onChange: (n: number) => void
 }) {
   return (
-    <label className="space-y-1">
+    <label className="space-y-4">
       <span className="ns-label">{label}</span>
       {hint ? <span className="block text-micro leading-snug text-disabled">{hint}</span> : null}
       <Input
@@ -70,9 +70,9 @@ function NumField({
 
 function ResolvedIndices({ label, indices }: { label: string; indices: number[] }) {
   return (
-    <div className="rounded-lg border border-hairline bg-raised px-3 py-2">
+    <div className="rounded-lg border border-hairline bg-raised px-12 py-8">
       <p className="text-[0.6rem] font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 font-mono text-[0.7rem] leading-relaxed text-default">{indices.join(', ') || '—'}</p>
+      <p className="mt-4 font-mono text-[0.7rem] leading-relaxed text-default">{indices.join(', ') || '—'}</p>
     </div>
   )
 }
@@ -101,11 +101,11 @@ function SystemMappingSectionInner({
   )
 
   return (
-    <section id="system" className="scroll-mt-6 space-y-8">
+    <section id="system" className="scroll-mt-24 space-y-32">
       <header>
         <p className="eyebrow">2 · System mapping</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight text-default">Surface, border & text</h2>
-        <p className="mt-2 max-w-2xl text-sm text-default/55">
+        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Surface, border & text</h2>
+        <p className="mt-8 max-w-2xl text-sm text-default/55">
           Light and Dark elevated each have their own ladder starts and shade counts on the shared
           global ramp. Resolved indices and offset maps use the same math as previews and exports,
           including the preview toolbar’s{' '}
@@ -114,14 +114,14 @@ function SystemMappingSectionInner({
         </p>
       </header>
 
-      <div className="rounded-sm border border-hairline bg-(--chrome-overlay-soft) px-4 py-3 sm:px-5 sm:py-4">
+      <div className="rounded-sm border border-hairline bg-(--chrome-overlay-soft) px-16 py-12 sm:px-20 sm:py-16">
         <h3 className="text-sm font-semibold text-default">Shared mapping</h3>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-4 text-xs text-muted">
           Contrast distance applies to both themes (scaled by emphasis in the preview toolbar). Step
           interval is set per theme and role in each ladder group below. Alt overlays and dark segment
           length are global.
         </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 nsb-lg:grid-cols-4">
+        <div className="mt-16 grid gap-16 sm:grid-cols-2 nsb-lg:grid-cols-4">
           <NumField
             label="Contrast distance"
             hint="Widens spacing (both themes)"
@@ -155,12 +155,12 @@ function SystemMappingSectionInner({
             value={config.darkSegmentLength}
             onChange={(v) => patchSystem('darkSegmentLength', v)}
           />
-          <label className="flex items-center gap-2 pt-6 sm:col-span-2 nsb-lg:col-span-4">
+          <label className="flex items-center gap-8 pt-24 sm:col-span-2 nsb-lg:col-span-4">
             <input
               type="checkbox"
               checked={config.includeContrastGroups}
               onChange={(e) => patchSystem('includeContrastGroups', e.target.checked)}
-              className="size-4 rounded border-hairline-strong"
+              className="size-16 rounded border-hairline-strong"
             />
             <span className="text-sm text-subtle">Include contrast groups (experimental)</span>
           </label>
@@ -169,24 +169,24 @@ function SystemMappingSectionInner({
 
       <div
         id="light-theme-role-ladders"
-        className="grid gap-4 nsb-lg:grid-cols-2 nsb-lg:gap-6"
+        className="grid gap-16 nsb-lg:grid-cols-2 nsb-lg:gap-24"
       >
-        <div className="rounded-2xl border border-(--chrome-amber-border) bg-(--chrome-amber-surface) p-4 sm:p-5 flex flex-col justify-between">
-          <div className="border-b border-(--chrome-amber-border-soft) pb-3">
+        <div className="rounded-2xl border border-(--chrome-amber-border) bg-(--chrome-amber-surface) p-16 sm:p-20 flex flex-col justify-between">
+          <div className="border-b border-(--chrome-amber-border-soft) pb-12">
             <p className="eyebrow text-(--chrome-amber-text)">Light theme</p>
-            <h3 className="mt-1 text-base font-semibold text-default">Role ladders</h3>
-            <p className="mt-1 text-xs text-muted">
+            <h3 className="mt-4 text-base font-semibold text-default">Role ladders</h3>
+            <p className="mt-4 text-xs text-muted">
               Picks step along the global ramp from the light end (low index = lightest).
             </p>
           </div>
 
-          <div className="mt-4 space-y-6">
-            <div className="space-y-3">
+          <div className="mt-16 space-y-24">
+            <div className="space-y-12">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Surface</h4>
-                <p className="mt-0.5 text-micro text-muted">Surface / background ramp</p>
+                <p className="mt-2 text-micro text-muted">Surface / background ramp</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-1">
+              <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Surface · × contrast distance"
@@ -215,12 +215,12 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={lightIdx.surface} />
             </div>
 
-            <div className="space-y-3 border-t border-(--chrome-amber-border-faint) pt-5">
+            <div className="space-y-12 border-t border-(--chrome-amber-border-faint) pt-20">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Border</h4>
-                <p className="mt-0.5 text-micro text-muted">Borders & dividers</p>
+                <p className="mt-2 text-micro text-muted">Borders & dividers</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-1">
+              <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Border · × contrast distance"
@@ -248,12 +248,12 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={lightIdx.border} />
             </div>
 
-            <div className="space-y-3 border-t border-(--chrome-amber-border-faint) pt-5">
+            <div className="space-y-12 border-t border-(--chrome-amber-border-faint) pt-20">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-amber-text)">Text</h4>
-                <p className="mt-0.5 text-micro text-muted">Foreground & secondary type</p>
+                <p className="mt-2 text-micro text-muted">Foreground & secondary type</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-1">
+              <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Text · × contrast distance"
@@ -286,24 +286,24 @@ function SystemMappingSectionInner({
 
         <div
           id="dark-theme-role-ladders"
-          className="rounded-2xl border border-(--chrome-sky-border) bg-(--chrome-sky-surface) p-4 sm:p-5 flex flex-col justify-between"
+          className="rounded-2xl border border-(--chrome-sky-border) bg-(--chrome-sky-surface) p-16 sm:p-20 flex flex-col justify-between"
         >
-          <div className="border-b border-(--chrome-sky-border-soft) pb-3">
+          <div className="border-b border-(--chrome-sky-border-soft) pb-12">
             <p className="eyebrow text-(--chrome-sky-text)">Dark elevated</p>
-            <h3 className="mt-1 text-base font-semibold text-default">Role ladders</h3>
-            <p className="mt-1 text-xs text-muted">
+            <h3 className="mt-4 text-base font-semibold text-default">Role ladders</h3>
+            <p className="mt-4 text-xs text-muted">
               Independent controls; surfaces anchor from the dark edge of the shared ramp, while
               border and text keep their own dark-theme start inputs and resolved global indices.
             </p>
           </div>
 
-          <div className="mt-4 space-y-6">
-            <div className="space-y-3">
+          <div className="mt-16 space-y-24">
+            <div className="space-y-12">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Surface</h4>
-                <p className="mt-0.5 text-micro text-muted">Dark-edge anchored surface ramp</p>
+                <p className="mt-2 text-micro text-muted">Dark-edge anchored surface ramp</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-1">
+              <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Surface · × contrast distance"
@@ -332,12 +332,12 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={darkIdx.surface} />
             </div>
 
-            <div className="space-y-3 border-t border-(--chrome-sky-border-faint) pt-5">
+            <div className="space-y-12 border-t border-(--chrome-sky-border-faint) pt-20">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Border</h4>
-                <p className="mt-0.5 text-micro text-muted">Hairline / divider ramp</p>
+                <p className="mt-2 text-micro text-muted">Hairline / divider ramp</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-1">
+              <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Border · × contrast distance"
@@ -365,12 +365,12 @@ function SystemMappingSectionInner({
               <ResolvedIndices label="Resolved global indices" indices={darkIdx.border} />
             </div>
 
-            <div className="space-y-3 border-t border-(--chrome-sky-border-faint) pt-5">
+            <div className="space-y-12 border-t border-(--chrome-sky-border-faint) pt-20">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Text</h4>
-                <p className="mt-0.5 text-micro text-muted">Type ramp (stroke-text picker)</p>
+                <p className="mt-2 text-micro text-muted">Type ramp (stroke-text picker)</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-1">
+              <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
                   label="Step interval"
                   hint="Text · × contrast distance"
@@ -402,8 +402,8 @@ function SystemMappingSectionInner({
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid gap-4 nsb-lg:grid-cols-1">
+      <div className="space-y-16">
+        <div className="grid gap-16 nsb-lg:grid-cols-1">
           <OffsetMapDiagram
             steps={nl}
             themeLabel="Light"

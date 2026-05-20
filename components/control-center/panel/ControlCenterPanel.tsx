@@ -85,16 +85,16 @@ const panelSurfaceClassName =
   'flex min-h-0 max-h-(--cc-viewport-max-height) w-full flex-col overflow-hidden rounded-compact-toolbar border border-hairline [--tw-ring-color:color-mix(in_oklch,var(--ring)_20%,transparent)] backdrop-blur-[4px]'
 
 const panelPreviewTierClassName =
-  'relative z-1 flex-none overflow-visible rounded-compact-toolbar border border-hairline bg-raised px-3 pt-2 pb-3 shadow-[0_3px_12px_-4px_rgb(0_0_0_/_0.12),0_1px_4px_-2px_rgb(0_0_0_/_0.08)] sm:px-4 sm:pb-4 dark:border-transparent dark:shadow-[0_4px_16px_-6px_rgb(0_0_0_/_0.55),0_2px_8px_-4px_rgb(0_0_0_/_0.35)]'
+  'relative z-1 flex-none overflow-visible rounded-compact-toolbar border border-hairline bg-raised px-12 pt-8 pb-12 shadow-[0_3px_12px_-4px_rgb(0_0_0_/_0.12),0_1px_4px_-2px_rgb(0_0_0_/_0.08)] sm:px-16 sm:pb-16 dark:border-transparent dark:shadow-[0_4px_16px_-6px_rgb(0_0_0_/_0.55),0_2px_8px_-4px_rgb(0_0_0_/_0.35)]'
 
 const rampPreviewTriggerClassName =
-  'group flex max-w-[min(16rem,52vw)] flex-row items-center justify-center gap-2 rounded-xl border border-transparent bg-transparent px-3 py-2 text-[0.8125rem] font-light shadow-none transition-[background-color,border-color,box-shadow] duration-150 hover:bg-[color-mix(in_oklch,var(--muted)_40%,transparent)] focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_45%,transparent)]'
+  'group flex max-w-[min(16rem,52vw)] flex-row items-center justify-center gap-8 rounded-xl border border-transparent bg-transparent px-12 py-8 text-[0.8125rem] font-light shadow-none transition-[background-color,border-color,box-shadow] duration-150 hover:bg-[color-mix(in_oklch,var(--muted)_40%,transparent)] focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_45%,transparent)]'
 
 const tabClassName =
-  'box-border inline-flex h-[1.625rem] min-h-[1.625rem] flex-none items-center justify-center rounded-full border-0 border-transparent px-3 py-[0.3125rem] text-xs leading-4 font-medium text-muted outline-none transition-[color,background-color,box-shadow] duration-150 hover:bg-[color-mix(in_oklch,var(--muted)_42%,transparent)] hover:text-foreground focus-visible:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_35%,transparent)] data-[active]:bg-raised data-[active]:text-foreground data-[active]:shadow-[0_1px_2px_color-mix(in_oklch,var(--color-text-default)_8%,transparent),inset_0_0_0_1px_color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] data-[tab-state=active]:bg-raised data-[tab-state=active]:text-foreground data-[tab-state=active]:shadow-[0_1px_2px_color-mix(in_oklch,var(--color-text-default)_8%,transparent),inset_0_0_0_1px_color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)]'
+  'box-border inline-flex h-[1.625rem] min-h-[1.625rem] flex-none items-center justify-center rounded-full border-0 border-transparent px-12 py-[0.3125rem] text-xs leading-4 font-medium text-muted outline-none transition-[color,background-color,box-shadow] duration-150 hover:bg-[color-mix(in_oklch,var(--muted)_42%,transparent)] hover:text-foreground focus-visible:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_35%,transparent)] data-[active]:bg-raised data-[active]:text-foreground data-[active]:shadow-[0_1px_2px_color-mix(in_oklch,var(--color-text-default)_8%,transparent),inset_0_0_0_1px_color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)] data-[tab-state=active]:bg-raised data-[tab-state=active]:text-foreground data-[tab-state=active]:shadow-[0_1px_2px_color-mix(in_oklch,var(--color-text-default)_8%,transparent),inset_0_0_0_1px_color-mix(in_oklch,var(--chrome-hairline)_80%,transparent)]'
 
 const tabPanelClassName =
-  'animate-in fade-in-0 duration-150 ease-out min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-2.5 pb-3 [scrollbar-gutter:stable] [scroll-padding-block:0.75rem] sm:pt-3 sm:pb-4 sm:[scroll-padding-block:1rem] motion-reduce:animate-none'
+  'animate-in fade-in-0 duration-150 ease-out min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-10 pb-12 [scrollbar-gutter:stable] [scroll-padding-block:0.75rem] sm:pt-12 sm:pb-16 sm:[scroll-padding-block:1rem] motion-reduce:animate-none'
 
 function useControlCenterPanelState() {
   const [persistSeed] = useState(() => getDockPickerInitialState())
@@ -210,11 +210,11 @@ function PanelBody({
         className={panelPreviewTierClassName}
       >
         <div
-          className="flex flex-col gap-1"
+          className="flex flex-col gap-4"
           data-slot="dock-picker-overlay-inner"
         >
           <div
-            className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 sm:gap-3"
+            className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 sm:gap-12"
             data-slot="dock-picker-header"
           >
             <h2
@@ -224,7 +224,7 @@ function PanelBody({
               OKLCH picker
             </h2>
             <div
-              className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2"
+              className="flex min-w-0 shrink-0 items-center gap-6 sm:gap-8"
               data-slot="dock-picker-header-actions"
             >
               <div data-slot="dock-picker-ramp-preview-wrap">
@@ -246,7 +246,7 @@ function PanelBody({
                     <DropdownMenuLabel>
                       Ramp preview
                     </DropdownMenuLabel>
-                    <p className="px-3 pb-2.5 text-[0.7rem] leading-[1.375] text-muted-foreground">
+                    <p className="px-12 pb-10 text-[0.7rem] leading-snug text-muted-foreground">
                       Choose which neutral ladder appears in the strip below.
                     </p>
                     <DropdownMenuSeparator />
@@ -259,8 +259,8 @@ function PanelBody({
                             onClick={() => setRampPreviewMode(mode)}
                             data-active={selected ? 'true' : undefined}
                           >
-                            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                              <div className="text-[0.8125rem] leading-[1.25] font-medium">
+                            <div className="flex min-w-0 flex-1 flex-col gap-2">
+                              <div className="text-label leading-tight font-medium">
                                 {RAMP_PREVIEW_LABEL[mode]}
                               </div>
                               <p className="text-[0.7rem] leading-[1.35] text-muted-foreground">
@@ -269,11 +269,11 @@ function PanelBody({
                             </div>
                             {selected ? (
                               <Check
-                                className="mt-0.5 size-4 shrink-0 text-primary"
+                                className="mt-2 size-16 shrink-0 text-primary"
                                 aria-hidden
                               />
                             ) : (
-                              <span className="size-4 shrink-0" aria-hidden />
+                              <span className="size-16 shrink-0" aria-hidden />
                             )}
                           </DropdownMenuItem>
                         )
@@ -286,12 +286,12 @@ function PanelBody({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="size-9 shrink-0 rounded-xl"
+                className="size-36 shrink-0 rounded-xl"
                 aria-label="Close OKLCH picker"
                 data-slot="dock-picker-close"
                 onClick={handleClose}
               >
-                <X className="size-4" aria-hidden />
+                <X className="size-16" aria-hidden />
               </Button>
             </div>
           </div>
@@ -306,7 +306,7 @@ function PanelBody({
       <section
         aria-label="Mapping controls"
         data-slot="dock-picker-controls-tier"
-        className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-compact-toolbar bg-default px-3 pt-2 pb-0 sm:px-4 sm:pt-3"
+        className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-compact-toolbar bg-default px-12 pt-8 pb-0 sm:px-16 sm:pt-12"
       >
         <Tabs.Root
           value={activeTab}
@@ -318,7 +318,7 @@ function PanelBody({
             activateOnFocus
             loopFocus
             data-slot="control-center-tablist"
-            className="box-border flex h-8 min-h-8 w-max max-w-full min-w-0 flex-none items-center gap-0.5 overflow-x-auto rounded-full border border-hairline bg-[color-mix(in_oklch,var(--muted)_22%,transparent)] p-0.5 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="box-border flex h-32 min-h-32 w-max max-w-full min-w-0 flex-none items-center gap-2 overflow-x-auto rounded-full border border-hairline bg-[color-mix(in_oklch,var(--muted)_22%,transparent)] p-2 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {TABS.map((tab) => {
               const selected = tab.id === activeTab

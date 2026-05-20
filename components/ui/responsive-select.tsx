@@ -20,15 +20,15 @@ import {cn} from '@/lib/utils'
 
 const responsiveNativeSelectBase = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
-  'mb-0 appearance-none pr-8',
+  'mb-0 appearance-none pr-32',
 )
 
 const responsiveSelectValueClass = cn('min-w-0 flex-1 text-left')
 
 const responsiveSelectTriggerBase = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
-  'flex h-auto min-h-9 w-full min-w-0 justify-between gap-2',
-  'py-2 pr-2.5 text-left font-normal whitespace-normal',
+  'flex h-auto min-h-36 w-full min-w-0 justify-between gap-8',
+  'py-8 pr-10 text-left font-normal whitespace-normal',
   '[&_svg]:shrink-0',
 )
 

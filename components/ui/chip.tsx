@@ -10,7 +10,7 @@ export type PillChipTone = 'amber' | 'sky'
 export type PillChipActiveStyle = 'pill' | 'surface-soft'
 
 const pillChipBase = cn(
-  'rounded-full border px-3 py-1.5',
+  'rounded-full border px-12 py-6',
   'text-xs font-medium transition',
   'disabled:pointer-events-none disabled:opacity-50',
 )
@@ -78,7 +78,7 @@ export function PillChip({
 PillChip.displayName = 'PillChip'
 
 const pillButtonBase = cn(
-  'rounded-full border border-hairline bg-(--chrome-chip) px-3 py-1.5',
+  'rounded-full border border-hairline bg-chip px-12 py-6',
   'text-xs font-medium text-subtle transition hover:bg-muted',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:border-ring',
   'disabled:pointer-events-none disabled:opacity-50',

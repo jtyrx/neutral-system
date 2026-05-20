@@ -11,7 +11,7 @@ export const floatingPopupOpenClose =
 
 /** Slide entrance for side + logical inline axes (select + popover). */
 export const floatingPopupSlideAllSides =
-  'data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2'
+  'data-[side=bottom]:slide-in-from-top-8 data-[side=inline-end]:slide-in-from-left-8 data-[side=inline-start]:slide-in-from-right-8 data-[side=left]:slide-in-from-right-8 data-[side=right]:slide-in-from-left-8 data-[side=top]:slide-in-from-bottom-8'
 
 export const floatingPopupTransitionDuration = 'duration-100'
 
@@ -24,18 +24,18 @@ export const popoverElevatedSurface =
  * one `filter` stack. Elevation uses black alpha (not `--color-foreground`) so shadows stay visible on dark UI.
  */
 const tooltipPopupShell =
-  'z-50 isolate relative flex w-fit max-w-xs flex-col overflow-visible p-0 antialiased has-data-[slot=kbd]:pr-1.5 [filter:drop-shadow(0_12px_28px_-6px_color-mix(in_oklch,black_48%,transparent))_drop-shadow(0_6px_14px_-4px_color-mix(in_oklch,black_34%,transparent))_drop-shadow(0_0_0_1px_color-mix(in_oklch,var(--color-border)_90%,transparent))_drop-shadow(0_0_14px_color-mix(in_oklch,black_22%,transparent))]'
+  'z-50 isolate relative flex w-fit max-w-xs flex-col overflow-visible p-0 antialiased has-data-[slot=kbd]:pr-6 [filter:drop-shadow(0_12px_28px_-6px_color-mix(in_oklch,black_48%,transparent))_drop-shadow(0_6px_14px_-4px_color-mix(in_oklch,black_34%,transparent))_drop-shadow(0_0_0_1px_color-mix(in_oklch,var(--color-border)_90%,transparent))_drop-shadow(0_0_14px_color-mix(in_oklch,black_22%,transparent))]'
 
 /** Inner rounded panel: fill only; hairline + elevation come from tooltipPopupShell filter. */
 export const tooltipPopupInnerSurface =
   'relative z-0 min-h-0 min-w-0 w-full flex flex-1 flex-col rounded-menu bg-popover/92 text-popover-foreground'
 
 /** Padding for tooltip body; applied inside tooltipPopupInnerSurface. */
-export const tooltipPopupBodyPadding = 'px-3 py-2'
+export const tooltipPopupBodyPadding = 'px-12 py-8'
 
 /** Tooltip uses physical sides only (matches previous tooltip.tsx). */
 export const tooltipPopupInnerShell =
-  'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 w-full overflow-visible rounded-menu border border-hairline ring-ring/20 supports-backdrop-filter:backdrop-blur-sm'
+  'data-[side=bottom]:slide-in-from-top-8 data-[side=left]:slide-in-from-right-8 data-[side=right]:slide-in-from-left-8 data-[side=top]:slide-in-from-bottom-8 w-full overflow-visible rounded-menu border border-hairline ring-ring/20 supports-backdrop-filter:backdrop-blur-sm'
 
 export const tooltipPopupStartingStyle =
   'data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95'

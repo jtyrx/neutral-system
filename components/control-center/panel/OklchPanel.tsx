@@ -11,7 +11,7 @@ import {liveWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
 import {useDisplayGamut} from '@/hooks/useDisplayGamut'
 
 const panelStackSpacedClassName =
-  'flex flex-col gap-4 px-1 pb-3'
+  'flex flex-col gap-16 px-4 pb-12'
 
 const panelCopyClassName =
   'text-[0.65rem] leading-[1.375] text-muted'
@@ -20,7 +20,7 @@ const panelLinkClassName =
   'font-medium text-default underline-offset-4 hover:underline'
 
 const panelActionsClassName =
-  'flex min-w-0 shrink-0 flex-wrap items-center gap-1.5 sm:gap-2'
+  'flex min-w-0 shrink-0 flex-wrap items-center gap-6 sm:gap-8'
 
 /** OKLCH L/C/H sliders, secondary controls, preview swatch, gamut slice, engine ramp strip (live theme). */
 function OklchPanelInner() {

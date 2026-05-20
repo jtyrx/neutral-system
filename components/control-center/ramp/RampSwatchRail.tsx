@@ -25,7 +25,7 @@ const rampRailPlaceholderClassName = 'bg-raised'
 const rampRailRowClassName =
   'flex min-h-0 min-w-min w-full flex-1 flex-row self-stretch items-stretch'
 const rampRailLabeledClassName = 'min-h-[3.35rem]'
-const rampRailUnlabeledClassName = 'h-full min-h-8'
+const rampRailUnlabeledClassName = 'h-full min-h-32'
 const rampSegmentBaseClassName =
   'relative z-0 box-border flex min-h-0 flex-1 flex-col overflow-hidden'
 const rampSegmentLiveClassName =
@@ -33,7 +33,7 @@ const rampSegmentLiveClassName =
 const rampSegmentLabeledClassName = 'flex flex-col'
 const rampSegmentPlaceholderClassName = 'bg-raised'
 const rampSegmentLabelClassName =
-  'block min-h-3 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap px-0.5 pt-1 text-center font-mono text-[0.5rem] leading-none text-default tabular-nums'
+  'block min-h-12 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap px-2 pt-4 text-center font-mono text-[0.5rem] leading-none text-default tabular-nums'
 const rampSegmentPaintClassName =
   'pointer-events-none shrink-0 transition-[filter] duration-150 group-hover:brightness-[0.98]'
 const rampSegmentPaintLabeledClassName = 'min-h-[3.25rem] flex-1'
@@ -47,7 +47,7 @@ const rampTooltipTitleClassName =
 const rampTooltipBreakClassName =
   '[overflow-wrap:anywhere] text-muted-foreground'
 const rampGamutWarningClassName =
-  'rounded border border-amber-border-soft bg-amber-surface-bold px-1.5 py-0.5 font-sans text-[0.6rem] text-amber-text'
+  'rounded border border-amber-border-soft bg-amber-surface-bold px-6 py-2 font-sans text-[0.6rem] text-amber-text'
 
 function railSegmentRound(i: number, last: number) {
   return cn(

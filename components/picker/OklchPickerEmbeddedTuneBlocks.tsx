@@ -12,7 +12,7 @@ function OklchPickerEmbeddedTuneBlocksInner({adapter}: {adapter: WorkbenchAdapte
   const {globalScaleSectionProps} = useOklchPickerSectionProps(adapter)
 
   return (
-    <div className="space-y-6 picker-section-divider">
+    <div className="space-y-24 picker-section-divider">
       <GlobalScaleSection {...globalScaleSectionProps} />
 
       <OkhslSectionBlock

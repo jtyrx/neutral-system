@@ -1,0 +1,23 @@
+/**
+ * Dock picker surface — outer lift + box-shadow transition. Motion owns the
+ * transform, so this only animates `box-shadow` (avoids competing transition
+ * properties). Internal tier separation uses the overlay-tier shadow in
+ * `ControlCenterPanel`.
+ */
+
+@layer base {
+  [data-slot='dock-picker-surface'] {
+    transform-origin: 50% 100%;
+    transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+      0 16px 36px -12px rgb(0 0 0 / 0.2),
+      0 6px 14px -8px rgb(0 0 0 / 0.12);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot='dock-picker-surface'] {
+      transition-duration: 0.08s;
+      transition-timing-function: ease;
+    }
+  }
+}

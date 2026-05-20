@@ -130,14 +130,14 @@ export function PairedRolesPanel({
 
   const shellClass =
     variant === 'split'
-      ? 'rounded-sm border border-hairline bg-overlay-soft px-4 py-3 sm:px-5 sm:py-4'
-      : 'mt-6 space-y-4 border-t border-hairline pt-6'
+      ? 'rounded-sm border border-hairline bg-overlay-soft px-16 py-12 sm:px-20 sm:py-16'
+      : 'mt-24 space-y-16 border-t border-hairline pt-24'
 
   return (
     <div className={shellClass}>
-      <div className="mb-4">
+      <div className="mb-16">
         <p className="eyebrow">Paired roles</p>
-        <p className="mt-1 text-sm text-subtle">
+        <p className="mt-4 text-sm text-subtle">
           Default: <span className="font-mono text-default">Data table</span> — one row per{' '}
           <span className="font-mono text-subtle">neutral-*</span> primitive (hex, OKLCH, idx) for
           the current layer filter.{' '}
@@ -148,7 +148,7 @@ export function PairedRolesPanel({
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-16">
         <ControlTier label="Inspection">
           <SegmentedControl
             aria-label="Inspection view"
@@ -166,7 +166,7 @@ export function PairedRolesPanel({
               options={THEME_FOCUS_OPTIONS}
               onChange={onThemeFocus}
             />
-            <p className="mt-2 text-[0.6rem] text-disabled">
+            <p className="mt-8 text-[0.6rem] text-disabled">
               {inspectionView === 'neutral'
                 ? 'Frames the neutral ladder with Light (amber) or Dark (sky) preview chrome.'
                 : 'Emphasizes Light, Dark, or both columns in paired output.'}
@@ -195,7 +195,7 @@ export function PairedRolesPanel({
         ) : null}
 
         {showPrimitiveTiers ? (
-          <div className="grid gap-4 nsb-lg:grid-cols-1 nsb-lg:items-end">
+          <div className="grid gap-16 nsb-lg:grid-cols-1 nsb-lg:items-end">
             <ControlTier label="Semantic layer">
               <SegmentedControl
                 aria-label="Semantic token layer"
@@ -216,7 +216,7 @@ export function PairedRolesPanel({
         ) : null}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-24">
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'visual' ? (
           <SemanticPairGrid
             lightTokenView={lightTokenView}
@@ -230,8 +230,8 @@ export function PairedRolesPanel({
 
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'usedPrimitives' ? (
           advanced ? (
-            <div className="space-y-6">
-              <div className="space-y-2">
+            <div className="space-y-24">
+              <div className="space-y-8">
                 <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-amber-text)">
                   Light ramp
                 </p>
@@ -242,7 +242,7 @@ export function PairedRolesPanel({
                   tier1ExportMode={tier1LightExport}
                 />
               </div>
-              <div className="space-y-2 border-t border-hairline pt-6">
+              <div className="space-y-8 border-t border-hairline pt-24">
                 <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                   Dark elevated ramp
                 </p>
@@ -264,8 +264,8 @@ export function PairedRolesPanel({
         ) : null}
 
         {inspectionView === 'paired' && variant === 'split' && displayMode === 'table' ? (
-          <div className="grid gap-6 nsb-lg:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid gap-24 nsb-lg:grid-cols-2">
+            <div className="space-y-8">
               <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-amber-text)">Light</p>
               <SemanticRoleTable
                 tokenView={lightTokenView}
@@ -275,7 +275,7 @@ export function PairedRolesPanel({
                 tier1ExportMode={tier1LightExport}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-8">
               <p className="text-[0.6rem] font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                 Dark elevated
               </p>
@@ -300,7 +300,7 @@ export function PairedRolesPanel({
         ) : null}
 
         {inspectionView === 'paired' && variant === 'focus' && displayMode === 'table' ? (
-          <div className="space-y-2">
+          <div className="space-y-8">
             <p className="text-[0.6rem] font-medium uppercase tracking-wide text-muted">
               {focusTitle} · data table
             </p>
@@ -315,7 +315,7 @@ export function PairedRolesPanel({
         ) : null}
 
         {inspectionView === 'paired' && variant === 'focus' && displayMode === 'usedPrimitives' ? (
-          <div className="space-y-2">
+          <div className="space-y-8">
             <p className="text-[0.6rem] font-medium uppercase tracking-wide text-muted">
               Used neutral primitives
             </p>
@@ -329,8 +329,8 @@ export function PairedRolesPanel({
         ) : null}
 
         {inspectionView === 'neutral' && advanced && neutralCtx === 'both' ? (
-          <div className="space-y-8">
-            <div className="space-y-2">
+          <div className="space-y-32">
+            <div className="space-y-8">
               <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-amber-text)">
                 Light ramp
               </p>
@@ -348,7 +348,7 @@ export function PairedRolesPanel({
                 embedded
               />
             </div>
-            <div className="space-y-2 border-t border-hairline pt-6">
+            <div className="space-y-8 border-t border-hairline pt-24">
               <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-sky-text)">
                 Dark elevated ramp
               </p>

@@ -2,46 +2,28 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+/* Chrome accent families (Amber / Sky) — static OKLCH anchors + alpha-mix grid. */
+@import './styles/chrome-families.css';
+
+/* Feature CSS — owned by each feature directory, imported here for global JIT visibility. */
+@import '../components/workbench/workbench.css';
+@import '../components/picker/picker.css';
+@import '../components/control-center/ramp/ramp.css';
+@import '../components/control-center/dock/dock-picker-surface.css';
+
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/** Workbench inset: respond to `#nsb-viewport` width (not viewport), for resizable sidebar. */
-@custom-variant nsb-lg (@container nsb-workbench (width >= 56rem));
-@custom-variant nsb-xl (@container nsb-workbench (width >= 72rem));
-
-/**
- * Ramp color UI (dock strip + picker rail) — source: `components/control-center/ramp/RampSwatchRail.tsx`
- *
- * | Hook | Use |
- * |------|-----|
- * | `[data-slot='ramp-swatch']` | Each color cell (live + placeholder) |
- * | `[data-slot='ramp-swatch-rail']` | Fused rail container — use `w-full` only; **never** fixed `width` here or segments collapse |
- * | `[data-ramp-variant='live' | 'placeholder']` | Cell state |
- * | `[data-ramp-index]`, `[data-ramp-theme]` | Ladder index + light/dark |
- * | `[data-dock-item]` | Dock magnification wrapper ids only (not the swatch paint) |
- *
- * Tailwind:
- * - **Variants** `@custom-variant ramp-swatch` / `ramp-swatch-rail` — use as **prefixes**
- *   (`ramp-swatch:focus-visible:ring-2`, `ramp-swatch-rail:shadow-md`). Replacing these with
- *   only `@utility` would drop that composition; keep variants for state/stacking.
- * - **Utility** `ramp-swatch-segment` — optional **class** preset (`className="ramp-swatch-segment …"`)
- *   for shared segment chrome; customize by adding more utilities or overriding with arbitrary classes.
- * Arbitrary parent: `[&_[data-slot=ramp-swatch]]:…`
- * @theme tokens: `--ramp-swatch-placeholder-bg`, `--ramp-swatch-tap-clear`, `--ramp-swatch-min-width` (segment floor; override in `@theme` to retune).
- */
-@custom-variant ramp-swatch (&:where([data-slot='ramp-swatch']));
-@custom-variant ramp-swatch-rail (&:where([data-slot='ramp-swatch-rail']));
-
-/** Segment cells: add alongside `data-slot="ramp-swatch"` — tokens + tap clear; pair with `ramp-swatch:*` variants for states. */
-@utility ramp-swatch-segment {
-  min-width: var(--ramp-swatch-min-width);
-  -webkit-tap-highlight-color: var(--ramp-swatch-tap-clear);
-}
-
-@utility ramp-swatch-rail {
-  width: var(--ramp-swatch-rail-width, 100%);
-  border-radius: var(--ramp-swatch-rail-radius, var(--radius-card));
-}
 @theme {
+  --spacing: 0.0625rem;
+  --spacing-icon-lg: --spacing(25);
+  --spacing-icon-md: --spacing(21);
+  --spacing-icon-sm: --spacing(19);
+  --spacing-widget-xs: --spacing(19);
+  --spacing-widget-sm: --spacing(25);
+  --spacing-widget-md: --spacing(35);
+  --spacing-widget-lg: --spacing(45);
+  --spacing-widget-xl: --spacing(73);
+
   --animate-inspector-enter: inspector-enter 220ms
     cubic-bezier(0.22, 1, 0.36, 1) both;
   --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
@@ -55,16 +37,9 @@
   --sidebar-width-min: 12rem;
   --sidebar-width-max: 28rem;
 
-  /** Ramp cells / rail: reference in raw CSS as `var(--ramp-swatch-*)` or style via `ramp-swatch:` utilities. */
-  --ramp-swatch-placeholder-bg: var(--color-surface-raised);
-  --ramp-swatch-tap-clear: transparent;
-  /** Minimum width per `[data-slot='ramp-swatch']` cell — do not set width on `ramp-swatch-rail` or the flex strip collapses. */
-  --ramp-swatch-min-width: 1rem;
-  --ramp-swatch-rail-width: 100%;
-  --ramp-swatch-rail-radius: var(--radius-card);
-
   /** Print-pt → rem (assumes 1rem = 16px: 1pt = 4/3px, so 1pt = 1/12 rem). */
   --pt: calc(1rem / 12);
+  --radius-full: calc(infinity * 1px);
   --radius-toolbar: calc(26 * var(--pt));
   --radius-compact-toolbar: calc(20 * var(--pt));
   --radius-titlebar: calc(16 * var(--pt));
@@ -76,9 +51,11 @@
   --radius-dock-item-small: calc(5 * var(--pt));
 
   /* Text size tokens */
-  --text-caption: 0.6875rem;  /* 11px — badges, numeric readouts, picker labels */
-  --text-micro:   0.65rem;    /* 10.4px — annotation hints, table cells, section sub-labels */
-  --text-label:   0.8125rem;  /* 13px — tooltip content, compact UI labels */
+  --text-caption: --spacing(
+    11
+  ); /* 11px — badges, numeric readouts, picker labels */
+  --text-micro: 0.65rem; /* 10.4px — annotation hints, table cells, section sub-labels */
+  --text-label: --spacing(13); /* 13px — tooltip content, compact UI labels */
 }
 
 @keyframes inspector-enter {
@@ -92,28 +69,10 @@
   }
 }
 
+
 /* Base theme tokens */
 @layer base {
   :root {
-    /* --color-neutral-0: oklch(100.000% 0 none);
-    --color-neutral-1: oklch(99.536% 0 none);
-    --color-neutral-2: oklch(98.142% 0 none);
-    --color-neutral-3: oklch(95.820% 0 none);
-    --color-neutral-4: oklch(92.568% 0 none);
-    --color-neutral-5: oklch(88.388% 0 none);
-    --color-neutral-6: oklch(83.278% 0 none);
-    --color-neutral-7: oklch(77.240% 0 none);
-    --color-neutral-8: oklch(70.272% 0 none);
-    --color-neutral-9: oklch(62.376% 0 none);
-    --color-neutral-10: oklch(53.550% 0 none);
-    --color-neutral-11: oklch(43.796% 0 none);
-    --color-neutral-12: oklch(33.112% 0 none);
-    --color-neutral-13: oklch(21.500% 0 none);
-    --color-neutral-100a: oklch(21.500% 0 none / 3.14%);
-    --color-neutral-200a: oklch(21.500% 0 none / 5.88%);
-    --color-neutral-300a: oklch(21.500% 0 none / 7.84%);
-    --color-neutral-400a: oklch(21.500% 0 none / 14.12%);
-    --color-neutral-500a: oklch(21.500% 0 none / 23.92%); */
     /* ─── First-paint fallbacks: tier-2 OKLCH dark values ───
      * Used for the very first paint before LiveThemeStyles writes the live
      * `[data-theme="light|dark"] { --color-*: … }` stylesheet. They match the
@@ -138,28 +97,13 @@
     /** High-contrast flip surface (first-paint fallback; live value from workbench tokens). */
     --color-surface-inverse: oklch(96.441% 0 none);
 
-    --color-dark-neutral-alpha-alt-100: oklch(0% 0 0 / 0.22);
+    --color-surface-brand-hover: color-mix(
+      in oklch,
+      var(--color-surface-brand) 80%,
+      transparent
+    );
 
-    /* ─── Legacy --ns-* aliases ───
-     * Thin `var(--color-*)` peers for incremental migration.
-     * Canonical semantics are `--color-*`; chrome mixers use `--chrome-*`.
-     */
-    --ns-app-bg: var(--color-surface-sunken);
-    --ns-surface-sunken: var(--color-surface-sunken);
-    --ns-surface-default: var(--color-surface-default);
-    --ns-surface-subtle: var(--color-surface-subtle);
-    --ns-surface-raised: var(--color-surface-raised);
-    --ns-surface-overlay: var(--color-surface-overlay);
-    --ns-border-subtle: var(--color-border-subtle);
-    --ns-border-default: var(--color-border-default);
-    --ns-border-strong: var(--color-border-strong);
-    --ns-border-focus: var(--color-border-focus);
-    --ns-text-default: var(--color-text-default);
-    --ns-text: var(--color-text-default);
-    --ns-text-subtle: var(--color-text-subtle);
-    --ns-text-muted: var(--color-text-muted);
-    --ns-text-disabled: var(--color-text-disabled);
-    --ns-text-on: var(--color-text-on);
+    --color-dark-neutral-alpha-alt-100: oklch(0% 0 0 / 0.22);
 
     /* ─── Icon semantic tokens ───
      * Mirror text hierarchy. Icons pair with adjacent text;
@@ -209,261 +153,22 @@
       var(--color-surface-overlay) 95%,
       transparent
     );
-    --ns-accent: var(--color-surface-brand);
-    --ns-scrim: var(--color-overlay-scrim);
-    --ns-surface-brand: var(--color-surface-brand);
-    --ns-surface-inverse: var(--color-surface-inverse);
-    --ns-text-brand: var(--color-text-on);
-    --ns-text-scrim: var(--color-text-default);
-    --ns-text-overlay-scrim: var(--color-text-default);
-    --ns-border-brand: var(--color-border-strong);
-    --ns-border-inverse: var(--color-border-focus);
-    --ns-border-scrim: var(--color-border-subtle);
-    --ns-border-overlay-scrim: var(--color-border-default);
-    --ns-overlay-scrim: var(--color-overlay-scrim);
-    --ns-hairline: var(--chrome-hairline);
-    --ns-hairline-strong: var(--chrome-hairline-strong);
-    --ns-chip: var(--chrome-chip);
-    --ns-field: var(--chrome-field);
-    --ns-overlay-soft: var(--chrome-overlay-soft);
-    --ns-overlay-strong: var(--chrome-overlay-strong);
-    --ns-toaster-bg: var(--chrome-toaster-bg);
-
-    /* ─── Fixed chrome family anchors (static design constants) ───
-     * Not part of the engine `[data-theme]` remapping. Canonical OKLCH endpoints for
-     * the Amber (light-theme indicator) and Sky (dark-theme indicator) families.
-     * Components never consume these raw; they read the `--chrome-{family}-*` mix grid
-     * below. Extend with new families by adding `--chrome-{name}-light|dark` endpoints
-     * and parallel mix aliases.
-     */
-    --chrome-amber-light: oklch(90% 0.12 92);
-    --chrome-amber-dark: oklch(72% 0.17 70);
-    --chrome-sky-light: oklch(88% 0.08 230);
-    --chrome-sky-dark: oklch(70% 0.14 235);
-
-    /* Chrome anchor — every mix is built off the darker endpoint for stable alpha. */
-    --chrome-amber: var(--chrome-amber-dark);
-    --chrome-sky: var(--chrome-sky-dark);
-
-    /* Theme-aware readable text. Defaults target dark UI chrome (light variant reads
-       on dark backgrounds); the `[data-theme="light"]` rule below flips to the dark
-       variant so labels stay legible when the whole app is in light mode. */
-    --chrome-amber-text: var(--chrome-amber-light);
-    --chrome-sky-text: var(--chrome-sky-light);
-
-    /* ─── Chrome amber family derivations ─── */
-    --chrome-amber-border-faint: color-mix(
-      in oklch,
-      var(--chrome-amber) 15%,
-      transparent
-    );
-    --chrome-amber-border-soft: color-mix(
-      in oklch,
-      var(--chrome-amber) 20%,
-      transparent
-    );
-    --chrome-amber-border: color-mix(
-      in oklch,
-      var(--chrome-amber) 25%,
-      transparent
-    );
-    --chrome-amber-border-medium: color-mix(
-      in oklch,
-      var(--chrome-amber) 30%,
-      transparent
-    );
-    --chrome-amber-border-strong: color-mix(
-      in oklch,
-      var(--chrome-amber) 35%,
-      transparent
-    );
-    --chrome-amber-border-bold: color-mix(
-      in oklch,
-      var(--chrome-amber) 40%,
-      transparent
-    );
-    --chrome-amber-surface-faint: color-mix(
-      in oklch,
-      var(--chrome-amber) 5%,
-      transparent
-    );
-    --chrome-amber-surface: color-mix(
-      in oklch,
-      var(--chrome-amber) 6%,
-      transparent
-    );
-    --chrome-amber-surface-soft: color-mix(
-      in oklch,
-      var(--chrome-amber) 7%,
-      transparent
-    );
-    --chrome-amber-surface-strong: color-mix(
-      in oklch,
-      var(--chrome-amber) 8%,
-      transparent
-    );
-    --chrome-amber-surface-bold: color-mix(
-      in oklch,
-      var(--chrome-amber) 10%,
-      transparent
-    );
-    --chrome-amber-pill: color-mix(
-      in oklch,
-      var(--chrome-amber) 15%,
-      transparent
-    );
-    --chrome-amber-hover: color-mix(
-      in oklch,
-      var(--chrome-amber) 20%,
-      transparent
-    );
-    --chrome-amber-fill: color-mix(
-      in oklch,
-      var(--chrome-amber) 80%,
-      transparent
-    );
-    --chrome-amber-fill-strong: color-mix(
-      in oklch,
-      var(--chrome-amber) 90%,
-      transparent
-    );
-    --chrome-amber-ring-faint: color-mix(
-      in oklch,
-      var(--chrome-amber) 12%,
-      transparent
-    );
-    --chrome-amber-ring-soft: color-mix(
-      in oklch,
-      var(--chrome-amber) 15%,
-      transparent
-    );
-    --chrome-amber-ring: color-mix(
-      in oklch,
-      var(--chrome-amber) 20%,
-      transparent
-    );
-    --chrome-amber-ring-strong: color-mix(
-      in oklch,
-      var(--chrome-amber) 25%,
-      transparent
-    );
-
-    /* ─── Chrome sky family derivations ─── */
-    --chrome-sky-border-faint: color-mix(
-      in oklch,
-      var(--chrome-sky) 15%,
-      transparent
-    );
-    --chrome-sky-border-soft: color-mix(
-      in oklch,
-      var(--chrome-sky) 20%,
-      transparent
-    );
-    --chrome-sky-border: color-mix(
-      in oklch,
-      var(--chrome-sky) 25%,
-      transparent
-    );
-    --chrome-sky-border-medium: color-mix(
-      in oklch,
-      var(--chrome-sky) 30%,
-      transparent
-    );
-    --chrome-sky-border-strong: color-mix(
-      in oklch,
-      var(--chrome-sky) 35%,
-      transparent
-    );
-    --chrome-sky-border-bold: color-mix(
-      in oklch,
-      var(--chrome-sky) 40%,
-      transparent
-    );
-    --chrome-sky-surface-faint: color-mix(
-      in oklch,
-      var(--chrome-sky) 5%,
-      transparent
-    );
-    --chrome-sky-surface: color-mix(
-      in oklch,
-      var(--chrome-sky) 6%,
-      transparent
-    );
-    --chrome-sky-surface-soft: color-mix(
-      in oklch,
-      var(--chrome-sky) 7%,
-      transparent
-    );
-    --chrome-sky-surface-strong: color-mix(
-      in oklch,
-      var(--chrome-sky) 8%,
-      transparent
-    );
-    --chrome-sky-surface-bold: color-mix(
-      in oklch,
-      var(--chrome-sky) 10%,
-      transparent
-    );
-    --chrome-sky-pill: color-mix(in oklch, var(--chrome-sky) 15%, transparent);
-    --chrome-sky-hover: color-mix(in oklch, var(--chrome-sky) 20%, transparent);
-    --chrome-sky-fill: color-mix(in oklch, var(--chrome-sky) 80%, transparent);
-    --chrome-sky-fill-strong: color-mix(
-      in oklch,
-      var(--chrome-sky) 90%,
-      transparent
-    );
-    --chrome-sky-ring-faint: color-mix(
-      in oklch,
-      var(--chrome-sky) 12%,
-      transparent
-    );
-    --chrome-sky-ring-soft: color-mix(
-      in oklch,
-      var(--chrome-sky) 15%,
-      transparent
-    );
-    --chrome-sky-ring: color-mix(in oklch, var(--chrome-sky) 20%, transparent);
-    --chrome-sky-ring-strong: color-mix(
-      in oklch,
-      var(--chrome-sky) 25%,
-      transparent
-    );
 
     /* ─── shadcn/ui bridge tokens ───
-     * Bridged to neutral tier-2 (`--color-*` in @layer base) where possible.
+     * Only tokens consumed directly via `var(--name)` (inline color-mix in components)
+     * or that need theme-aware values live here. Pure utility-only tokens (bg-card,
+     * bg-popover, etc.) are wired straight to `--color-*` in `@theme inline` below.
      */
-    --background: var(--color-surface-default);
-    --foreground: var(--color-text-default);
-    --card: var(--color-surface-raised);
-    --card-foreground: var(--color-text-default);
-    --popover: var(--color-surface-overlay);
-    --popover-foreground: var(--color-text-default);
-    --primary: var(--color-surface-brand);
-    --primary-foreground: var(--color-text-on);
-    --secondary: var(--color-surface-subtle);
-    --secondary-foreground: var(--color-text-default);
     --muted: var(--color-surface-subtle);
-    --muted-foreground: var(--color-text-muted);
-    --accent: var(--color-surface-subtle);
-    --accent-foreground: var(--color-text-default);
-    --destructive: oklch(0.577 0.245 27.325);
     --border: var(--color-border-subtle);
-    --input: var(--color-border-default);
     --ring: var(--color-border-focus);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    --destructive-subtle: var(--color-red-400);
+    --destructive: var(--color-red-500);
+    --destructive-hoverd: var(--color-red-300);
     --radius: 0.625rem;
-    --sidebar: var(--ns-app-bg);
-    --sidebar-foreground: var(--ns-text-default);
-    --sidebar-primary: var(--color-surface-brand);
-    --sidebar-primary-foreground: var(--color-text-on);
+    --sidebar: var(--color-surface-sunken);
     --sidebar-accent: var(--color-surface-subtle);
-    --sidebar-accent-foreground: var(--color-text-default);
     --sidebar-border: var(--color-border-subtle);
-    --sidebar-ring: var(--color-border-focus);
 
     /* Chrome control field — used for toolbar control surface-sunken (dark default) */
     --chrome-control-field: var(--color-dark-neutral-alpha-alt-100);
@@ -500,30 +205,12 @@
     --color-neutral-alpha-alt-100: oklch(0% 0 0 / 0.06);
   }
 
-  /* [data-theme='dark'] {
-    --color-neutral-dark-100a: oklch(100% 0 none / 3.14%);
-    --color-neutral-dark-200a: oklch(100% 0 none / 5.88%);
-    --color-neutral-dark-250a: oklch(100% 0 none / 7.84%);
-    --color-neutral-dark-300a: oklch(100% 0 none / 12.16%);
-    --color-neutral-dark-350a: oklch(100% 0 none / 16.08%);
-    --color-neutral-dark-400a: oklch(100% 0 none / 23.92%);
-    --color-neutral-dark-500a: oklch(100% 0 none / 32.16%);
-  } */
-
   [data-theme='dark'] {
-    /* Neutral tier-2 inherits from `:root` / live tokens; keep destructive + charts as static accents. */
-    --primary: var(--color-surface-brand);
-    --primary-foreground: var(--color-text-on);
-    --destructive: oklch(0.704 0.191 22.216);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    /* Neutral tier-2 inherits from `:root` / live tokens. Overrides below are only deltas. */
+    --destructive-subtle: var(--color-red-300);
+    --destructive: var(--color-red-400);
+    --destructive-hoverd: var(--color-red-500);
     --sidebar: var(--color-surface-default);
-    --sidebar-foreground: var(--color-text-default);
-    --sidebar-primary: var(--color-surface-brand);
-    --sidebar-primary-foreground: var(--color-text-on);
 
     /* Chrome control field — used for toolbar control surface-sunken */
     --chrome-control-field: var(--color-dark-neutral-alpha-alt-100);
@@ -536,8 +223,6 @@
   body {
     position: relative;
     min-height: 100vh;
-    background: var(--ns-app-bg);
-    color: var(--ns-text);
     font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -548,205 +233,136 @@
     background: rgb(255 138 76 / 0.75);
     color: black;
   }
-  /* * {
-    @apply outline-ring/50;
-  } */
-  /* html {
-    @apply font-sans;
-  } */
 }
 
-/* Workbench layout */
-@layer base {
-  /**
-   * Builder `<details>` panels: animate disclosure body height where supported
-   * (`::details-content`, `interpolate-size`; e.g. Chrome 129+, Safari 17.4+).
-   */
-  @media (prefers-reduced-motion: no-preference) {
-    .ns-collapsible-details {
-      interpolate-size: allow-keywords;
-    }
+/* System button utility — owns structure, typography, and size/variant visual tokens.
+   Component layer (button.tsx) owns ARIA states, slot overrides, and ring styling. */
+@utility btn-sys {
+  /* --- Structure --- */
+  display: inline-flex;
+  cursor: pointer;
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  outline: none;
 
-    .ns-collapsible-details::details-content {
-      overflow: hidden;
-      transition:
-        height 200ms var(--ease-out-quart),
-        content-visibility 200ms allow-discrete;
-    }
+  text-decoration: none;
+  user-select: none;
+  background-clip: padding-box;
 
-    .ns-collapsible-details:not([open])::details-content {
-      height: 0;
-    }
-
-    .ns-collapsible-details[open]::details-content {
-      height: auto;
-    }
-  }
-
-  .ns-workbench {
-    --ns-workbench-header-height: 0px;
-    display: grid;
-    min-height: 100dvh;
-    width: 100%;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    grid-template-areas:
-      'header'
-      'main'
-      'inspector';
-  }
-
-  .ns-workbench__header {
-    grid-area: header;
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    border-bottom: 1px solid var(--ns-hairline);
-    background-color: var(--color-surface-subtle);
-    /* background-color: color-mix(
-      in oklch,
-      var(--ns-surface-subtle) 94%,
-      transparent
-    ); */
-    /* -webkit-backdrop-filter: blur(16px) saturate(120%);
-    backdrop-filter: blur(16px) saturate(120%); */
-  }
-
-  .ns-workbench__preview-col {
-    grid-area: main;
-  }
-
-  .ns-workbench__inspector-col {
-    grid-area: inspector;
-  }
-
-  .ns-workbench__inspector-scroll {
-    position: sticky;
-    top: var(--ns-workbench-header-height);
-    max-height: calc(100dvh - var(--ns-workbench-header-height));
-    overflow-y: auto;
-  }
-
-  [data-slot='dock-picker-surface'] {
-    transform-origin: 50% 100%;
-    /* box-shadow only — Motion owns transform so avoid competing transition-property */
-    transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    /* Restrained outer lift; internal tier separation uses overlay-tier shadow in ControlCenterPanel */
-    box-shadow:
-      0 16px 36px -12px rgb(0 0 0 / 0.2),
-      0 6px 14px -8px rgb(0 0 0 / 0.12);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    [data-slot='dock-picker-surface'] {
-      transition-duration: 0.08s;
-      transition-timing-function: ease;
-    }
-  }
-  @container nsb-workbench (width >= 56rem) {
-    .ns-workbench {
-      grid-template-columns: minmax(0, 1fr) minmax(0, min(20rem, 50cqi));
-      grid-template-rows: auto auto;
-      grid-template-areas:
-        'header header'
-        'main inspector';
-      align-items: start;
-    }
-  }
-
-  @container nsb-workbench (width >= 72rem) {
-    .ns-workbench {
-      grid-template-columns: minmax(0, 1fr) minmax(0, min(28rem, 52cqi));
-    }
-  }
-
-  /*
-    #nsb-preview-blocks — workbench surface decoration (gradient/vignette/dot-mask layers
-    temporarily disabled). Active: flat background + dot-grid custom properties only.
-    Restore the full treatment from git history if needed.
-  */
-  #nsb-preview-blocks {
-    position: relative;
-    isolation: isolate;
-    background: var(--ns-app-bg);
-    --ns-preview-dot-grid: 1rem;
-    /* Dot size ≥1px: avoids subpixel collapse in some engines at non-1 DPR. */
-    --ns-preview-dot-size: 1px;
-    --ns-preview-dot-offset-x: -0.5px;
-    --ns-preview-dot-offset-y: -0.5px;
-    --ns-preview-dot-opacity: 0.22;
-  }
-
-  #nsb-preview-blocks > * {
-    position: relative;
-    z-index: 0;
-  }
-
-  #nsb-preview-blocks::before {
+  &::before {
     content: '';
     position: absolute;
     inset: 0;
-    /* Behind in-flow: z-index -1 is the reliable decorative layer under flex children. */
-    z-index: -1;
+    border-radius: 0;
     pointer-events: none;
-    background: var(--color-surface-sunken);
-    mix-blend-mode: normal;
   }
 
-  /* ::after: dot "blueprint" on the vignette, still below real children, z -1. */
-  #nsb-preview-blocks::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
 
-    background-image: radial-gradient(
-      circle,
-      var(--ns-preview-dot-color) var(--ns-preview-dot-size),
-      transparent calc(var(--ns-preview-dot-size) + 0.5px)
-    );
-    background-repeat: repeat;
-    background-size: var(--ns-preview-dot-grid) var(--ns-preview-dot-grid);
-    background-position: var(--ns-preview-dot-offset-x)
-      var(--ns-preview-dot-offset-y);
-    transition: opacity 200ms ease;
+  /* --- Transitions --- */
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 200ms;
+
+  /* --- Typography --- */
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: capitalize;
+  white-space: nowrap;
+  text-box: trim-both cap alphabetic;
+
+  /* --- Size Trackers --- */
+  &[data-size='xs'] {
+    column-gap: --spacing(2);
+    min-height: var(--spacing-widget-xs);
+    padding: --spacing(2) --spacing(8);
+  }
+  &[data-size='sm'] {
+    column-gap: --spacing(2);
+    min-height: var(--spacing-widget-sm);
+    padding: --spacing(2) --spacing(8);
+  }
+  &[data-size='md'] {
+    column-gap: --spacing(2);
+    min-height: var(--spacing-widget-md);
+    padding: --spacing(4) --spacing(12);
+  }
+  &[data-size='lg'] {
+    column-gap: --spacing(6);
+    min-height: var(--spacing-widget-lg);
+    padding: --spacing(6) --spacing(16);
   }
 
-  /* [data-theme=light] field: paper + faint grid, workbench surface. */
-  [data-theme='light'] #nsb-preview-blocks {
-    --ns-preview-dot-grid: 1rem;
-    --ns-preview-dot-size: 0.5px;
-    --ns-preview-dot-offset-x: -0.5px;
-    --ns-preview-dot-offset-y: -0.5px;
-    --ns-preview-dot-color: color-mix(
+  /* --- Variant Trackers (aligned to CVA variant names) --- */
+  &[data-variant='default'] {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+
+    &:hover {
+      background-color: var(--color-surface-brand-hover);
+    }
+  }
+
+  &[data-variant='secondary'] {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+
+    &:hover {
+      background-color: color-mix(
+        in oklch,
+        var(--color-secondary) 80%,
+        transparent
+      );
+    }
+  }
+
+  &[data-variant='outline'] {
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+
+    &:hover {
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+    }
+  }
+
+  &[data-variant='ghost'] {
+    &:hover {
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+    }
+  }
+
+  &[data-variant='destructive'] {
+    background-color: color-mix(
       in oklch,
-      var(--ns-text) 37%,
+      var(--color-destructive) 10%,
       transparent
     );
-    --ns-preview-dot-opacity: 0.25;
+    color: var(--color-destructive);
+
+    &:hover {
+      background-color: var(--color-destructive-hoverd);
+    }
   }
 
-  [data-theme='light'] #nsb-preview-blocks::before {
-    opacity: 0.55;
-  }
+  &[data-variant='link'] {
+    color: var(--color-primary);
+    text-decoration-line: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: transparent;
 
-  /* [data-theme=dark] field: deeper neutral, restrained top glow, quieter grid. */
-  [data-theme='dark'] #nsb-preview-blocks {
-    --ns-preview-dot-grid: 1rem;
-    --ns-preview-dot-size: 0.75px;
-    --ns-preview-dot-offset-x: -0.5px;
-    --ns-preview-dot-offset-y: -0.5px;
-    --ns-preview-dot-color: color-mix(
-      in oklch,
-      var(--ns-text) 11%,
-      transparent
-    );
-    --ns-preview-dot-opacity: 0.22;
-  }
-
-  [data-theme='dark'] #nsb-preview-blocks::before {
-    opacity: 0.35;
+    &:hover {
+      text-decoration-color: currentColor;
+    }
   }
 }
 
@@ -771,9 +387,6 @@
   box-shadow: inset 0 1px 1px 0
     color-mix(in oklch, var(--color-text-default) 12%, transparent);
 
-  /* TODO: Uncomment this when we have a dark mode */
-  /* background: linear-gradient(137deg, rgba(17, 18, 20, .75) 4.87%, rgba(12, 13, 15, .9) 75.88%); */
-
   &::before {
     content: '';
     position: absolute;
@@ -792,7 +405,7 @@
   line-height: 1;
   font-weight: 400;
   letter-spacing: 0.01em;
-  color: var(--ns-text-subtle);
+  color: var(--color-text-subtle);
   margin-block-end: 0.5rem;
 }
 
@@ -803,7 +416,7 @@
   font-size: 0.65rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ns-text-muted);
+  color: var(--color-text-muted);
 }
 
 /* Interaction and state utilities */
@@ -813,9 +426,9 @@
   padding-inline: 0.75rem;
   padding-block: 0.5rem;
   font-size: 0.875rem;
-  background: var(--ns-field);
-  border: 1px solid var(--ns-hairline-strong);
-  color: var(--ns-text);
+  background: var(--chrome-field);
+  border: 1px solid var(--chrome-hairline-strong);
+  color: var(--color-text-default);
   outline: none;
 
   &::placeholder {
@@ -823,7 +436,7 @@
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px var(--ns-overlay-strong);
+    box-shadow: 0 0 0 2px var(--chrome-overlay-strong);
   }
 }
 
@@ -865,50 +478,9 @@
   text-box: trim-both cap alphabetic;
 }
 
-/* ── Picker-subsystem shared utilities ─────────────────────────────────── */
-
-/** Caption text: replaces text-[0.65rem] text-muted across picker components. */
-@utility picker-caption {
-  font-size: var(--text-caption);
-  line-height: 1;
-  color: var(--color-text-muted);
-}
-
-/** Monospaced numeric readout at caption scale. */
-@utility picker-numeric {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: var(--text-caption);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-muted);
-}
-
 /** Shared mono font-family stack — use as a class or reference font-family inline. */
 @utility font-mono-stack {
   font-family: var(--font-mono), ui-monospace, monospace;
-}
-
-/** Horizontal action/badge row — replaces flex flex-wrap items-center gap-2. */
-@utility picker-control-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/** Distributed section header row — replaces flex flex-wrap items-center justify-between gap-3. */
-@utility picker-section-header-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-/** Section divider — replaces space-y-6 + border-t border-hairline pt-6. */
-@utility picker-section-divider {
-  border-top: 1px solid var(--chrome-hairline);
-  padding-top: 1.5rem;
 }
 
 @theme inline {
@@ -973,38 +545,40 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* shadcn/Base UI bridge tokens (sidebar, chart, generic semantic) */
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
+  /* shadcn/Base UI bridge utilities.
+   * Tokens with direct `var(--name)` consumers (ring, muted, border) or theme-aware
+   * values (destructive, sidebar) reference the `:root` alias. The rest go straight
+   * to `--color-*` to avoid an unused indirection.
+   */
+  --color-background: var(--color-surface-default);
+  --color-foreground: var(--color-text-default);
+  --color-card: var(--color-surface-raised);
+  --color-card-foreground: var(--color-text-default);
+  --color-popover: var(--color-surface-overlay);
+  --color-popover-foreground: var(--color-text-default);
+  --color-primary: var(--color-surface-brand);
+  --color-primary-foreground: var(--color-text-on);
+  --color-secondary: var(--color-surface-subtle);
+  --color-secondary-foreground: var(--color-text-default);
   --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent: var(--color-surface-subtle);
+  --color-accent-foreground: var(--color-text-default);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--color-border-default);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--color-text-default);
+  --color-sidebar-primary: var(--color-surface-brand);
+  --color-sidebar-primary-foreground: var(--color-text-on);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--color-text-default);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--color-border-focus);
+
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-destructive-hoverd: var(--destructive-hoverd);
 
   /** Elevation shadows (Tailwind `--shadow-*` → `shadow-raised`, `shadow-lg`, `shadow-overlay`, `shadow-xl`) */
   --shadow-raised: 0 1px 2px

@@ -3,8 +3,6 @@
  * Injected inside each `[data-theme]` block by `exportCssVariables` so they track
  * live tier-2 `--color-*` semantics.
  *
- * Role peers (`--ns-app-bg` → `surface.sunken`, etc.) live only in `app/globals.css`
- * as thin `var(--color-*)` aliases — they are not re-declared in the live stylesheet.
  * See `semanticPolicy.ts` for the typed intent → role registry.
  */
 
@@ -59,9 +57,4 @@ export const CHROME_MIXER_LINES: readonly string[] = [
 
 export function linesLiveThemeChromeBlock(): string[] {
   return [...CHROME_MIXER_LINES]
-}
-
-/** @deprecated Use {@link linesLiveThemeChromeBlock}. Kept for grep / external docs during migration. */
-export function linesLiveThemeNsChromeBlock(): string[] {
-  return linesLiveThemeChromeBlock()
 }

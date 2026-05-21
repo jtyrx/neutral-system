@@ -17,6 +17,7 @@ import {ControlCenterPanelShell} from '@/components/control-center/panel/Control
 import {OklchPanel} from '@/components/control-center/panel/OklchPanel'
 import {RampPreviewPanel} from '@/components/control-center/panel/RampPreviewPanel'
 import type {RampPreviewMode} from '@/lib/workbench/dockPickerStorage'
+import {PrimitiveMappingPanel} from '@/components/control-center/panel/PrimitiveMappingPanel'
 import {RoleMappingPanel} from '@/components/control-center/panel/RoleMappingPanel'
 import {TunePanel} from '@/components/control-center/panel/TunePanel'
 import {
@@ -76,6 +77,7 @@ const TABS: TabDef[] = [
   {id: 'roleLadder', label: 'Role ladder'},
   {id: 'oklch', label: 'OKLCH'},
   {id: 'tune', label: 'Tune'},
+  {id: 'map', label: 'Map'},
 ]
 
 const popupWidthClassName =
@@ -369,6 +371,17 @@ function PanelBody({
           >
             <div data-slot="tabpanel-inner">
               <TunePanel />
+            </div>
+          </Tabs.Panel>
+          <Tabs.Panel
+            value="map"
+            id="dock-picker-tabpanel-map"
+            data-slot="dock-picker-tabpanel"
+            data-tab-id="map"
+            className={tabPanelClassName}
+          >
+            <div data-slot="tabpanel-inner">
+              <PrimitiveMappingPanel />
             </div>
           </Tabs.Panel>
         </Tabs.Root>

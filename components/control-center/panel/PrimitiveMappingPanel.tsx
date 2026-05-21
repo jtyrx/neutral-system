@@ -1,0 +1,221 @@
+'use client'
+
+import {memo, useCallback} from 'react'
+
+import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
+import {cn} from '@/lib/cn'
+import type {GlobalSwatch, SystemToken, TokenView} from '@/lib/neutral-engine'
+
+const LAYERS = ['surface', 'border', 'text'] as const
+type Layer = (typeof LAYERS)[number]
+
+export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
+  const {lightTokenView, darkTokenView, global, systemConfig, patchSystem} =
+    useNeutralWorkbenchContext()
+
+  const overrides = systemConfig.roleStepOverrides ?? {}
+
+  const setOverride = useCallback(
+    (role: string, theme: 'light' | 'dark', step: number | undefined) => {
+      const current = systemConfig.roleStepOverrides ?? {}
+      const entry = {...(current[role] ?? {})}
+      if (step === undefined) {
+        delete entry[theme]
+      } else {
+        entry[theme] = step
+      }
+      const next = {...current, [role]: entry}
+      if (next[role]?.light === undefined && next[role]?.dark === undefined) {
+        delete next[role]
+      }
+      patchSystem('roleStepOverrides', next)
+    },
+    [systemConfig.roleStepOverrides, patchSystem],
+  )
+
+  const stepCount = global.length
+
+  return (
+    <div className="flex flex-col gap-0 overflow-y-auto">
+      <div className="border-b border-hairline px-12 py-10">
+        <p className="font-mono text-nano uppercase tracking-[0.13em] text-muted">
+          Semantic → Primitive
+        </p>
+        <p className="mt-2 text-nano text-muted leading-snug opacity-70">
+          Pin any role to a specific scale step. Overrides are saved to your preset.
+        </p>
+      </div>
+
+      {LAYERS.map((layer) => {
+        const lightTokens = lightTokenView.byLayerPublic[layer] ?? []
+        if (lightTokens.length === 0) return null
+        return (
+          <LayerSection
+            key={layer}
+            layer={layer}
+            lightTokens={lightTokens}
+            darkTokenView={darkTokenView}
+            global={global}
+            stepCount={stepCount}
+            overrides={overrides}
+            onOverride={setOverride}
+          />
+        )
+      })}
+    </div>
+  )
+})
+PrimitiveMappingPanel.displayName = 'PrimitiveMappingPanel'
+
+type LayerSectionProps = {
+  layer: Layer
+  lightTokens: SystemToken[]
+  darkTokenView: TokenView
+  global: GlobalSwatch[]
+  stepCount: number
+  overrides: Partial<Record<string, {light?: number; dark?: number}>>
+  onOverride: (role: string, theme: 'light' | 'dark', step: number | undefined) => void
+}
+
+function LayerSection({
+  layer,
+  lightTokens,
+  darkTokenView,
+  global,
+  stepCount,
+  overrides,
+  onOverride,
+}: LayerSectionProps) {
+  return (
+    <div>
+      <div className="border-b border-hairline bg-sunken px-12 py-5">
+        <p className="font-mono text-nano uppercase tracking-[0.14em] text-muted">{layer}</p>
+      </div>
+      <div className="grid grid-cols-[1fr_112px_20px_112px] items-center border-b border-hairline px-12 py-4">
+        <span className="font-mono text-nano text-muted opacity-50">role</span>
+        <span className="font-mono text-nano text-muted opacity-50">light</span>
+        <span className="font-mono text-nano text-center text-muted opacity-50">Δ</span>
+        <span className="font-mono text-nano text-muted opacity-50">dark</span>
+      </div>
+      {lightTokens.map((lt, i) => {
+        const darkToken = darkTokenView.byLayerPublic[layer]?.find(
+          (t) => t.role === lt.role,
+        )
+        const lightOverride = overrides[lt.role]?.light
+        const darkOverride = overrides[lt.role]?.dark
+        const effectiveLightIdx = lightOverride ?? lt.sourceGlobalIndex
+        const effectiveDarkIdx = darkToken
+          ? (darkOverride ?? darkToken.sourceGlobalIndex)
+          : null
+        const delta =
+          effectiveDarkIdx !== null ? effectiveDarkIdx - effectiveLightIdx : null
+        const isLast = i === lightTokens.length - 1
+
+        return (
+          <div
+            key={lt.role}
+            className={cn(
+              'grid grid-cols-[1fr_112px_20px_112px] items-center px-12 py-7 hover:bg-subtle transition-colors',
+              !isLast && 'border-b border-hairline',
+            )}
+          >
+            <span
+              className="font-mono text-nano text-subtle truncate pr-4"
+              title={lt.role}
+            >
+              {lt.role}
+            </span>
+
+            <StepDropdown
+              value={effectiveLightIdx}
+              isOverridden={lightOverride !== undefined}
+              global={global}
+              stepCount={stepCount}
+              onChange={(v) => onOverride(lt.role, 'light', v)}
+            />
+
+            <span
+              className={cn(
+                'text-center font-mono text-nano tabular-nums',
+                delta === null || delta === 0 ? 'text-muted opacity-30' : 'text-muted',
+              )}
+            >
+              {delta === null || delta === 0
+                ? '—'
+                : delta > 0
+                  ? `+${delta}`
+                  : delta}
+            </span>
+
+            {darkToken ? (
+              <StepDropdown
+                value={effectiveDarkIdx ?? 0}
+                isOverridden={darkOverride !== undefined}
+                global={global}
+                stepCount={stepCount}
+                onChange={(v) => onOverride(lt.role, 'dark', v)}
+              />
+            ) : (
+              <span className="font-mono text-nano text-muted opacity-20">—</span>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+type StepDropdownProps = {
+  value: number
+  isOverridden: boolean
+  global: GlobalSwatch[]
+  stepCount: number
+  onChange: (step: number | undefined) => void
+}
+
+function StepDropdown({value, isOverridden, global, stepCount, onChange}: StepDropdownProps) {
+  const swatch = global[value] ?? null
+
+  return (
+    <div className="flex items-center gap-5">
+      {swatch && (
+        <span
+          className="inline-block h-[10px] w-[10px] shrink-0 rounded-[2px] border border-hairline"
+          style={{backgroundColor: swatch.serialized.hex}}
+        />
+      )}
+      <select
+        value={value}
+        onChange={(e) => {
+          const v = Number(e.target.value)
+          onChange(v)
+        }}
+        className={cn(
+          'appearance-none bg-transparent font-mono text-nano tabular-nums outline-none cursor-pointer',
+          isOverridden ? 'text-default' : 'text-subtle',
+        )}
+        title={`Step ${value} — ${swatch?.serialized.hex ?? ''}`}
+      >
+        {Array.from({length: stepCount}, (_, i) => {
+          const s = global[i]
+          return (
+            <option key={i} value={i}>
+              {s ? `${s.label} ·${i}` : `step ${i}`}
+            </option>
+          )
+        })}
+      </select>
+      {isOverridden && (
+        <button
+          type="button"
+          onClick={() => onChange(undefined)}
+          className="text-nano text-muted opacity-50 hover:opacity-100 transition-opacity leading-none"
+          aria-label="Clear override"
+          title="Reset to calculated value"
+        >
+          ×
+        </button>
+      )}
+    </div>
+  )
+}

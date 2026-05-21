@@ -27,7 +27,7 @@ const ACCENT = {
 export function ThemeComparisonFrame({theme, label, children}: Props) {
   const accent = ACCENT[theme]
   return (
-    <div className="flex min-w-0 flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8" data-preview-theme={theme}>
       <div className="flex items-center gap-6">
         <span aria-hidden className={cn('h-6 w-6 rounded-full', accent.dot)} />
         <span className={cn('text-nano font-semibold uppercase tracking-[0.16em]', accent.text)}>{label}</span>

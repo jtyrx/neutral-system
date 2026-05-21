@@ -145,24 +145,37 @@ export function exportCssVariables(params: {
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
-  lines.push('[data-theme="light"] {')
+  const lightSemanticLines: string[] = []
   params.light.forEach((t) => {
-    lines.push(
+    lightSemanticLines.push(
       `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
     )
   })
+  const darkSemanticLines: string[] = []
+  params.dark.forEach((t) => {
+    darkSemanticLines.push(
+      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
+    )
+  })
+
+  lines.push('[data-theme="light"] {')
+  lines.push(...lightSemanticLines)
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="dark"] {')
-  params.dark.forEach((t) => {
-    lines.push(
-      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
-    )
-  })
+  lines.push(...darkSemanticLines)
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
+  lines.push('}')
+  lines.push('')
+  lines.push('[data-preview-theme="light"] {')
+  lines.push(...lightSemanticLines)
+  lines.push('}')
+  lines.push('')
+  lines.push('[data-preview-theme="dark"] {')
+  lines.push(...darkSemanticLines)
   lines.push('}')
   return lines.join('\n')
 }

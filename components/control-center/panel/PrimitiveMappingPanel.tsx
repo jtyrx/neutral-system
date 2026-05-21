@@ -1,10 +1,11 @@
 'use client'
 
-import {memo, useCallback} from 'react'
+import {memo} from 'react'
 
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
 import {cn} from '@/lib/cn'
-import type {GlobalSwatch, SystemToken, TokenView} from '@/lib/neutral-engine'
+import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine'
+import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 
 const LAYERS = ['surface', 'border', 'text'] as const
 type Layer = (typeof LAYERS)[number]
@@ -15,23 +16,20 @@ export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
 
   const overrides = systemConfig.roleStepOverrides ?? {}
 
-  const setOverride = useCallback(
-    (role: string, theme: 'light' | 'dark', step: number | undefined) => {
-      const current = systemConfig.roleStepOverrides ?? {}
-      const entry = {...(current[role] ?? {})}
-      if (step === undefined) {
-        delete entry[theme]
-      } else {
-        entry[theme] = step
-      }
-      const next = {...current, [role]: entry}
-      if (next[role]?.light === undefined && next[role]?.dark === undefined) {
-        delete next[role]
-      }
-      patchSystem('roleStepOverrides', next)
-    },
-    [systemConfig.roleStepOverrides, patchSystem],
-  )
+  const setOverride = (role: string, theme: 'light' | 'dark', step: number | undefined) => {
+    const current = systemConfig.roleStepOverrides ?? {}
+    const entry = {...(current[role] ?? {})}
+    if (step === undefined) {
+      delete entry[theme]
+    } else {
+      entry[theme] = step
+    }
+    const next = {...current, [role]: entry}
+    if (next[role]?.light === undefined && next[role]?.dark === undefined) {
+      delete next[role]
+    }
+    patchSystem('roleStepOverrides', next)
+  }
 
   const stepCount = global.length
 
@@ -149,7 +147,7 @@ function LayerSection({
 
             {darkToken ? (
               <StepDropdown
-                value={effectiveDarkIdx ?? 0}
+                value={effectiveDarkIdx!}
                 isOverridden={darkOverride !== undefined}
                 global={global}
                 stepCount={stepCount}

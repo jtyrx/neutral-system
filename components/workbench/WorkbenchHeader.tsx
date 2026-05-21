@@ -2,7 +2,7 @@
 
 import {memo, useLayoutEffect, useRef} from 'react'
 
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {ComparisonLayoutPicker} from '@/components/workbench/ComparisonLayoutPicker'
 import {InspectionToggle} from '@/components/workbench/InspectionToggle'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
@@ -80,27 +80,10 @@ function WorkbenchHeaderInner({
           id="nsb-workbench-controls"
           className="flex min-w-0 flex-wrap cursor-pointer items-center gap-8 nsb-lg:justify-end"
         >
-          <Button variant="default" size="xs">
-            {comparisonLayout}
-          </Button>
-          <Button variant="default" size="sm">
-            {comparisonLayout}
-          </Button>
-          <Button variant="outline" size="sm">
-            {comparisonLayout}
-          </Button>
-          <Button variant="secondary" size="sm">
-            {comparisonLayout}
-          </Button>
-          <Button variant="destructive" size="sm">
-            {comparisonLayout}
-          </Button>
           <Button variant="default" size="md">
             {comparisonLayout}
           </Button>
-          <Button>
-            <span>{comparisonLayout}</span>
-          </Button>
+
           <ComparisonLayoutPicker
             value={comparisonLayout}
             onChange={onComparisonLayoutChange}

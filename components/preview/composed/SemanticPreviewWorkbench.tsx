@@ -2,12 +2,12 @@
 
 import {memo} from 'react'
 
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {PreviewBlockSection} from '@/components/preview/PreviewBlockSection'
 import {
   PREVIEW_BLOCK_CASES,
   type PreviewBlockCase,
-} from '@/components/preview/SemanticPreviewBlockCases'
+} from '@/components/preview/previewBlockRegistry'
 import type {TokenSelectTheme} from '@/components/preview/SemanticTokenAnnotation'
 import {ThemeComparisonFrame} from '@/components/preview/ThemeComparisonFrame'
 import type {GlobalSwatch, NeutralArchitectureMode, TokenView} from '@/lib/neutral-engine'
@@ -16,7 +16,7 @@ type Props = {
   neutralArchitecture: NeutralArchitectureMode
   globalLight: GlobalSwatch[]
   globalDark: GlobalSwatch[]
-  unifiedGlobal?: GlobalSwatch[]
+  unifiedGlobal?: GlobalSwatch[] | undefined
   lightTokenView: TokenView
   darkTokenView: TokenView
   liveBrandSurfaceOklch: {light: string; dark: string}
@@ -106,3 +106,4 @@ export const SemanticPreviewWorkbench = memo(function SemanticPreviewWorkbench(p
     </div>
   )
 })
+SemanticPreviewWorkbench.displayName = 'SemanticPreviewWorkbench'

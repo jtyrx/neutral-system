@@ -2,10 +2,10 @@
 
 import {memo} from 'react'
 
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {ContrastPairsPanel} from '@/components/preview/ContrastPairsPanel'
-import {PreviewContextPanel} from '@/components/preview/PreviewContextPanel'
-import {SemanticPreviewWorkbench} from '@/components/preview/SemanticPreviewWorkbench'
+import {PreviewContextPanel} from '@/components/preview/composed/PreviewContextPanel'
+import {SemanticPreviewWorkbench} from '@/components/preview/composed/SemanticPreviewWorkbench'
 import type {TokenSelectTheme} from '@/components/preview/SemanticTokenAnnotation'
 import type {
   GlobalSwatch,
@@ -24,7 +24,7 @@ type Props = {
   /** Dark elevated ramp (Advanced) or unified ramp (Simple). */
   globalDark: GlobalSwatch[]
   /** When Simple Mode, duplicate ref to both ramps — enables semantic blocks to optimize. */
-  unifiedGlobal?: GlobalSwatch[]
+  unifiedGlobal?: GlobalSwatch[] | undefined
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
   lightTokenView: TokenView
@@ -37,7 +37,7 @@ type Props = {
   derivationConfigDark: SystemMappingConfig
   ladderLightSteps: number
   ladderDarkSteps: number
-  alphaBaseIndices?: {lightBase: number; darkBase: number}
+  alphaBaseIndices?: {lightBase: number; darkBase: number} | undefined
 }
 
 function WorkbenchPreviewColumnInner({

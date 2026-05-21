@@ -252,7 +252,7 @@ function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkT
     <section id="themes" className="scroll-mt-24 space-y-24">
       <header>
         <p className="eyebrow">3 · Themes</p>
-        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Light vs dark elevated</h2>
+        <h2 className="mt-4 text-sm font-medium tracking-tight text-default">Light vs dark elevated</h2>
         <p className="mt-8 max-w-2xl text-sm text-muted">
           Default view is a primitive-token data table: neutral ladder names, semantic roles, and ramp
           indices. Switch to Visual for the paired layout.

@@ -7,6 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip.tsx'
+import {badgeVariants} from '@/components/ui/badge.tsx'
 import {
   displayGamutLabel,
   type DisplayGamutTier,
@@ -31,10 +32,7 @@ function GamutBadgeInner({tier, className}: Props) {
     <Tooltip>
       <TooltipTrigger
         type="button"
-        className={cn(
-          'inline-flex items-center rounded-full border border-hairline bg-raised px-10 py-2 text-caption font-medium text-default tabular-nums',
-          className,
-        )}
+        className={cn(badgeVariants({variant: 'default', size: 'md'}), 'tabular-nums', className)}
       >
         Gamut: {label}
       </TooltipTrigger>

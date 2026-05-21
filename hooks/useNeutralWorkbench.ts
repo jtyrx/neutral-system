@@ -7,7 +7,7 @@
 import type {Dispatch, SetStateAction} from 'react'
 import {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 'react'
 
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {
   beginTimer,
   endTimerOnce,

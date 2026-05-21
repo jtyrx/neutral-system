@@ -193,7 +193,7 @@ function ExportSectionInner({
     <section id="workbench-export" className="scroll-mt-24 space-y-16">
       <header>
         <p className="eyebrow">7 · Export</p>
-        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Tokens</h2>
+        <h2 className="mt-4 text-sm font-medium tracking-tight text-default">Tokens</h2>
         <p className="mt-8 max-w-2xl text-sm text-muted">
           JSON bundles tier-1 primitives + light/dark semantic roles (same shape as before). CSS uses{' '}
           <span className="font-mono">--color-neutral-*</span> tier‑1 primitives (literal OKLCH) and{' '}

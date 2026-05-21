@@ -1,6 +1,6 @@
-'use client'
-
 import type {ReactNode} from 'react'
+
+import {cn} from '@/lib/cn'
 
 type Theme = 'light' | 'dark'
 
@@ -10,16 +10,16 @@ type Props = {
   children: ReactNode
 }
 
-const ACCENT: Record<Theme, {dot: string; text: string}> = {
+const ACCENT = {
   light: {
-    dot: 'bg-[var(--chrome-amber-fill)]',
-    text: 'text-[var(--chrome-amber-text)]',
+    dot: 'bg-(--chrome-amber-fill)',
+    text: 'text-(--chrome-amber-text)',
   },
   dark: {
-    dot: 'bg-[var(--chrome-sky-fill)]',
-    text: 'text-[var(--chrome-sky-text)]',
+    dot: 'bg-(--chrome-sky-fill)',
+    text: 'text-(--chrome-sky-text)',
   },
-}
+} satisfies Record<Theme, {dot: string; text: string}>
 
 /**
  * Frames one theme rendering of a preview block with a small labeled pill, used inside Split comparison.
@@ -29,10 +29,11 @@ export function ThemeComparisonFrame({theme, label, children}: Props) {
   return (
     <div className="flex min-w-0 flex-col gap-8">
       <div className="flex items-center gap-6">
-        <span aria-hidden className={`h-6 w-6 rounded-full ${accent.dot}`} />
-        <span className={`text-[0.55rem] font-semibold uppercase tracking-[0.16em] ${accent.text}`}>{label}</span>
+        <span aria-hidden className={cn('h-6 w-6 rounded-full', accent.dot)} />
+        <span className={cn('text-nano font-semibold uppercase tracking-[0.16em]', accent.text)}>{label}</span>
       </div>
       <div className="min-w-0">{children}</div>
     </div>
   )
 }
+ThemeComparisonFrame.displayName = 'ThemeComparisonFrame'

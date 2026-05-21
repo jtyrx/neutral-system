@@ -33,8 +33,8 @@ type FieldProps = {
   min: number
   max: number
   step: number
-  disabled?: boolean
-  hint?: string
+  disabled?: boolean | undefined
+  hint?: string | undefined
   onSliderChange: (v: number) => void
   onInputChange: (raw: string) => void
 }

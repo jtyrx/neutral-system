@@ -2,7 +2,7 @@
 
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group.tsx'
 import {cn} from '@/lib/cn'
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 
 const COMPARISON_LAYOUT_OPTIONS = [
   'split',

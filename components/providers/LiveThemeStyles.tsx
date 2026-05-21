@@ -19,7 +19,7 @@ export function LiveThemeStyles({
   architecture: NeutralArchitectureMode
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
-  alphaConfig?: AlphaNeutralConfig
+  alphaConfig?: AlphaNeutralConfig | undefined
 }) {
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return

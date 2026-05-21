@@ -1,12 +1,6 @@
-'use client'
-
-import {memo} from 'react'
-
-import {cn} from '@/lib/utils'
-import {
-  RampSemanticLaneGridRows,
-  tokensForSemanticLanes,
-} from '@/components/preview/rampSemanticLanes'
+import {cn} from '@/lib/cn'
+import {RampSemanticLaneGridRows} from '@/components/preview/rampSemanticLanes'
+import {tokensForSemanticLanes} from '@/components/preview/laneBadges'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
 
 type Props = {
@@ -15,14 +9,14 @@ type Props = {
   /** Shown above the strip (e.g. “Light · global ramp”). */
   caption: string
   /** Accent for focus ring / column chrome. */
-  accentClassName?: string
+  accentClassName?: string | undefined
   /**
    * When true, render swatches in reverse index order (presentation only; indices and token lookups unchanged).
    * Used for dark-theme ramps so the visual reads dark→light alongside light-theme light→dark.
    */
-  invertDisplay?: boolean
+  invertDisplay?: boolean | undefined
   /** Global index of the alpha base swatch — renders a violet “Aα” badge when set. */
-  alphaBaseIndex?: number
+  alphaBaseIndex?: number | undefined
 }
 
 /** When `true`, split the ramp into two balanced horizontal segments (~half width each) for long ladders. */
@@ -52,7 +46,7 @@ function segmentsForDisplay(swatchesOrdered: GlobalSwatch[]): GlobalSwatch[][] {
 }
 
 /** Full global ramp: one shared grid per segment — swatch row, then surface / border / text / alpha rows (no visible lane labels; badges encode role). Long ladders wrap into two balanced segments. */
-function GlobalScaleStripInner({
+export function GlobalScaleStrip({
   global,
   tokenView,
   caption,
@@ -122,7 +116,7 @@ function GlobalScaleStripInner({
                 className="space-y-6"
               >
                 {segments.length > 1 ? (
-                  <p className="text-[0.55rem] font-medium tracking-wider text-muted uppercase">
+                  <p className="text-nano font-medium tracking-wider text-muted uppercase">
                     Ramp {segIdx + 1}/{segments.length} · indices {rangeLabel}
                   </p>
                 ) : null}
@@ -138,10 +132,12 @@ function GlobalScaleStripInner({
                       className="flex min-w-0 flex-col items-stretch font-mono"
                       title={`${s.label} · idx ${s.index} · display ${getDisplayIdx(s.index)}`}
                     >
-                      <span className="shrink-0 px-2 py-4 text-center text-[0.5rem] leading-none text-default">
+                      <span className="shrink-0 px-2 py-4 text-center text-nano leading-none text-default">
                         {getDisplayIdx(s.index)}
                       </span>
                       <div
+                        role="img"
+                        aria-label={`Color swatch: ${s.label}, idx ${s.index}`}
                         className="h-32 w-full shrink-0 sm:h-36 nsb-lg:h-40"
                         style={{backgroundColor: s.serialized.hex}}
                       />
@@ -162,5 +158,5 @@ function GlobalScaleStripInner({
     </div>
   )
 }
+GlobalScaleStrip.displayName = 'GlobalScaleStrip'
 
-export const GlobalScaleStrip = memo(GlobalScaleStripInner)

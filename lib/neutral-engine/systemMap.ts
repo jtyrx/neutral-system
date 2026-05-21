@@ -159,13 +159,13 @@ function clampBorderStandardCount(raw: number): number {
 /** Inverse surface: theme-flip of the first standard surface pick (`surface.sunken` at k=0). */
 export function resolveSurfaceInverseIndex(standardSurfaceIndices: number[], n: number): number {
   if (standardSurfaceIndices.length === 0) return clampIndex(0, n)
-  return mirrorRampIndex(standardSurfaceIndices[0], n)
+  return mirrorRampIndex(standardSurfaceIndices[0]!, n)
 }
 
 /** `text.on`: theme-flip of `text.default` (first slot after semantic ordering). */
 export function resolveTextInverseIndex(orderedTextIndices: number[], n: number): number {
   if (orderedTextIndices.length === 0) return clampIndex(0, n)
-  return mirrorRampIndex(orderedTextIndices[0], n)
+  return mirrorRampIndex(orderedTextIndices[0]!, n)
 }
 
 /**
@@ -230,6 +230,7 @@ export function deriveBrandSurfaceToken(
     sourceGlobalIndex: brandIdx,
     serialized: brandResolved.serialized,
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
   }
 }
 
@@ -399,6 +400,7 @@ function makeToken(
       sourceGlobalIndex: sourceIndex,
       serialized: serializeColor(c),
       alpha,
+      $type: 'color',
     }
   }
   return {
@@ -408,6 +410,7 @@ function makeToken(
     theme,
     sourceGlobalIndex: sourceIndex,
     serialized: swatch.serialized,
+    $type: 'color',
   }
 }
 
@@ -484,6 +487,7 @@ export function deriveSystemTokens(
     sourceGlobalIndex: brandIdx,
     serialized: brandResolved.serialized,
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
   })
   tokens.push(
     makeToken(

@@ -104,7 +104,7 @@ function SystemMappingSectionInner({
     <section id="system" className="scroll-mt-24 space-y-32">
       <header>
         <p className="eyebrow">2 · System mapping</p>
-        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Surface, border & text</h2>
+        <h2 className="mt-4 text-sm font-medium tracking-tight text-default">Surface, border & text</h2>
         <p className="mt-8 max-w-2xl text-sm text-default/55">
           Light and Dark elevated each have their own ladder starts and shade counts on the shared
           global ramp. Resolved indices and offset maps use the same math as previews and exports,

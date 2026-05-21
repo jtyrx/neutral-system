@@ -29,7 +29,7 @@ function LoopingEllipsis() {
     const id = window.setInterval(() => {
       frame = (frame + 1) % ELLIPSIS_FRAMES.length
       const el = ref.current
-      if (el) el.textContent = ELLIPSIS_FRAMES[frame]
+      if (el) el.textContent = ELLIPSIS_FRAMES[frame] ?? ''
     }, ELLIPSIS_MS)
 
     return () => window.clearInterval(id)

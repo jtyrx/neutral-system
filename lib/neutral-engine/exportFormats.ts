@@ -105,9 +105,9 @@ function emitTier1Block(
  */
 export function exportJson(params: {
   architecture: NeutralArchitectureMode
-  global?: GlobalSwatch[]
-  lightRamp?: GlobalSwatch[]
-  darkRamp?: GlobalSwatch[]
+  global?: GlobalSwatch[] | undefined
+  lightRamp?: GlobalSwatch[] | undefined
+  darkRamp?: GlobalSwatch[] | undefined
   light: SystemToken[]
   dark: SystemToken[]
 }): string {
@@ -119,7 +119,7 @@ export function exportCssVariables(params: {
   ramps: ArchitectureRamps
   light: SystemToken[]
   dark: SystemToken[]
-  alphaConfig?: AlphaNeutralConfig
+  alphaConfig?: AlphaNeutralConfig | undefined
 }): string {
   const lines: string[] = [':root {']
   const alphaConfig = params.alphaConfig ?? DEFAULT_ALPHA_NEUTRAL_CONFIG

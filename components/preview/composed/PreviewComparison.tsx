@@ -1,15 +1,11 @@
-'use client'
-
-import {memo} from 'react'
-
 import {GlobalRampCard} from '@/components/preview/GlobalRampCard'
 import {PairedRolesPanel} from '@/components/preview/PairedRolesPanel'
 import {
-  PreviewPanelHeading,
   previewChromePanelVariants,
   rampCardAccentClass,
   type PreviewChromeTone,
-} from '@/components/preview/previewPanelChrome'
+} from '@/components/preview/previewChrome'
+import {PreviewPanelHeading} from '@/components/preview/PreviewPanelHeading'
 import type {PairedRoleGroupHints} from '@/components/preview/SemanticPairGrid'
 import type {
   GlobalSwatch,
@@ -39,7 +35,7 @@ type Props = {
   globalDark: GlobalSwatch[]
   lightTokenView: TokenView
   darkTokenView: TokenView
-  alphaBaseIndices?: {lightBase: number; darkBase: number}
+  alphaBaseIndices?: {lightBase: number; darkBase: number} | undefined
 }
 
 const GROUP_HINTS: PairedRoleGroupHints = {
@@ -50,7 +46,7 @@ const GROUP_HINTS: PairedRoleGroupHints = {
     'Contrast-flip pair: surface.inverse and text.on — ramp mirrors, not normal ladder rungs.',
 }
 
-function PreviewComparisonInner({
+export function PreviewComparison({
   layout,
   focusTheme,
   neutralArchitecture,
@@ -185,5 +181,4 @@ function PreviewComparisonInner({
     </div>
   )
 }
-
-export const PreviewComparison = memo(PreviewComparisonInner)
+PreviewComparison.displayName = 'PreviewComparison'

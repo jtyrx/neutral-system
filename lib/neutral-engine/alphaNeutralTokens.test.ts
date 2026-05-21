@@ -35,6 +35,7 @@ function makeToken(role: string, sourceIndex: number): SystemToken {
       inSrgbGamut: true,
     },
     customColor: false,
+    $type: 'color',
   }
 }
 

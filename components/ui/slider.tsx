@@ -410,7 +410,7 @@ export type SliderValueProps = React.ComponentProps<
 > &
   Pick<SliderVariantProps, 'size' | 'tone'> &
   Pick<SliderFieldVariantProps, 'valueDisplay'> & {
-    separator?: string
+    separator?: string | undefined
   }
 
 function SliderValue({
@@ -537,12 +537,12 @@ export type SliderFieldProps = SliderRootProps &
   SliderFieldVariantProps & {
     label: React.ReactNode
     description?: React.ReactNode
-    labelClassName?: string
-    valueClassName?: string
-    headerClassName?: string
-    controlClassName?: string
-    descriptionClassName?: string
-    separator?: string
+    labelClassName?: string | undefined
+    valueClassName?: string | undefined
+    headerClassName?: string | undefined
+    controlClassName?: string | undefined
+    descriptionClassName?: string | undefined
+    separator?: string | undefined
   }
 
 function SliderField({

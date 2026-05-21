@@ -25,7 +25,7 @@ function PickerRampStripInner({ramp, caption, className}: Props) {
           {caption}
         </p>
       ) : null}
-      <div className="overflow-x-auto rounded-xl border border-hairline bg-raised">
+      <div className="overflow-x-auto rounded-sm border border-hairline bg-raised">
         <div
           className="flex min-h-64"
           style={{minWidth: `${Math.max(ramp.length * 8, 280)}px`}}

@@ -1,9 +1,39 @@
 # CLAUDE.md
-<!-- Keep this file compact — it is loaded on every session. -->
+<!-- Loaded on every session — every line must earn its place. -->
+
+## Non-Negotiables
+
+Read this block before touching any file. These are the highest-cost mistakes.
+
+- Package manager: `pnpm` only. `pnpm-lock.yaml` is the lock authority.
+- No Radix, no Sanity, no GROQ, no additional CMS — unless explicitly requested.
+- No runtime barrel imports anywhere in `components/` or `lib/`. New barrel files must be `export type` only.
+- `lib/neutral-engine/index.ts` is type-only. Import runtime values directly from source files.
+- `cn()` from `@/lib/cn` (workbench) or `@/lib/utils` (ui primitives). Never string-concatenate classes.
+- React-facing color data must be `SerializedColor`. Never pass live `Color` instances to components.
+- Do not call `useNeutralWorkbench` directly inside components. Access via `NeutralWorkbenchProvider` context only.
+- Do not reintroduce `useTransition` or `useDeferredValue` without revisiting the Chromium 1Hz throttle issue. `inputBusy` is always `false` — API-compatible, do not change.
+- `displayName` required on every exported component function in `components/ui/`.
+- No CSS selector hacks to suppress sub-elements (`**:data-[slot=...]`, `*:hidden`). Use conditional render: `{showsIndicator(variant) && <Indicator />}`.
+- Variant context cascades via inline `React.createContext` in the same file. Never export the context object.
+- Do not recompute derived ladder picks in components. Import helpers from `systemMap.ts`.
+
+---
+
+## Engineering Principles
+
+- Server Components by default. Add `'use client'` only at the smallest interactive leaf.
+- Treat caching as explicit architecture, not incidental behavior.
+- Colocate data fetching with the component that owns the data.
+- Build UI as small, accessible, composable primitives. Separate primitives / patterns / product components.
+- Tailwind expresses. CSS variables govern. Components compose. Never use utility classes to encode design decisions that belong in tokens.
+- Use TypeScript to encode valid design-system usage — discriminated unions for variants, `satisfies` for token maps.
+- Prefer boring, traceable code. Optimize for readability and deletion, not abstraction.
+- Mutations use Server Actions. Colocate actions with the forms that invoke them. `revalidateTag` is the handshake between a mutation and its affected cache.
+
+---
 
 ## Commands
-
-Use `pnpm`; `pnpm-lock.yaml` and `package.json#packageManager` are authoritative.
 
 ```bash
 pnpm install
@@ -11,92 +41,113 @@ pnpm dev
 pnpm build
 pnpm start
 pnpm lint
-pnpm type-check
-pnpm test              # vitest run (lib/**/*.test.ts only, node env)
-pnpm test:watch        # vitest interactive watch
+pnpm type-check                              # run before claiming done
+pnpm test                                    # vitest, node env, lib/**/*.test.ts only
+pnpm test:watch
+pnpm test lib/neutral-engine/globalScale     # single file
 ```
 
-Run a single test file: `pnpm test lib/neutral-engine/globalScale`
+Verification gate: `pnpm type-check` → `pnpm test` (after engine changes) → `pnpm build` (broad changes).
 
-Run `pnpm type-check` before claiming done. Run `pnpm test` after engine changes and `pnpm build` for non-trivial or broad changes.
+---
 
 ## Stack
 
-Next.js 16 App Router, React 19, TypeScript strict, Tailwind CSS v4, `colorjs.io`, `@base-ui/react`, `sonner`. Alias `@/*` resolves from repo root. UI primitives are shadcn-style wrappers over Base UI, not Radix. Do not add Radix, Sanity, GROQ, or another CMS unless explicitly requested.
+Next.js 16 App Router · React 19 · TypeScript strict · Tailwind CSS v4 · `colorjs.io` · `@base-ui/react` · `sonner`
 
-For Next.js-specific work, read only the relevant local docs under `.next-docs` first. If docs are missing, run `npx @next/codemod agents-md --output AGENTS.md`.
+Alias `@/*` resolves from repo root. UI primitives are shadcn-style wrappers over **Base UI** — not Radix.
+
+For Next.js-specific work, read `.next-docs` first. If missing: `npx @next/codemod agents-md --output AGENTS.md`.
+
+---
 
 ## Architecture
 
 Two routes:
 
-- `app/page.tsx` → `components/workbench/Workbench.tsx` — main neutral system builder.
-- `app/picker/page.tsx` → `components/picker/OklchPickerWorkbench.tsx` — standalone OKLCH color picker.
+- `app/page.tsx` → `components/workbench/Workbench.tsx` — neutral system builder
+- `app/picker/page.tsx` → `components/picker/OklchPickerWorkbench.tsx` — OKLCH color picker
 
-Engine code in `lib/neutral-engine/` is pure and framework-free:
+### Engine (`lib/neutral-engine/`) — pure, framework-free
 
-- `globalScale.ts`: `buildGlobalScale`; index `0` is lightest, last is darkest; steps clamp to `[8, 48]`.
-- `systemMap.ts`: `deriveSystemTokens`; use `clampSystemMappingToLadderLength` before deriving. `darkFillStart` may be `-1`.
-- `effectiveMapping.ts`: apply contrast emphasis before token derivation.
-- `semanticNaming.ts`: role ids stay as dot paths such as `surface.default`, `text.on`, `border.focus`.
-- `exportFormats.ts`: JSON, CSS, CSV, Tailwind v4. Light tier-1 exports as `--color-neutral-*`; dark advanced tier-1 exports reversed as `--color-neutral-dark-<displayIndex>` where `0` is darkest.
-- `okhsl.ts`: OKHSL is a view over canonical OKLCH config, not parallel state.
-- `gamutProbing.ts`: probes display-P3 / sRGB gamut boundaries for a given OKLCH.
-- `pickerConfig.ts`: derives picker-specific config from workbench state.
-- `displayGamut.ts`: gamut detection utilities.
+| File | Key constraint |
+|---|---|
+| `globalScale.ts` | `buildGlobalScale`; index `0` = lightest, last = darkest; steps clamp `[8, 48]` |
+| `systemMap.ts` | `deriveSystemTokens`; always run `clampSystemMappingToLadderLength` before deriving; `darkFillStart` may be `-1` |
+| `effectiveMapping.ts` | Apply contrast emphasis **before** token derivation |
+| `semanticNaming.ts` | Role ids are dot paths internally: `surface.default`, `text.on`, `border.focus` |
+| `exportFormats.ts` | Light tier-1 → `--color-neutral-*`; dark advanced tier-1 → reversed `--color-neutral-dark-<displayIndex>` where `0` = darkest |
+| `okhsl.ts` | **OKHSL is a view over canonical OKLCH config — not parallel state** |
+| `gamutProbing.ts` | Probes display-P3 / sRGB gamut boundaries |
+| `pickerConfig.ts` | Derives picker config from workbench state |
+| `displayGamut.ts` | Gamut detection utilities |
 
-### State and providers
+### State
 
-Workbench state is centralized in `hooks/useNeutralWorkbench.ts`. Components access it via `NeutralWorkbenchProvider` context (`components/providers/NeutralWorkbenchProvider.tsx`) — do not call `useNeutralWorkbench` directly inside components. Keep input changes synchronous; do not reintroduce `useTransition` or `useDeferredValue` without revisiting the Chromium 1Hz throttle issue. `inputBusy` remains API-compatible and always `false`.
-
-CSS variable writes live in `components/providers/LiveThemeStyles.tsx` and use `useLayoutEffect`. `next-themes` drives the `light`/`dark` class; `WorkbenchThemeBridge` (inside the provider) syncs it to `previewTheme`.
-
-State is persisted to `localStorage` via `lib/workbench/workbenchStorage.ts` (key: `neutral-system:workbench:v1`). Presets also load by dispatching `neutral-system:load-preset` with `{ globalConfig, systemConfig }`. Draft-mode route/env names that mention Sanity are URL-compatibility plumbing only.
-
-### Control center
-
-`components/control-center/` hosts a floating control panel system: `ControlCenter.tsx` orchestrates a magnifying dock (`dock/`) and detachable panels (`panel/`) with their own `ControlCenterPanelContext`. Picker state is managed separately in `hooks/useOklchPickerWorkbench.ts`, bridged to the main workbench via `hooks/useWorkbenchAdapter.ts`.
+- Workbench state: `hooks/useNeutralWorkbench.ts` → exposed only via `NeutralWorkbenchProvider`
+- CSS variable writes: `components/providers/LiveThemeStyles.tsx` using `useLayoutEffect`
+- Theme: `next-themes` drives `light`/`dark` class; `WorkbenchThemeBridge` syncs to `previewTheme`
+- Persistence: `localStorage`, key `neutral-system:workbench:v1` (`lib/workbench/workbenchStorage.ts`)
+- Presets: dispatch `neutral-system:load-preset` with `{ globalConfig, systemConfig }`
+- Picker state: `hooks/useOklchPickerWorkbench.ts`, bridged via `hooks/useWorkbenchAdapter.ts`
 
 ### Workbench components (`components/workbench/**`)
 
-Logically distinct control regions are extracted as named components, not inlined in their parent. Example: `ComparisonLayoutPicker.tsx` and `InspectionToggle.tsx` rather than inline JSX in `WorkbenchHeader.tsx`. Headers and shells read as orchestration; controls are independently composable.
+Extract logically distinct control regions as named components — never inline in parents. Headers and shells are orchestration; controls are independently composable.
+
+---
 
 ## Import Policy
 
-- **No runtime barrel imports.** `lib/neutral-engine/index.ts` is type-only. Import runtime values directly from their source files (e.g. `@/lib/neutral-engine/systemMap`, `@/lib/neutral-engine/tokenViews`). `import type { ... } from '@/lib/neutral-engine'` is fine.
-- **`components/ui/` uses flat files.** Each primitive is `components/ui/<name>.tsx` — no subdirectories, no `index.ts`. Import with the explicit extension: `import { Button } from '@/components/ui/button.tsx'`.
-- No broad runtime barrels anywhere in `components/` or `lib/`. New barrel files must be `export type` only.
+```ts
+// ✅ Direct source import — always
+import { deriveSystemTokens } from '@/lib/neutral-engine/systemMap'
+import { buildGlobalScale } from '@/lib/neutral-engine/globalScale'
+
+// ✅ Type-only barrel — allowed
+import type { SystemTokens } from '@/lib/neutral-engine'
+
+// ✅ UI primitive with explicit extension
+import { Button } from '@/components/ui/button.tsx'
+
+// ❌ Runtime barrel — never
+import { deriveSystemTokens } from '@/lib/neutral-engine'
+import { Button } from '@/components/ui'
+```
+
+`components/ui/` is flat files only — `components/ui/<name>.tsx`. No subdirectories, no `index.ts`.
+
+---
 
 ## Token Rules
 
-- React-facing color data must be `SerializedColor`, never live `Color` instances.
-- For color math, reparse at leaf call sites with helpers from `lib/neutral-engine/serialize.ts`.
-- Do not recompute derived ladder picks in components; import helpers from `systemMap.ts`.
-- Dark display index is `n - 1 - sourceGlobalIndex`; use `primitiveNeutralExportName(global, idx, tier1ExportMode?)`.
-- `--chrome-*` mixers come from `chromeAliases.ts`; legacy `--ns-*` tokens stay thin aliases only.
-- Role ids are dot paths internally; exports hyphenate through `semanticColorVarName`.
-- Downloadable JSON omits preview-only custom brand and optional emphasis tokens; CSS/Tailwind omit custom brand.
+- Dark display index: `n - 1 - sourceGlobalIndex`. Use `primitiveNeutralExportName(global, idx, tier1ExportMode?)`.
+- `--chrome-*` mixers from `chromeAliases.ts`. Legacy `--ns-*` tokens stay as thin aliases only.
+- Role ids are dot paths internally; exports hyphenate via `semanticColorVarName`.
+- For color math, reparse at leaf call sites using helpers from `lib/neutral-engine/serialize.ts`.
+- Downloadable JSON: omits preview-only custom brand and optional emphasis tokens.
+- CSS/Tailwind exports: omit custom brand.
 
-## UI And Styling
+---
 
-- Tailwind v4; tokens in `app/globals.css`; no `tailwind.config.*`.
-- `cn()` from `@/lib/cn` (workbench) or `@/lib/utils` (ui primitives); never string-concatenate classes.
-- `nsb-lg:`/`nsb-xl:` for workbench layout breakpoints; viewport breakpoints for shell/mobile only.
-- Style: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports.
+## Styling
 
-### UI Primitives (`components/ui/**`)
+- Tailwind v4. Tokens in `app/globals.css`. No `tailwind.config.*`.
+- `nsb-lg:` / `nsb-xl:` for workbench layout breakpoints. Viewport breakpoints for shell and mobile only.
+- Code style: single quotes, no semicolons, trailing commas, 2-space indent, `type` imports.
 
-`components/ui/AGENTS.md` is authoritative. Key rules that prevent regressions:
+`components/ui/AGENTS.md` is authoritative for UI primitive rules.
 
-- **`displayName` required** on every exported component function.
-- **No CSS selector hacks** to suppress sub-elements (`**:data-[slot=...]`, `*:hidden`). Use conditional render: `{showsIndicator(variant) && <Indicator />}`.
-- **Variant context** cascades via inline `React.createContext` in the same file; the context object is never exported.
-- **Each primitive is a flat file** at `components/ui/<name>.tsx`. Import with the explicit `.tsx` extension: `import { RadioGroup } from '@/components/ui/radio-group.tsx'`. No subdirectories, no `index.ts`.
+---
 
 ## Debugging
 
-Debug instrumentation lives in `lib/debug/presetDebug.ts`. Route new debug logs through `presetDebugEnabled()`, which is gated to development.
+Route all new debug logs through `presetDebugEnabled()` in `lib/debug/presetDebug.ts`. Development-gated only.
+
+---
 
 ## Change Discipline
 
-Keep diffs focused and preserve existing patterns. Do not reformat or refactor unrelated files.
+- Keep diffs focused. Do not reformat or refactor unrelated files.
+- Draft-mode route/env names that mention Sanity are URL-compatibility plumbing only — do not expand them.
+- Verification gate before marking done: `pnpm type-check` → `pnpm test` → `pnpm build`.

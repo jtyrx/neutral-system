@@ -4,15 +4,13 @@ import {useMemo} from 'react'
 
 import {RampSwatchRail} from '@/components/control-center/ramp/RampSwatchRail'
 import {
-  PreviewPanelHeading,
   previewChromePanelVariants,
   rampCardAccentClass,
   type PreviewChromeTone,
-} from '@/components/preview/previewPanelChrome'
-import {
-  RampSemanticLanesGrid,
-  tokensForSemanticLanes,
-} from '@/components/preview/rampSemanticLanes'
+} from '@/components/preview/previewChrome'
+import {PreviewPanelHeading} from '@/components/preview/PreviewPanelHeading'
+import {RampSemanticLanesGrid} from '@/components/preview/rampSemanticLanes'
+import {tokensForSemanticLanes} from '@/components/preview/laneBadges'
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
 import {
   dockPickerRampChromeCopyModel,

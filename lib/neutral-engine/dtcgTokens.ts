@@ -94,7 +94,11 @@ function normalizedHue(value: number): DtcgOklchComponent {
 }
 
 function sixDigitHex(value: string): string | undefined {
-  return /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : undefined
+  const lower = value.toLowerCase()
+  if (/^#[0-9a-f]{6}$/.test(lower)) return lower
+  const m = lower.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/)
+  if (m) return `#${m[1]}${m[1]}${m[2]}${m[2]}${m[3]}${m[3]}`
+  return undefined
 }
 
 export function dtcgColorValueFromSerialized(
@@ -220,10 +224,10 @@ function insertThemeTokens(
 export function buildDtcgTokenTree(params: {
   architecture: NeutralArchitectureMode
   /** Simple Mode single ramp */
-  global?: GlobalSwatch[]
+  global?: GlobalSwatch[] | undefined
   /** Advanced Mode sibling ramps */
-  lightRamp?: GlobalSwatch[]
-  darkRamp?: GlobalSwatch[]
+  lightRamp?: GlobalSwatch[] | undefined
+  darkRamp?: GlobalSwatch[] | undefined
   light: SystemToken[]
   dark: SystemToken[]
 }): DtcgTokenTree {

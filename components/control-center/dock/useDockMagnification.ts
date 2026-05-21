@@ -57,11 +57,11 @@ function fitArray(arr: number[], len: number) {
 }
 
 export type DockMagnificationOptions = {
-  distance?: number
-  magnificationScale?: number
+  distance?: number | undefined
+  magnificationScale?: number | undefined
   spring: SpringOptions
   reduceMotion: boolean
-  shellStyle?: CSSProperties
+  shellStyle?: CSSProperties | undefined
 }
 
 export type DockMagnificationResult = {
@@ -131,7 +131,7 @@ export function useDockMagnification({
       let maxHeight = 44
 
       for (let i = 0; i < n; i++) {
-        const el = sorted[i].itemRef.current
+        const el = sorted[i]!.itemRef.current
         const width = el?.offsetWidth ?? 0
         if (width <= 0) return
 
@@ -149,10 +149,10 @@ export function useDockMagnification({
       let totalExtraHalfWidth = 0
 
       for (let i = 0; i < n; i++) {
-        const dx = clientX - centers[i]
+        const dx = clientX - centers[i]!
         const t = Math.min(1, Math.abs(dx) / falloff)
         const scale = 1 + Math.max(0, 1 - t * t) * peakExtra
-        const extraHalfWidth = (scale - 1) * widths[i] * 0.5
+        const extraHalfWidth = (scale - 1) * widths[i]! * 0.5
 
         scales[i] = scale
         extraHalfWidths[i] = extraHalfWidth
@@ -162,7 +162,7 @@ export function useDockMagnification({
 
       let leftExtraHalfWidth = 0
       for (let i = 0; i < n; i++) {
-        const currentExtraHalfWidth = extraHalfWidths[i]
+        const currentExtraHalfWidth = extraHalfWidths[i]!
         const rightExtraHalfWidth =
           totalExtraHalfWidth - leftExtraHalfWidth - currentExtraHalfWidth
         translates[i] = leftExtraHalfWidth - rightExtraHalfWidth
@@ -170,20 +170,20 @@ export function useDockMagnification({
       }
 
       for (let i = 0; i < n; i++) {
-        sorted[i].scaleTarget.set(scales[i])
-        sorted[i].xTarget.set(translates[i])
+        sorted[i]!.scaleTarget.set(scales[i]!)
+        sorted[i]!.xTarget.set(translates[i]!)
       }
 
       let minL = Infinity
       let maxR = -Infinity
       for (let i = 0; i < n; i++) {
-        const cx = centers[i] + translates[i]
-        const half = (widths[i] * scales[i]) / 2
+        const cx = centers[i]! + translates[i]!
+        const half = (widths[i]! * scales[i]!) / 2
         minL = Math.min(minL, cx - half)
         maxR = Math.max(maxR, cx + half)
       }
-      const restLeft = centers[0] - widths[0] / 2
-      const restRight = centers[n - 1] + widths[n - 1] / 2
+      const restLeft = centers[0]! - widths[0]! / 2
+      const restRight = centers[n - 1]! + widths[n - 1]! / 2
       const extraTotal = Math.max(0, maxR - minL - (restRight - restLeft))
       shellPadXTarget.set(DOCK_MAGNIFY_PADDING_X_PX + extraTotal / 2)
       shellPadTopTarget.set(DOCK_MAGNIFY_PADDING_TOP_PX + (maxScale - 1) * maxHeight * 0.52)

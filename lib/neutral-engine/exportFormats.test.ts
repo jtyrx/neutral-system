@@ -122,7 +122,7 @@ describe('DTCG JSON export', () => {
     expect(firstNeutral.$value).toMatchObject({
       colorSpace: 'oklch',
       alpha: 1,
-      hex: global[0]!.serialized.hex.toLowerCase(),
+      hex: global[0]!.serialized.hex.replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i, '#$1$1$2$2$3$3').toLowerCase(),
     })
   })
 

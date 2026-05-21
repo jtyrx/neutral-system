@@ -135,16 +135,6 @@ export function exportCssVariables(params: {
 
   lines.push('}')
   lines.push('')
-  lines.push(':root {')
-  params.dark.forEach((t) => {
-    lines.push(
-      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
-    )
-  })
-  lines.push(...alphaBlock)
-  lines.push(...linesLiveThemeChromeBlock())
-  lines.push('}')
-  lines.push('')
   const lightSemanticLines: string[] = []
   params.light.forEach((t) => {
     lightSemanticLines.push(
@@ -157,6 +147,12 @@ export function exportCssVariables(params: {
       `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
     )
   })
+  lines.push(':root {')
+  lines.push(...darkSemanticLines)
+  lines.push(...alphaBlock)
+  lines.push(...linesLiveThemeChromeBlock())
+  lines.push('}')
+  lines.push('')
 
   lines.push('[data-theme="light"] {')
   lines.push(...lightSemanticLines)

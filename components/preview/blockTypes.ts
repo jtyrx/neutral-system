@@ -1,26 +1,6 @@
 import type {TokenSelectTheme} from '@/components/preview/SemanticTokenAnnotation'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
 
-export type ResolvedBlockColors = {
-  page: string
-  sunken: string
-  subtle: string
-  raised: string
-  overlay: string
-  inverse: string
-  brand: string
-  td: string
-  ts: string
-  tm: string
-  tdis: string
-  ton: string
-  bs: string
-  bd: string
-  bStr: string
-  bFocus: string
-  scrimBg: string
-}
-
 export type BlockCaseProps = {
   global: GlobalSwatch[]
   tokenView: TokenView
@@ -31,11 +11,9 @@ export type BlockCaseProps = {
   onSelectSystem?: ((role: string, theme?: TokenSelectTheme) => void) | undefined
 }
 
-export type CaseRenderProps = BlockCaseProps & {c: ResolvedBlockColors}
-
 /**
- * Narrowed block color props for new blocks authored after Phase 1.
- * Old blocks continue using ResolvedBlockColors during Phase 2 migration.
+ * Two runtime values that cannot be CSS custom properties — everything else
+ * is inherited from the [data-preview-theme] ancestor scope.
  */
 export type NewBlockColors = {
   /** Runtime brand oklch — varies per workbench config, cannot be a CSS variable */
@@ -43,3 +21,5 @@ export type NewBlockColors = {
   /** Alpha-mixed scrim — color-mix() computed from alpha config */
   scrimBg: string
 }
+
+export type CaseRenderProps = BlockCaseProps & {c: NewBlockColors}

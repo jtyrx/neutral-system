@@ -11,7 +11,7 @@ const LAYERS = ['surface', 'border', 'text'] as const
 type Layer = (typeof LAYERS)[number]
 
 export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
-  const {lightTokenView, darkTokenView, global, systemConfig, patchSystem} =
+  const {lightTokenView, darkTokenView, global, darkRamp, systemConfig, patchSystem} =
     useNeutralWorkbenchContext()
 
   const overrides = systemConfig.roleStepOverrides ?? {}
@@ -30,8 +30,6 @@ export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
     }
     patchSystem('roleStepOverrides', next)
   }
-
-  const stepCount = global.length
 
   return (
     <div className="flex flex-col gap-0 overflow-y-auto">
@@ -53,8 +51,8 @@ export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
             layer={layer}
             lightTokens={lightTokens}
             darkTokenView={darkTokenView}
-            global={global}
-            stepCount={stepCount}
+            lightRamp={global}
+            darkRamp={darkRamp}
             overrides={overrides}
             onOverride={setOverride}
           />
@@ -69,8 +67,8 @@ type LayerSectionProps = {
   layer: Layer
   lightTokens: SystemToken[]
   darkTokenView: TokenView
-  global: GlobalSwatch[]
-  stepCount: number
+  lightRamp: GlobalSwatch[]
+  darkRamp: GlobalSwatch[]
   overrides: Partial<Record<string, {light?: number; dark?: number}>>
   onOverride: (role: string, theme: 'light' | 'dark', step: number | undefined) => void
 }
@@ -79,11 +77,13 @@ function LayerSection({
   layer,
   lightTokens,
   darkTokenView,
-  global,
-  stepCount,
+  lightRamp,
+  darkRamp,
   overrides,
   onOverride,
 }: LayerSectionProps) {
+  const darkN = darkRamp.length
+
   return (
     <div>
       <div className="border-b border-hairline bg-sunken px-12 py-5">
@@ -102,11 +102,15 @@ function LayerSection({
         const lightOverride = overrides[lt.role]?.light
         const darkOverride = overrides[lt.role]?.dark
         const effectiveLightIdx = lightOverride ?? lt.sourceGlobalIndex
-        const effectiveDarkIdx = darkToken
+        // sourceGlobalIndex for dark (0 = lightest in the ramp)
+        const effectiveDarkSourceIdx = darkToken
           ? (darkOverride ?? darkToken.sourceGlobalIndex)
           : null
+        // Display index for dark: 0 = darkest (invert from source)
+        const effectiveDarkDisplayIdx =
+          effectiveDarkSourceIdx !== null ? darkN - 1 - effectiveDarkSourceIdx : null
         const delta =
-          effectiveDarkIdx !== null ? effectiveDarkIdx - effectiveLightIdx : null
+          effectiveDarkDisplayIdx !== null ? effectiveDarkDisplayIdx - effectiveLightIdx : null
         const isLast = i === lightTokens.length - 1
 
         return (
@@ -127,8 +131,7 @@ function LayerSection({
             <StepDropdown
               value={effectiveLightIdx}
               isOverridden={lightOverride !== undefined}
-              global={global}
-              stepCount={stepCount}
+              ramp={lightRamp}
               onChange={(v) => onOverride(lt.role, 'light', v)}
             />
 
@@ -146,12 +149,20 @@ function LayerSection({
             </span>
 
             {darkToken ? (
+              // Dark dropdown: value and options use display indices (0 = darkest).
+              // On change, convert display index back to sourceGlobalIndex before storing.
               <StepDropdown
-                value={effectiveDarkIdx!}
+                value={effectiveDarkDisplayIdx!}
                 isOverridden={darkOverride !== undefined}
-                global={global}
-                stepCount={stepCount}
-                onChange={(v) => onOverride(lt.role, 'dark', v)}
+                ramp={darkRamp}
+                darkInverted
+                onChange={(displayIdx) =>
+                  onOverride(
+                    lt.role,
+                    'dark',
+                    displayIdx === undefined ? undefined : darkN - 1 - displayIdx,
+                  )
+                }
               />
             ) : (
               <span className="font-mono text-nano text-muted opacity-20">—</span>
@@ -164,15 +175,20 @@ function LayerSection({
 }
 
 type StepDropdownProps = {
+  /** Display index (0 = lightest for light; 0 = darkest for dark when darkInverted). */
   value: number
   isOverridden: boolean
-  global: GlobalSwatch[]
-  stepCount: number
-  onChange: (step: number | undefined) => void
+  ramp: GlobalSwatch[]
+  /** When true, option 0 = darkest (ramp[n-1]), option n-1 = lightest (ramp[0]). */
+  darkInverted?: boolean
+  onChange: (displayIndex: number | undefined) => void
 }
 
-function StepDropdown({value, isOverridden, global, stepCount, onChange}: StepDropdownProps) {
-  const swatch = global[value] ?? null
+function StepDropdown({value, isOverridden, ramp, darkInverted, onChange}: StepDropdownProps) {
+  const n = ramp.length
+  // Resolve swatch: for dark-inverted, display index 0 maps to ramp[n-1]
+  const sourceIdx = darkInverted ? n - 1 - value : value
+  const swatch = ramp[sourceIdx] ?? null
 
   return (
     <div className="flex items-center gap-5">
@@ -184,21 +200,20 @@ function StepDropdown({value, isOverridden, global, stepCount, onChange}: StepDr
       )}
       <select
         value={value}
-        onChange={(e) => {
-          const v = Number(e.target.value)
-          onChange(v)
-        }}
+        onChange={(e) => onChange(Number(e.target.value))}
         className={cn(
           'appearance-none bg-transparent font-mono text-nano tabular-nums outline-none cursor-pointer',
           isOverridden ? 'text-default' : 'text-subtle',
         )}
         title={`Step ${value} — ${swatch?.serialized.hex ?? ''}`}
       >
-        {Array.from({length: stepCount}, (_, i) => {
-          const s = global[i]
+        {Array.from({length: n}, (_, displayIdx) => {
+          // For dark-inverted: displayIdx 0 = darkest = ramp[n-1]
+          const swatchIdx = darkInverted ? n - 1 - displayIdx : displayIdx
+          const s = ramp[swatchIdx]
           return (
-            <option key={i} value={i}>
-              {s ? `${s.label} ·${i}` : `step ${i}`}
+            <option key={displayIdx} value={displayIdx}>
+              {s ? `${s.label} ·${displayIdx}` : `step ${displayIdx}`}
             </option>
           )
         })}

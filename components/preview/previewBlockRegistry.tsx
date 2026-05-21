@@ -1,5 +1,7 @@
 import type {ComponentType} from 'react'
 
+import type {BlockChainSpec} from '@/components/preview/blockChainTypes'
+
 import {BlockCaseWrapper} from '@/components/preview/BlockCaseWrapper'
 import {ButtonVariantsBlock} from '@/components/preview/blocks/ButtonVariantsBlock'
 import {CalloutBlock} from '@/components/preview/blocks/CalloutBlock'
@@ -21,6 +23,8 @@ export type PreviewBlockCase = {
   title: string
   intent: string
   Component: ComponentType<BlockCaseProps>
+  /** Token chain spec — required for new blocks; backfilled on existing blocks in Phase 2 */
+  chainSpec?: BlockChainSpec
 }
 
 /**

@@ -32,3 +32,14 @@ export type BlockCaseProps = {
 }
 
 export type CaseRenderProps = BlockCaseProps & {c: ResolvedBlockColors}
+
+/**
+ * Narrowed block color props for new blocks authored after Phase 1.
+ * Old blocks continue using ResolvedBlockColors during Phase 2 migration.
+ */
+export type NewBlockColors = {
+  /** Runtime brand oklch — varies per workbench config, cannot be a CSS variable */
+  brand: string
+  /** Alpha-mixed scrim — color-mix() computed from alpha config */
+  scrimBg: string
+}

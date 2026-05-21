@@ -3,11 +3,11 @@
 import {useMemo} from 'react'
 
 import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
-import type {CaseRenderProps} from '@/components/preview/blockTypes'
+import type {BlockCaseProps} from '@/components/preview/blockTypes'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip.tsx'
 import {tokensForSemanticLayerPublic} from '@/lib/neutral-engine/tokenViews'
 
-export function ColorTokenInspectorBlock({c, tokenView, theme, inspection, onSelectSystem}: CaseRenderProps) {
+export function ColorTokenInspectorBlock({tokenView, theme, inspection, onSelectSystem}: BlockCaseProps) {
   const surfaceTokens = useMemo(() => tokensForSemanticLayerPublic(tokenView, 'surface'), [tokenView])
   const borderTokens = useMemo(() => tokensForSemanticLayerPublic(tokenView, 'border'), [tokenView])
   const textTokens = useMemo(() => tokensForSemanticLayerPublic(tokenView, 'text'), [tokenView])
@@ -20,10 +20,10 @@ export function ColorTokenInspectorBlock({c, tokenView, theme, inspection, onSel
 
   return (
     <TooltipProvider>
-      <div className="space-y-12 rounded-lg border p-12" style={{backgroundColor: c.page, borderColor: c.bs}}>
+      <div className="space-y-12 rounded-lg border border-subtle bg-default p-12">
         {rows.map(({label, tokens}) => (
           <div key={label}>
-            <p className="mb-6 text-micro font-medium uppercase tracking-wide" style={{color: c.tm}}>{label}</p>
+            <p className="mb-6 text-micro font-medium uppercase tracking-wide text-muted">{label}</p>
             <div className="flex flex-wrap gap-6">
               {tokens.map((t) => (
                 <Tooltip key={t.id}>

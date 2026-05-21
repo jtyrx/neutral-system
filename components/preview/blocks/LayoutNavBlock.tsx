@@ -2,29 +2,20 @@
 
 import {useState} from 'react'
 
+import {cn} from '@/lib/utils'
 import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
-import type {CaseRenderProps} from '@/components/preview/blockTypes'
+import type {BlockCaseProps} from '@/components/preview/blockTypes'
 
-export function LayoutNavBlock({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
+export function LayoutNavBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
   const [activeNav, setActiveNav] = useState(0)
   return (
     <div className="space-y-8">
-      <div
-        className="flex min-h-176 overflow-hidden rounded-md border"
-        style={{backgroundColor: c.page, borderColor: c.bs}}
-      >
+      <div className="flex min-h-176 overflow-hidden rounded-md border border-subtle bg-default">
         <aside
-          className="flex w-[32%] shrink-0 flex-col border-r"
-          style={{
-            backgroundColor: c.sunken,
-            borderColor: c.bs,
-            boxShadow: 'inset -1px 0 0 rgba(0,0,0,0.04), inset 2px 0 6px rgba(0,0,0,0.04)',
-          }}
+          className="flex w-[32%] shrink-0 flex-col border-r border-subtle bg-sunken"
+          style={{boxShadow: 'inset -1px 0 0 rgba(0,0,0,0.04), inset 2px 0 6px rgba(0,0,0,0.04)'}}
         >
-          <p
-            className="border-b px-8 py-6 text-nano font-medium uppercase tracking-wide"
-            style={{borderColor: c.bs, color: c.tm}}
-          >
+          <p className="border-b border-subtle px-8 py-6 text-nano font-medium uppercase tracking-wide text-muted">
             Navigation
           </p>
           <nav className="flex flex-col gap-2 p-8">
@@ -33,12 +24,12 @@ export function LayoutNavBlock({c, theme, inspection, onSelectSystem}: CaseRende
                 key={item}
                 type="button"
                 onClick={() => setActiveNav(i)}
-                className="rounded px-8 py-6 text-left text-xs transition-colors"
-                style={{
-                  backgroundColor: activeNav === i ? c.page : 'transparent',
-                  color: activeNav === i ? c.td : c.ts,
-                  fontWeight: activeNav === i ? 600 : 400,
-                }}
+                className={cn(
+                  'rounded px-8 py-6 text-left text-xs transition-colors',
+                  activeNav === i
+                    ? 'bg-default font-semibold text-default'
+                    : 'bg-transparent font-normal text-subtle',
+                )}
               >
                 {item}
               </button>
@@ -46,15 +37,15 @@ export function LayoutNavBlock({c, theme, inspection, onSelectSystem}: CaseRende
           </nav>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="border-b px-12 py-8 text-xs" style={{borderColor: c.bs, color: c.td}}>
+          <div className="border-b border-subtle px-12 py-8 text-xs text-default">
             Main workspace
           </div>
           <div className="flex-1 p-8 sm:p-12">
-            <div className="rounded-md border p-8 sm:p-12" style={{backgroundColor: c.subtle, borderColor: c.bs}}>
-              <p className="text-xs font-medium" style={{color: c.td}}>
+            <div className="rounded-md border border-subtle bg-subtle p-8 sm:p-12">
+              <p className="text-xs font-medium text-default">
                 Panel
               </p>
-              <p className="mt-4 text-micro leading-relaxed" style={{color: c.ts}}>
+              <p className="mt-4 text-micro leading-relaxed text-subtle">
                 Section dividers stay quiet so structure reads without heavy chrome.
               </p>
             </div>

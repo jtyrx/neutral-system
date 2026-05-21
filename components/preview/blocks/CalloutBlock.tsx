@@ -6,29 +6,29 @@ export function CalloutBlock({c, theme, inspection, onSelectSystem}: CaseRenderP
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-8 sm:flex-row sm:items-stretch">
-        <div className="flex-1 rounded-md border px-12 py-10" style={{backgroundColor: c.inverse, borderColor: c.bd}}>
-          <p className="text-nano font-semibold uppercase tracking-wide" style={{color: c.ton}}>
+        <div className="flex-1 rounded-md border border-default bg-inverse px-12 py-10">
+          <p className="text-nano font-semibold uppercase tracking-wide text-on">
             System
           </p>
-          <p className="mt-4 text-xs leading-snug" style={{color: c.ton}}>
+          <p className="mt-4 text-xs leading-snug text-on">
             Policy saved — your workspace will sync on next load.
           </p>
-          <Button variant="ghost" size="xs" className="mt-8" style={{color: c.ton}}>
+          <Button variant="ghost" size="xs" className="mt-8 text-on">
             Dismiss
           </Button>
         </div>
         <div
           id="brand-callout"
-          className="flex-1 rounded-md border px-12 py-10"
-          style={{backgroundColor: c.brand, borderColor: c.bd}}
+          className="flex-1 rounded-md border border-default px-12 py-10"
+          style={{backgroundColor: c.brand}}
         >
-          <p className="text-nano font-semibold uppercase tracking-wide" style={{color: c.ton}}>
+          <p className="text-nano font-semibold uppercase tracking-wide text-on">
             Brand
           </p>
-          <p className="mt-4 text-xs leading-snug" style={{color: c.ton}}>
+          <p className="mt-4 text-xs leading-snug text-on">
             Upgrade to Pro for audit trails and SSO.
           </p>
-          <Button variant="ghost" size="xs" className="mt-8" style={{color: c.ton}}>
+          <Button variant="ghost" size="xs" className="mt-8 text-on">
             Learn more
           </Button>
         </div>

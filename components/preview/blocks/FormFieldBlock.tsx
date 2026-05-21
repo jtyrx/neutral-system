@@ -1,17 +1,17 @@
 import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
-import type {CaseRenderProps} from '@/components/preview/blockTypes'
+import type {BlockCaseProps} from '@/components/preview/blockTypes'
 import {Input} from '@/components/ui/input.tsx'
 
-export function FormFieldBlock({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
+export function FormFieldBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
   return (
     <div className="space-y-12">
       <label className="block space-y-4">
-        <span className="text-micro font-medium" style={{color: c.ts}}>
+        <span className="text-micro font-medium text-subtle">
           Company
         </span>
         <Input
           placeholder="Search accounts…"
-          style={{borderColor: c.bStr}}
+          className="border-brand"
         />
         <span className="flex flex-wrap items-center gap-x-2 text-nano text-white/45">
           <span>placeholder</span>
@@ -22,14 +22,13 @@ export function FormFieldBlock({c, theme, inspection, onSelectSystem}: CaseRende
         </span>
       </label>
       <label className="block space-y-4">
-        <span className="text-micro font-medium" style={{color: c.ts}}>
+        <span className="text-micro font-medium text-subtle">
           Read-only
         </span>
         <Input
           readOnly
           aria-readonly="true"
-          className="cursor-default"
-          style={{borderColor: c.bd, color: c.tdis}}
+          className="cursor-default border-default text-disabled"
           defaultValue="INV-20418 · locked"
         />
         <span className="flex items-center gap-x-2 text-nano text-white/45">
@@ -37,7 +36,7 @@ export function FormFieldBlock({c, theme, inspection, onSelectSystem}: CaseRende
           <SemanticTokenAnnotation role="text.disabled" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         </span>
       </label>
-      <p className="flex flex-wrap items-center gap-x-2 text-micro leading-snug" style={{color: c.ts}}>
+      <p className="flex flex-wrap items-center gap-x-2 text-micro leading-snug text-subtle">
         <span>Use a shorter billing cycle to reduce variance.</span>
         <SemanticTokenAnnotation role="text.subtle" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
       </p>

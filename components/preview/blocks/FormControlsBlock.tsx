@@ -3,35 +3,35 @@
 import {useState} from 'react'
 
 import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
-import type {CaseRenderProps} from '@/components/preview/blockTypes'
+import type {BlockCaseProps} from '@/components/preview/blockTypes'
 import {Input} from '@/components/ui/input.tsx'
 import {SliderField} from '@/components/ui/slider.tsx'
 import {ToggleGroup, ToggleGroupItem} from '@/components/ui/toggle-group.tsx'
 
-export function FormControlsBlock({c, theme, inspection, onSelectSystem}: CaseRenderProps) {
+export function FormControlsBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
   const [alignValue, setAlignValue] = useState<string[]>(['center'])
 
   return (
-    <div className="space-y-16 rounded-md p-12" style={{backgroundColor: c.page}}>
+    <div className="space-y-16 rounded-md bg-default p-12">
       <div className="grid gap-16 sm:grid-cols-2">
         <div className="space-y-12">
           <div className="space-y-4">
-            <label className="text-micro font-medium" style={{color: c.ts}}>Default</label>
-            <Input placeholder="Enter a value…" style={{borderColor: c.bd}} />
+            <label className="text-micro font-medium text-subtle">Default</label>
+            <Input placeholder="Enter a value…" className="border-default" />
           </div>
           <div className="space-y-4">
-            <label className="text-micro font-medium" style={{color: c.ts}}>Disabled</label>
+            <label className="text-micro font-medium text-subtle">Disabled</label>
             <Input placeholder="Not editable" disabled />
           </div>
           <div className="space-y-4">
-            <label className="text-micro font-medium" style={{color: c.ts}}>Invalid</label>
+            <label className="text-micro font-medium text-subtle">Invalid</label>
             <Input aria-invalid defaultValue="bad@value" />
           </div>
         </div>
         <div className="space-y-16">
           <SliderField label="Opacity" defaultValue={[60]} min={0} max={100} />
           <div className="space-y-4">
-            <p className="text-micro font-medium" style={{color: c.ts}}>Alignment</p>
+            <p className="text-micro font-medium text-subtle">Alignment</p>
             <ToggleGroup
               value={alignValue}
               onValueChange={setAlignValue}

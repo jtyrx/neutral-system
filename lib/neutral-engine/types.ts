@@ -163,6 +163,12 @@ export type SystemMappingConfig = {
    * in the engine while keeping this field as typed by the user.
    */
   brandOklch: string
+  /**
+   * Per-role primitive step overrides. When set for a role, the override index
+   * replaces the arithmetic pick from the ladder mapping — independently for each theme.
+   * Key is the SystemRole dot-path (e.g. `"surface.raised"`).
+   */
+  roleStepOverrides?: Partial<Record<string, {light?: number; dark?: number}>> | undefined
 }
 
 export type SystemToken = {

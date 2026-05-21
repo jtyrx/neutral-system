@@ -1,4 +1,4 @@
-import type {CaseRenderProps} from '@/components/preview/blockTypes'
+import type {BlockCaseProps} from '@/components/preview/blockTypes'
 import {Button} from '@/components/ui/button.tsx'
 import {Loader2} from 'lucide-react'
 
@@ -20,9 +20,9 @@ const BUTTON_SIZES = [
 
 const BUTTON_STATE_LABELS = ['Rest', 'Focus', 'Disabled', 'Loading'] as const
 
-export function ButtonVariantsBlock({c}: CaseRenderProps) {
+export function ButtonVariantsBlock(_props: BlockCaseProps) {
   return (
-    <div className="overflow-x-auto rounded-md p-8" style={{backgroundColor: c.page}}>
+    <div className="overflow-x-auto rounded-md bg-(--color-surface-default) p-8">
       <div className="min-w-[56rem] space-y-4">
         <div className="grid grid-cols-[5rem_3rem_repeat(4,minmax(7rem,1fr))] gap-8 border-b border-hairline pb-6">
           <div />

@@ -4,6 +4,7 @@ import type {BlockChainSpec} from '@/components/preview/blockChainTypes'
 
 import {BlockCaseWrapper} from '@/components/preview/BlockCaseWrapper'
 import {ButtonVariantsBlock} from '@/components/preview/blocks/ButtonVariantsBlock'
+import {chainSpec as buttonVariantsChainSpec} from '@/components/preview/blocks/ButtonVariantsBlock.chain'
 import {CalloutBlock} from '@/components/preview/blocks/CalloutBlock'
 import {ColorTokenInspectorBlock} from '@/components/preview/blocks/ColorTokenInspectorBlock'
 import {chainSpec as dataCardChainSpec} from '@/components/preview/blocks/DataCardBlock.chain'
@@ -75,6 +76,7 @@ export const PREVIEW_BLOCK_CASES: PreviewBlockCase[] = [
     title: 'Button variants',
     intent: 'All six variants × four sizes × four states (rest, focus ring, disabled, loading). Reveals how the neutral system sets fill, border, and ring for every button role.',
     Component: BlockCaseWrapper(ButtonVariantsBlock),
+    chainSpec: buttonVariantsChainSpec,
   },
   {
     id: 'form-controls',

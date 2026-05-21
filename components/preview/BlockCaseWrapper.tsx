@@ -7,7 +7,7 @@ import {useResolvedBlockColors} from '@/components/preview/useResolvedBlockColor
 
 export function BlockCaseWrapper(Inner: ComponentType<CaseRenderProps>) {
   return memo(function Wrapped(props: BlockCaseProps) {
-    const c = useResolvedBlockColors(props.global, props.tokenView, props.brandPlaneOklch)
+    const c = useResolvedBlockColors(props.tokenView, props.brandPlaneOklch)
     return <Inner {...props} c={c} />
   })
 }

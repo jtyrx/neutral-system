@@ -5,10 +5,9 @@ import {useMemo} from 'react'
 import type {NewBlockColors} from '@/components/preview/blockTypes'
 import {trimCssColorValue} from '@/lib/neutral-engine/serialize'
 import {tokensForSemanticLayerPublic} from '@/lib/neutral-engine/tokenViews'
-import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
+import type {TokenView} from '@/lib/neutral-engine'
 
 export function useResolvedBlockColors(
-  global: GlobalSwatch[],
   tokenView: TokenView,
   brandPlaneOklch: string,
 ): NewBlockColors {
@@ -23,5 +22,5 @@ export function useResolvedBlockColors(
       brand: trimCssColorValue(brandPlaneOklch) || 'transparent',
       scrimBg,
     }
-  }, [global, tokenView, brandPlaneOklch])
+  }, [tokenView, brandPlaneOklch])
 }

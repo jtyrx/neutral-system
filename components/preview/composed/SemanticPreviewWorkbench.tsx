@@ -25,6 +25,7 @@ type Props = {
   previewTheme: 'light' | 'dark'
   inspectionMode: boolean
   onSelectSystem: (role: string, theme?: TokenSelectTheme) => void
+  onChainSelect?: ((blockId: string) => void) | undefined
 }
 
 type BlockRowProps = Props & {block: PreviewBlockCase; index: number}
@@ -41,6 +42,7 @@ function BlockRow({
   previewTheme,
   inspectionMode,
   onSelectSystem,
+  onChainSelect,
 }: BlockRowProps) {
   const Case = block.Component
   const lightPane = (
@@ -84,7 +86,14 @@ function BlockRow({
     )
 
   return (
-    <PreviewBlockSection index={index + 1} eyebrow={block.eyebrow} title={block.title} intent={block.intent}>
+    <PreviewBlockSection
+      index={index + 1}
+      eyebrow={block.eyebrow}
+      title={block.title}
+      intent={block.intent}
+      blockId={block.id}
+      onChainSelect={onChainSelect}
+    >
       {content}
     </PreviewBlockSection>
   )

@@ -21,12 +21,14 @@ export const chainSpec: BlockChainSpec = {
       dtcgPath: 'color.text.default',
       cssVar: '--color-text-default',
       usage: 'color',
+      description: 'Primary text hierarchy — highest-contrast text tier, used for all leading labels.',
     },
     {
       element: 'Metric value',
       dtcgPath: 'color.text.default',
       cssVar: '--color-text-default',
       usage: 'color',
+      description: 'Shares text.default with Heading — both are primary-reading-weight content.',
     },
     {
       element: 'Timestamp',
@@ -40,7 +42,7 @@ export const chainSpec: BlockChainSpec = {
       dtcgPath: 'color.border.focus',
       cssVar: '--color-border-focus',
       usage: 'outline-color',
-      description: 'Dedicated focus token — semantically distinct from default border so keyboard state is never ambiguous.',
+      description: 'Applied via the Button primitive\'s focus-visible outline, not a direct inline style. Semantically distinct from default border so keyboard state is never ambiguous.',
     },
   ],
 }

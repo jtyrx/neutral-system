@@ -1,5 +1,3 @@
-'use client'
-
 import {cn} from '@/lib/cn'
 import type {BlockChainSpec, ChainEntry} from '@/components/preview/blockChainTypes'
 import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine/types'
@@ -110,7 +108,7 @@ export function BlockTokenChainPanel({
     >
       {spec.entries.map(entry => (
         <ChainRow
-          key={entry.dtcgPath}
+          key={`${entry.dtcgPath}::${entry.element}`}
           entry={entry}
           globalLight={globalLight}
           globalDark={globalDark}

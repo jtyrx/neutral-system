@@ -16,6 +16,7 @@ import {
   dockPickerRampChromeCopyModel,
   INVERT_DARK_RAMP_STRIP,
 } from '@/lib/workbench/rampPreviewCopy'
+import {semanticTokensToStyleVars} from '@/lib/neutral-engine/exportFormats'
 import type {RampPreviewMode} from '@/lib/workbench/dockPickerStorage'
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 import type {TokenView} from '@/lib/neutral-engine/tokenViews'
@@ -62,6 +63,10 @@ function RampPreviewBlock({
 }: RampPreviewBlockProps) {
   const invertVisual =
     effectivePreviewTheme === 'dark' ? INVERT_DARK_RAMP_STRIP : false
+  const themeVars = useMemo(
+    () => semanticTokensToStyleVars(tokenView.sortedForTable),
+    [tokenView],
+  )
 
   const orderedSegment = useMemo(() => {
     if (invertVisual) return [...ramp].reverse()
@@ -82,6 +87,7 @@ function RampPreviewBlock({
       data-slot="control-center-ramp-preview-block"
       data-tone={tone}
       data-preview-theme={effectivePreviewTheme}
+      style={themeVars}
     >
       <PreviewPanelHeading
         eyebrow={eyebrow}

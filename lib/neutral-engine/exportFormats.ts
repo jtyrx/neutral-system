@@ -39,6 +39,19 @@ export function semanticColorVarName(name: string): string {
   return `color-${tokenCssVarName(name)}`
 }
 
+/**
+ * Converts a flat token array to an inline-style-compatible CSS vars object.
+ * Values are resolved OKLCH (not primitive var references), making the result
+ * self-contained — suitable for React's `style` prop on a preview container.
+ */
+export function semanticTokensToStyleVars(tokens: SystemToken[]): Record<string, string> {
+  const vars: Record<string, string> = {}
+  for (const t of tokens) {
+    vars[`--${semanticColorVarName(t.name)}`] = t.serialized.oklchCss
+  }
+  return vars
+}
+
 function semanticCssValue(
   t: SystemToken,
   architecture: NeutralArchitectureMode,

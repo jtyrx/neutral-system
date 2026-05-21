@@ -414,6 +414,20 @@ function makeToken(
   }
 }
 
+function applyRoleStepOverride(
+  arithmeticIndex: number,
+  role: string,
+  themeMode: ThemeMode,
+  n: number,
+  cfg: SystemMappingConfig,
+): number {
+  const override = cfg.roleStepOverrides?.[role]
+  if (override === undefined) return arithmeticIndex
+  const overrideIndex = themeMode === 'light' ? override.light : override.dark
+  if (overrideIndex === undefined) return arithmeticIndex
+  return Math.max(0, Math.min(n - 1, overrideIndex))
+}
+
 export function deriveSystemTokens(
   global: GlobalSwatch[],
   cfg: SystemMappingConfig,
@@ -475,7 +489,8 @@ export function deriveSystemTokens(
 
   fillIndices.forEach((idx, k) => {
     const role = surfaceStandardRoleForIndex(k)
-    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
+    const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
+    tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
   const brandIdx = resolveBrandSurfaceIndex(isLight, fillIndices, stepFill, n)
   const brandResolved = resolveBrandColorForTokens(cfg.brandOklch, global[brandIdx]!)
@@ -489,44 +504,49 @@ export function deriveSystemTokens(
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
     $type: 'color',
   })
+  const surfaceInverseFinal = applyRoleStepOverride(surfaceInverseIdx, 'surface.inverse', theme, n, cfg)
   tokens.push(
     makeToken(
       'surface.inverse',
       'surface.inverse',
       'surface.inverse',
       theme,
-      surfaceInverseIdx,
-      global[surfaceInverseIdx]!,
+      surfaceInverseFinal,
+      global[surfaceInverseFinal]!,
     ),
   )
 
   strokeIndices.forEach((idx, k) => {
     const role = borderRoleForIndex(k)
-    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
+    const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
+    tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
+  const borderFocusFinal = applyRoleStepOverride(borderFocusIdx, 'border.focus', theme, n, cfg)
   tokens.push(
     makeToken(
       'border.focus',
       'border.focus',
       'border.focus',
       theme,
-      borderFocusIdx,
-      global[borderFocusIdx]!,
+      borderFocusFinal,
+      global[borderFocusFinal]!,
     ),
   )
 
   textOrdered.forEach((idx, k) => {
     const role = textRoleForIndex(k)
-    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
+    const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
+    tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
+  const textOnFinal = applyRoleStepOverride(textOnIdx, 'text.on', theme, n, cfg)
   tokens.push(
     makeToken(
       'text.on',
       'text.on',
       'text.on',
       theme,
-      textOnIdx,
-      global[textOnIdx]!,
+      textOnFinal,
+      global[textOnFinal]!,
     ),
   )
 
@@ -534,8 +554,9 @@ export function deriveSystemTokens(
     ? clampIndex(Math.floor(n * 0.45), n)
     : clampIndex(n - 4, n)
   for (let k = 0; k < cfg.altCount; k++) {
-    const idx = clampIndex(altBase + k, n)
+    const arithmeticIdx = clampIndex(altBase + k, n)
     const role = altRoleForIndex(k)
+    const idx = applyRoleStepOverride(arithmeticIdx, role, theme, n, cfg)
     tokens.push(makeToken(role, role, role, theme, idx, global[idx]!, cfg.altAlpha))
   }
 
@@ -544,18 +565,21 @@ export function deriveSystemTokens(
     const bumpStroke = Math.max(1, Math.round(stepStroke * 2))
     const bumpText = Math.max(1, Math.round(stepText * 2))
     fillIndices.forEach((idx, k) => {
-      const hi = clampIndex(idx + bumpFill, n)
+      const arithmetic = clampIndex(idx + bumpFill, n)
       const role = emphasisSurfaceRole(k)
+      const hi = applyRoleStepOverride(arithmetic, role, theme, n, cfg)
       tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
     strokeIndices.forEach((idx, k) => {
-      const hi = clampIndex(idx + bumpStroke, n)
+      const arithmetic = clampIndex(idx + bumpStroke, n)
       const role = emphasisBorderRole(k)
+      const hi = applyRoleStepOverride(arithmetic, role, theme, n, cfg)
       tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
     textOrdered.forEach((idx, k) => {
-      const lo = clampIndex(idx - bumpText, n)
+      const arithmetic = clampIndex(idx - bumpText, n)
       const role = emphasisTextRole(k)
+      const lo = applyRoleStepOverride(arithmetic, role, theme, n, cfg)
       tokens.push(makeToken(role, role, role, theme, lo, global[lo]!))
     })
   }

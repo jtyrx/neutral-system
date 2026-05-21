@@ -6,6 +6,7 @@ import {BlockCaseWrapper} from '@/components/preview/BlockCaseWrapper'
 import {ButtonVariantsBlock} from '@/components/preview/blocks/ButtonVariantsBlock'
 import {CalloutBlock} from '@/components/preview/blocks/CalloutBlock'
 import {ColorTokenInspectorBlock} from '@/components/preview/blocks/ColorTokenInspectorBlock'
+import {chainSpec as dataCardChainSpec} from '@/components/preview/blocks/DataCardBlock.chain'
 import {DataCardBlock} from '@/components/preview/blocks/DataCardBlock'
 import {FeedbackBlock} from '@/components/preview/blocks/FeedbackBlock'
 import {FormControlsBlock} from '@/components/preview/blocks/FormControlsBlock'
@@ -45,6 +46,7 @@ export const PREVIEW_BLOCK_CASES: PreviewBlockCase[] = [
     title: 'Interactive data card',
     intent: 'Raised surface = lifted analytics tile. Focus ring uses the dedicated focus token — keyboard-first, not a default border.',
     Component: BlockCaseWrapper(DataCardBlock),
+    chainSpec: dataCardChainSpec,
   },
   {
     id: 'form-field',

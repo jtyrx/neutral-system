@@ -62,15 +62,9 @@ function RoleTokenTable({
   onSelect: (id: string) => void
   tier1ExportMode?: Tier1NeutralExportMode
 }) {
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
-
   const sorted = useMemo(() => {
-    const base = sortSystemTokensByPrimitiveLadder(tokens, global)
-    // Dark: sort darkest-first (highest ramp index = darkest = display index 0)
-    return isDarkAdvanced ? [...base].reverse() : base
-  }, [tokens, global, isDarkAdvanced])
+    return sortSystemTokensByPrimitiveLadder(tokens, global)
+  }, [tokens, global])
 
   if (sorted.length === 0) {
     return <p className="text-micro text-disabled">No tokens in this group.</p>
@@ -89,7 +83,7 @@ function RoleTokenTable({
         <tbody className="font-mono">
           {sorted.map((t) => {
             const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex, tier1ExportMode)
-            const displayIndex = isDarkAdvanced ? n - 1 - t.sourceGlobalIndex : t.sourceGlobalIndex
+            const displayIndex = t.sourceGlobalIndex
             return (
               <tr key={t.id} className="border-b border-hairline">
                 <td className="px-8 py-6 font-medium text-default" title={t.name}>
@@ -273,7 +267,7 @@ function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkT
         <ThemeTokenColumn
           eyebrow="Dark elevated"
           title="Primitive tokens"
-          hint="Tier‑1 --color-neutral-dark-* mapping from the dark tail (themeMode: darkElevated). dark-0 = darkest."
+          hint="Tier‑1 --color-neutral-dark-* mapping from the dark tail (themeMode: darkElevated). Low index = lightest."
           tokenView={darkTokenView}
           global={globalDark}
           onSelectSystem={onSelectSystem}

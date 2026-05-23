@@ -17,12 +17,9 @@ export function tier1ExportModeForRamp(
 }
 
 export function displayLadderIndex(
-  ramp: GlobalSwatch[],
+  _ramp: GlobalSwatch[],
   sourceIndex: number,
-  previewTheme: 'light' | 'dark',
+  _previewTheme: 'light' | 'dark',
 ): number {
-  if (previewTheme === 'dark') {
-    return ramp.length - 1 - sourceIndex
-  }
   return sourceIndex
 }

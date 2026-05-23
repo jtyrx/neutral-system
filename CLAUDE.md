@@ -76,7 +76,7 @@ Two routes:
 | `systemMap.ts` | `deriveSystemTokens`; always run `clampSystemMappingToLadderLength` before deriving; `darkFillStart` may be `-1` |
 | `effectiveMapping.ts` | Apply contrast emphasis **before** token derivation |
 | `semanticNaming.ts` | Role ids are dot paths internally: `surface.default`, `text.on`, `border.focus` |
-| `exportFormats.ts` | Light tier-1 → `--color-neutral-*`; dark advanced tier-1 → reversed `--color-neutral-dark-<displayIndex>` where `0` = darkest |
+| `exportFormats.ts` | Light tier-1 → `--color-neutral-*`; dark advanced tier-1 → `--color-neutral-dark-<label>` where low label = lightest (same ordering as light) |
 | `okhsl.ts` | **OKHSL is a view over canonical OKLCH config — not parallel state** |
 | `gamutProbing.ts` | Probes display-P3 / sRGB gamut boundaries |
 | `pickerConfig.ts` | Derives picker config from workbench state |
@@ -121,7 +121,7 @@ import { Button } from '@/components/ui'
 
 ## Token Rules
 
-- Dark display index: `n - 1 - sourceGlobalIndex`. Use `primitiveNeutralExportName(global, idx, tier1ExportMode?)`.
+- Scale indices are lightness-based: 0 = lightest, n-1 = darkest, identical in both modes. Use `primitiveNeutralExportName(global, idx, tier1ExportMode?)` for tier-1 CSS names.
 - `--chrome-*` mixers from `chromeAliases.ts`. Legacy `--ns-*` tokens stay as thin aliases only.
 - Role ids are dot paths internally; exports hyphenate via `semanticColorVarName`.
 - For color math, reparse at leaf call sites using helpers from `lib/neutral-engine/serialize.ts`.

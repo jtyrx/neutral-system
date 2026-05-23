@@ -7,8 +7,8 @@ import {cn} from '@/lib/cn'
 import type {GlobalSwatch, SystemToken} from '@/lib/neutral-engine'
 import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 
-const LAYERS = ['surface', 'border', 'text'] as const
-type Layer = (typeof LAYERS)[number]
+const layers = ['surface', 'border', 'text'] as const
+type Layer = (typeof layers)[number]
 
 export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
   const {lightTokenView, darkTokenView, global, darkRamp, systemConfig, patchSystem} =
@@ -42,7 +42,7 @@ export const PrimitiveMappingPanel = memo(function PrimitiveMappingPanel() {
         </p>
       </div>
 
-      {LAYERS.map((layer) => {
+      {layers.map((layer) => {
         const lightTokens = lightTokenView.byLayerPublic[layer] ?? []
         if (lightTokens.length === 0) return null
         return (
@@ -159,6 +159,8 @@ function LayerSection({
   )
 }
 
+LayerSection.displayName = 'LayerSection'
+
 type StepDropdownProps = {
   /** Source global index into the ramp (0 = lightest). */
   value: number
@@ -211,3 +213,4 @@ function StepDropdown({value, isOverridden, ramp, onChange}: StepDropdownProps) 
     </div>
   )
 }
+StepDropdown.displayName = 'StepDropdown'

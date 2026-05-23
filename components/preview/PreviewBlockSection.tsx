@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react'
 
+import {Button} from '@/components/ui/button.tsx'
 import {cn} from '@/lib/cn'
 
 type Props = {
@@ -11,6 +12,8 @@ type Props = {
   className?: string
   /** Block id — passed to onChainSelect when the token chain button is clicked */
   blockId?: string | undefined
+  /** Whether this block has a chainSpec — controls disabled state of the button */
+  hasChainSpec?: boolean | undefined
   /** Called when user clicks the "Token chain" button */
   onChainSelect?: ((blockId: string) => void) | undefined
 }
@@ -19,7 +22,7 @@ type Props = {
  * Section shell shared by every preview block — provides consistent heading, purpose line, and rhythm.
  * Does not render theme columns itself; the content is supplied by the caller (single or paired).
  */
-export function PreviewBlockSection({index, eyebrow, title, intent, children, className, blockId, onChainSelect}: Props) {
+export function PreviewBlockSection({index, eyebrow, title, intent, children, className, blockId, hasChainSpec, onChainSelect}: Props) {
   return (
     <section
       aria-labelledby={`preview-block-${index}-title`}
@@ -39,13 +42,15 @@ export function PreviewBlockSection({index, eyebrow, title, intent, children, cl
             <p className="text-xs leading-snug text-muted">{intent}</p>
           </div>
           {blockId != null && onChainSelect != null && (
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="xs"
+              disabled={!hasChainSpec}
               onClick={() => onChainSelect(blockId)}
-              className="shrink-0 rounded-md border border-hairline bg-transparent px-8 py-4 text-nano font-medium font-mono uppercase tracking-[0.12em] text-muted transition-colors hover:border-overlay-strong hover:text-default"
+              className="shrink-0 font-mono uppercase tracking-[0.12em]"
             >
               Token chain
-            </button>
+            </Button>
           )}
         </div>
       </header>

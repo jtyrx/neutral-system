@@ -49,6 +49,8 @@ function SemanticRoleTableHead() {
   )
 }
 
+SemanticRoleTableHead.displayName = 'SemanticRoleTableHead'
+
 type RowProps = {
   idx: number
   swatch: GlobalSwatch | undefined
@@ -78,6 +80,8 @@ function SemanticRoleTableRow({idx, primName: prim, displayIndex, hex, oklch}: R
     </tr>
   )
 }
+
+SemanticRoleTableRow.displayName = 'SemanticRoleTableRow'
 
 /**
  * Deduplicated primitive ladder table: one row per `neutral-*` swatch used by mapped tokens (no semantic columns).

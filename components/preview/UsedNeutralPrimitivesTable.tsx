@@ -29,6 +29,8 @@ function PrimitiveTableHead() {
   )
 }
 
+PrimitiveTableHead.displayName = 'PrimitiveTableHead'
+
 type RowProps = {
   primName: string
   displayIndex: number
@@ -58,6 +60,8 @@ function PrimitiveTableRow({primName: prim, displayIndex, hex, oklch}: RowProps)
     </tr>
   )
 }
+
+PrimitiveTableRow.displayName = 'PrimitiveTableRow'
 
 /**
  * One row per used `neutral-*` primitive: swatch, name, hex, OKLCH, idx — deduplicated, no semantics.

@@ -248,7 +248,7 @@ function PanelBody({
                     <DropdownMenuLabel>
                       Ramp preview
                     </DropdownMenuLabel>
-                    <p className="px-12 pb-10 text-[0.7rem] leading-snug text-muted-foreground">
+                    <p className="px-12 pb-10 text-caption leading-snug text-muted-foreground">
                       Choose which neutral ladder appears in the strip below.
                     </p>
                     <DropdownMenuSeparator />

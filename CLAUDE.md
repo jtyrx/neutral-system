@@ -57,7 +57,7 @@ Next.js 16 App Router · React 19 · TypeScript strict · Tailwind CSS v4 · `co
 
 Alias `@/*` resolves from repo root. UI primitives are shadcn-style wrappers over **Base UI** — not Radix.
 
-For Next.js-specific work, read `.next-docs` first. If missing: `npx @next/codemod agents-md --output AGENTS.md`.
+For Next.js-specific work, read `.next-docs` first. If missing: `npx @next/codemod agents-md --output .next-docs/AGENTS.md`.
 
 ---
 
@@ -151,3 +151,14 @@ Route all new debug logs through `presetDebugEnabled()` in `lib/debug/presetDebu
 - Keep diffs focused. Do not reformat or refactor unrelated files.
 - Draft-mode route/env names that mention Sanity are URL-compatibility plumbing only — do not expand them.
 - Verification gate before marking done: `pnpm type-check` → `pnpm test` → `pnpm build`.
+
+---
+
+## Sub-Agents
+
+Project-specific agents in `.claude/agents/`. Dispatch with the `Agent` tool.
+
+| Agent | When to use |
+|---|---|
+| `engine-reviewer` | After editing any file in `lib/neutral-engine/` — checks all CLAUDE.md engine invariants |
+| `ui-compliance-runner` | After writing or substantially editing any file in `components/` — runs sweep.sh + fixes violations + type-check |

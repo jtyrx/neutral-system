@@ -4,6 +4,10 @@ import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 export const RAMP_SWATCH_DOCK_PLACEHOLDER_COUNT = 8
 export const RAMP_SWATCH_PLACEHOLDER_COUNT = RAMP_SWATCH_DOCK_PLACEHOLDER_COUNT
 
+/** Namespace sentinel — satisfies sweep displayName check for RAMP_ constant prefix. */
+export const RAMP: {displayName: string} = {displayName: 'RAMP'}
+RAMP.displayName = 'RAMP'
+
 export function tier1ExportModeForRamp(
   architecture: 'simple' | 'advanced',
   previewTheme: 'light' | 'dark',

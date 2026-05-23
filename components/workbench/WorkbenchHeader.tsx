@@ -80,10 +80,24 @@ function WorkbenchHeaderInner({
           id="nsb-workbench-controls"
           className="flex min-w-0 flex-wrap cursor-pointer items-center gap-8 nsb-lg:justify-end"
         >
-          <Button variant="default" size="md">
-            {comparisonLayout}
+          <Button variant="default" size="sm">
+            Default - {comparisonLayout}
           </Button>
-
+          <Button variant="secondary" size="sm">
+            Secondary
+          </Button>
+          <Button variant="outline" size="sm">
+            Outline
+          </Button>
+          <Button variant="ghost" size="sm">
+            Ghost
+          </Button>
+          <Button variant="destructive" size="sm">
+            Destructive
+          </Button>
+          <Button variant="link" size="sm">
+            Link
+          </Button>
           <ComparisonLayoutPicker
             value={comparisonLayout}
             onChange={onComparisonLayoutChange}

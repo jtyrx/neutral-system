@@ -98,6 +98,8 @@ function UsageBadge({used}: {used: boolean}) {
   )
 }
 
+UsageBadge.displayName = 'UsageBadge'
+
 type RowProps = {
   swatch: GlobalSwatch
   used: boolean
@@ -142,6 +144,8 @@ function NeutralScaleUsageRow({swatch: s, used, displayIndex, displayLabel, expo
   )
 }
 
+NeutralScaleUsageRow.displayName = 'NeutralScaleUsageRow'
+
 export function NeutralScaleUsageTable({
   global,
   usedIndices,
@@ -172,7 +176,7 @@ export function NeutralScaleUsageTable({
         </p>
       </div>
       <div
-        className={`overflow-x-auto rounded-xl border ${frameClass(themeContext)}`}
+        className={cn('overflow-x-auto rounded-xl border', frameClass(themeContext))}
         role="region"
         aria-label="Neutral scale usage — full ladder with mapped indices highlighted"
       >

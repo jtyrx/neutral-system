@@ -16,7 +16,7 @@ import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 import {cn} from '@/lib/utils'
 
 /** Bulk CSS: `[data-slot='ramp-swatch']` + class `ramp-swatch-segment`. Rail: `[data-slot='ramp-swatch-rail']`. Variants: `ramp-swatch:*`. Dock magnify: `data-dock-item`. */
-const PLACEHOLDER_COUNT = RAMP_SWATCH_PLACEHOLDER_COUNT
+const placeholderCount = RAMP_SWATCH_PLACEHOLDER_COUNT
 const rampRailBaseClassName =
   'box-border flex min-h-0 w-full overflow-x-auto overflow-y-hidden rounded-card'
 const rampRailLiveClassName =
@@ -199,7 +199,7 @@ function RampSwatchRailInner({
   )
 
   if (!wb || ramp.length === 0) {
-    const lastPlaceholder = PLACEHOLDER_COUNT - 1
+    const lastPlaceholder = placeholderCount - 1
     return (
       <div
         className={cn(placeholderShellClass, className)}
@@ -210,7 +210,7 @@ function RampSwatchRailInner({
         aria-label="Neutral ramp preview — waiting for workbench"
       >
         <span className={rampRailRowClassName}>
-          {Array.from({length: PLACEHOLDER_COUNT}, (_, i) =>
+          {Array.from({length: placeholderCount}, (_, i) =>
             segmentLabels ? (
               <span
                 key={i}
@@ -333,6 +333,8 @@ function RampSwatchRailInner({
   )
 }
 
+RampSwatchRailInner.displayName = 'RampSwatchRailInner'
+
 export const RampSwatchRail = memo(
   RampSwatchRailInner,
   (prev, next) =>
@@ -343,3 +345,4 @@ export const RampSwatchRail = memo(
     prev.previewThemeOverride === next.previewThemeOverride &&
     prev.segmentLabels === next.segmentLabels,
 )
+RampSwatchRail.displayName = 'RampSwatchRail'

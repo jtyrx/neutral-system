@@ -55,6 +55,8 @@ function NeutralScaleTableHead() {
   )
 }
 
+NeutralScaleTableHead.displayName = 'NeutralScaleTableHead'
+
 type RowProps = {
   swatch: GlobalSwatch
   displayIndex: number
@@ -88,6 +90,8 @@ function NeutralScaleTableRow({swatch: s, displayIndex, displayLabel, exportKey}
   )
 }
 
+NeutralScaleTableRow.displayName = 'NeutralScaleTableRow'
+
 export function NeutralScaleReferenceTable({global, tier1ExportMode, themeContext = 'both', embedded = false, className}: Props) {
   if (global.length === 0) {
     return null
@@ -111,7 +115,7 @@ export function NeutralScaleReferenceTable({global, tier1ExportMode, themeContex
         </p>
       </div>
       <div
-        className={`overflow-x-auto rounded-xl border ${frameClass(themeContext)}`}
+        className={cn('overflow-x-auto rounded-xl border', frameClass(themeContext))}
         role="region"
         aria-label="Full neutral scale reference"
       >

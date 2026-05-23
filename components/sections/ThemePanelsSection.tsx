@@ -30,7 +30,7 @@ type Props = {
   onSelectSystem: (id: string) => void
 }
 
-const THEME_TABLE_GROUPS: {section: PairSection; hint: string}[] = [
+const themeTableGroups: {section: PairSection; hint: string}[] = [
   {
     section: {kind: 'layer', layer: 'surface'},
     hint: 'sunken · default · subtle · raised · overlay (brand lives in the Custom Brand section)',
@@ -116,6 +116,8 @@ function RoleTokenTable({
   )
 }
 
+RoleTokenTable.displayName = 'RoleTokenTable'
+
 const themeColumnShellVariants = cva('rounded-2xl border p-16 sm:p-20', {
   variants: {
     tone: {
@@ -185,7 +187,7 @@ function ThemeTokenColumn({
       <div className="mt-24 space-y-32">
         {showTable ? (
           <>
-            {THEME_TABLE_GROUPS.map(({section, hint: groupHint}) => {
+            {themeTableGroups.map(({section, hint: groupHint}) => {
               const groupTokens = tokensForThemeTableBlock(tokenView, section)
               if (groupTokens.length === 0) return null
               const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
@@ -241,6 +243,8 @@ function ThemeTokenColumn({
   )
 }
 
+ThemeTokenColumn.displayName = 'ThemeTokenColumn'
+
 function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
   return (
     <section id="themes" className="scroll-mt-24 space-y-24">
@@ -279,4 +283,7 @@ function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkT
   )
 }
 
+ThemePanelsSectionInner.displayName = 'ThemePanelsSectionInner'
+
 export const ThemePanelsSection = memo(ThemePanelsSectionInner)
+ThemePanelsSection.displayName = 'ThemePanelsSection'

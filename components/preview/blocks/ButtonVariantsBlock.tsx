@@ -4,8 +4,8 @@ import {Loader2} from 'lucide-react'
 
 const BUTTON_VARIANTS = [
   {value: 'default', label: 'Default'},
-  {value: 'outline', label: 'Outline'},
   {value: 'secondary', label: 'Secondary'},
+  {value: 'outline', label: 'Outline'},
   {value: 'ghost', label: 'Ghost'},
   {value: 'destructive', label: 'Destructive'},
   {value: 'link', label: 'Link'},
@@ -23,7 +23,7 @@ const BUTTON_STATE_LABELS = ['Rest', 'Focus', 'Disabled', 'Loading'] as const
 export function ButtonVariantsBlock(_props: BlockCaseProps) {
   return (
     <div className="overflow-x-auto rounded-md bg-(--color-surface-default) p-8">
-      <div className="min-w-[56rem] space-y-4">
+      <div className="min-w-4xl space-y-4">
         <div className="grid grid-cols-[5rem_3rem_repeat(4,minmax(7rem,1fr))] gap-8 border-b border-hairline pb-6">
           <div />
           <span className="text-center text-micro font-medium uppercase tracking-wide text-disabled">
@@ -36,9 +36,9 @@ export function ButtonVariantsBlock(_props: BlockCaseProps) {
           ))}
         </div>
         {BUTTON_VARIANTS.map(({value, label}) => (
-          <div key={value} className="border-b border-hairline py-2 last:border-b-0">
+          <div key={value} className="border-b border-hairline py-6 last:border-b-0">
             {BUTTON_SIZES.map(({value: size, label: sizeLabel}, sizeIndex) => (
-              <div key={size} className="grid grid-cols-[5rem_3rem_repeat(4,minmax(7rem,1fr))] items-center gap-8 py-3">
+              <div key={size} className="grid grid-cols-[5rem_3rem_repeat(4,minmax(7rem,1fr))] items-center gap-8 py-6">
                 <span className="font-mono text-micro text-muted">{sizeIndex === 0 ? label : ''}</span>
                 <span className="text-center font-mono text-micro text-disabled">{sizeLabel}</span>
                 <div className="flex justify-center">

@@ -64,22 +64,15 @@ function PrimitiveTableRow({primName: prim, displayIndex, hex, oklch}: RowProps)
  * Custom brand is preview-only and intentionally excluded; this table reflects exportable ramp rows.
  */
 export function UsedNeutralPrimitivesTable({global, usedIndices, label, tier1ExportMode, className}: Props) {
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-
   const rows = [...usedIndices].filter((i) => i >= 0 && i < global.length)
-  if (isDarkAdvanced) {
-    rows.sort((a, b) => b - a)
-  } else {
-    rows.sort((a, b) => {
-      const ka = primitiveSortKey(global[a])
-      const kb = primitiveSortKey(global[b])
-      if (ka !== kb) return ka - kb
-      const la = global[a]?.label ?? ''
-      const lb = global[b]?.label ?? ''
-      return la.localeCompare(lb, undefined, {numeric: true})
-    })
-  }
+  rows.sort((a, b) => {
+    const ka = primitiveSortKey(global[a])
+    const kb = primitiveSortKey(global[b])
+    if (ka !== kb) return ka - kb
+    const la = global[a]?.label ?? ''
+    const lb = global[b]?.label ?? ''
+    return la.localeCompare(lb, undefined, {numeric: true})
+  })
 
   if (rows.length === 0) {
     return (
@@ -103,7 +96,7 @@ export function UsedNeutralPrimitivesTable({global, usedIndices, label, tier1Exp
               <PrimitiveTableRow
                 key={`used-prim-${idx}`}
                 primName={primitiveNeutralExportName(global, idx, tier1ExportMode)}
-                displayIndex={isDarkAdvanced ? global.length - 1 - idx : idx}
+                displayIndex={idx}
                 hex={global[idx]?.serialized.hex ?? '—'}
                 oklch={global[idx]?.serialized.oklchCss ?? '—'}
               />

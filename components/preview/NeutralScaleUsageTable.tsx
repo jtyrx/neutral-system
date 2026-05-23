@@ -150,15 +150,9 @@ export function NeutralScaleUsageTable({
   embedded = false,
   className,
 }: Props) {
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
+  const rows = [...global].sort((a, b) => a.index - b.index)
 
-  const rows = isDarkAdvanced
-    ? [...global].sort((a, b) => b.index - a.index)
-    : [...global].sort((a, b) => a.index - b.index)
-
-  const getDisplayIndex = (s: GlobalSwatch) => (isDarkAdvanced ? n - 1 - s.index : s.index)
+  const getDisplayIndex = (s: GlobalSwatch) => s.index
   const getDisplayLabel = (s: GlobalSwatch) => String(getDisplayIndex(s))
 
   if (rows.length === 0) {

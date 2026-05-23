@@ -83,10 +83,6 @@ function SemanticRoleTableRow({idx, primName: prim, displayIndex, hex, oklch}: R
  * Deduplicated primitive ladder table: one row per `neutral-*` swatch used by mapped tokens (no semantic columns).
  */
 export function SemanticRoleTable({tokenView, global, label, layerFilter = 'all', tier1ExportMode, className}: Props) {
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
-
   const base = tokenView.sortedForTable.filter(
     (t) => !isOverflowRole(t.role) && !(t.role === 'surface.brand' && t.customColor),
   )
@@ -101,18 +97,14 @@ export function SemanticRoleTable({tokenView, global, label, layerFilter = 'all'
       primitiveIndices.push(i)
     }
   }
-  if (isDarkAdvanced) {
-    primitiveIndices.sort((a, b) => b - a)
-  } else {
-    primitiveIndices.sort((a, b) => {
-      const ka = primitiveSortKey(global[a])
-      const kb = primitiveSortKey(global[b])
-      if (ka !== kb) return ka - kb
-      const la = global[a]?.label ?? ''
-      const lb = global[b]?.label ?? ''
-      return la.localeCompare(lb, undefined, {numeric: true})
-    })
-  }
+  primitiveIndices.sort((a, b) => {
+    const ka = primitiveSortKey(global[a])
+    const kb = primitiveSortKey(global[b])
+    if (ka !== kb) return ka - kb
+    const la = global[a]?.label ?? ''
+    const lb = global[b]?.label ?? ''
+    return la.localeCompare(lb, undefined, {numeric: true})
+  })
 
   if (primitiveIndices.length === 0) {
     return (
@@ -136,7 +128,7 @@ export function SemanticRoleTable({tokenView, global, label, layerFilter = 'all'
               idx={idx}
               swatch={global[idx]}
               primName={primitiveNeutralExportName(global, idx, tier1ExportMode)}
-              displayIndex={isDarkAdvanced ? n - 1 - idx : idx}
+              displayIndex={idx}
               hex={global[idx]?.serialized.hex ?? '—'}
               oklch={global[idx]?.serialized.oklchCss ?? '—'}
             />

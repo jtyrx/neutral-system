@@ -93,15 +93,9 @@ export function NeutralScaleReferenceTable({global, tier1ExportMode, themeContex
     return null
   }
 
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
+  const rows = [...global].sort((a, b) => a.index - b.index)
 
-  const rows = isDarkAdvanced
-    ? [...global].sort((a, b) => b.index - a.index)
-    : [...global].sort((a, b) => a.index - b.index)
-
-  const getDisplayIndex = (s: GlobalSwatch) => (isDarkAdvanced ? n - 1 - s.index : s.index)
+  const getDisplayIndex = (s: GlobalSwatch) => s.index
   const getDisplayLabel = (s: GlobalSwatch) => String(getDisplayIndex(s))
 
   const outer = embedded ? 'space-y-12' : 'mt-32 space-y-12 border-t border-hairline pt-24'

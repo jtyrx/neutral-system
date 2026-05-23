@@ -94,6 +94,12 @@ describe('exportCssVariables (advanced sibling ramps)', () => {
     expect(css).toMatch(/\s--color-neutral-dark-[a-zA-Z0-9]+:/)
     const firstLightLabel = ramps.light[0]?.label ?? '0'
     expect(css).toContain(`  --color-neutral-${firstLightLabel}:`)
+    // Lightness-based model: dark-0 = lightest dark swatch (ramp[0]), NOT darkest
+    const firstDarkLabel = ramps.dark[0]?.label ?? '0'
+    const firstDarkSwatch = ramps.dark[0]!
+    expect(css).toContain(
+      `  --color-neutral-dark-${firstDarkLabel}: ${firstDarkSwatch.serialized.oklchCss};`,
+    )
   })
 })
 

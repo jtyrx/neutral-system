@@ -98,7 +98,7 @@ function RampSwatchRailInner({
     return previewTheme === 'light' ? wb.lightRamp : wb.darkRamp
   }, [wb, previewTheme])
 
-  const effectiveInvert = invertDisplay ?? (previewTheme === 'dark')
+  const effectiveInvert = invertDisplay ?? false
 
   const orderedSwatches = useMemo(() => {
     if (effectiveInvert) return [...ramp].reverse()

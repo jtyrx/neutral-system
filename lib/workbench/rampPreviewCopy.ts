@@ -8,8 +8,8 @@
 
 import type {NeutralArchitectureMode} from '@/lib/neutral-engine'
 
-/** Invert dark global ramp display order so the strip reads dark → light L→R while indices stay canonical. */
-export const INVERT_DARK_RAMP_STRIP = true as const
+/** Lightness-based model: dark strip reads light → dark L→R, same as light. */
+export const INVERT_DARK_RAMP_STRIP = false as const
 
 export type RampPreviewLane = 'light' | 'dark'
 

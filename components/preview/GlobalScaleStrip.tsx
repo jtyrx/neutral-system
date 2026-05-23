@@ -73,9 +73,7 @@ export function GlobalScaleStrip({
   const orderedSwatches = displayOrderedSwatches(global, invertDisplay)
   const segments = segmentsForDisplay(orderedSwatches)
 
-  // When the display is inverted (dark ramp), the visual position maps to the reversed export index.
-  const getDisplayIdx = (swatchIndex: number) =>
-    invertDisplay ? len - 1 - swatchIndex : swatchIndex
+  const getDisplayIdx = (swatchIndex: number) => swatchIndex
 
   return (
     <div className="space-y-8">

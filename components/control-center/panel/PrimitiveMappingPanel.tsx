@@ -82,8 +82,6 @@ function LayerSection({
   overrides,
   onOverride,
 }: LayerSectionProps) {
-  const darkN = darkRamp.length
-
   return (
     <div>
       <div className="border-b border-hairline bg-sunken px-12 py-5">
@@ -102,27 +100,23 @@ function LayerSection({
         const lightOverride = overrides[lt.role]?.light
         const darkOverride = overrides[lt.role]?.dark
         const effectiveLightIdx = lightOverride ?? lt.sourceGlobalIndex
-        // sourceGlobalIndex for dark (0 = lightest in the ramp)
-        const effectiveDarkSourceIdx = darkToken
+        const effectiveDarkIdx = darkToken
           ? (darkOverride ?? darkToken.sourceGlobalIndex)
           : null
-        // Display index for dark: 0 = darkest (invert from source)
-        const effectiveDarkDisplayIdx =
-          effectiveDarkSourceIdx !== null ? darkN - 1 - effectiveDarkSourceIdx : null
         const delta =
-          effectiveDarkDisplayIdx !== null ? effectiveDarkDisplayIdx - effectiveLightIdx : null
+          effectiveDarkIdx !== null ? effectiveDarkIdx - effectiveLightIdx : null
         const isLast = i === lightTokens.length - 1
 
         return (
           <div
             key={lt.role}
             className={cn(
-              'grid grid-cols-[1fr_112px_20px_112px] items-center px-12 py-7 hover:bg-subtle transition-colors',
+              'grid grid-cols-[1fr_112px_20px_112px] items-center px-12 py-8 hover:bg-subtle transition-colors',
               !isLast && 'border-b border-hairline',
             )}
           >
             <span
-              className="font-mono text-nano text-subtle truncate pr-4"
+              className="font-mono text-caption text-subtle truncate pr-4"
               title={lt.role}
             >
               {lt.role}
@@ -149,23 +143,14 @@ function LayerSection({
             </span>
 
             {darkToken ? (
-              // Dark dropdown: value and options use display indices (0 = darkest).
-              // On change, convert display index back to sourceGlobalIndex before storing.
               <StepDropdown
-                value={effectiveDarkDisplayIdx!}
+                value={effectiveDarkIdx!}
                 isOverridden={darkOverride !== undefined}
                 ramp={darkRamp}
-                darkInverted
-                onChange={(displayIdx) =>
-                  onOverride(
-                    lt.role,
-                    'dark',
-                    displayIdx === undefined ? undefined : darkN - 1 - displayIdx,
-                  )
-                }
+                onChange={(v) => onOverride(lt.role, 'dark', v)}
               />
             ) : (
-              <span className="font-mono text-nano text-muted opacity-20">—</span>
+              <span className="font-mono text-caption text-muted opacity-20">—</span>
             )}
           </div>
         )
@@ -175,26 +160,22 @@ function LayerSection({
 }
 
 type StepDropdownProps = {
-  /** Display index (0 = lightest for light; 0 = darkest for dark when darkInverted). */
+  /** Source global index into the ramp (0 = lightest). */
   value: number
   isOverridden: boolean
   ramp: GlobalSwatch[]
-  /** When true, option 0 = darkest (ramp[n-1]), option n-1 = lightest (ramp[0]). */
-  darkInverted?: boolean
-  onChange: (displayIndex: number | undefined) => void
+  onChange: (index: number | undefined) => void
 }
 
-function StepDropdown({value, isOverridden, ramp, darkInverted, onChange}: StepDropdownProps) {
+function StepDropdown({value, isOverridden, ramp, onChange}: StepDropdownProps) {
   const n = ramp.length
-  // Resolve swatch: for dark-inverted, display index 0 maps to ramp[n-1]
-  const sourceIdx = darkInverted ? n - 1 - value : value
-  const swatch = ramp[sourceIdx] ?? null
+  const swatch = ramp[value] ?? null
 
   return (
     <div className="flex items-center gap-5">
       {swatch && (
         <span
-          className="inline-block h-[10px] w-[10px] shrink-0 rounded-[2px] border border-hairline"
+          className="inline-block size-25 shrink-0 rounded-[2px] border border-hairline"
           style={{backgroundColor: swatch.serialized.hex}}
         />
       )}
@@ -202,18 +183,16 @@ function StepDropdown({value, isOverridden, ramp, darkInverted, onChange}: StepD
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className={cn(
-          'appearance-none bg-transparent font-mono text-nano tabular-nums outline-none cursor-pointer',
+          'appearance-none bg-transparent font-mono text-caption tabular-nums outline-none cursor-pointer',
           isOverridden ? 'text-default' : 'text-subtle',
         )}
         title={`Step ${value} — ${swatch?.serialized.hex ?? ''}`}
       >
-        {Array.from({length: n}, (_, displayIdx) => {
-          // For dark-inverted: displayIdx 0 = darkest = ramp[n-1]
-          const swatchIdx = darkInverted ? n - 1 - displayIdx : displayIdx
-          const s = ramp[swatchIdx]
+        {Array.from({length: n}, (_, idx) => {
+          const s = ramp[idx]
           return (
-            <option key={displayIdx} value={displayIdx}>
-              {s ? `${s.label} ·${displayIdx}` : `step ${displayIdx}`}
+            <option key={idx} value={idx}>
+              {s ? `${s.label} ·${idx}` : `step ${idx}`}
             </option>
           )
         })}
@@ -222,7 +201,7 @@ function StepDropdown({value, isOverridden, ramp, darkInverted, onChange}: StepD
         <button
           type="button"
           onClick={() => onChange(undefined)}
-          className="text-nano text-muted opacity-50 hover:opacity-100 transition-opacity leading-none"
+          className="text-caption text-muted opacity-50 hover:opacity-100 transition-opacity leading-none"
           aria-label="Clear override"
           title="Reset to calculated value"
         >

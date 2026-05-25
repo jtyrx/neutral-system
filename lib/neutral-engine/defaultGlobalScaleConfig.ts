@@ -23,7 +23,7 @@ const DEFAULT_LIGHT_SCALE_VALUES = {
  */
 const DEFAULT_DARK_SCALE_VALUES = {
   steps: 16,
-  lHigh: 0.915,
+  lHigh: 0.975,
   lLow: 0.18,
   progression: 'linear',
   lCurve: 'ease-out-light',

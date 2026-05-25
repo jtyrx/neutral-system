@@ -1,0 +1,125 @@
+<h2>Scope map — what we're building</h2>
+<p class="subtitle">This is large enough to need a clear phase boundary before we write the spec.</p>
+
+<div class="section">
+  <p class="label">The full system</p>
+
+  <div style="display:grid;gap:12px;margin-top:12px;">
+
+    <!-- Phase 1 -->
+    <div style="border:1px solid #2d4a2d;border-radius:10px;padding:16px;background:#0a1a0a;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="background:#2d4a2d;color:#98c379;padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;">PHASE 1 — THIS SPEC</span>
+        <span style="font-size:0.75rem;color:#666;">Foundation</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#111;border-radius:6px;padding:10px;">
+          <div style="font-size:0.7rem;color:#98c379;font-weight:700;margin-bottom:6px;">DTCG NAMING CONVENTION</div>
+          <div style="font-size:0.72rem;color:#aaa;line-height:1.6;">
+            • Token paths: <code>color.surface.raised</code><br>
+            • Alias syntax: <code>{color.neutral.6}</code><br>
+            • <code>$type</code>, <code>$description</code> on <code>SystemToken</code><br>
+            • CSS vars stay as-is (<code>--color-surface-raised</code> already aligned)
+          </div>
+        </div>
+        <div style="background:#111;border-radius:6px;padding:10px;">
+          <div style="font-size:0.7rem;color:#98c379;font-weight:700;margin-bottom:6px;">CSS VAR INHERITANCE</div>
+          <div style="font-size:0.72rem;color:#aaa;line-height:1.6;">
+            • <code>exportCssVariables</code> emits<br>
+            &nbsp;&nbsp;<code>[data-preview-theme="light"]</code><br>
+            &nbsp;&nbsp;<code>[data-preview-theme="dark"]</code><br>
+            • <code>ThemeComparisonFrame</code> sets attr<br>
+            • New blocks: Tailwind utils, no inline styles<br>
+            • <code>c.*</code> kept only for brand + alpha scrim
+          </div>
+        </div>
+        <div style="background:#111;border-radius:6px;padding:10px;">
+          <div style="font-size:0.7rem;color:#98c379;font-weight:700;margin-bottom:6px;">CHAINSPEC TYPE</div>
+          <div style="font-size:0.72rem;color:#aaa;line-height:1.6;">
+            • <code>BlockChainSpec</code> typed interface<br>
+            • Entries: <code>element</code>, <code>dtcgPath</code>, <code>cssVar</code>, <code>usage</code><br>
+            • Colocated: <code>DataCardBlock.chain.ts</code><br>
+            • Registered alongside block component
+          </div>
+        </div>
+        <div style="background:#111;border-radius:6px;padding:10px;">
+          <div style="font-size:0.7rem;color:#98c379;font-weight:700;margin-bottom:6px;">CHAIN PANEL COMPONENT</div>
+          <div style="font-size:0.72rem;color:#aaa;line-height:1.6;">
+            • <code>BlockTokenChainPanel</code> — reads spec<br>
+            • Resolves primitive live from <code>tokenView</code><br>
+            • Shows: swatch → DTCG path → CSS var → usage<br>
+            • Rendered below each block in workbench
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div style="border:1px solid #333;border-radius:10px;padding:16px;background:#0d0d0d;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="background:#2a2a2a;color:#888;padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;">PHASE 2</span>
+        <span style="font-size:0.75rem;color:#555;">Block expansion</span>
+      </div>
+      <div style="font-size:0.72rem;color:#666;line-height:1.8;">
+        Add 10 new preview blocks (forms, CTAs, hero, checkout, layout structures) · Each ships with colocated <code>chainSpec</code> · Migrate existing 10 blocks to CSS var inheritance + add their <code>chainSpec</code>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div style="border:1px solid #333;border-radius:10px;padding:16px;background:#0d0d0d;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="background:#2a2a2a;color:#888;padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;">PHASE 3</span>
+        <span style="font-size:0.75rem;color:#555;">Export + tooling</span>
+      </div>
+      <div style="font-size:0.72rem;color:#666;line-height:1.8;">
+        DTCG JSON export (primitive + semantic + component layers) · Style Dictionary integration consuming chainSpecs · Storybook Token Addon wired to the same spec data
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <p class="label">How DTCG token paths map through the system</p>
+  <div style="background:#111;border-radius:8px;padding:16px;margin-top:8px;font-family:monospace;font-size:0.72rem;line-height:2;">
+    <div style="display:grid;grid-template-columns:auto auto auto auto auto;gap:0;align-items:center;">
+      <span style="color:#666;">Primitive</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#666;">Semantic</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#666;">Component usage</span>
+
+      <span style="color:#e5c07b;background:#1a1500;padding:2px 8px;border-radius:4px;">color.neutral.6</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#98c379;background:#0a1500;padding:2px 8px;border-radius:4px;">color.surface.raised</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#61afef;background:#00101a;padding:2px 8px;border-radius:4px;">Card background</span>
+
+      <span style="color:#e5c07b;background:#1a1500;padding:2px 8px;border-radius:4px;">color.neutral.2</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#98c379;background:#0a1500;padding:2px 8px;border-radius:4px;">color.text.default</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#61afef;background:#00101a;padding:2px 8px;border-radius:4px;">Heading color</span>
+
+      <span style="color:#e5c07b;background:#1a1500;padding:2px 8px;border-radius:4px;">color.neutral.5</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#98c379;background:#0a1500;padding:2px 8px;border-radius:4px;">color.border.default</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#61afef;background:#00101a;padding:2px 8px;border-radius:4px;">Control edge</span>
+
+      <span style="color:#e5c07b;background:#1a1500;padding:2px 8px;border-radius:4px;">color.neutral.1</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#98c379;background:#0a1500;padding:2px 8px;border-radius:4px;">color.border.focus</span>
+      <span style="color:#444;text-align:center;">→</span>
+      <span style="color:#61afef;background:#00101a;padding:2px 8px;border-radius:4px;">Focus ring</span>
+    </div>
+  </div>
+  <p style="font-size:0.72rem;color:#555;margin-top:8px;">CSS variable: <code>--color-surface-raised</code> — already aligned with DTCG path, just hyphenated. No renaming needed.</p>
+</div>
+
+<div class="section" style="margin-top:16px;background:#0a0a14;border:1px solid #1a1a3a;border-radius:8px;padding:14px;">
+  <p style="font-size:0.78rem;color:#7b8ec8;margin:0;line-height:1.7;">
+    <strong style="color:#9ca8d8;">Confirm:</strong> Phase 1 is this spec. We nail the foundation — DTCG naming on the token model, CSS var inheritance for blocks, and the <code>chainSpec</code> type + panel. Phase 2 and 3 get their own specs when we get there.<br><br>
+    Does this decomposition look right?
+  </p>
+</div>

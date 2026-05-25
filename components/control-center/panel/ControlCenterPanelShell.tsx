@@ -57,7 +57,7 @@ export function ControlCenterPanelShell({
       }}
       initial={{y: 24, scale: 0.985}}
       animate={{y: 0, scale: 1}}
-      transition={surfaceMotionTransition}
+      {...(surfaceMotionTransition !== undefined ? {transition: surfaceMotionTransition} : {})}
     >
       <div className={shellBodyClassName}>{children}</div>
     </motion.div>

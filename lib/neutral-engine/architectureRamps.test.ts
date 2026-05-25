@@ -8,7 +8,7 @@ import {
 import {buildArchitectureRamps, rampForTheme, rampsEqual} from '@/lib/neutral-engine/architectureRamps'
 
 describe('architectureRamps', () => {
-  it('simple mode emits a shared global ladder', () => {
+  it('simple mode emits a light global ladder plus black-first dark virtual ladder', () => {
     const ramps = buildArchitectureRamps({
       architecture: 'simple',
       globalScale: DEFAULT_GLOBAL_SCALE_CONFIG,
@@ -18,7 +18,9 @@ describe('architectureRamps', () => {
     expect(ramps.architecture).toBe('simple')
     if (ramps.architecture !== 'simple') throw new Error('expected simple')
     expect(rampForTheme(ramps, 'light')).toEqual(ramps.global)
-    expect(rampForTheme(ramps, 'darkElevated')).toEqual(ramps.global)
+    expect(rampForTheme(ramps, 'darkElevated')).toEqual(ramps.dark)
+    expect(ramps.dark[0]!.serialized.oklchCss).toContain('21.500%')
+    expect(ramps.dark[ramps.dark.length - 1]!.serialized.oklchCss).toContain('100.000%')
   })
 
   it('advanced mode emits independent sibling ladders', () => {
@@ -33,6 +35,8 @@ describe('architectureRamps', () => {
     expect(rampForTheme(ramps, 'light')).toEqual(ramps.light)
     expect(rampForTheme(ramps, 'darkElevated')).toEqual(ramps.dark)
     expect(ramps.light).not.toBe(ramps.dark)
+    expect(ramps.dark[0]!.serialized.oklchCss).toContain('18.000%')
+    expect(ramps.dark[ramps.dark.length - 1]!.serialized.oklchCss).toContain('97.500%')
   })
 
   it('rampsEqual is stable for referential twins', () => {

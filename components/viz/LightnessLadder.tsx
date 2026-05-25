@@ -34,11 +34,12 @@ function LightnessLadderInner({
             type="button"
             title={`${s.label} · L from OKLCH`}
             onClick={() => onSelect?.(s.index)}
-            className={`relative min-w-0 flex-1 ring-offset-2 ring-offset-black transition ${
+            className={cn(
+              'relative min-w-0 flex-1 ring-offset-2 ring-offset-black transition',
               selectedIndex === s.index
                 ? 'ring-2 ring-white/60'
-                : 'hover:brightness-110'
-            }`}
+                : 'hover:brightness-110',
+            )}
             style={{backgroundColor: s.serialized.hex}}
           >
             <span className="sr-only">{s.label}</span>
@@ -46,11 +47,13 @@ function LightnessLadderInner({
         ))}
       </div>
       <p className="text-micro text-muted">
-        Lightest → darkest (left → right). OKLCH lightness interpolated
-        linearly.
+        Left → right follows the active ramp order. OKLCH lightness is interpolated linearly.
       </p>
     </div>
   )
 }
 
+LightnessLadderInner.displayName = 'LightnessLadderInner'
+
 export const LightnessLadder = memo(LightnessLadderInner)
+LightnessLadder.displayName = 'LightnessLadder'

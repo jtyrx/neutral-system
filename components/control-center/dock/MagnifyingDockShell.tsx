@@ -122,20 +122,20 @@ const dockItemMagnifyClassName =
 
 export type MagnifyingDockShellProps = {
   children: ReactNode
-  className?: string
+  className?: string | undefined
   /**
    * Curve half-width in CSS pixels (where magnification falls to baseline).
    * Default {@link DOCK_MAGNIFY_DISTANCE_REM} × 16 (~144px).
    */
-  distance?: number
+  distance?: number | undefined
   /** Peak magnification scale at cursor (default 1.32). */
-  magnificationScale?: number
-  spring?: SpringOptions
+  magnificationScale?: number | undefined
+  spring?: SpringOptions | undefined
   /**
    * Merged onto the dock panel — tuned ring + drop shadow + surface mix.
    * When `boxShadow` is set, default Tailwind `ring` / `shadow-*` are omitted.
    */
-  shellStyle?: CSSProperties
+  shellStyle?: CSSProperties | undefined
 }
 
 export function MagnifyingDockShell({
@@ -196,12 +196,12 @@ export type DockMagnifyItemProps = {
   children: ReactNode
   /** Reading order for reflow math (0 = leftmost). */
   magnifyIndex: number
-  className?: string
-  'data-dock-item'?: string
-  initial?: VariantLabels | TargetAndTransition | boolean
-  animate?: VariantLabels | TargetAndTransition | boolean
-  exit?: VariantLabels | TargetAndTransition
-  transition?: Transition
+  className?: string | undefined
+  'data-dock-item'?: string | undefined
+  initial?: VariantLabels | TargetAndTransition | boolean | undefined
+  animate?: VariantLabels | TargetAndTransition | boolean | undefined
+  exit?: VariantLabels | TargetAndTransition | undefined
+  transition?: Transition | undefined
 }
 
 export function DockMagnifyItem({
@@ -242,10 +242,10 @@ export function DockMagnifyItem({
       data-slot="dock-item"
       data-dock-item={dataDockItem}
       className={cn(dockItemClassName, className)}
-      initial={initial}
-      animate={animate}
-      exit={exit}
-      transition={transition}
+      {...(initial !== undefined ? {initial} : {})}
+      {...(animate !== undefined ? {animate} : {})}
+      {...(exit !== undefined ? {exit} : {})}
+      {...(transition !== undefined ? {transition} : {})}
     >
       <motion.div
         ref={ref}

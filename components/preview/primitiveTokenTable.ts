@@ -9,8 +9,7 @@ export function primitiveSortKey(sw: GlobalSwatch | undefined): number {
   return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY
 }
 
-/** Tier-1 export name for the ramp swatch at `sourceIndex` (or `—`).
- * For Advanced dark, the display index is reversed: dark-0 = darkest. */
+/** Tier-1 export name for the ramp swatch at `sourceIndex` (or `—`). */
 export function primitiveNeutralExportName(
   global: GlobalSwatch[],
   sourceIndex: number,
@@ -18,29 +17,21 @@ export function primitiveNeutralExportName(
 ): string {
   const sw = global[sourceIndex]
   if (!sw) return '—'
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const displayLabel = isDarkAdvanced ? String(global.length - 1 - sourceIndex) : sw.label
+  const displayLabel = sw.label
   return tier1ExportMode
     ? `--${tier1NeutralCssVarName(displayLabel, tier1ExportMode)}`
     : `--${tier1NeutralCssVarName(displayLabel)}`
 }
 
-/**
- * Visible/tier-1 shorthand label for a ramp chip (aligned with `{@link primitiveNeutralExportName}`).
- * Dark preview uses reversed display indices (`neutral-dark-0` = darkest).
- */
+/** Visible/tier-1 shorthand label for a ramp chip (aligned with `{@link primitiveNeutralExportName}`). */
 export function rampTier1FacingLabel(
   ramp: GlobalSwatch[],
   sourceIndex: number,
-  tier1ExportMode?: Tier1NeutralExportMode,
+  _tier1ExportMode?: Tier1NeutralExportMode,
 ): string {
   const sw = ramp[sourceIndex]
   if (!sw) return ''
-  const isDarkTier1 =
-    tier1ExportMode?.architecture === 'advanced' &&
-    tier1ExportMode.scale === 'dark'
-  return isDarkTier1 ? String(ramp.length - 1 - sourceIndex) : sw.label
+  return sw.label
 }
 
 /** Sort mapped system tokens by underlying primitive ladder value, then role. */

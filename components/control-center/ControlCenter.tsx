@@ -77,7 +77,7 @@ const rootClassName =
 const pageBlurClassName = 'absolute inset-x-0 bottom-0 z-40 max-w-none'
 
 const viewportBaseClassName =
-  'pointer-events-auto relative z-50 flex min-h-0 w-full max-w-[min(92vw,62rem)] flex-col items-center overflow-x-hidden overscroll-y-contain px-8 [contain:layout_style] [max-height:var(--cc-viewport-max-height,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-1.5rem))] data-[state=expanded]:fixed data-[state=expanded]:top-auto data-[state=expanded]:left-1/2 data-[state=expanded]:bottom-(--cc-dock-bottom-offset) data-[state=expanded]:w-[min(calc(var(--cc-visual-width,100vw)-1rem),62rem)] data-[state=expanded]:max-w-[min(calc(var(--cc-visual-width,100vw)-1rem),62rem)] data-[state=expanded]:-translate-x-1/2 data-[state=expanded]:overflow-y-visible'
+  'pointer-events-auto relative z-50 flex min-h-0 w-full max-w-[min(92vw,62rem)] flex-col items-center overflow-x-clip overflow-y-visible overscroll-y-contain px-8 [contain:layout_style] [max-height:var(--cc-viewport-max-height,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-1.5rem))] data-[state=expanded]:fixed data-[state=expanded]:top-auto data-[state=expanded]:left-1/2 data-[state=expanded]:bottom-(--cc-dock-bottom-offset) data-[state=expanded]:w-[min(calc(var(--cc-visual-width,100vw)-1rem),62rem)] data-[state=expanded]:max-w-[min(calc(var(--cc-visual-width,100vw)-1rem),62rem)] data-[state=expanded]:-translate-x-1/2 data-[state=expanded]:overflow-y-visible'
 
 const panelStageClassName =
   'flex min-h-0 max-h-(--cc-viewport-max-height) w-full shrink-0 justify-center overflow-visible [contain:layout_style]'
@@ -117,14 +117,23 @@ export function ControlCenter() {
 
   const shellStyle = useMemo((): CSSProperties | undefined => {
     if (!isDockChromeTuningEnabled(dockChrome)) return undefined
-    const {shadowOffsetY: y, shadowBlur, shadowSpread, shadowOpacity, surfaceMixPercent, ringOpacityPercent} = dockChrome
+    const {
+      shadowOffsetY: y,
+      shadowBlur,
+      shadowSpread,
+      shadowOpacity,
+      surfaceMixPercent,
+      ringOpacityPercent,
+    } = dockChrome
     const ring = `0 0 0 1px color-mix(in oklch, var(--ring) ${ringOpacityPercent}%, transparent)`
     const drop = `0 ${y}px ${shadowBlur}px ${shadowSpread}px rgba(0,0,0,${shadowOpacity})`
     return {
       boxShadow: `${ring}, ${drop}`,
       ...(surfaceMixPercent >= 100
         ? {}
-        : {backgroundColor: `color-mix(in oklch, var(--color-surface-overlay) ${surfaceMixPercent}%, transparent)`}),
+        : {
+            backgroundColor: `color-mix(in oklch, var(--color-surface-overlay) ${surfaceMixPercent}%, transparent)`,
+          }),
     }
   }, [dockChrome])
 
@@ -141,7 +150,9 @@ export function ControlCenter() {
   const secondaryDockInitial = reduceMotion ? false : SECONDARY_DOCK_INITIAL
   const secondaryDockIn = reduceMotion ? undefined : SECONDARY_DOCK_ANIMATE
   const secondaryDockExit = reduceMotion ? undefined : SECONDARY_DOCK_EXIT
-  const secondaryDockTransition = reduceMotion ? undefined : SECONDARY_DOCK_TRANSITION
+  const secondaryDockTransition = reduceMotion
+    ? undefined
+    : SECONDARY_DOCK_TRANSITION
 
   const dockToolbar = useMemo(
     () => (
@@ -153,17 +164,31 @@ export function ControlCenter() {
         transition={restTransition}
       >
         <MagnifyingDockShell shellStyle={shellStyle}>
-          <DockMagnifyItem magnifyIndex={0} className="shrink-0" data-dock-item="oklch-launcher">
+          <DockMagnifyItem
+            magnifyIndex={0}
+            className="shrink-0"
+            data-dock-item="oklch-launcher"
+          >
             <OklchLauncherButton ref={launcherRef} onOpen={open} />
           </DockMagnifyItem>
-          <DockMagnifyItem magnifyIndex={1} className="shrink-0" data-dock-item="ramp-range">
+          <DockMagnifyItem
+            magnifyIndex={1}
+            className="shrink-0"
+            data-dock-item="ramp-range"
+          >
             <RampRangeButton
-              aria-label={swatchDockOpen ? 'Hide ramp rail dock' : 'Show ramp rail dock'}
+              aria-label={
+                swatchDockOpen ? 'Hide ramp rail dock' : 'Show ramp rail dock'
+              }
               aria-pressed={swatchDockOpen}
               onOpen={toggleSwatchDock}
             />
           </DockMagnifyItem>
-          <DockMagnifyItem magnifyIndex={THEME_DOCK_MAGNIFY_INDEX} className="shrink-0" data-dock-item="theme-cycle">
+          <DockMagnifyItem
+            magnifyIndex={THEME_DOCK_MAGNIFY_INDEX}
+            className="shrink-0"
+            data-dock-item="theme-cycle"
+          >
             <ThemeCycleButton />
           </DockMagnifyItem>
         </MagnifyingDockShell>
@@ -175,9 +200,9 @@ export function ControlCenter() {
               data-dock-item="ramp-rail"
               className={secondaryDockClassName}
               initial={secondaryDockInitial}
-              animate={secondaryDockIn}
-              exit={secondaryDockExit}
-              transition={secondaryDockTransition}
+              {...(secondaryDockIn !== undefined ? {animate: secondaryDockIn} : {})}
+              {...(secondaryDockExit !== undefined ? {exit: secondaryDockExit} : {})}
+              {...(secondaryDockTransition !== undefined ? {transition: secondaryDockTransition} : {})}
             >
               <RampSwatchRail className={secondaryDockRailClassName} />
             </motion.div>
@@ -199,7 +224,12 @@ export function ControlCenter() {
   )
 
   return (
-    <div ref={dockShellRef} data-slot="app-dock" id="app-dock" className={rootClassName}>
+    <div
+      ref={dockShellRef}
+      data-slot="app-dock"
+      id="app-dock"
+      className={rootClassName}
+    >
       {pageBlur.enabled ? (
         <PageProgressiveBlur
           className={pageBlurClassName}
@@ -219,7 +249,11 @@ export function ControlCenter() {
         data-state={expanded ? 'expanded' : 'collapsed'}
         className={cn(
           viewportBaseClassName,
-          expanded ? 'overflow-y-visible' : collapsedHaloNeedsViewportBleed ? 'overflow-y-visible' : 'overflow-y-auto',
+          expanded
+            ? 'overflow-y-visible'
+            : collapsedHaloNeedsViewportBleed
+              ? 'overflow-y-visible'
+              : 'overflow-y-visible',
         )}
         style={viewportMaxStyle}
       >
@@ -234,7 +268,10 @@ export function ControlCenter() {
               transition={panelTransition}
               onAnimationComplete={handlePanelAnimationComplete}
             >
-              <ControlCenterPanel onClose={collapse} launcherReturnRef={launcherRef} />
+              <ControlCenterPanel
+                onClose={collapse}
+                launcherReturnRef={launcherRef}
+              />
             </motion.div>
           ) : (
             <motion.div

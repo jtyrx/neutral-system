@@ -1,6 +1,4 @@
-'use client'
-
-import {memo, type HTMLAttributes} from 'react'
+import type {HTMLAttributes} from 'react'
 
 import {GlobalScaleStrip} from '@/components/preview/GlobalScaleStrip'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
@@ -9,18 +7,18 @@ type Props = {
   global: GlobalSwatch[]
   tokenView: TokenView
   caption: string
-  accentClassName?: string
-  invertDisplay?: boolean
+  accentClassName?: string | undefined
+  invertDisplay?: boolean | undefined
   /** Short directional hint — not mapping logic. */
   directionHint: string
   /** Global index of the alpha base swatch — passed through to GlobalScaleStrip. */
-  alphaBaseIndex?: number
+  alphaBaseIndex?: number | undefined
 } & Pick<HTMLAttributes<HTMLDivElement>, 'id' | 'role' | 'aria-label'>
 
 /**
  * Global ramp strip with a concise caption about index direction / tail behavior.
  */
-function GlobalRampCardInner({
+export function GlobalRampCard({
   global,
   tokenView,
   caption,
@@ -42,9 +40,8 @@ function GlobalRampCardInner({
         invertDisplay={invertDisplay}
         alphaBaseIndex={alphaBaseIndex}
       />
-      <p className="text-[0.6rem] leading-snug text-disabled">{directionHint}</p>
+      <p className="text-nano leading-snug text-disabled">{directionHint}</p>
     </div>
   )
 }
-
-export const GlobalRampCard = memo(GlobalRampCardInner)
+GlobalRampCard.displayName = 'GlobalRampCard'

@@ -1,8 +1,5 @@
-'use client'
 
-import {useMemo} from 'react'
-
-import {PreviewComparison, type ComparisonLayout} from '@/components/preview/PreviewComparison'
+import {PreviewComparison, type ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {OffsetMapDiagram} from '@/components/viz/OffsetMapDiagram'
 import {previewResolvedRoleIndices} from '@/lib/neutral-engine/systemMap'
 import type {
@@ -24,7 +21,7 @@ type Props = {
   derivationConfigDark: SystemMappingConfig
   ladderLightSteps: number
   ladderDarkSteps: number
-  alphaBaseIndices?: {lightBase: number; darkBase: number}
+  alphaBaseIndices?: {lightBase: number; darkBase: number} | undefined
 }
 
 /**
@@ -47,14 +44,8 @@ export function PreviewContextPanel({
   const nl = Math.max(2, ladderLightSteps)
   const nd = Math.max(2, ladderDarkSteps)
 
-  const lightIdx = useMemo(
-    () => previewResolvedRoleIndices(derivationConfigLight, nl, 'light'),
-    [derivationConfigLight, nl],
-  )
-  const darkIdx = useMemo(
-    () => previewResolvedRoleIndices(derivationConfigDark, nd, 'darkElevated'),
-    [derivationConfigDark, nd],
-  )
+  const lightIdx = previewResolvedRoleIndices(derivationConfigLight, nl, 'light')
+  const darkIdx = previewResolvedRoleIndices(derivationConfigDark, nd, 'darkElevated')
 
   return (
     <div
@@ -88,7 +79,7 @@ export function PreviewContextPanel({
                   <OffsetMapDiagram
                     steps={ladderDarkSteps}
                     themeLabel="Dark elevated"
-                    description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
+                    description="Bars use the same resolved global indices as darkElevated themeMode tokens (black-first ramp)."
                     surfaceIndices={darkIdx.surface}
                     borderIndices={darkIdx.border}
                     textIndices={darkIdx.text}
@@ -116,3 +107,4 @@ export function PreviewContextPanel({
     </div>
   )
 }
+PreviewContextPanel.displayName = 'PreviewContextPanel'

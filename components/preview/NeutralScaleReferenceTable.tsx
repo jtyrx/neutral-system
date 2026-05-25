@@ -1,7 +1,4 @@
-'use client'
-
-import {memo} from 'react'
-
+import {cn} from '@/lib/cn'
 import {tier1NeutralCssVarName} from '@/lib/neutral-engine/chromeAliases'
 import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import {oklchCoordsFromSerialized} from '@/lib/neutral-engine/serialize'
@@ -12,14 +9,14 @@ export type NeutralTableThemeContext = 'light' | 'dark' | 'both'
 type Props = {
   global: GlobalSwatch[]
   /** Advanced mode: light sibling uses `--color-neutral-*`; dark sibling uses `--color-neutral-dark-*`. Ignored when simple or omitted. */
-  tier1ExportMode?: Tier1NeutralExportMode
+  tier1ExportMode?: Tier1NeutralExportMode | undefined
   /** Frame the table with Light (amber) or Dark (sky) preview chrome. */
-  themeContext?: NeutralTableThemeContext
+  themeContext?: NeutralTableThemeContext | undefined
   /** When true, omit top margin / separator (nested in inspector). */
-  embedded?: boolean
+  embedded?: boolean | undefined
+  className?: string | undefined
 }
 
-/** Tier-1 `--color-*` key for the ramp step (matches `exportCssVariables`). */
 function exportTokenKey(label: string, mode?: Tier1NeutralExportMode): string {
   if (mode == null || mode.architecture === 'simple') {
     return `--${tier1NeutralCssVarName(label)}`
@@ -34,85 +31,106 @@ function oklchL(s: GlobalSwatch): number {
 function frameClass(themeContext: NeutralTableThemeContext | undefined): string {
   switch (themeContext) {
     case 'light':
-      return 'border-[var(--chrome-amber-border)] bg-[var(--chrome-amber-surface-faint)] ring-1 ring-[var(--chrome-amber-ring-faint)]'
+      return 'border-(--chrome-amber-border) bg-(--chrome-amber-surface-faint) ring-1 ring-(--chrome-amber-ring-faint)'
     case 'dark':
-      return 'border-[var(--chrome-sky-border)] bg-[var(--chrome-sky-surface-faint)] ring-1 ring-[var(--chrome-sky-ring-faint)]'
+      return 'border-(--chrome-sky-border) bg-(--chrome-sky-surface-faint) ring-1 ring-(--chrome-sky-ring-faint)'
     default:
       return 'border-hairline bg-raised'
   }
 }
 
-function NeutralScaleReferenceTableInner({global, tier1ExportMode, themeContext = 'both', embedded = false}: Props) {
+function NeutralScaleTableHead() {
+  return (
+    <thead className="border-b border-hairline text-muted">
+      <tr>
+        <th className="px-8 py-6 font-medium">Idx</th>
+        <th className="px-8 py-6 font-medium">Token label</th>
+        <th className="px-8 py-6 text-right font-medium">L</th>
+        <th className="px-8 py-6 font-medium">Swatch</th>
+        <th className="px-8 py-6 font-medium">Hex</th>
+        <th className="min-w-160 px-8 py-6 font-medium">OKLCH</th>
+        <th className="px-8 py-6 font-medium">Export key</th>
+      </tr>
+    </thead>
+  )
+}
+
+NeutralScaleTableHead.displayName = 'NeutralScaleTableHead'
+
+type RowProps = {
+  swatch: GlobalSwatch
+  displayIndex: number
+  displayLabel: string
+  exportKey: string
+}
+
+function NeutralScaleTableRow({swatch: s, displayIndex, displayLabel, exportKey}: RowProps) {
+  return (
+    <tr key={s.index} className="border-b border-hairline">
+      <td className="px-8 py-6 font-mono text-nano tabular-nums text-disabled">
+        {displayIndex}
+      </td>
+      <td className="px-8 py-6 font-mono text-default">{displayLabel}</td>
+      <td className="px-8 py-6 text-right font-mono text-nano tabular-nums text-muted">
+        {oklchL(s).toFixed(4)}
+      </td>
+      <td className="px-8 py-6">
+        <span
+          className="inline-block h-20 w-40 shrink-0 rounded border border-hairline-strong"
+          style={{backgroundColor: s.serialized.hex}}
+          title={s.serialized.oklchCss}
+        />
+      </td>
+      <td className="px-8 py-6 font-mono text-nano text-subtle">{s.serialized.hex}</td>
+      <td className="max-w-224 truncate px-8 py-6 font-mono text-nano text-muted">
+        {s.serialized.oklchCss}
+      </td>
+      <td className="px-8 py-6 font-mono text-nano text-muted">{exportKey}</td>
+    </tr>
+  )
+}
+
+NeutralScaleTableRow.displayName = 'NeutralScaleTableRow'
+
+export function NeutralScaleReferenceTable({global, tier1ExportMode, themeContext = 'both', embedded = false, className}: Props) {
   if (global.length === 0) {
     return null
   }
 
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
+  const rows = [...global].sort((a, b) => a.index - b.index)
 
-  /** For dark advanced, rows run darkest → lightest (display index 0 = darkest); otherwise lightest → darkest. */
-  const rows = isDarkAdvanced
-    ? [...global].sort((a, b) => b.index - a.index)
-    : [...global].sort((a, b) => a.index - b.index)
-
-  const displayIdx = (s: GlobalSwatch) => (isDarkAdvanced ? n - 1 - s.index : s.index)
-  const displayLabel = (s: GlobalSwatch) => String(displayIdx(s))
+  const getDisplayIndex = (s: GlobalSwatch) => s.index
+  const getDisplayLabel = (s: GlobalSwatch) => String(getDisplayIndex(s))
 
   const outer = embedded ? 'space-y-12' : 'mt-32 space-y-12 border-t border-hairline pt-24'
 
   return (
-    <div className={outer}>
+    <div className={cn(outer, className)}>
       <div>
         <p className="eyebrow">Full neutral scale</p>
         <p className="mt-4 text-xs text-muted">
-          Full ladder by scale index (low → high). OKLCH L decreases stepwise from lightest to
-          darkest. Token labels use the active naming convention from Global scale — same source as
-          exports.
+          Full ladder by scale index (low → high). Light scales are white-first; dark scales are
+          black-first. Token labels use the active naming convention from Global scale — same source
+          as exports.
         </p>
       </div>
       <div
-        className={`overflow-x-auto rounded-xl border ${frameClass(themeContext)}`}
+        className={cn('overflow-x-auto rounded-xl border', frameClass(themeContext))}
         role="region"
         aria-label="Full neutral scale reference"
       >
         <table className="w-full min-w-480 text-left text-micro">
-          <thead className="border-b border-hairline text-muted">
-            <tr>
-              <th className="px-8 py-6 font-medium">Idx</th>
-              <th className="px-8 py-6 font-medium">Token label</th>
-              <th className="px-8 py-6 text-right font-medium">L</th>
-              <th className="px-8 py-6 font-medium">Swatch</th>
-              <th className="px-8 py-6 font-medium">Hex</th>
-              <th className="min-w-160 px-8 py-6 font-medium">OKLCH</th>
-              <th className="px-8 py-6 font-medium">Export key</th>
-            </tr>
-          </thead>
+          <caption className="sr-only">Neutral scale reference — {themeContext} theme</caption>
+          <NeutralScaleTableHead />
           <tbody>
             {rows.map((s) => (
-              <tr key={s.index} className="border-b border-hairline">
-                <td className="px-8 py-6 font-mono text-[0.6rem] tabular-nums text-disabled">
-                  {displayIdx(s)}
-                </td>
-                <td className="px-8 py-6 font-mono text-default">{displayLabel(s)}</td>
-                <td className="px-8 py-6 text-right font-mono text-[0.6rem] tabular-nums text-muted">
-                  {oklchL(s).toFixed(4)}
-                </td>
-                <td className="px-8 py-6">
-                  <span
-                    className="inline-block h-20 w-40 shrink-0 rounded border border-hairline-strong"
-                    style={{backgroundColor: s.serialized.hex}}
-                    title={s.serialized.oklchCss}
-                  />
-                </td>
-                <td className="px-8 py-6 font-mono text-[0.6rem] text-subtle">{s.serialized.hex}</td>
-                <td className="max-w-224 truncate px-8 py-6 font-mono text-[0.6rem] text-muted">
-                  {s.serialized.oklchCss}
-                </td>
-                <td className="px-8 py-6 font-mono text-[0.6rem] text-muted">
-                  {exportTokenKey(displayLabel(s), tier1ExportMode)}
-                </td>
-              </tr>
+              <NeutralScaleTableRow
+                key={s.index}
+                swatch={s}
+                displayIndex={getDisplayIndex(s)}
+                displayLabel={getDisplayLabel(s)}
+                exportKey={exportTokenKey(getDisplayLabel(s), tier1ExportMode)}
+              />
             ))}
           </tbody>
         </table>
@@ -120,5 +138,4 @@ function NeutralScaleReferenceTableInner({global, tier1ExportMode, themeContext 
     </div>
   )
 }
-
-export const NeutralScaleReferenceTable = memo(NeutralScaleReferenceTableInner)
+NeutralScaleReferenceTable.displayName = 'NeutralScaleReferenceTable'

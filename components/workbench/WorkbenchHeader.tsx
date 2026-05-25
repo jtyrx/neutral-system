@@ -2,12 +2,12 @@
 
 import {memo, useLayoutEffect, useRef} from 'react'
 
-import type {ComparisonLayout} from '@/components/preview/PreviewComparison'
+import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {ComparisonLayoutPicker} from '@/components/workbench/ComparisonLayoutPicker'
 import {InspectionToggle} from '@/components/workbench/InspectionToggle'
 import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
-import {Button} from '../ui/button'
+import {Button, ButtonLink} from '../ui/button'
 
 // A1: previewTheme / onPreviewTheme removed — never consumed in this component.
 type Props = {
@@ -80,26 +80,26 @@ function WorkbenchHeaderInner({
           id="nsb-workbench-controls"
           className="flex min-w-0 flex-wrap cursor-pointer items-center gap-8 nsb-lg:justify-end"
         >
-          <Button variant="default" size="xs">
-            {comparisonLayout}
-          </Button>
+          {/* <ButtonLink href="https://www.google.com" size="sm">
+            Link
+          </ButtonLink> */}
           <Button variant="default" size="sm">
-            {comparisonLayout}
-          </Button>
-          <Button variant="outline" size="sm">
-            {comparisonLayout}
+            Default - {comparisonLayout}
           </Button>
           <Button variant="secondary" size="sm">
-            {comparisonLayout}
+            Secondary
+          </Button>
+          <Button variant="outline" size="sm">
+            Outline
+          </Button>
+          <Button variant="ghost" size="sm">
+            Ghost
           </Button>
           <Button variant="destructive" size="sm">
-            {comparisonLayout}
+            Destructive
           </Button>
-          <Button variant="default" size="md">
-            {comparisonLayout}
-          </Button>
-          <Button>
-            <span>{comparisonLayout}</span>
+          <Button variant="link" size="sm">
+            Link
           </Button>
           <ComparisonLayoutPicker
             value={comparisonLayout}

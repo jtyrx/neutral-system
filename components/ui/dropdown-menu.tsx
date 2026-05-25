@@ -23,7 +23,7 @@ const dropdownMenuContentVariants = cva(
       variant: {
         default: cn(
           'min-w-128 rounded-md border-border bg-default p-4',
-          'text-text-default',
+          'text-default',
         ),
         panel: cn(
           'min-w-[min(20rem,calc(100vw-2rem))]',

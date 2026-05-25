@@ -79,7 +79,7 @@ export function AppLayoutShell({
             </header>
             <div
               id="nsb-viewport"
-              className="@container/nsb-workbench min-h-0 min-w-0 flex-1 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]"
+              className="@container/nsb-workbench min-h-0 min-w-0 flex-1 "
             >
               {children}
             </div>

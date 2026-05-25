@@ -73,7 +73,7 @@ export function clampSystemMappingToLadderLength(
   }
 
   let darkTextStart = clampIntToRange(cfg.darkTextStart, 0, maxStart)
-  if (!darkTextRunDistinct(darkTextStart, ladderN, darkTextCountFit, effDarkText)) {
+  if (!lightTextRunDistinct(darkTextStart, ladderN, darkTextCountFit, effDarkText)) {
     darkTextStart = resolveDarkTextStartOffset(ladderN, darkTextCountFit, effDarkText)
   }
 
@@ -129,7 +129,7 @@ function clampIndex(i: number, n: number): number {
 
 /**
  * Full ladder opposite of `globalIndex` (theme-flip counterpart): light end ↔ dark end.
- * Used for `surface.inverse` vs `surface.sunken` and `text.on` vs `text.default`.
+ * Used for `surface.inverse` vs `surface.sunken` and `text.inverse` vs `text.default`.
  */
 export function mirrorRampIndex(globalIndex: number, n: number): number {
   return clampIndex(n - 1 - globalIndex, n)
@@ -159,13 +159,13 @@ function clampBorderStandardCount(raw: number): number {
 /** Inverse surface: theme-flip of the first standard surface pick (`surface.sunken` at k=0). */
 export function resolveSurfaceInverseIndex(standardSurfaceIndices: number[], n: number): number {
   if (standardSurfaceIndices.length === 0) return clampIndex(0, n)
-  return mirrorRampIndex(standardSurfaceIndices[0], n)
+  return mirrorRampIndex(standardSurfaceIndices[0]!, n)
 }
 
-/** `text.on`: theme-flip of `text.default` (first slot after semantic ordering). */
+/** `text.inverse`: theme-flip of `text.default` (first slot after semantic ordering). */
 export function resolveTextInverseIndex(orderedTextIndices: number[], n: number): number {
   if (orderedTextIndices.length === 0) return clampIndex(0, n)
-  return mirrorRampIndex(orderedTextIndices[0], n)
+  return mirrorRampIndex(orderedTextIndices[0]!, n)
 }
 
 /**
@@ -180,10 +180,10 @@ export function resolveBorderFocusIndex(standardSurfaceIndices: number[], n: num
 
 /**
  * On-brand marketing / accent surface: one step past `surface.overlay` along the ramp so it reads
- * as a distinct plane from overlay and default (light = deeper; dark elevated = brighter).
+ * as a distinct plane from overlay and default.
  */
 export function resolveBrandSurfaceIndex(
-  isLight: boolean,
+  _isLight: boolean,
   fillIndices: number[],
   stepFill: number,
   n: number,
@@ -191,9 +191,7 @@ export function resolveBrandSurfaceIndex(
   if (fillIndices.length === 0) return clampIndex(Math.floor(n / 2), n)
   const overlayIdx = fillIndices[fillIndices.length - 1]!
   const delta = Math.max(1, Math.round(stepFill))
-  return isLight
-    ? clampIndex(overlayIdx + delta, n)
-    : clampIndex(overlayIdx - delta, n)
+  return clampIndex(overlayIdx + delta, n)
 }
 
 /**
@@ -230,6 +228,7 @@ export function deriveBrandSurfaceToken(
     sourceGlobalIndex: brandIdx,
     serialized: brandResolved.serialized,
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
   }
 }
 
@@ -274,13 +273,12 @@ export function pickLightIndices(
   return out
 }
 
-/** Dark elevated: index N-1 is the dark-edge surface anchor; higher start offsets walk inward. */
+/** Dark elevated: black-first ramp; index 0 is the dark-edge surface anchor. */
 export function pickDarkIndices(startOffset: number, count: number, step: number, n: number): number[] {
   const out: number[] = []
-  const base = n - 1
   const normalizedStart = Math.max(0, Math.round(startOffset))
   for (let k = 0; k < count; k++) {
-    const idx = clampIndex(base - normalizedStart - k * step, n)
+    const idx = clampIndex(normalizedStart + k * step, n)
     out.push(idx)
   }
   return out
@@ -293,9 +291,9 @@ export function pickDarkStrokeTextIndices(
   n: number,
 ): number[] {
   const out: number[] = []
-  const base = n - 1
+  const normalizedStart = Math.max(0, Math.round(startOffset))
   for (let k = 0; k < count; k++) {
-    const idx = clampIndex(base - 3 - startOffset * step - k * step, n)
+    const idx = clampIndex(normalizedStart + k * step, n)
     out.push(idx)
   }
   return out
@@ -332,23 +330,9 @@ export function fitStandardTextCountForLightLadder(
   return 1
 }
 
-function darkTextRunDistinct(offset: number, n: number, count: number, step: number): boolean {
-  const picks = pickDarkStrokeTextIndices(offset, count, step, n)
-  return new Set(picks).size === picks.length
-}
-
-/**
- * Dark elevated: pick the **largest** start offset where text stroke picks stay distinct
- * (edge toward the light end). Snap target when stored offsets collide after ladder shrink.
- */
+/** Dark elevated: black-first ramp uses the same direct text start fitting as light. */
 export function resolveDarkTextStartOffset(n: number, count: number, step: number): number {
-  const ladderN = Math.max(2, Math.floor(n))
-  const maxStart = ladderN - 1
-  let best = 0
-  for (let start = 0; start <= maxStart; start++) {
-    if (darkTextRunDistinct(start, ladderN, count, step)) best = start
-  }
-  return best
+  return resolveLightTextStartIndex(n, count, step)
 }
 
 export function fitStandardTextCountForDarkLadder(
@@ -356,23 +340,17 @@ export function fitStandardTextCountForDarkLadder(
   step: number,
   desired: number,
 ): number {
-  const ladderN = Math.max(2, Math.floor(n))
-  const capped = clampStandardCount(desired, TEXT_STANDARD_SLOT_COUNT)
-  for (let c = capped; c >= 1; c--) {
-    for (let start = 0; start <= ladderN - 1; start++) {
-      if (darkTextRunDistinct(start, ladderN, c, step)) return c
-    }
-  }
-  return 1
+  return fitStandardTextCountForLightLadder(n, step, desired)
 }
 
 /**
- * Raw text picks walk ladder order; roles use `text.default` … `text.disabled` (dot-path); `text.on` is separate.
+ * Raw text picks walk ladder order; roles use `text.default` … `text.disabled` (dot-path);
+ * `text.inverse` is separate.
  *
  * - **Light:** stronger type = **darker** ink = **higher** global index in the pick run;
  *   `pickLightIndices` is ascending, so we reverse for semantic order.
- * - **Dark elevated:** stronger type = **brighter** = **lower** global index;
- *   `pickDarkStrokeTextIndices` is descending, so we reverse.
+ * - **Dark elevated:** black-first ramp means stronger type = **brighter** = **higher**
+ *   global index; `pickDarkStrokeTextIndices` is ascending, so we reverse.
  */
 export function orderTextIndicesForSemanticRoles(raw: number[]): number[] {
   if (raw.length <= 1) return raw
@@ -399,6 +377,7 @@ function makeToken(
       sourceGlobalIndex: sourceIndex,
       serialized: serializeColor(c),
       alpha,
+      $type: 'color',
     }
   }
   return {
@@ -408,7 +387,22 @@ function makeToken(
     theme,
     sourceGlobalIndex: sourceIndex,
     serialized: swatch.serialized,
+    $type: 'color',
   }
+}
+
+function applyRoleStepOverride(
+  arithmeticIndex: number,
+  role: string,
+  themeMode: ThemeMode,
+  n: number,
+  cfg: SystemMappingConfig,
+): number {
+  const override = cfg.roleStepOverrides?.[role]
+  if (override === undefined) return arithmeticIndex
+  const overrideIndex = themeMode === 'light' ? override.light : override.dark
+  if (overrideIndex === undefined) return arithmeticIndex
+  return Math.max(0, Math.min(n - 1, overrideIndex))
 }
 
 export function deriveSystemTokens(
@@ -458,7 +452,7 @@ export function deriveSystemTokens(
   if (cfg.roleMappingMode === 'contrast') {
     // surface.default is the second fill slot (index 1), falling back to the first.
     const surfaceDefaultIdx = fillIndices[1] ?? fillIndices[0] ?? 0
-    const dir = isLight ? 'higher' : 'lower'
+    const dir = 'higher'
     // Targets per slot: text.default(4.5), text.subtle(3.0), text.muted(2.0), text.disabled(1.5)
     const targets = [4.5, 3.0, 2.0, 1.5]
     textOrdered = targets
@@ -467,12 +461,13 @@ export function deriveSystemTokens(
   }
 
   const surfaceInverseIdx = resolveSurfaceInverseIndex(fillIndices, n)
-  const textOnIdx = resolveTextInverseIndex(textOrdered, n)
+  const textInverseIdx = resolveTextInverseIndex(textOrdered, n)
   const borderFocusIdx = resolveBorderFocusIndex(fillIndices, n)
 
   fillIndices.forEach((idx, k) => {
     const role = surfaceStandardRoleForIndex(k)
-    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
+    const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
+    tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
   const brandIdx = resolveBrandSurfaceIndex(isLight, fillIndices, stepFill, n)
   const brandResolved = resolveBrandColorForTokens(cfg.brandOklch, global[brandIdx]!)
@@ -484,54 +479,85 @@ export function deriveSystemTokens(
     sourceGlobalIndex: brandIdx,
     serialized: brandResolved.serialized,
     ...(brandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
   })
+  const surfaceInverseFinal = applyRoleStepOverride(surfaceInverseIdx, 'surface.inverse', theme, n, cfg)
   tokens.push(
     makeToken(
       'surface.inverse',
       'surface.inverse',
       'surface.inverse',
       theme,
-      surfaceInverseIdx,
-      global[surfaceInverseIdx]!,
+      surfaceInverseFinal,
+      global[surfaceInverseFinal]!,
     ),
   )
 
   strokeIndices.forEach((idx, k) => {
     const role = borderRoleForIndex(k)
-    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
+    const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
+    tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
+  const borderFocusFinal = applyRoleStepOverride(borderFocusIdx, 'border.focus', theme, n, cfg)
   tokens.push(
     makeToken(
       'border.focus',
       'border.focus',
       'border.focus',
       theme,
-      borderFocusIdx,
-      global[borderFocusIdx]!,
+      borderFocusFinal,
+      global[borderFocusFinal]!,
     ),
   )
 
   textOrdered.forEach((idx, k) => {
     const role = textRoleForIndex(k)
-    tokens.push(makeToken(role, role, role, theme, idx, global[idx]!))
+    const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
+    tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
+  const textInverseFinal = applyRoleStepOverride(textInverseIdx, 'text.inverse', theme, n, cfg)
   tokens.push(
     makeToken(
-      'text.on',
-      'text.on',
-      'text.on',
+      'text.inverse',
+      'text.inverse',
+      'text.inverse',
       theme,
-      textOnIdx,
-      global[textOnIdx]!,
+      textInverseFinal,
+      global[textInverseFinal]!,
     ),
   )
+  tokens.push(
+    makeToken('border.inverse', 'border.inverse', 'border.inverse', theme, surfaceInverseFinal, global[surfaceInverseFinal]!),
+  )
+  const textBrandResolved = resolveBrandColorForTokens(cfg.brandOklch, global[textInverseFinal]!)
+  tokens.push({
+    id: 'text.brand',
+    name: 'text.brand',
+    role: 'text.brand',
+    theme,
+    sourceGlobalIndex: textInverseFinal,
+    serialized: textBrandResolved.serialized,
+    ...(textBrandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
+  })
+  const borderStrongIdx = strokeIndices[strokeIndices.length - 1] ?? 0
+  const borderBrandResolved = resolveBrandColorForTokens(cfg.brandOklch, global[borderStrongIdx]!)
+  tokens.push({
+    id: 'border.brand',
+    name: 'border.brand',
+    role: 'border.brand',
+    theme,
+    sourceGlobalIndex: borderStrongIdx,
+    serialized: borderBrandResolved.serialized,
+    ...(borderBrandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
+  })
 
-  const altBase = isLight
-    ? clampIndex(Math.floor(n * 0.45), n)
-    : clampIndex(n - 4, n)
+  const altBase = clampIndex(Math.floor(n * 0.45), n)
   for (let k = 0; k < cfg.altCount; k++) {
-    const idx = clampIndex(altBase + k, n)
+    const arithmeticIdx = clampIndex(altBase + k, n)
     const role = altRoleForIndex(k)
+    const idx = applyRoleStepOverride(arithmeticIdx, role, theme, n, cfg)
     tokens.push(makeToken(role, role, role, theme, idx, global[idx]!, cfg.altAlpha))
   }
 
@@ -540,18 +566,21 @@ export function deriveSystemTokens(
     const bumpStroke = Math.max(1, Math.round(stepStroke * 2))
     const bumpText = Math.max(1, Math.round(stepText * 2))
     fillIndices.forEach((idx, k) => {
-      const hi = clampIndex(idx + bumpFill, n)
+      const arithmetic = clampIndex(idx + bumpFill, n)
       const role = emphasisSurfaceRole(k)
+      const hi = applyRoleStepOverride(arithmetic, role, theme, n, cfg)
       tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
     strokeIndices.forEach((idx, k) => {
-      const hi = clampIndex(idx + bumpStroke, n)
+      const arithmetic = clampIndex(idx + bumpStroke, n)
       const role = emphasisBorderRole(k)
+      const hi = applyRoleStepOverride(arithmetic, role, theme, n, cfg)
       tokens.push(makeToken(role, role, role, theme, hi, global[hi]!))
     })
     textOrdered.forEach((idx, k) => {
-      const lo = clampIndex(idx - bumpText, n)
+      const arithmetic = clampIndex(idx - bumpText, n)
       const role = emphasisTextRole(k)
+      const lo = applyRoleStepOverride(arithmetic, role, theme, n, cfg)
       tokens.push(makeToken(role, role, role, theme, lo, global[lo]!))
     })
   }
@@ -609,9 +638,8 @@ export function deriveAllThemeTokens(
   base: SystemMappingConfig,
 ): {light: SystemToken[]; dark: SystemToken[]} {
   if (ramps.architecture === 'simple') {
-    const g = ramps.global
-    const light = deriveSystemTokens(g, {...base, themeMode: 'light'})
-    const dark = deriveSystemTokens(g, {...base, themeMode: 'darkElevated'})
+    const light = deriveSystemTokens(ramps.global, {...base, themeMode: 'light'})
+    const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'})
     return {light, dark}
   }
   const light = deriveSystemTokens(ramps.light, {...base, themeMode: 'light'})

@@ -94,7 +94,11 @@ function normalizedHue(value: number): DtcgOklchComponent {
 }
 
 function sixDigitHex(value: string): string | undefined {
-  return /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : undefined
+  const lower = value.toLowerCase()
+  if (/^#[0-9a-f]{6}$/.test(lower)) return lower
+  const m = lower.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/)
+  if (m) return `#${m[1]}${m[1]}${m[2]}${m[2]}${m[3]}${m[3]}`
+  return undefined
 }
 
 export function dtcgColorValueFromSerialized(
@@ -173,8 +177,12 @@ function primitiveToken(
 function semanticToken(token: SystemToken, architecture: NeutralArchitectureMode, ramps: ArchitectureRamps): DtcgColorToken {
   const ramp = rampForTheme(ramps, token.theme)
   const source = ramp[token.sourceGlobalIndex]
-  const canAliasPrimitive = source && !token.customColor && (token.alpha == null || token.alpha >= 1)
-  const sourceReference = source
+  const canAliasPrimitive =
+    source &&
+    !token.customColor &&
+    (token.alpha == null || token.alpha >= 1) &&
+    !(architecture === 'simple' && token.theme !== 'light')
+  const sourceReference = canAliasPrimitive
     ? primitiveAlias(source.label, architecture, token.theme)
     : undefined
   const value = canAliasPrimitive
@@ -220,10 +228,10 @@ function insertThemeTokens(
 export function buildDtcgTokenTree(params: {
   architecture: NeutralArchitectureMode
   /** Simple Mode single ramp */
-  global?: GlobalSwatch[]
+  global?: GlobalSwatch[] | undefined
   /** Advanced Mode sibling ramps */
-  lightRamp?: GlobalSwatch[]
-  darkRamp?: GlobalSwatch[]
+  lightRamp?: GlobalSwatch[] | undefined
+  darkRamp?: GlobalSwatch[] | undefined
   light: SystemToken[]
   dark: SystemToken[]
 }): DtcgTokenTree {
@@ -232,7 +240,8 @@ export function buildDtcgTokenTree(params: {
 
   if (params.architecture === 'simple') {
     const g = params.global ?? []
-    ramps = {architecture: 'simple', global: g}
+    const d = params.darkRamp ?? g
+    ramps = {architecture: 'simple', global: g, dark: d}
     g.forEach((swatch) => {
       insertToken(tree, ['color', 'neutral', swatch.label], primitiveToken(swatch, 'simple', 'global'))
     })

@@ -16,6 +16,8 @@ export function friendlySemanticCategoryLabel(category: string): string {
       return 'Emphasis'
     case 'inversePair':
       return 'Inverse'
+    case 'brandPair':
+      return 'Brand'
     default:
       return category
   }

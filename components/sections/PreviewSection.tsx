@@ -217,7 +217,7 @@ function PreviewSectionInner({previewTheme, global, tokenView, hero = false}: Pr
     <section className="scroll-mt-24 space-y-24">
       <header>
         <p className="eyebrow">6 · UI preview</p>
-        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Surfaces in context</h2>
+        <h2 className="mt-4 text-sm font-medium tracking-tight text-default">Surfaces in context</h2>
         <p className="mt-8 max-w-2xl text-sm text-muted">
           Surface and text tokens from the active theme, layered as a compact validation surface.
         </p>

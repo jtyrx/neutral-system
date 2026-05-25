@@ -35,11 +35,7 @@ function alphaLines(
 ): string[] {
   const swatch = swatches[baseIndex]
   if (!swatch) return []
-  // Advanced dark: display indices are reversed (dark-0 = darkest), so convert ramp index to display label.
-  const displayLabel =
-    tier1Advanced?.scale === 'dark'
-      ? String(swatches.length - 1 - baseIndex)
-      : swatch.label
+  const displayLabel = swatch.label
   const varCssName =
     tier1Advanced != null ? tier1NeutralCssVarName(displayLabel, tier1Advanced) : tier1NeutralCssVarName(displayLabel)
   const varRef = `var(--${varCssName})`
@@ -56,12 +52,13 @@ export function deriveAlphaNeutralCssLines(
   config: AlphaNeutralConfig,
 ): string[] {
   if (ramps.architecture === 'simple') {
-    const g = ramps.global
-    const lightBase = deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, g.length)
-    const darkBase = deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, g.length)
+    const lightRamp = ramps.global
+    const darkRamp = ramps.dark
+    const lightBase = deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, lightRamp.length)
+    const darkBase = deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, darkRamp.length)
     return [
-      ...alphaLines('neutral', lightBase, g, config.alphaStops),
-      ...alphaLines('dark-neutral', darkBase, g, config.alphaStops),
+      ...alphaLines('neutral', lightBase, lightRamp, config.alphaStops),
+      ...alphaLines('dark-neutral', darkBase, darkRamp, config.alphaStops),
     ]
   }
 
@@ -82,10 +79,9 @@ export function deriveAlphaBaseIndices(
   config: AlphaNeutralConfig,
 ): {lightBase: number; darkBase: number} {
   if (ramps.architecture === 'simple') {
-    const g = ramps.global
     return {
-      lightBase: deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, g.length),
-      darkBase: deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, g.length),
+      lightBase: deriveAlphaBaseIndex(lightTokens, config.lightIndexOffset, ramps.global.length),
+      darkBase: deriveAlphaBaseIndex(darkTokens, config.darkIndexOffset, ramps.dark.length),
     }
   }
   const {light: lightRamp, dark: darkRamp} = ramps

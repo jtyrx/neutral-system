@@ -4,20 +4,19 @@ import {useMemo} from 'react'
 
 import {RampSwatchRail} from '@/components/control-center/ramp/RampSwatchRail'
 import {
-  PreviewPanelHeading,
   previewChromePanelVariants,
   rampCardAccentClass,
   type PreviewChromeTone,
-} from '@/components/preview/previewPanelChrome'
-import {
-  RampSemanticLanesGrid,
-  tokensForSemanticLanes,
-} from '@/components/preview/rampSemanticLanes'
+} from '@/components/preview/previewChrome'
+import {PreviewPanelHeading} from '@/components/preview/PreviewPanelHeading'
+import {RampSemanticLanesGrid} from '@/components/preview/rampSemanticLanes'
+import {tokensForSemanticLanes} from '@/components/preview/laneBadges'
 import {useNeutralWorkbenchContext} from '@/components/providers/NeutralWorkbenchProvider'
 import {
   dockPickerRampChromeCopyModel,
   INVERT_DARK_RAMP_STRIP,
 } from '@/lib/workbench/rampPreviewCopy'
+import {semanticTokensToStyleVars} from '@/lib/neutral-engine/exportFormats'
 import type {RampPreviewMode} from '@/lib/workbench/dockPickerStorage'
 import type {GlobalSwatch} from '@/lib/neutral-engine/types'
 import type {TokenView} from '@/lib/neutral-engine/tokenViews'
@@ -64,6 +63,10 @@ function RampPreviewBlock({
 }: RampPreviewBlockProps) {
   const invertVisual =
     effectivePreviewTheme === 'dark' ? INVERT_DARK_RAMP_STRIP : false
+  const themeVars = useMemo(
+    () => semanticTokensToStyleVars(tokenView.sortedForTable),
+    [tokenView],
+  )
 
   const orderedSegment = useMemo(() => {
     if (invertVisual) return [...ramp].reverse()
@@ -84,6 +87,7 @@ function RampPreviewBlock({
       data-slot="control-center-ramp-preview-block"
       data-tone={tone}
       data-preview-theme={effectivePreviewTheme}
+      style={themeVars}
     >
       <PreviewPanelHeading
         eyebrow={eyebrow}

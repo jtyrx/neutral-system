@@ -2,6 +2,7 @@ import './globals.css'
 
 import {AppLayoutShell} from '@/components/app-sidebar'
 import {AppProviders} from '@/components/providers/AppProviders'
+import {DefaultThemeStyles} from '@/components/providers/DefaultThemeStyles'
 import type {Metadata} from 'next'
 import localFont from 'next/font/local'
 import {cn} from '@/lib/utils'
@@ -60,6 +61,9 @@ export default function RootLayout({
       className={cn(inter.variable, ibm.variable, 'font-sans', geist.variable)}
       suppressHydrationWarning
     >
+      <head>
+        <DefaultThemeStyles />
+      </head>
       <body>
         {/* Base UI Quick Start: isolation stacking context for portaled popups (tooltips, dialogs). */}
         <div className="isolate min-h-screen">

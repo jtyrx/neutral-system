@@ -80,6 +80,20 @@ test('L values are monotonically decreasing for all curves × strengths × varia
   }
 })
 
+test('dark-to-light direction starts at lLow and increases toward lHigh', () => {
+  const swatches = buildGlobalScale(BASE, 'test-dark-direction', 'dark-to-light')
+  const ls = swatches.map((s) => {
+    const m = s.serialized.oklchCss.match(/oklch\(([\d.]+)%/)
+    return m ? parseFloat(m[1]!) / 100 : NaN
+  })
+
+  expect(ls[0]).toBeCloseTo(BASE.lLow, 4)
+  expect(ls[ls.length - 1]).toBeCloseTo(BASE.lHigh, 4)
+  for (let i = 1; i < ls.length; i++) {
+    expect(ls[i]!).toBeGreaterThanOrEqual(ls[i - 1]!)
+  }
+})
+
 test('easeL linear matches raw formula for arbitrary t values', () => {
   const lHigh = 0.985
   const lLow = 0.1615

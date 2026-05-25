@@ -34,22 +34,6 @@ type Props = {
   children: ReactNode
 }
 
-// function ChevronDownIcon({className}: {className?: string}) {
-//   return (
-//     <svg
-//       className={className}
-//       viewBox="0 0 24 24"
-//       aria-hidden
-//       fill="none"
-//       stroke="currentColor"
-//       strokeWidth={1.75}
-//       strokeLinecap="round"
-//       strokeLinejoin="round"
-//     >
-//       <path d="M6 9l6 6 6-6" />
-//     </svg>
-//   )
-// }
 
 /** Collapsible region for grouped builder controls (Scale / Contrast / Mapping). */
 export function CollapsibleControlGroup({
@@ -63,11 +47,11 @@ export function CollapsibleControlGroup({
   return (
     <details
       open={defaultOpen}
-      className="ns-collapsible-details group origin-top scale-[0.997] rounded-sm border border-hairline bg-subtle motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out open:scale-100"
+      className="ns-collapsible-details group origin-top scale-[0.997] rounded-menu border border-transparent bg-subtle motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out open:scale-100"
     >
       <summary className="cursor-pointer list-none px-16 py-12 sm:px-16 sm:py-12 [&::-webkit-details-marker]:hidden">
         <div className="flex items-start justify-between gap-12">
-          <div className="flex min-w-0 flex-1 items-start gap-8">
+          <div className="flex min-w-0 flex-1 items-start gap-12">
             {Icon ? (
               <Icon
                 className="mt-2 size-16 shrink-0 text-muted"

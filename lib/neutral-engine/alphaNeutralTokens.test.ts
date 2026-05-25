@@ -35,6 +35,7 @@ function makeToken(role: string, sourceIndex: number): SystemToken {
       inSrgbGamut: true,
     },
     customColor: false,
+    $type: 'color',
   }
 }
 
@@ -62,7 +63,8 @@ describe('deriveAlphaBaseIndex', () => {
 
 describe('deriveAlphaNeutralCssLines', () => {
   const global = Array.from({length: 41}, (_, i) => makeSwatch(i, String(i * 25)))
-  const ramps: ArchitectureRamps = {architecture: 'simple', global}
+  const dark = Array.from({length: 41}, (_, i) => makeSwatch(i, String(i * 25)))
+  const ramps: ArchitectureRamps = {architecture: 'simple', global, dark}
   const lightTokens = [makeToken('text.default', 38)]
   const darkTokens = [makeToken('text.default', 3)]
   const config = DEFAULT_ALPHA_NEUTRAL_CONFIG
@@ -91,5 +93,21 @@ describe('deriveAlphaNeutralCssLines', () => {
   it('uses color-mix for alpha blending', () => {
     const lines = deriveAlphaNeutralCssLines(ramps, lightTokens, darkTokens, config)
     lines.forEach(l => expect(l).toContain('color-mix(in oklch'))
+  })
+
+  it('advanced dark alpha lines reference the black-first dark source label directly', () => {
+    const lightRamp = Array.from({length: 4}, (_, i) => makeSwatch(i, String(i)))
+    const darkRamp = Array.from({length: 4}, (_, i) => makeSwatch(i, String(i)))
+    const advanced: ArchitectureRamps = {architecture: 'advanced', light: lightRamp, dark: darkRamp}
+    const lines = deriveAlphaNeutralCssLines(
+      advanced,
+      [makeToken('text.default', 2)],
+      [makeToken('text.default', 2)],
+      config,
+    )
+
+    const darkLines = lines.filter(l => l.includes('--color-dark-neutral-alpha'))
+    expect(darkLines).toHaveLength(4)
+    darkLines.forEach(l => expect(l).toContain('var(--color-neutral-dark-2)'))
   })
 })

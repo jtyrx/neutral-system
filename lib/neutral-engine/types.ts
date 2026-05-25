@@ -30,26 +30,26 @@ export type GlobalScaleConfig = {
   namingStyle: NamingStyle
   variantId: NeutralVariantId
   /** Lightness distribution curve. Defaults to `'linear'` when omitted. */
-  lCurve?: LCurve
+  lCurve?: LCurve | undefined
   /**
    * Blend from linear lightness spacing into the curve from `lCurve`.
    * `0` = fully linear ramp; `1` = full selected curve. Defaults to `1` when omitted.
    */
-  lCurveStrength?: number
+  lCurveStrength?: number | undefined
   /**
    * Per-end chroma override. When both are set, chroma is interpolated from `chromaLight`
    * (t=0, light end) to `chromaDark` (t=1, dark end), then shaped by `chromaMode`.
    * When either is absent, `baseChroma` is used for both ends (current behaviour).
    */
-  chromaLight?: number
-  chromaDark?: number
+  chromaLight?: number | undefined
+  chromaDark?: number | undefined
   /**
    * Hue at the light and dark ends (degrees). When both are set and unequal, hue is
    * interpolated via Oklab `range()` so the drift is perceptually smooth. Requires
    * `chromaMode !== 'achromatic'`; ignored otherwise.
    */
-  hueLight?: number
-  hueDark?: number
+  hueLight?: number | undefined
+  hueDark?: number | undefined
 }
 
 export type SerializedColor = {
@@ -66,9 +66,11 @@ export type GlobalSwatch = {
   serialized: SerializedColor
 }
 
+export type GlobalScaleDirection = 'light-to-dark' | 'dark-to-light'
+
 /** Engine-resolved ramps for derivation and export (immutable shape). */
 export type ArchitectureRamps =
-  | {architecture: 'simple'; global: GlobalSwatch[]}
+  | {architecture: 'simple'; global: GlobalSwatch[]; dark: GlobalSwatch[]}
   | {architecture: 'advanced'; light: GlobalSwatch[]; dark: GlobalSwatch[]}
 
 /**
@@ -91,7 +93,10 @@ export type KnownSystemRole =
   | 'text.subtle'
   | 'text.muted'
   | 'text.disabled'
-  | 'text.on'
+  | 'text.inverse'
+  | 'text.brand'
+  | 'border.inverse'
+  | 'border.brand'
   | 'overlay.scrim'
   | 'state.hover'
 
@@ -159,10 +164,16 @@ export type SystemMappingConfig = {
    */
   roleMappingMode?: 'arithmetic' | 'contrast'
   /**
-   * Custom OKLCH for `surface.brand` (user-editable). Invalid strings fall back to ramp-derived brand
-   * in the engine while keeping this field as typed by the user.
+   * Custom OKLCH for brand-pair tokens (`surface.brand`, `text.brand`, `border.brand`).
+   * Invalid strings fall back to ramp-derived values while keeping this field as typed by the user.
    */
   brandOklch: string
+  /**
+   * Per-role primitive step overrides. When set for a role, the override index
+   * replaces the arithmetic pick from the ladder mapping — independently for each theme.
+   * Key is the SystemRole dot-path (e.g. `"surface.raised"`).
+   */
+  roleStepOverrides?: Partial<Record<string, {light?: number; dark?: number}>> | undefined
 }
 
 export type SystemToken = {
@@ -175,16 +186,20 @@ export type SystemToken = {
   alpha?: number
   /**
    * When true, exports use `serialized.oklchCss` directly (not `var(--color-neutral-*)` from the ramp).
-   * Used for `surface.brand` when `brandOklch` parses successfully.
+   * Set on all brand-pair tokens (`surface.brand`, `text.brand`, `border.brand`) when `brandOklch` parses.
    */
   customColor?: boolean
+  /** DTCG token type — always 'color' for system tokens */
+  $type: 'color'
+  /** Optional DTCG description — design rationale for this role */
+  $description?: string
 }
 
 export type PreviewTheme = 'light' | 'dark'
 
 export type WorkbenchSelection =
   | { kind: 'global'; index: number }
-  | { kind: 'system'; id: string; theme?: ThemeMode }
+  | { kind: 'system'; id: string; theme?: ThemeMode | undefined }
 
 /**
  * Configuration for alpha neutral token derivation.

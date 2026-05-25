@@ -1,19 +1,64 @@
-'use client'
+import {cva} from 'class-variance-authority'
 
-import {memo} from 'react'
-
+import {cn} from '@/lib/cn'
 import {tier1NeutralCssVarName} from '@/lib/neutral-engine/chromeAliases'
 import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import {oklchCoordsFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {GlobalSwatch} from '@/lib/neutral-engine'
 import type {NeutralTableThemeContext} from '@/components/preview/NeutralScaleReferenceTable'
 
+const rowVariants = cva('border-b border-hairline transition-colors', {
+  variants: {
+    state: {
+      used: 'bg-(--color-border-focus)/8 text-default',
+      unused: 'bg-raised text-disabled opacity-[0.72]',
+    },
+  },
+})
+
+const cellVariants = cva('px-8 py-6 font-mono text-nano tabular-nums', {
+  variants: {
+    state: {
+      used: 'text-muted',
+      unused: 'text-disabled',
+    },
+  },
+})
+
+const labelCellVariants = cva('px-8 py-6 font-mono', {
+  variants: {
+    state: {
+      used: 'text-default',
+      unused: 'text-disabled',
+    },
+  },
+})
+
+const swatchVariants = cva('inline-block h-20 w-40 shrink-0 rounded border', {
+  variants: {
+    state: {
+      used: 'border-hairline-strong',
+      unused: 'border-hairline opacity-70',
+    },
+  },
+})
+
+const hexCellVariants = cva('px-8 py-6 font-mono text-nano', {
+  variants: {
+    state: {
+      used: 'text-subtle',
+      unused: 'text-disabled',
+    },
+  },
+})
+
 type Props = {
   global: GlobalSwatch[]
   usedIndices: ReadonlySet<number>
-  tier1ExportMode?: Tier1NeutralExportMode
-  themeContext?: NeutralTableThemeContext
-  embedded?: boolean
+  tier1ExportMode?: Tier1NeutralExportMode | undefined
+  themeContext?: NeutralTableThemeContext | undefined
+  embedded?: boolean | undefined
+  className?: string | undefined
 }
 
 function exportTokenKey(label: string, mode?: Tier1NeutralExportMode): string {
@@ -30,31 +75,89 @@ function oklchL(s: GlobalSwatch): number {
 function frameClass(themeContext: NeutralTableThemeContext | undefined): string {
   switch (themeContext) {
     case 'light':
-      return 'border-[var(--chrome-amber-border)] bg-[var(--chrome-amber-surface-faint)] ring-1 ring-[var(--chrome-amber-ring-faint)]'
+      return 'border-(--chrome-amber-border) bg-(--chrome-amber-surface-faint) ring-1 ring-(--chrome-amber-ring-faint)'
     case 'dark':
-      return 'border-[var(--chrome-sky-border)] bg-[var(--chrome-sky-surface-faint)] ring-1 ring-[var(--chrome-sky-ring-faint)]'
+      return 'border-(--chrome-sky-border) bg-(--chrome-sky-surface-faint) ring-1 ring-(--chrome-sky-ring-faint)'
     default:
       return 'border-hairline bg-raised'
   }
 }
 
-function NeutralScaleUsageTableInner({
+function UsageBadge({used}: {used: boolean}) {
+  if (used) {
+    return (
+      <span className="inline-block rounded-full bg-(--color-border-focus)/20 px-8 py-2 text-nano font-semibold uppercase tracking-wide text-default">
+        Used
+      </span>
+    )
+  }
+  return (
+    <span className="inline-block rounded-full border border-hairline bg-raised px-8 py-2 text-nano font-medium uppercase tracking-wide text-disabled">
+      Unused
+    </span>
+  )
+}
+
+UsageBadge.displayName = 'UsageBadge'
+
+type RowProps = {
+  swatch: GlobalSwatch
+  used: boolean
+  displayIndex: number
+  displayLabel: string
+  exportKey: string
+}
+
+function NeutralScaleUsageRow({swatch: s, used, displayIndex, displayLabel, exportKey}: RowProps) {
+  const state = used ? 'used' : 'unused'
+  return (
+    <tr className={rowVariants({state})}>
+      <td className="px-8 py-6 align-middle">
+        <UsageBadge used={used} />
+      </td>
+      <td className={cellVariants({state})}>
+        {displayIndex}
+      </td>
+      <td className={labelCellVariants({state})}>
+        {displayLabel}
+      </td>
+      <td className={cn(cellVariants({state}), 'text-right')}>
+        {oklchL(s).toFixed(4)}
+      </td>
+      <td className="px-8 py-6">
+        <span
+          className={swatchVariants({state})}
+          style={{backgroundColor: s.serialized.hex}}
+          title={s.serialized.oklchCss}
+        />
+      </td>
+      <td className={hexCellVariants({state})}>
+        {s.serialized.hex}
+      </td>
+      <td className={cn('max-w-224 truncate px-8 py-6 font-mono text-nano', cellVariants({state}))}>
+        {s.serialized.oklchCss}
+      </td>
+      <td className={cn('px-8 py-6 font-mono text-nano', cellVariants({state}))}>
+        {exportKey}
+      </td>
+    </tr>
+  )
+}
+
+NeutralScaleUsageRow.displayName = 'NeutralScaleUsageRow'
+
+export function NeutralScaleUsageTable({
   global,
   usedIndices,
   tier1ExportMode,
   themeContext = 'both',
   embedded = false,
+  className,
 }: Props) {
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
+  const rows = [...global].sort((a, b) => a.index - b.index)
 
-  const rows = isDarkAdvanced
-    ? [...global].sort((a, b) => b.index - a.index)
-    : [...global].sort((a, b) => a.index - b.index)
-
-  const displayIdx = (s: GlobalSwatch) => (isDarkAdvanced ? n - 1 - s.index : s.index)
-  const displayLabel = (s: GlobalSwatch) => String(displayIdx(s))
+  const getDisplayIndex = (s: GlobalSwatch) => s.index
+  const getDisplayLabel = (s: GlobalSwatch) => String(getDisplayIndex(s))
 
   if (rows.length === 0) {
     return null
@@ -63,21 +166,22 @@ function NeutralScaleUsageTableInner({
   const outer = embedded ? 'mt-24 space-y-12 border-t border-hairline pt-24' : 'space-y-12'
 
   return (
-    <div className={outer}>
+    <div className={cn(outer, className)}>
       <div>
         <p className="eyebrow">Scale usage</p>
         <p className="mt-4 text-xs text-muted">
-          Full ladder with mapping coverage. <span className="text-emerald-200/85">Used</span> = at
+          Full ladder with mapping coverage. <span className="text-ring">Used</span> = at
           least one Light or Dark system token references this global index (same derivation as
           exports). Unused steps stay visible for comparison.
         </p>
       </div>
       <div
-        className={`overflow-x-auto rounded-xl border ${frameClass(themeContext)}`}
+        className={cn('overflow-x-auto rounded-xl border', frameClass(themeContext))}
         role="region"
         aria-label="Neutral scale usage — full ladder with mapped indices highlighted"
       >
         <table className="w-full min-w-lg text-left text-micro">
+          <caption className="sr-only">Neutral scale usage — {themeContext} theme</caption>
           <thead className="border-b border-hairline text-muted">
             <tr>
               <th className="px-8 py-6 font-medium">Mapping</th>
@@ -91,73 +195,20 @@ function NeutralScaleUsageTableInner({
             </tr>
           </thead>
           <tbody>
-            {rows.map((s) => {
-              const used = usedIndices.has(s.index)
-              return (
-                <tr
-                  key={s.index}
-                  className={`border-b border-hairline transition-colors ${
-                    used
-                      ? 'bg-emerald-500/[0.07] text-default'
-                      : 'bg-raised text-disabled opacity-[0.72]'
-                  }`}
-                >
-                  <td className="px-8 py-6 align-middle">
-                    {used ? (
-                      <span className="inline-block rounded-full bg-emerald-500/25 px-8 py-2 text-[0.55rem] font-semibold uppercase tracking-wide text-emerald-100/95">
-                        Used
-                      </span>
-                    ) : (
-                      <span className="inline-block rounded-full border border-hairline bg-raised px-8 py-2 text-[0.55rem] font-medium uppercase tracking-wide text-disabled">
-                        Unused
-                      </span>
-                    )}
-                  </td>
-                  <td
-                    className={`px-8 py-6 font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
-                  >
-                    {displayIdx(s)}
-                  </td>
-                  <td className={`px-8 py-6 font-mono ${used ? 'text-default' : 'text-disabled'}`}>
-                    {displayLabel(s)}
-                  </td>
-                  <td
-                    className={`px-8 py-6 text-right font-mono text-[0.6rem] tabular-nums ${used ? 'text-muted' : 'text-disabled'}`}
-                  >
-                    {oklchL(s).toFixed(4)}
-                  </td>
-                  <td className="px-8 py-6">
-                    <span
-                      className={`inline-block h-20 w-40 shrink-0 rounded border ${
-                        used ? 'border-hairline-strong' : 'border-hairline opacity-70'
-                      }`}
-                      style={{backgroundColor: s.serialized.hex}}
-                      title={s.serialized.oklchCss}
-                    />
-                  </td>
-                  <td
-                    className={`px-8 py-6 font-mono text-[0.6rem] ${used ? 'text-subtle' : 'text-disabled'}`}
-                  >
-                    {s.serialized.hex}
-                  </td>
-                  <td
-                    className={`max-w-224 truncate px-8 py-6 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
-                  >
-                    {s.serialized.oklchCss}
-                  </td>
-                  <td
-                    className={`px-8 py-6 font-mono text-[0.6rem] ${used ? 'text-muted' : 'text-disabled'}`}
-                  >
-                    {exportTokenKey(displayLabel(s), tier1ExportMode)}
-                  </td>
-                </tr>
-              )
-            })}
+            {rows.map((s) => (
+              <NeutralScaleUsageRow
+                key={s.index}
+                swatch={s}
+                used={usedIndices.has(s.index)}
+                displayIndex={getDisplayIndex(s)}
+                displayLabel={getDisplayLabel(s)}
+                exportKey={exportTokenKey(getDisplayLabel(s), tier1ExportMode)}
+              />
+            ))}
           </tbody>
         </table>
       </div>
     </div>
   )
 }
-
-export const NeutralScaleUsageTable = memo(NeutralScaleUsageTableInner)
+NeutralScaleUsageTable.displayName = 'NeutralScaleUsageTable'

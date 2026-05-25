@@ -13,7 +13,7 @@ type Props = {
   borderIndices: number[]
   textIndices: number[]
   /** Global index of the alpha base swatch — renders a violet "Alpha" row when set. */
-  alphaBaseIndex?: number
+  alphaBaseIndex?: number | undefined
 }
 
 /** Same linear scale as role markers: index 0 at left, last index at right. */

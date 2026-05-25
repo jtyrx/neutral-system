@@ -19,12 +19,14 @@ export function tokenCssVarName(name: string): string {
 }
 
 /**
- * Custom brand is a preview-only semantic: it drives live chrome (`--color-surface-brand`) but is
- * intentionally omitted from downloadable export payloads so the distributed system remains
- * ramp-derived. Use this predicate to filter tokens before serializing to JSON/CSS/Tailwind.
+ * Custom brand tokens are preview-only semantics: they drive live chrome (`--color-surface-brand`,
+ * `--color-text-brand`, `--color-border-brand`) but are intentionally omitted from downloadable
+ * export payloads so the distributed system remains ramp-derived. All three brand-pair roles
+ * (`surface.brand`, `text.brand`, `border.brand`) carry `customColor: true` when `brandOklch` parses.
+ * Use this predicate to filter tokens before serializing to JSON/CSS/Tailwind.
  */
 export function isPreviewOnlyBrandToken(t: SystemToken): boolean {
-  return t.role === 'surface.brand' && t.customColor === true
+  return (t.role === 'surface.brand' || t.role === 'text.brand' || t.role === 'border.brand') && t.customColor === true
 }
 
 /** Optional `emphasis.*` ladder — omitted from downloadable token JSON only (see ExportSection). */
@@ -37,6 +39,19 @@ export function isEmphasisToken(t: SystemToken): boolean {
  */
 export function semanticColorVarName(name: string): string {
   return `color-${tokenCssVarName(name)}`
+}
+
+/**
+ * Converts a flat token array to an inline-style-compatible CSS vars object.
+ * Values are resolved OKLCH (not primitive var references), making the result
+ * self-contained — suitable for React's `style` prop on a preview container.
+ */
+export function semanticTokensToStyleVars(tokens: SystemToken[]): Record<string, string> {
+  const vars: Record<string, string> = {}
+  for (const t of tokens) {
+    vars[`--${semanticColorVarName(t.name)}`] = t.serialized.oklchCss
+  }
+  return vars
 }
 
 function semanticCssValue(
@@ -53,11 +68,7 @@ function semanticCssValue(
   const ramp = rampForTheme(ramps, t.theme)
   const sw = ramp[t.sourceGlobalIndex]
   if (!sw) return t.serialized.oklchCss
-  // Advanced dark: primitives are exported darkest-first, so display index is reversed.
-  const label =
-    architecture === 'advanced' && t.theme !== 'light'
-      ? String(ramp.length - 1 - t.sourceGlobalIndex)
-      : sw.label
+  const label = sw.label
   const name =
     architecture === 'simple'
       ? tier1NeutralCssVarName(label)
@@ -83,21 +94,13 @@ function emitTier1Block(
   architecture: NeutralArchitectureMode,
   sibling?: 'light' | 'dark',
 ): void {
-  if (sibling === 'dark') {
-    // Dark primitives are exported darkest-first: dark-0 = darkest (ramp[n-1]), dark-N = lightest (ramp[0]).
-    const n = swatches.length
-    for (let displayIdx = 0; displayIdx < n; displayIdx++) {
-      const s = swatches[n - 1 - displayIdx]!
-      const displayLabel = String(displayIdx)
-      lines.push(
-        `  --${tier1NeutralCssVarName(displayLabel, {architecture: 'advanced', scale: 'dark'})}: ${s.serialized.oklchCss};`,
-      )
-    }
-    return
-  }
   swatches.forEach((s) => {
     lines.push(`  --${cssVarTier1Fragment(s, architecture, sibling)}: ${s.serialized.oklchCss};`)
   })
+}
+
+function emitSimpleThemePrimitiveBlock(lines: string[], swatches: GlobalSwatch[]): void {
+  emitTier1Block(lines, swatches, 'simple')
 }
 
 /**
@@ -105,9 +108,9 @@ function emitTier1Block(
  */
 export function exportJson(params: {
   architecture: NeutralArchitectureMode
-  global?: GlobalSwatch[]
-  lightRamp?: GlobalSwatch[]
-  darkRamp?: GlobalSwatch[]
+  global?: GlobalSwatch[] | undefined
+  lightRamp?: GlobalSwatch[] | undefined
+  darkRamp?: GlobalSwatch[] | undefined
   light: SystemToken[]
   dark: SystemToken[]
 }): string {
@@ -119,7 +122,7 @@ export function exportCssVariables(params: {
   ramps: ArchitectureRamps
   light: SystemToken[]
   dark: SystemToken[]
-  alphaConfig?: AlphaNeutralConfig
+  alphaConfig?: AlphaNeutralConfig | undefined
 }): string {
   const lines: string[] = [':root {']
   const alphaConfig = params.alphaConfig ?? DEFAULT_ALPHA_NEUTRAL_CONFIG
@@ -127,7 +130,7 @@ export function exportCssVariables(params: {
   const {architecture, ramps} = params
 
   if (ramps.architecture === 'simple') {
-    emitTier1Block(lines, ramps.global, architecture)
+    emitSimpleThemePrimitiveBlock(lines, ramps.global)
   } else {
     emitTier1Block(lines, ramps.light, architecture, 'light')
     emitTier1Block(lines, ramps.dark, architecture, 'dark')
@@ -135,47 +138,71 @@ export function exportCssVariables(params: {
 
   lines.push('}')
   lines.push('')
-  lines.push(':root {')
-  params.dark.forEach((t) => {
-    lines.push(
+  const lightSemanticLines: string[] = []
+  params.light.forEach((t) => {
+    lightSemanticLines.push(
       `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
     )
   })
+  const darkSemanticLines: string[] = []
+  params.dark.forEach((t) => {
+    darkSemanticLines.push(
+      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
+    )
+  })
+  lines.push(':root {')
+  lines.push(...(ramps.architecture === 'simple' ? lightSemanticLines : darkSemanticLines))
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
+
   lines.push('[data-theme="light"] {')
-  params.light.forEach((t) => {
-    lines.push(
-      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
-    )
-  })
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.global)
+  }
+  lines.push(...lightSemanticLines)
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="dark"] {')
-  params.dark.forEach((t) => {
-    lines.push(
-      `  --${semanticColorVarName(t.name)}: ${semanticCssValue(t, architecture, ramps)};`,
-    )
-  })
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.dark)
+  }
+  lines.push(...darkSemanticLines)
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
+  lines.push('}')
+  lines.push('')
+  lines.push('[data-preview-theme="light"] {')
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.global)
+  }
+  lines.push(...lightSemanticLines)
+  lines.push('}')
+  lines.push('')
+  lines.push('[data-preview-theme="dark"] {')
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.dark)
+  }
+  lines.push(...darkSemanticLines)
   lines.push('}')
   return lines.join('\n')
 }
 
 export function exportCsv(ramps: ArchitectureRamps): string {
   if (ramps.architecture === 'simple') {
-    const header = ['index', 'label', 'oklch', 'hex', 'rgb']
-    const rows = ramps.global.map((s) =>
-      [String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(
+    const header = ['scale', 'index', 'label', 'oklch', 'hex', 'rgb']
+    const lightRows = ramps.global.map((s) =>
+      ['light', String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(
         ',',
       ),
     )
-    return [header.join(','), ...rows].join('\n')
+    const darkRows = ramps.dark.map((s) =>
+      ['dark', String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(','),
+    )
+    return [header.join(','), ...lightRows, ...darkRows].join('\n')
   }
 
   const header = ['scale', 'index', 'label', 'oklch', 'hex', 'rgb']
@@ -224,6 +251,11 @@ export function exportTailwindV4ThemeInline(params: {
   lines.push(
     '/* Dark: duplicate variable names under [data-theme="dark"] from the CSS export, or use class-based dark variant. */',
   )
+  if (ramps.architecture === 'simple') {
+    lines.push('[data-theme="dark"] {')
+    emitSimpleThemePrimitiveBlock(lines, ramps.dark)
+    lines.push('}')
+  }
   return lines.join('\n')
 }
 

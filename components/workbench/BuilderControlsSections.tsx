@@ -13,10 +13,181 @@ import {ThemePanelsSection} from '@/components/sections/ThemePanelsSection'
 import {VariantsSection} from '@/components/sections/VariantsSection'
 import {OklchPickerPanel} from '@/components/picker/OklchPickerPanel'
 import {PillButton, PillChip} from '@/components/ui/chip.tsx'
-import {CollapsibleControlGroup} from '@/components/workbench/CollapsibleControlGroup'
-import {DEFAULT_GLOBAL, type NeutralWorkbench} from '@/hooks/useNeutralWorkbench'
+import {
+  CollapsibleControlGroup,
+  type CollapsibleControlGroupIcon,
+} from '@/components/workbench/CollapsibleControlGroup'
+import {
+  DEFAULT_GLOBAL,
+  type NeutralWorkbench,
+} from '@/hooks/useNeutralWorkbench'
 import {useOklchPickerWorkbench} from '@/hooks/useOklchPickerWorkbench'
 import {sandboxWorkbenchAdapter} from '@/hooks/useWorkbenchAdapter'
+
+type ArchitectureMode = NeutralWorkbench['neutralArchitecture']
+type RampEditTarget = Extract<
+  NeutralWorkbench['scaleEditTarget'],
+  'light' | 'dark'
+>
+
+type BranchText = Record<ArchitectureMode, string>
+
+type ControlGroupContent = {
+  id: string
+  icon: CollapsibleControlGroupIcon
+  title: string
+  defaultOpen: boolean
+  description?: string
+}
+
+type ChoiceContent<T extends string> = Record<T, {label: string}>
+
+type ScaleContent = Omit<ControlGroupContent, 'title'> & {
+  title: BranchText
+  summary: BranchText
+  architecture: {
+    title: string
+    description: string
+    choices: ChoiceContent<ArchitectureMode>
+  }
+  editTarget: {
+    title: string
+    description: string
+    choices: ChoiceContent<RampEditTarget>
+  }
+  okhsl: {
+    id: string
+    title: string
+    description: string
+    resetLabel: string
+    resetHistoryLabel: string
+    toggle: {
+      show: string
+      hide: string
+    }
+  }
+}
+
+type PickerContent = ControlGroupContent & {
+  descriptionPrefix: string
+  actionLabel: string
+  descriptionSuffix: string
+}
+
+type MappingContent = ControlGroupContent & {
+  alpha: {
+    title: string
+    descriptionPrefix: string
+    anchorToken: string
+    descriptionSuffix: string
+    lightOffsetLabel: string
+    darkOffsetLabel: string
+  }
+}
+
+type BuilderControlsContent = {
+  scale: ScaleContent
+  picker: PickerContent
+  brand: ControlGroupContent
+  mapping: MappingContent
+  inspect: ControlGroupContent
+  export: ControlGroupContent
+}
+
+const builderControlsContent = {
+  scale: {
+    id: 'neutral-workbench-controls-scale',
+    icon: Blend,
+    title: {
+      simple: 'Global neutral scale ladder',
+      advanced: 'Neutral scale ladders',
+    },
+    summary: {
+      simple: 'Steps, lightness range, chroma shaping, and hue variants.',
+      advanced:
+        'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.',
+    },
+    defaultOpen: true,
+    architecture: {
+      title: 'Architecture',
+      description:
+        'Simple mirrors one ramp into both themes by mapping. Advanced keeps independent ramps for optics.',
+      choices: {
+        simple: {label: 'Simple · single ladder'},
+        advanced: {label: 'Advanced · sibling ramps'},
+      },
+    },
+    editTarget: {
+      title: 'Edit target ramp',
+      description:
+        'Hue variants and OKHSL commits apply here. Inspect the other ramp visually in previews.',
+      choices: {
+        light: {label: 'Light ramp'},
+        dark: {label: 'Dark elevated ramp'},
+      },
+    },
+    okhsl: {
+      id: 'nsb-workbench-controls-okhsl',
+      title: 'OKHSL authoring overlay',
+      description:
+        'Edit via gamut-relative coordinates. Commits back to OKLCH config.',
+      resetLabel: 'Reset',
+      resetHistoryLabel: 'OKHSL · Reset',
+      toggle: {
+        show: 'Show OKHSL',
+        hide: 'Hide OKHSL',
+      },
+    },
+  },
+  picker: {
+    id: 'workbench-oklch-picker',
+    icon: Palette,
+    title: 'OKLCH picker (parallel)',
+    defaultOpen: false,
+    descriptionPrefix:
+      'Gamut-aware L / C / H exploration on a separate engine config. Use',
+    actionLabel: 'Apply to global scale',
+    descriptionSuffix:
+      'to copy the resulting ramp into Simple mode (single ladder).',
+  },
+  brand: {
+    id: 'workbench-custom-brand',
+    icon: Paintbrush,
+    title: 'Custom brand',
+    description:
+      'Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview, exports, and the Color.js picker.',
+    defaultOpen: false,
+  },
+  mapping: {
+    id: 'workbench-mapping',
+    icon: Map,
+    title: 'Contrast & role mapping',
+    description:
+      'Contrast distance, step intervals, starts, and token counts per role ladder.',
+    defaultOpen: false,
+    alpha: {
+      title: 'Alpha neutral base offset',
+      descriptionPrefix: 'Nudge the alpha token anchor from',
+      anchorToken: 'text.default',
+      descriptionSuffix: 'resolved index.',
+      lightOffsetLabel: 'Light offset',
+      darkOffsetLabel: 'Dark offset',
+    },
+  },
+  inspect: {
+    id: 'workbench-inspect',
+    icon: Route,
+    title: 'Inspect & paired views',
+    description: 'Theme panels, ramp usage, and role tables.',
+    defaultOpen: false,
+  },
+  export: {
+    id: 'export',
+    icon: Braces,
+    title: 'Export',
+    defaultOpen: false,
+  },
+} satisfies BuilderControlsContent
 
 const ExportSection = dynamic(
   () =>
@@ -25,6 +196,7 @@ const ExportSection = dynamic(
     })),
   {ssr: false, loading: () => null},
 )
+ExportSection.displayName = 'ExportSection'
 
 type Props = {
   wb: NeutralWorkbench
@@ -35,7 +207,14 @@ type Props = {
 function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   const simpleArch = wb.neutralArchitecture === 'simple'
   const sandboxPicker = useOklchPickerWorkbench()
-  const sandboxAdapter = useMemo(() => sandboxWorkbenchAdapter(sandboxPicker), [sandboxPicker])
+  const sandboxAdapter = useMemo(
+    () => sandboxWorkbenchAdapter(sandboxPicker),
+    [sandboxPicker],
+  )
+  const content = builderControlsContent
+  const architectureMode: ArchitectureMode = simpleArch
+    ? 'simple'
+    : 'advanced'
 
   const activeRampVisual = simpleArch
     ? wb.global
@@ -45,38 +224,21 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   return (
     <div className="flex flex-col gap-16 pb-48">
       <CollapsibleControlGroup
-        id="neutral-workbench-controls-scale"
-        icon={Blend}
-        title={
-          simpleArch ? 'Global neutral scale ladder' : 'Neutral scale ladders'
-        }
-        // additionalInfo={
-        //   <>
-        //     <p>
-        //       {simpleArch
-        //         ? 'Steps, lightness range, chroma shaping, and hue variants.'
-        //         : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'}
-        //     </p>
-        //     <AdditionalInfoPreviewCard additionalInfo="How this ladder works">
-        //       <p className="max-w-2xl text-sm text-muted">
-        //         Linear OKLCH lightness from light to dark (8–48 steps; default 41). Hue and chroma stay locked or shaped by the chroma mode. Tier-1 primitives feed semantic tokens.
-        //       </p>
-        //     </AdditionalInfoPreviewCard>
-        //   </>
-        // }
-        defaultOpen
+        id={content.scale.id}
+        icon={content.scale.icon}
+        title={content.scale.title[architectureMode]}
+        defaultOpen={content.scale.defaultOpen}
       >
         <div className="space-y-16">
           <div>
             <div className="mt-4 space-y-8 text-xs text-muted">
-              {simpleArch
-                ? 'Steps, lightness range, chroma shaping, and hue variants.'
-                : 'Independent light / dark ramps — pick which ladder you edit, then tweak steps and chroma.'}
+              {content.scale.summary[architectureMode]}
             </div>
-            <p className="text-xs font-medium text-default">Architecture</p>
+            <p className="text-xs font-medium text-default">
+              {content.scale.architecture.title}
+            </p>
             <p className="mt-4 text-micro text-muted">
-              Simple mirrors one ramp into both themes by mapping. Advanced
-              keeps independent ramps for optics.
+              {content.scale.architecture.description}
             </p>
             <div className="mt-8 flex flex-wrap gap-8">
               <PillChip
@@ -85,7 +247,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 activeStyle="pill"
                 onClick={() => wb.setNeutralArchitecture('simple')}
               >
-                Simple · single ladder
+                {content.scale.architecture.choices.simple.label}
               </PillChip>
               <PillChip
                 selected={!simpleArch}
@@ -93,7 +255,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 activeStyle="pill"
                 onClick={() => wb.setNeutralArchitecture('advanced')}
               >
-                Advanced · sibling ramps
+                {content.scale.architecture.choices.advanced.label}
               </PillChip>
             </div>
           </div>
@@ -101,11 +263,10 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           {!simpleArch ? (
             <div>
               <p className="text-xs font-medium text-default">
-                Edit target ramp
+                {content.scale.editTarget.title}
               </p>
               <p className="mt-4 text-micro text-muted">
-                Hue variants and OKHSL commits apply here. Inspect the other
-                ramp visually in previews.
+                {content.scale.editTarget.description}
               </p>
               <div className="mt-8 flex flex-wrap gap-8">
                 <PillChip
@@ -114,7 +275,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                   activeStyle="surface-soft"
                   onClick={() => wb.setScaleEditTarget('light')}
                 >
-                  Light ramp
+                  {content.scale.editTarget.choices.light.label}
                 </PillChip>
                 <PillChip
                   selected={wb.scaleEditTarget === 'dark'}
@@ -122,7 +283,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                   activeStyle="surface-soft"
                   onClick={() => wb.setScaleEditTarget('dark')}
                 >
-                  Dark elevated ramp
+                  {content.scale.editTarget.choices.dark.label}
                 </PillChip>
               </div>
             </div>
@@ -141,19 +302,17 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           onSelectSwatch={wb.selectGlobal}
         />
 
-        {/* OKHSL authoring overlay */}
         <div
-          id="nsb-workbench-controls-okhsl"
-          className="mt-24  border-hairline pt-24"
+          id={content.scale.okhsl.id}
+          className="mt-24 border-hairline pt-24"
         >
           <div className="flex items-center justify-between gap-12">
             <div>
               <p className="text-xs font-medium text-default">
-                OKHSL authoring overlay
+                {content.scale.okhsl.title}
               </p>
               <p className="text-xs text-muted">
-                Edit via gamut-relative coordinates. Commits back to OKLCH
-                config.
+                {content.scale.okhsl.description}
               </p>
             </div>
             <div className="flex items-center gap-8">
@@ -169,11 +328,11 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                         lLow: DEFAULT_GLOBAL.lLow,
                         baseChroma: DEFAULT_GLOBAL.baseChroma,
                       }),
-                      'OKHSL · Reset',
+                      content.scale.okhsl.resetHistoryLabel,
                     )
                   }
                 >
-                  Reset
+                  {content.scale.okhsl.resetLabel}
                 </PillButton>
               ) : null}
               <PillButton
@@ -182,7 +341,9 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
                 onClick={() => wb.setOkhslEnabled((v) => !v)}
                 aria-expanded={wb.okhslEnabled}
               >
-                {wb.okhslEnabled ? 'Hide OKHSL' : 'Show OKHSL'}
+                {wb.okhslEnabled
+                  ? content.scale.okhsl.toggle.hide
+                  : content.scale.okhsl.toggle.show}
               </PillButton>
             </div>
           </div>
@@ -216,15 +377,17 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup
-        id="workbench-oklch-picker"
-        icon={Palette}
-        title="OKLCH picker (parallel)"
-        defaultOpen={false}
+        id={content.picker.id}
+        icon={content.picker.icon}
+        title={content.picker.title}
+        defaultOpen={content.picker.defaultOpen}
       >
         <div className="mt-4 space-y-8 text-xs text-muted">
-          Gamut-aware L / C / H exploration on a separate engine config. Use{' '}
-          <span className="font-medium text-default">Apply to global scale</span> to copy the
-          resulting ramp into Simple mode (single ladder).
+          {content.picker.descriptionPrefix}{' '}
+          <span className="font-medium text-default">
+            {content.picker.actionLabel}
+          </span>{' '}
+          {content.picker.descriptionSuffix}
         </div>
         <div className="mt-16">
           <OklchPickerPanel variant="embedded" adapter={sandboxAdapter} />
@@ -232,15 +395,13 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup
-        id="workbench-custom-brand"
-        icon={Paintbrush}
-        title="Custom brand"
-        // additionalInfo="Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview, exports, and the Color.js picker."
-        defaultOpen
+        id={content.brand.id}
+        icon={content.brand.icon}
+        title={content.brand.title}
+        defaultOpen={content.brand.defaultOpen}
       >
         <div className="mt-4 space-y-8 text-xs text-muted">
-          Brand input (OKLCH / Hex / RGB / Display-P3) — synced with preview,
-          exports, and the Color.js picker.
+          {content.brand.description}
         </div>
         <BrandColorSection
           systemConfig={wb.systemConfig}
@@ -249,15 +410,13 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup
-        id="workbench-mapping"
-        icon={Map}
-        title="Contrast & role mapping"
-        // additionalInfo="Contrast distance, step intervals, starts, and token counts per role ladder."
-        defaultOpen
+        id={content.mapping.id}
+        icon={content.mapping.icon}
+        title={content.mapping.title}
+        defaultOpen={content.mapping.defaultOpen}
       >
         <div className="mt-4 space-y-8 text-xs text-muted">
-          Contrast distance, step intervals, starts, and token counts per role
-          ladder.
+          {content.mapping.description}
         </div>
         <SystemMappingSection
           config={wb.systemConfig}
@@ -269,21 +428,26 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           stepsDark={wb.ladderDarkSteps}
           alphaBaseIndices={wb.alphaBaseIndices}
         />
-        <div className="mt-24 space-y-12  border-hairline pt-24">
+        <div className="mt-24 space-y-12 border-hairline pt-24">
           <div>
             <p className="text-xs font-medium text-default">
-              Alpha neutral base offset
+              {content.mapping.alpha.title}
             </p>
             <p className="text-xs text-muted">
-              Nudge the alpha token anchor from{' '}
-              <code className="font-mono">text.default</code> resolved index.
-              Light base: {wb.alphaBaseIndices.lightBase} · Dark base:{' '}
+              {content.mapping.alpha.descriptionPrefix}{' '}
+              <code className="font-mono">
+                {content.mapping.alpha.anchorToken}
+              </code>{' '}
+              {content.mapping.alpha.descriptionSuffix} Light base:{' '}
+              {wb.alphaBaseIndices.lightBase} · Dark base:{' '}
               {wb.alphaBaseIndices.darkBase}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-12">
             <label className="flex flex-col gap-4">
-              <span className="text-xs text-muted">Light offset</span>
+              <span className="text-xs text-muted">
+                {content.mapping.alpha.lightOffsetLabel}
+              </span>
               <input
                 type="number"
                 min={-10}
@@ -299,7 +463,9 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
               />
             </label>
             <label className="flex flex-col gap-4">
-              <span className="text-xs text-muted">Dark offset</span>
+              <span className="text-xs text-muted">
+                {content.mapping.alpha.darkOffsetLabel}
+              </span>
               <input
                 type="number"
                 min={-10}
@@ -319,14 +485,16 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup
-        id="workbench-inspect"
-        icon={Route}
-        title="Inspect & paired views"
-        // additionalInfo="Theme panels, ramp usage, and role tables."
-        defaultOpen={false}
+        id={content.inspect.id}
+        icon={content.inspect.icon}
+        title={content.inspect.title}
+        defaultOpen={content.inspect.defaultOpen}
       >
-        <div className="mt-4 space-y-8 text-xs text-muted">Theme panels, ramp usage, and role tables.</div>
+        <div className="mt-4 space-y-8 text-xs text-muted">
+          {content.inspect.description}
+        </div>
         <ThemePanelsSection
+          neutralArchitecture={wb.neutralArchitecture}
           globalLight={wb.lightRamp}
           globalDark={wb.darkRamp}
           lightTokenView={wb.lightTokenView}
@@ -336,11 +504,10 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
       </CollapsibleControlGroup>
 
       <CollapsibleControlGroup
-        id="export"
-        icon={Braces}
-        title="Export"
-        // subtitle="JSON, CSS, CSV, Tailwind @theme."
-        defaultOpen={false}
+        id={content.export.id}
+        icon={content.export.icon}
+        title={content.export.title}
+        defaultOpen={content.export.defaultOpen}
       >
         <ExportSection
           architecture={wb.neutralArchitecture}
@@ -358,4 +525,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   )
 }
 
+BuilderControlsSectionsInner.displayName = 'BuilderControlsSectionsInner'
+
 export const BuilderControlsSections = memo(BuilderControlsSectionsInner)
+BuilderControlsSections.displayName = 'BuilderControlsSections'

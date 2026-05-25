@@ -129,7 +129,7 @@ function stepsSelectListMaxHeightStyle(): {maxHeight: string} {
 
 /** Match `Toolbar.Button` icon styling; avoid `PopoverTrigger` + `Toolbar.Button` composition (Base UI prerender #69). */
 const GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS = cn(
-  '-my-px inline-flex size-32 shrink-0 items-center justify-center rounded-select text-subtle outline-none transition',
+  '-my-px inline-flex size-32 shrink-0 items-center justify-center rounded-select text-subtle transition outline-none',
   'hover:bg-sidebar-border hover:text-default',
   'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
   'disabled:pointer-events-none disabled:opacity-45',
@@ -152,7 +152,6 @@ const BASE_CHROMA_OPTIONS: ResponsiveSelectOption[] = Array.from(
     return {value: s, label: s}
   },
 )
-
 
 function clampHueDeg(h: number): number {
   return Math.min(360, Math.max(0, Math.round(h)))
@@ -233,7 +232,6 @@ function useCoalescedPatch(patchGlobal: RampPatchFn) {
 
   return schedule
 }
-
 
 const lightnessToolbarInputClass = cn(
   INPUT_WORKBENCH_FIELD_CLASS,
@@ -359,7 +357,7 @@ function StepsRampSegment({
           aria-haspopup="listbox"
           className={cn(
             INPUT_WORKBENCH_FIELD_CLASS,
-            'h-32 min-h-32 min-w-64 flex flex-1 shrink items-center justify-between gap-8 px-10 py-0 text-left font-mono text-xs tabular-nums outline-none select-none',
+            'flex h-32 min-h-32 min-w-64 flex-1 shrink items-center justify-between gap-8 px-10 py-0 text-left font-mono text-xs tabular-nums outline-none select-none',
             'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
             'data-placeholder:text-muted-foreground',
           )}
@@ -684,7 +682,9 @@ function SystemShapeSegment({
         className="h-32 max-w-[13rem] min-w-[9rem] flex-1 shrink py-4 text-xs"
         value={config.namingStyle}
         options={namingOptions.map((o) => ({value: o.id, label: o.label}))}
-        onValueChange={(v) => schedule('namingStyle', v as NamingStyle, 'Naming')}
+        onValueChange={(v) =>
+          schedule('namingStyle', v as NamingStyle, 'Naming')
+        }
       />
       <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
       <ResponsiveSelect
@@ -693,7 +693,11 @@ function SystemShapeSegment({
         value={config.chromaMode}
         options={chromaOptions.map((o) => ({value: o.id, label: o.label}))}
         onValueChange={(v) =>
-          schedule('chromaMode', v as GlobalScaleConfig['chromaMode'], 'Chroma mode')
+          schedule(
+            'chromaMode',
+            v as GlobalScaleConfig['chromaMode'],
+            'Chroma mode',
+          )
         }
       />
       <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
@@ -773,10 +777,9 @@ function GlobalScaleSectionInner({
         <p className="text-xs text-muted">
           Compare chroma modes side-by-side for the current hue / base chroma.
         </p>
-        <Button variant="default" size="md">Demo mode</Button>
         <Button
           variant="outline"
-          size="md"
+          size="sm"
           nativeButton={true}
           onClick={() => setShowComparison((v) => !v)}
           aria-expanded={showComparison}
@@ -851,7 +854,7 @@ function GlobalScaleSectionInner({
               ? 'Lightness anchors · light & dark'
               : 'Lightness anchors'}
           </p>
-          <div className="@container min-w-0 w-full">
+          <div className="@container w-full min-w-0">
             <Toolbar.Root
               id={GLOBAL_SCALE_TOOLBAR.lightness.id}
               data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.lightness.slug}
@@ -918,7 +921,7 @@ function GlobalScaleSectionInner({
               ? 'Hue & base chroma · light & dark'
               : 'Hue & base chroma'}
           </p>
-          <div className="@container min-w-0 w-full">
+          <div className="@container w-full min-w-0">
             <Toolbar.Root
               id={GLOBAL_SCALE_TOOLBAR.hueChroma.id}
               data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.hueChroma.slug}
@@ -972,11 +975,11 @@ function GlobalScaleSectionInner({
             {advanced ? 'System shape · light & dark' : 'System shape'}
           </p>
           {advanced ? (
-            <div className="@container min-w-0 w-full">
+            <div className="@container w-full min-w-0">
               <Toolbar.Root
                 id={GLOBAL_SCALE_TOOLBAR.systemShape.id}
                 data-ns-toolbar={GLOBAL_SCALE_TOOLBAR.systemShape.slug}
-                className="grid w-full gap-px grid-cols-1 @min-[28rem]:grid-cols-2"
+                className="grid w-full grid-cols-1 gap-px @min-[28rem]:grid-cols-2"
                 aria-labelledby={GLOBAL_SCALE_TOOLBAR.systemShape.headingId}
               >
                 <div className="flex flex-wrap items-center gap-4 gap-y-px">

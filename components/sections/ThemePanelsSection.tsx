@@ -13,7 +13,7 @@ import {
 } from '@/components/preview/primitiveTokenTable'
 import {type PairSection, SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
 import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
-import type {GlobalSwatch} from '@/lib/neutral-engine'
+import type {GlobalSwatch, NeutralArchitectureMode} from '@/lib/neutral-engine'
 import type {SystemToken, TokenView} from '@/lib/neutral-engine'
 import {
   tokensForInversePairCategory,
@@ -23,6 +23,7 @@ import {
 } from '@/lib/neutral-engine/tokenViews'
 
 type Props = {
+  neutralArchitecture: NeutralArchitectureMode
   globalLight: GlobalSwatch[]
   globalDark: GlobalSwatch[]
   lightTokenView: TokenView
@@ -30,25 +31,26 @@ type Props = {
   onSelectSystem: (id: string) => void
 }
 
-const THEME_TABLE_GROUPS: {section: PairSection; hint: string}[] = [
+const themeTableGroups: {section: PairSection; hint: string}[] = [
   {
     section: {kind: 'layer', layer: 'surface'},
     hint: 'sunken · default · subtle · raised · overlay (brand lives in the Custom Brand section)',
   },
   {section: {kind: 'layer', layer: 'border'}, hint: 'default · subtle · strong · focus'},
   {section: {kind: 'layer', layer: 'text'}, hint: 'default · subtle · muted · disabled'},
-  {section: {kind: 'inverse'}, hint: 'surface.inverse · text.on (contrast flip)'},
+  {section: {kind: 'inverse'}, hint: 'surface.inverse · text.inverse · border.inverse (contrast flip)'},
   {section: {kind: 'layer', layer: 'interactive'}, hint: 'state.hover · overlay.scrim'},
 ]
 
 function tokensForThemeTableBlock(view: TokenView, section: PairSection): SystemToken[] {
   if (section.kind === 'inverse') return tokensForInversePairCategory(view)
+  // Brand tokens are inspected from the Custom Brand section, not here.
+  if (section.kind === 'brand') return []
   const base =
     section.layer === 'surface' || section.layer === 'text'
       ? tokensForSemanticLayerPublicNonInverse(view, section.layer)
       : tokensForSemanticLayerPublic(view, section.layer)
-  // Brand is inspected from the Custom Brand section, not as a neutral primitive row.
-  return base.filter((t) => !(t.role === 'surface.brand' && t.customColor))
+  return base
 }
 
 function RoleTokenTable({
@@ -60,17 +62,11 @@ function RoleTokenTable({
   tokens: SystemToken[]
   global: GlobalSwatch[]
   onSelect: (id: string) => void
-  tier1ExportMode?: Tier1NeutralExportMode
+  tier1ExportMode?: Tier1NeutralExportMode | undefined
 }) {
-  const isDarkAdvanced =
-    tier1ExportMode?.architecture === 'advanced' && tier1ExportMode.scale === 'dark'
-  const n = global.length
-
   const sorted = useMemo(() => {
-    const base = sortSystemTokensByPrimitiveLadder(tokens, global)
-    // Dark: sort darkest-first (highest ramp index = darkest = display index 0)
-    return isDarkAdvanced ? [...base].reverse() : base
-  }, [tokens, global, isDarkAdvanced])
+    return sortSystemTokensByPrimitiveLadder(tokens, global)
+  }, [tokens, global])
 
   if (sorted.length === 0) {
     return <p className="text-micro text-disabled">No tokens in this group.</p>
@@ -89,7 +85,7 @@ function RoleTokenTable({
         <tbody className="font-mono">
           {sorted.map((t) => {
             const prim = primitiveNeutralExportName(global, t.sourceGlobalIndex, tier1ExportMode)
-            const displayIndex = isDarkAdvanced ? n - 1 - t.sourceGlobalIndex : t.sourceGlobalIndex
+            const displayIndex = t.sourceGlobalIndex
             return (
               <tr key={t.id} className="border-b border-hairline">
                 <td className="px-8 py-6 font-medium text-default" title={t.name}>
@@ -121,6 +117,8 @@ function RoleTokenTable({
     </div>
   )
 }
+
+RoleTokenTable.displayName = 'RoleTokenTable'
 
 const themeColumnShellVariants = cva('rounded-2xl border p-16 sm:p-20', {
   variants: {
@@ -157,7 +155,7 @@ function ThemeTokenColumn({
   global: GlobalSwatch[]
   onSelectSystem: (id: string) => void
   variant: 'light' | 'dark'
-  tier1ExportMode: Tier1NeutralExportMode
+  tier1ExportMode?: Tier1NeutralExportMode | undefined
 }) {
   const [showTable, setShowTable] = useState(true)
   const toggle = useCallback(() => setShowTable((v) => !v), [])
@@ -191,11 +189,12 @@ function ThemeTokenColumn({
       <div className="mt-24 space-y-32">
         {showTable ? (
           <>
-            {THEME_TABLE_GROUPS.map(({section, hint: groupHint}) => {
+            {themeTableGroups.map(({section, hint: groupHint}) => {
               const groupTokens = tokensForThemeTableBlock(tokenView, section)
               if (groupTokens.length === 0) return null
-              const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
-              const k = section.kind === 'inverse' ? 'inverse' : section.layer
+              const titleKey =
+                section.kind === 'inverse' ? 'inversePair' : section.kind === 'brand' ? 'brandPair' : section.layer
+              const k = section.kind === 'inverse' ? 'inverse' : section.kind === 'brand' ? 'brand' : section.layer
               return (
                 <div key={k} className="space-y-8">
                   <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
@@ -247,19 +246,26 @@ function ThemeTokenColumn({
   )
 }
 
-function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
+ThemeTokenColumn.displayName = 'ThemeTokenColumn'
+
+function ThemePanelsSectionInner({neutralArchitecture, globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
+  const darkTier1ExportMode =
+    neutralArchitecture === 'advanced'
+      ? ({architecture: 'advanced', scale: 'dark'} as const)
+      : undefined
+
   return (
     <section id="themes" className="scroll-mt-24 space-y-24">
       <header>
         <p className="eyebrow">3 · Themes</p>
-        <h2 className="mt-4 text-xl font-semibold tracking-tight text-default">Light vs dark elevated</h2>
+        <h2 className="mt-4 text-sm font-medium tracking-tight text-default">Light vs dark elevated</h2>
         <p className="mt-8 max-w-2xl text-sm text-muted">
           Default view is a primitive-token data table: neutral ladder names, semantic roles, and ramp
           indices. Switch to Visual for the paired layout.
         </p>
       </header>
 
-      <div className="grid gap-16 nsb-lg:grid-cols-2 nsb-lg:gap-16">
+      <div className="grid gap-16 nsb-lg:grid-cols-1 nsb-lg:gap-16">
         <ThemeTokenColumn
           eyebrow="Light theme"
           title="Primitive tokens"
@@ -273,16 +279,19 @@ function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkT
         <ThemeTokenColumn
           eyebrow="Dark elevated"
           title="Primitive tokens"
-          hint="Tier‑1 --color-neutral-dark-* mapping from the dark tail (themeMode: darkElevated). dark-0 = darkest."
+          hint="Tier‑1 --color-neutral-dark-* mapping from the black-first dark ramp (themeMode: darkElevated). Low index = darkest."
           tokenView={darkTokenView}
           global={globalDark}
           onSelectSystem={onSelectSystem}
           variant="dark"
-          tier1ExportMode={{architecture: 'advanced', scale: 'dark'}}
+          tier1ExportMode={darkTier1ExportMode}
         />
       </div>
     </section>
   )
 }
 
+ThemePanelsSectionInner.displayName = 'ThemePanelsSectionInner'
+
 export const ThemePanelsSection = memo(ThemePanelsSectionInner)
+ThemePanelsSection.displayName = 'ThemePanelsSection'

@@ -20,6 +20,7 @@ import type {RampPreviewMode} from '@/lib/workbench/dockPickerStorage'
 import {PrimitiveMappingPanel} from '@/components/control-center/panel/PrimitiveMappingPanel'
 import {RoleMappingPanel} from '@/components/control-center/panel/RoleMappingPanel'
 import {TunePanel} from '@/components/control-center/panel/TunePanel'
+import {CurvePanel} from '@/components/control-center/panel/CurvePanel'
 import {
   useDockElevationTuning,
   isPopupHaloEnabled,
@@ -78,6 +79,7 @@ const TABS: TabDef[] = [
   {id: 'oklch', label: 'OKLCH'},
   {id: 'tune', label: 'Tune'},
   {id: 'map', label: 'Map'},
+  {id: 'curve', label: 'Curve'},
 ]
 
 const popupWidthClassName =
@@ -382,6 +384,17 @@ function PanelBody({
           >
             <div data-slot="tabpanel-inner">
               <PrimitiveMappingPanel />
+            </div>
+          </Tabs.Panel>
+          <Tabs.Panel
+            value="curve"
+            id="dock-picker-tabpanel-curve"
+            data-slot="dock-picker-tabpanel"
+            data-tab-id="curve"
+            className={tabPanelClassName}
+          >
+            <div data-slot="tabpanel-inner">
+              <CurvePanel />
             </div>
           </Tabs.Panel>
         </Tabs.Root>

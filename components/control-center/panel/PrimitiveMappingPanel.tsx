@@ -162,7 +162,7 @@ function LayerSection({
 LayerSection.displayName = 'LayerSection'
 
 type StepDropdownProps = {
-  /** Source global index into the ramp (0 = lightest). */
+  /** Source index into the active theme ramp (light 0 = lightest; dark 0 = darkest). */
   value: number
   isOverridden: boolean
   ramp: GlobalSwatch[]

@@ -109,9 +109,9 @@ export function NeutralScaleReferenceTable({global, tier1ExportMode, themeContex
       <div>
         <p className="eyebrow">Full neutral scale</p>
         <p className="mt-4 text-xs text-muted">
-          Full ladder by scale index (low → high). OKLCH L decreases stepwise from lightest to
-          darkest. Token labels use the active naming convention from Global scale — same source as
-          exports.
+          Full ladder by scale index (low → high). Light scales are white-first; dark scales are
+          black-first. Token labels use the active naming convention from Global scale — same source
+          as exports.
         </p>
       </div>
       <div

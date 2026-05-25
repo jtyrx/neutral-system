@@ -72,7 +72,7 @@ describe('exportCssVariables', () => {
     expect(css).toContain('--chrome-toaster-bg:')
     expect(css).toContain('[data-theme="light"]')
     expect(css).toContain('[data-theme="dark"]')
-    // Dark tier-2 on :root for pre–data-theme resolution
+    // Tier-2 on :root for pre–data-theme resolution
     expect(css.match(/:root\s*\{/g)?.length).toBeGreaterThanOrEqual(2)
   })
 
@@ -81,9 +81,11 @@ describe('exportCssVariables', () => {
     if (ramps.architecture !== 'simple') throw new Error('expected simple ramps')
     const css = exportCssVariables({architecture: 'simple', ramps, light, dark})
     const darkBlock = css.match(/\[data-theme="dark"\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
+    const rootBlocks = Array.from(css.matchAll(/:root\s*\{([\s\S]*?)\n\}/g)).map((match) => match[1] ?? '')
     const darkPrimitive = `--color-neutral-0: ${ramps.dark[0]!.serialized.oklchCss};`
 
     expect(css).toContain(`  --color-neutral-0: ${ramps.global[0]!.serialized.oklchCss};`)
+    expect(rootBlocks.some((block) => block.includes(darkPrimitive))).toBe(false)
     expect(darkBlock).toContain(darkPrimitive)
     expect(darkBlock.indexOf(darkPrimitive)).toBeLessThan(
       darkBlock.indexOf('--color-surface-default:'),

@@ -12,10 +12,11 @@ export function tier1ExportModeForRamp(
   architecture: 'simple' | 'advanced',
   previewTheme: 'light' | 'dark',
 ): Tier1NeutralExportMode | undefined {
+  if (architecture === 'simple') {
+    return undefined
+  }
   if (previewTheme === 'light') {
-    return architecture === 'simple'
-      ? undefined
-      : {architecture: 'advanced', scale: 'light'}
+    return {architecture: 'advanced', scale: 'light'}
   }
   return {architecture: 'advanced', scale: 'dark'}
 }

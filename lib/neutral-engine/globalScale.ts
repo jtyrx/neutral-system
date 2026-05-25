@@ -2,7 +2,7 @@ import Color from 'colorjs.io'
 
 import {bumpBuildGlobalScaleCalls, getLastPreset, presetDebugEnabled} from '@/lib/debug/presetDebug'
 import {labelsForNamingStyle} from '@/lib/neutral-engine/naming'
-import type {ChromaMode, GlobalScaleConfig, GlobalSwatch, LCurve} from '@/lib/neutral-engine/types'
+import type {ChromaMode, GlobalScaleConfig, GlobalScaleDirection, GlobalSwatch, LCurve} from '@/lib/neutral-engine/types'
 
 /**
  * Maps `t ∈ [0,1]` through the lightness curve shape only (does not interpolate to L).
@@ -82,8 +82,9 @@ export const GLOBAL_SCALE_STEP_MIN = 8
 export const GLOBAL_SCALE_STEP_MAX = 48
 
 /**
- * Deterministic global ramp: index 0 = lightest (lHigh), last = darkest (lLow).
- * Linear lightness in OKLCH; chroma modes shape C across t ∈ [0,1].
+ * Deterministic global ramp. Default direction: index 0 = lightest (lHigh), last = darkest (lLow).
+ * `dark-to-light` direction flips output order so index 0 = darkest (lLow), last = lightest (lHigh).
+ * Linear lightness in OKLCH; chroma modes shape C across light→dark t ∈ [0,1].
  */
 function finiteOr(n: number, fallback: number): number {
   return Number.isFinite(n) ? n : fallback
@@ -101,9 +102,10 @@ export function clampGlobalScaleSteps(raw: number): number {
 const GLOBAL_SCALE_CACHE_MAX = 48
 const globalScaleCache = new Map<string, GlobalSwatch[]>()
 
-function cacheKeyForGlobalScale(config: GlobalScaleConfig): string {
+function cacheKeyForGlobalScale(config: GlobalScaleConfig, direction: GlobalScaleDirection): string {
   // Only include fields that affect output. Keep stable, small, and deterministic.
   return [
+    direction,
     clampGlobalScaleSteps(config.steps),
     config.lHigh,
     config.lLow,
@@ -121,8 +123,12 @@ function cacheKeyForGlobalScale(config: GlobalScaleConfig): string {
 }
 
 /** @param cacheQualifier When set, separates cache entries (e.g. Advanced sibling ramps may share numeric config). */
-export function buildGlobalScale(config: GlobalScaleConfig, cacheQualifier?: string): GlobalSwatch[] {
-  const key = cacheKeyForGlobalScale(config) + (cacheQualifier != null ? `|${cacheQualifier}` : '')
+export function buildGlobalScale(
+  config: GlobalScaleConfig,
+  cacheQualifier?: string,
+  direction: GlobalScaleDirection = 'light-to-dark',
+): GlobalSwatch[] {
+  const key = cacheKeyForGlobalScale(config, direction) + (cacheQualifier != null ? `|${cacheQualifier}` : '')
   const cached = globalScaleCache.get(key)
   if (cached) {
     globalScaleCache.delete(key)
@@ -166,7 +172,8 @@ export function buildGlobalScale(config: GlobalScaleConfig, cacheQualifier?: str
   const labels = labelsForNamingStyle(namingStyle, n)
 
   for (let i = 0; i < n; i++) {
-    const t = n === 1 ? 0 : i / (n - 1)
+    const outputT = n === 1 ? 0 : i / (n - 1)
+    const t = direction === 'dark-to-light' ? 1 - outputT : outputT
     const L = easeL(lHigh, lLow, t, config.lCurve, config.lCurveStrength)
     const C = chromaAtT(chromaMode, t, chromaAtLight, chromaAtDark)
     // When hue drift is active, extract H from the Oklab range at linear t.

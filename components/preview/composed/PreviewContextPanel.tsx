@@ -79,7 +79,7 @@ export function PreviewContextPanel({
                   <OffsetMapDiagram
                     steps={ladderDarkSteps}
                     themeLabel="Dark elevated"
-                    description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
+                    description="Bars use the same resolved global indices as darkElevated themeMode tokens (black-first ramp)."
                     surfaceIndices={darkIdx.surface}
                     borderIndices={darkIdx.border}
                     textIndices={darkIdx.text}

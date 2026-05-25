@@ -73,7 +73,7 @@ export function clampSystemMappingToLadderLength(
   }
 
   let darkTextStart = clampIntToRange(cfg.darkTextStart, 0, maxStart)
-  if (!darkTextRunDistinct(darkTextStart, ladderN, darkTextCountFit, effDarkText)) {
+  if (!lightTextRunDistinct(darkTextStart, ladderN, darkTextCountFit, effDarkText)) {
     darkTextStart = resolveDarkTextStartOffset(ladderN, darkTextCountFit, effDarkText)
   }
 
@@ -180,10 +180,10 @@ export function resolveBorderFocusIndex(standardSurfaceIndices: number[], n: num
 
 /**
  * On-brand marketing / accent surface: one step past `surface.overlay` along the ramp so it reads
- * as a distinct plane from overlay and default (light = deeper; dark elevated = brighter).
+ * as a distinct plane from overlay and default.
  */
 export function resolveBrandSurfaceIndex(
-  isLight: boolean,
+  _isLight: boolean,
   fillIndices: number[],
   stepFill: number,
   n: number,
@@ -191,9 +191,7 @@ export function resolveBrandSurfaceIndex(
   if (fillIndices.length === 0) return clampIndex(Math.floor(n / 2), n)
   const overlayIdx = fillIndices[fillIndices.length - 1]!
   const delta = Math.max(1, Math.round(stepFill))
-  return isLight
-    ? clampIndex(overlayIdx + delta, n)
-    : clampIndex(overlayIdx - delta, n)
+  return clampIndex(overlayIdx + delta, n)
 }
 
 /**
@@ -275,13 +273,12 @@ export function pickLightIndices(
   return out
 }
 
-/** Dark elevated: index N-1 is the dark-edge surface anchor; higher start offsets walk inward. */
+/** Dark elevated: black-first ramp; index 0 is the dark-edge surface anchor. */
 export function pickDarkIndices(startOffset: number, count: number, step: number, n: number): number[] {
   const out: number[] = []
-  const base = n - 1
   const normalizedStart = Math.max(0, Math.round(startOffset))
   for (let k = 0; k < count; k++) {
-    const idx = clampIndex(base - normalizedStart - k * step, n)
+    const idx = clampIndex(normalizedStart + k * step, n)
     out.push(idx)
   }
   return out
@@ -294,9 +291,9 @@ export function pickDarkStrokeTextIndices(
   n: number,
 ): number[] {
   const out: number[] = []
-  const base = n - 1
+  const normalizedStart = Math.max(0, Math.round(startOffset))
   for (let k = 0; k < count; k++) {
-    const idx = clampIndex(base - 3 - startOffset * step - k * step, n)
+    const idx = clampIndex(normalizedStart + k * step, n)
     out.push(idx)
   }
   return out
@@ -333,23 +330,9 @@ export function fitStandardTextCountForLightLadder(
   return 1
 }
 
-function darkTextRunDistinct(offset: number, n: number, count: number, step: number): boolean {
-  const picks = pickDarkStrokeTextIndices(offset, count, step, n)
-  return new Set(picks).size === picks.length
-}
-
-/**
- * Dark elevated: pick the **largest** start offset where text stroke picks stay distinct
- * (edge toward the light end). Snap target when stored offsets collide after ladder shrink.
- */
+/** Dark elevated: black-first ramp uses the same direct text start fitting as light. */
 export function resolveDarkTextStartOffset(n: number, count: number, step: number): number {
-  const ladderN = Math.max(2, Math.floor(n))
-  const maxStart = ladderN - 1
-  let best = 0
-  for (let start = 0; start <= maxStart; start++) {
-    if (darkTextRunDistinct(start, ladderN, count, step)) best = start
-  }
-  return best
+  return resolveLightTextStartIndex(n, count, step)
 }
 
 export function fitStandardTextCountForDarkLadder(
@@ -357,23 +340,17 @@ export function fitStandardTextCountForDarkLadder(
   step: number,
   desired: number,
 ): number {
-  const ladderN = Math.max(2, Math.floor(n))
-  const capped = clampStandardCount(desired, TEXT_STANDARD_SLOT_COUNT)
-  for (let c = capped; c >= 1; c--) {
-    for (let start = 0; start <= ladderN - 1; start++) {
-      if (darkTextRunDistinct(start, ladderN, c, step)) return c
-    }
-  }
-  return 1
+  return fitStandardTextCountForLightLadder(n, step, desired)
 }
 
 /**
- * Raw text picks walk ladder order; roles use `text.default` … `text.disabled` (dot-path); `text.on` is separate.
+ * Raw text picks walk ladder order; roles use `text.default` … `text.disabled` (dot-path);
+ * `text.inverse` is separate.
  *
  * - **Light:** stronger type = **darker** ink = **higher** global index in the pick run;
  *   `pickLightIndices` is ascending, so we reverse for semantic order.
- * - **Dark elevated:** stronger type = **brighter** = **lower** global index;
- *   `pickDarkStrokeTextIndices` is descending, so we reverse.
+ * - **Dark elevated:** black-first ramp means stronger type = **brighter** = **higher**
+ *   global index; `pickDarkStrokeTextIndices` is ascending, so we reverse.
  */
 export function orderTextIndicesForSemanticRoles(raw: number[]): number[] {
   if (raw.length <= 1) return raw
@@ -475,7 +452,7 @@ export function deriveSystemTokens(
   if (cfg.roleMappingMode === 'contrast') {
     // surface.default is the second fill slot (index 1), falling back to the first.
     const surfaceDefaultIdx = fillIndices[1] ?? fillIndices[0] ?? 0
-    const dir = isLight ? 'higher' : 'lower'
+    const dir = 'higher'
     // Targets per slot: text.default(4.5), text.subtle(3.0), text.muted(2.0), text.disabled(1.5)
     const targets = [4.5, 3.0, 2.0, 1.5]
     textOrdered = targets
@@ -576,9 +553,7 @@ export function deriveSystemTokens(
     $type: 'color',
   })
 
-  const altBase = isLight
-    ? clampIndex(Math.floor(n * 0.45), n)
-    : clampIndex(n - 4, n)
+  const altBase = clampIndex(Math.floor(n * 0.45), n)
   for (let k = 0; k < cfg.altCount; k++) {
     const arithmeticIdx = clampIndex(altBase + k, n)
     const role = altRoleForIndex(k)
@@ -663,9 +638,8 @@ export function deriveAllThemeTokens(
   base: SystemMappingConfig,
 ): {light: SystemToken[]; dark: SystemToken[]} {
   if (ramps.architecture === 'simple') {
-    const g = ramps.global
-    const light = deriveSystemTokens(g, {...base, themeMode: 'light'})
-    const dark = deriveSystemTokens(g, {...base, themeMode: 'darkElevated'})
+    const light = deriveSystemTokens(ramps.global, {...base, themeMode: 'light'})
+    const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'})
     return {light, dark}
   }
   const light = deriveSystemTokens(ramps.light, {...base, themeMode: 'light'})

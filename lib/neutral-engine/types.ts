@@ -66,9 +66,11 @@ export type GlobalSwatch = {
   serialized: SerializedColor
 }
 
+export type GlobalScaleDirection = 'light-to-dark' | 'dark-to-light'
+
 /** Engine-resolved ramps for derivation and export (immutable shape). */
 export type ArchitectureRamps =
-  | {architecture: 'simple'; global: GlobalSwatch[]}
+  | {architecture: 'simple'; global: GlobalSwatch[]; dark: GlobalSwatch[]}
   | {architecture: 'advanced'; light: GlobalSwatch[]; dark: GlobalSwatch[]}
 
 /**

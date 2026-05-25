@@ -49,7 +49,7 @@ test('arithmetic mode: surface.default × text.subtle ≥ 3.0 in light theme', (
 })
 
 test('arithmetic mode: surface.default × text.default ≥ 4.5 in dark elevated theme', () => {
-  const global = buildGlobalScale(DEFAULT_GLOBAL)
+  const global = buildGlobalScale(DEFAULT_GLOBAL, 'contrast-dark-arithmetic', 'dark-to-light')
   const tokens = deriveSystemTokens(global, {...DEFAULT_SYSTEM_MAPPING, themeMode: 'darkElevated'})
   const ratio = contrastBetween(tokens, 'surface.default', 'text.default')
   expect(ratio).not.toBeNull()
@@ -83,7 +83,7 @@ test('contrast mode: surface.default × text.subtle ≥ 3.0 in light theme', () 
 })
 
 test('contrast mode: surface.default × text.default ≥ 4.5 in dark elevated theme', () => {
-  const global = buildGlobalScale(DEFAULT_GLOBAL)
+  const global = buildGlobalScale(DEFAULT_GLOBAL, 'contrast-dark-contrast', 'dark-to-light')
   const cfg: SystemMappingConfig = {
     ...DEFAULT_SYSTEM_MAPPING,
     themeMode: 'darkElevated',

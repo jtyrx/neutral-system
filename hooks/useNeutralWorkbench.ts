@@ -296,7 +296,13 @@ export function useNeutralWorkbench(): NeutralWorkbench {
 
   const ladderGlobalN = useMemo(() => clampGlobalScaleSteps(globalScale.steps), [globalScale.steps])
   const ladderLightN = useMemo(() => clampGlobalScaleSteps(lightScale.steps), [lightScale.steps])
-  const ladderDarkN = useMemo(() => clampGlobalScaleSteps(darkScale.steps), [darkScale.steps])
+  const ladderDarkN = useMemo(
+    () =>
+      neutralArchitecture === 'simple'
+        ? ladderGlobalN
+        : clampGlobalScaleSteps(darkScale.steps),
+    [neutralArchitecture, ladderGlobalN, darkScale.steps],
+  )
 
   const ladderFormN = useMemo(
     () =>

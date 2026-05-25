@@ -8,7 +8,7 @@
 
 import type {NeutralArchitectureMode} from '@/lib/neutral-engine'
 
-/** Lightness-based model: dark strip reads light → dark L→R, same as light. */
+/** Dark ramps are black-first in the engine, so the strip naturally reads dark → light L→R. */
 export const INVERT_DARK_RAMP_STRIP = false as const
 
 export type RampPreviewLane = 'light' | 'dark'
@@ -41,7 +41,7 @@ export function rampWorkbenchSplitDarkCaption(
   arch: NeutralArchitectureMode,
 ): string {
   return isSimpleArchitecture(arch)
-    ? 'Dark elevated · global ramp (dark edge)'
+    ? 'Dark elevated · global ramp (black-first)'
     : 'Dark neutral scale (dark-0 = darkest)'
 }
 
@@ -53,7 +53,7 @@ export function rampWorkbenchSplitDarkDirection(
   arch: NeutralArchitectureMode,
 ): string {
   return isSimpleArchitecture(arch)
-    ? 'Dark strip is visually inverted to read dark → light left to right; resolved indices remain absolute.'
+    ? 'Dark virtual ramp reads dark → light (low index = darkest).'
     : 'Dark sibling ramp reads dark → light (low index = darkest); semantic picks anchor from dark-0.'
 }
 
@@ -74,11 +74,11 @@ export function rampWorkbenchFocusCaption(
   if (simple) {
     return isLight
       ? 'Light · global ramp (low index = lightest)'
-      : 'Dark elevated · global ramp (tail-anchored picks)'
+      : 'Dark elevated · global ramp (black-first)'
   }
   return isLight
     ? 'Light neutral scale (low index = lightest)'
-    : 'Dark neutral scale (tail-anchored picks)'
+    : 'Dark neutral scale (dark-0 = darkest)'
 }
 
 export function rampWorkbenchFocusDirection(
@@ -90,7 +90,7 @@ export function rampWorkbenchFocusDirection(
   if (simple) {
     return isLight
       ? 'Ramp reads light → dark (low → high index).'
-      : 'Surfaces pull from the dark tail; the strip is inverted so it reads dark → light left to right.'
+      : 'Dark virtual ramp reads dark → light (low → high index).'
   }
   return isLight
     ? 'Light sibling ramp reads light → dark (low → high index).'

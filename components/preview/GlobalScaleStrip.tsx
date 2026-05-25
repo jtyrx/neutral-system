@@ -12,7 +12,7 @@ type Props = {
   accentClassName?: string | undefined
   /**
    * When true, render swatches in reverse index order (presentation only; indices and token lookups unchanged).
-   * Used for dark-theme ramps so the visual reads dark→light alongside light-theme light→dark.
+   * Presentation-only ordering override; dark ramps are already black-first in the engine.
    */
   invertDisplay?: boolean | undefined
   /** Global index of the alpha base swatch — renders a violet “Aα” badge when set. */
@@ -157,4 +157,3 @@ export function GlobalScaleStrip({
   )
 }
 GlobalScaleStrip.displayName = 'GlobalScaleStrip'
-

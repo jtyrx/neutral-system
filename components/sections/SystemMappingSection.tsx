@@ -68,6 +68,8 @@ function NumField({
   )
 }
 
+NumField.displayName = 'NumField'
+
 function ResolvedIndices({ label, indices }: { label: string; indices: number[] }) {
   return (
     <div className="rounded-lg border border-hairline bg-raised px-12 py-8">
@@ -76,6 +78,8 @@ function ResolvedIndices({ label, indices }: { label: string; indices: number[] 
     </div>
   )
 }
+
+ResolvedIndices.displayName = 'ResolvedIndices'
 
 function SystemMappingSectionInner({
   config,
@@ -292,7 +296,7 @@ function SystemMappingSectionInner({
             <p className="eyebrow text-(--chrome-sky-text)">Dark elevated</p>
             <h3 className="mt-4 text-base font-semibold text-default">Role ladders</h3>
             <p className="mt-4 text-xs text-muted">
-              Independent controls; surfaces anchor from the dark edge of the shared ramp, while
+              Independent controls; surfaces anchor from index 0 on the black-first dark ramp, while
               border and text keep their own dark-theme start inputs and resolved global indices.
             </p>
           </div>
@@ -301,7 +305,7 @@ function SystemMappingSectionInner({
             <div className="space-y-12">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-(--chrome-sky-text)">Surface</h4>
-                <p className="mt-2 text-micro text-muted">Dark-edge anchored surface ramp</p>
+                <p className="mt-2 text-micro text-muted">Black-first surface ramp</p>
               </div>
               <div className="grid gap-12 sm:grid-cols-1">
                 <NumField
@@ -416,7 +420,7 @@ function SystemMappingSectionInner({
           <OffsetMapDiagram
             steps={nd}
             themeLabel="Dark elevated"
-            description="Bars use the same resolved global indices as darkElevated themeMode tokens (tail-anchored picks)."
+            description="Bars use the same resolved global indices as darkElevated themeMode tokens (black-first ramp)."
             surfaceIndices={darkIdx.surface}
             borderIndices={darkIdx.border}
             textIndices={darkIdx.text}
@@ -429,4 +433,7 @@ function SystemMappingSectionInner({
   )
 }
 
+SystemMappingSectionInner.displayName = 'SystemMappingSectionInner'
+
 export const SystemMappingSection = memo(SystemMappingSectionInner)
+SystemMappingSection.displayName = 'SystemMappingSection'

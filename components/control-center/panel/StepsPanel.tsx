@@ -1,5 +1,3 @@
-'use client'
-
 import {memo, useMemo} from 'react'
 
 import {useControlCenterPanelContext} from '@/components/control-center/ControlCenterPanelContext'
@@ -88,6 +86,8 @@ function RampStepsSelect({
     </Select>
   )
 }
+
+RampStepsSelect.displayName = 'RampStepsSelect'
 
 function StepsPanelInner() {
   const {
@@ -204,8 +204,8 @@ function StepsPanelInner() {
           <div className="min-w-0 flex-1">
             <p className={cardTitleClassName}>Color Scale (ramp)</p>
             <p className={stepsDescClassName}>
-              Number of tier-1 stops on each global ramp (low index is lightest
-              on the light ramp).
+              Number of tier-1 stops on each global ramp (light is white-first,
+              dark is black-first).
             </p>
           </div>
           <div
@@ -244,4 +244,7 @@ function StepsPanelInner() {
   )
 }
 
+StepsPanelInner.displayName = 'StepsPanelInner'
+
 export const StepsPanel = memo(StepsPanelInner)
+StepsPanel.displayName = 'StepsPanel'

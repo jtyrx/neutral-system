@@ -99,6 +99,10 @@ function emitTier1Block(
   })
 }
 
+function emitSimpleThemePrimitiveBlock(lines: string[], swatches: GlobalSwatch[]): void {
+  emitTier1Block(lines, swatches, 'simple')
+}
+
 /**
  * Injects tier-1 neutral primitives, per-theme `--color-*` semantics, and `--chrome-*` mixers.
  */
@@ -126,7 +130,7 @@ export function exportCssVariables(params: {
   const {architecture, ramps} = params
 
   if (ramps.architecture === 'simple') {
-    emitTier1Block(lines, ramps.global, architecture)
+    emitSimpleThemePrimitiveBlock(lines, ramps.global)
   } else {
     emitTier1Block(lines, ramps.light, architecture, 'light')
     emitTier1Block(lines, ramps.dark, architecture, 'dark')
@@ -147,29 +151,41 @@ export function exportCssVariables(params: {
     )
   })
   lines.push(':root {')
-  lines.push(...darkSemanticLines)
+  lines.push(...(ramps.architecture === 'simple' ? lightSemanticLines : darkSemanticLines))
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
 
   lines.push('[data-theme="light"] {')
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.global)
+  }
   lines.push(...lightSemanticLines)
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-theme="dark"] {')
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.dark)
+  }
   lines.push(...darkSemanticLines)
   lines.push(...alphaBlock)
   lines.push(...linesLiveThemeChromeBlock())
   lines.push('}')
   lines.push('')
   lines.push('[data-preview-theme="light"] {')
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.global)
+  }
   lines.push(...lightSemanticLines)
   lines.push('}')
   lines.push('')
   lines.push('[data-preview-theme="dark"] {')
+  if (ramps.architecture === 'simple') {
+    emitSimpleThemePrimitiveBlock(lines, ramps.dark)
+  }
   lines.push(...darkSemanticLines)
   lines.push('}')
   return lines.join('\n')
@@ -177,13 +193,16 @@ export function exportCssVariables(params: {
 
 export function exportCsv(ramps: ArchitectureRamps): string {
   if (ramps.architecture === 'simple') {
-    const header = ['index', 'label', 'oklch', 'hex', 'rgb']
-    const rows = ramps.global.map((s) =>
-      [String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(
+    const header = ['scale', 'index', 'label', 'oklch', 'hex', 'rgb']
+    const lightRows = ramps.global.map((s) =>
+      ['light', String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(
         ',',
       ),
     )
-    return [header.join(','), ...rows].join('\n')
+    const darkRows = ramps.dark.map((s) =>
+      ['dark', String(s.index), s.label, s.serialized.oklchCss, s.serialized.hex, s.serialized.rgbCss].join(','),
+    )
+    return [header.join(','), ...lightRows, ...darkRows].join('\n')
   }
 
   const header = ['scale', 'index', 'label', 'oklch', 'hex', 'rgb']
@@ -232,6 +251,11 @@ export function exportTailwindV4ThemeInline(params: {
   lines.push(
     '/* Dark: duplicate variable names under [data-theme="dark"] from the CSS export, or use class-based dark variant. */',
   )
+  if (ramps.architecture === 'simple') {
+    lines.push('[data-theme="dark"] {')
+    emitSimpleThemePrimitiveBlock(lines, ramps.dark)
+    lines.push('}')
+  }
   return lines.join('\n')
 }
 

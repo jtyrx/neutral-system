@@ -13,7 +13,7 @@ import {
 } from '@/components/preview/primitiveTokenTable'
 import {type PairSection, SemanticSingleThemeGrid} from '@/components/preview/SemanticPairGrid'
 import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
-import type {GlobalSwatch} from '@/lib/neutral-engine'
+import type {GlobalSwatch, NeutralArchitectureMode} from '@/lib/neutral-engine'
 import type {SystemToken, TokenView} from '@/lib/neutral-engine'
 import {
   tokensForInversePairCategory,
@@ -23,6 +23,7 @@ import {
 } from '@/lib/neutral-engine/tokenViews'
 
 type Props = {
+  neutralArchitecture: NeutralArchitectureMode
   globalLight: GlobalSwatch[]
   globalDark: GlobalSwatch[]
   lightTokenView: TokenView
@@ -61,7 +62,7 @@ function RoleTokenTable({
   tokens: SystemToken[]
   global: GlobalSwatch[]
   onSelect: (id: string) => void
-  tier1ExportMode?: Tier1NeutralExportMode
+  tier1ExportMode?: Tier1NeutralExportMode | undefined
 }) {
   const sorted = useMemo(() => {
     return sortSystemTokensByPrimitiveLadder(tokens, global)
@@ -154,7 +155,7 @@ function ThemeTokenColumn({
   global: GlobalSwatch[]
   onSelectSystem: (id: string) => void
   variant: 'light' | 'dark'
-  tier1ExportMode: Tier1NeutralExportMode
+  tier1ExportMode?: Tier1NeutralExportMode | undefined
 }) {
   const [showTable, setShowTable] = useState(true)
   const toggle = useCallback(() => setShowTable((v) => !v), [])
@@ -247,7 +248,12 @@ function ThemeTokenColumn({
 
 ThemeTokenColumn.displayName = 'ThemeTokenColumn'
 
-function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
+function ThemePanelsSectionInner({neutralArchitecture, globalLight, globalDark, lightTokenView, darkTokenView, onSelectSystem}: Props) {
+  const darkTier1ExportMode =
+    neutralArchitecture === 'advanced'
+      ? ({architecture: 'advanced', scale: 'dark'} as const)
+      : undefined
+
   return (
     <section id="themes" className="scroll-mt-24 space-y-24">
       <header>
@@ -273,12 +279,12 @@ function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkT
         <ThemeTokenColumn
           eyebrow="Dark elevated"
           title="Primitive tokens"
-          hint="Tier‑1 --color-neutral-dark-* mapping from the dark tail (themeMode: darkElevated). Low index = lightest."
+          hint="Tier‑1 --color-neutral-dark-* mapping from the black-first dark ramp (themeMode: darkElevated). Low index = darkest."
           tokenView={darkTokenView}
           global={globalDark}
           onSelectSystem={onSelectSystem}
           variant="dark"
-          tier1ExportMode={{architecture: 'advanced', scale: 'dark'}}
+          tier1ExportMode={darkTier1ExportMode}
         />
       </div>
     </section>

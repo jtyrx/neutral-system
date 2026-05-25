@@ -72,11 +72,11 @@ Two routes:
 
 | File | Key constraint |
 |---|---|
-| `globalScale.ts` | `buildGlobalScale`; index `0` = lightest, last = darkest; steps clamp `[8, 48]` |
+| `globalScale.ts` | `buildGlobalScale`; light ramps use index `0` = lightest; dark ramps use index `0` = darkest via `dark-to-light`; steps clamp `[8, 48]` |
 | `systemMap.ts` | `deriveSystemTokens`; always run `clampSystemMappingToLadderLength` before deriving; `darkFillStart` may be `-1` |
 | `effectiveMapping.ts` | Apply contrast emphasis **before** token derivation |
 | `semanticNaming.ts` | Role ids are dot paths internally: `surface.default`, `text.on`, `border.focus` |
-| `exportFormats.ts` | Light tier-1 → `--color-neutral-*`; dark advanced tier-1 → `--color-neutral-dark-<label>` where low label = lightest (same ordering as light) |
+| `exportFormats.ts` | Light tier-1 → `--color-neutral-*`; dark advanced tier-1 → `--color-neutral-dark-<label>` where low label = darkest; simple dark scopes override `--color-neutral-*` |
 | `okhsl.ts` | **OKHSL is a view over canonical OKLCH config — not parallel state** |
 | `gamutProbing.ts` | Probes display-P3 / sRGB gamut boundaries |
 | `pickerConfig.ts` | Derives picker config from workbench state |
@@ -121,7 +121,7 @@ import { Button } from '@/components/ui'
 
 ## Token Rules
 
-- Scale indices are lightness-based: 0 = lightest, n-1 = darkest, identical in both modes. Use `primitiveNeutralExportName(global, idx, tier1ExportMode?)` for tier-1 CSS names.
+- Scale indices are theme-directed: light ramps are white-first (`0` = lightest), dark ramps are black-first (`0` = darkest). Use `primitiveNeutralExportName(global, idx, tier1ExportMode?)` for tier-1 CSS names.
 - `--chrome-*` mixers from `chromeAliases.ts`. Legacy `--ns-*` tokens stay as thin aliases only.
 - Role ids are dot paths internally; exports hyphenate via `semanticColorVarName`.
 - For color math, reparse at leaf call sites using helpers from `lib/neutral-engine/serialize.ts`.

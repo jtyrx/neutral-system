@@ -94,7 +94,7 @@ type BuilderControlsContent = {
   export: ControlGroupContent
 }
 
-const BUILDER_CONTROLS_CONTENT = {
+const builderControlsContent = {
   scale: {
     id: 'neutral-workbench-controls-scale',
     icon: Blend,
@@ -196,6 +196,7 @@ const ExportSection = dynamic(
     })),
   {ssr: false, loading: () => null},
 )
+ExportSection.displayName = 'ExportSection'
 
 type Props = {
   wb: NeutralWorkbench
@@ -210,7 +211,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
     () => sandboxWorkbenchAdapter(sandboxPicker),
     [sandboxPicker],
   )
-  const content = BUILDER_CONTROLS_CONTENT
+  const content = builderControlsContent
   const architectureMode: ArchitectureMode = simpleArch
     ? 'simple'
     : 'advanced'
@@ -493,6 +494,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
           {content.inspect.description}
         </div>
         <ThemePanelsSection
+          neutralArchitecture={wb.neutralArchitecture}
           globalLight={wb.lightRamp}
           globalDark={wb.darkRamp}
           lightTokenView={wb.lightTokenView}
@@ -523,4 +525,7 @@ function BuilderControlsSectionsInner({wb, selectedGlobalIndex}: Props) {
   )
 }
 
+BuilderControlsSectionsInner.displayName = 'BuilderControlsSectionsInner'
+
 export const BuilderControlsSections = memo(BuilderControlsSectionsInner)
+BuilderControlsSections.displayName = 'BuilderControlsSections'

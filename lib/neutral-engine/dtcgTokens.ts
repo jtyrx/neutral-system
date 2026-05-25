@@ -177,8 +177,12 @@ function primitiveToken(
 function semanticToken(token: SystemToken, architecture: NeutralArchitectureMode, ramps: ArchitectureRamps): DtcgColorToken {
   const ramp = rampForTheme(ramps, token.theme)
   const source = ramp[token.sourceGlobalIndex]
-  const canAliasPrimitive = source && !token.customColor && (token.alpha == null || token.alpha >= 1)
-  const sourceReference = source
+  const canAliasPrimitive =
+    source &&
+    !token.customColor &&
+    (token.alpha == null || token.alpha >= 1) &&
+    !(architecture === 'simple' && token.theme !== 'light')
+  const sourceReference = canAliasPrimitive
     ? primitiveAlias(source.label, architecture, token.theme)
     : undefined
   const value = canAliasPrimitive
@@ -236,7 +240,8 @@ export function buildDtcgTokenTree(params: {
 
   if (params.architecture === 'simple') {
     const g = params.global ?? []
-    ramps = {architecture: 'simple', global: g}
+    const d = params.darkRamp ?? g
+    ramps = {architecture: 'simple', global: g, dark: d}
     g.forEach((swatch) => {
       insertToken(tree, ['color', 'neutral', swatch.label], primitiveToken(swatch, 'simple', 'global'))
     })

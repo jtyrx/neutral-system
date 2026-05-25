@@ -1,5 +1,3 @@
-'use client'
-
 import {NeutralScaleReferenceTable} from '@/components/preview/NeutralScaleReferenceTable'
 import {NeutralScaleUsageTable} from '@/components/preview/NeutralScaleUsageTable'
 import {SemanticPairGrid} from '@/components/preview/SemanticPairGrid'
@@ -11,7 +9,6 @@ import {usePanelState} from '@/components/preview/pairedRoles/PairedRolesPanelCo
 export function PairedRolesPanelViewRouter() {
   const {
     variant,
-    advanced,
     inspectionView,
     displayMode,
     neutralCtx,
@@ -26,7 +23,6 @@ export function PairedRolesPanelViewRouter() {
     focusTokenView,
     usedLightIndices,
     usedDarkIndices,
-    usedCombinedIndices,
     tier1LightExport,
     tier1DarkExport,
     groupHints,
@@ -45,7 +41,7 @@ export function PairedRolesPanelViewRouter() {
       ) : null}
 
       {inspectionView === 'paired' && variant === 'split' && displayMode === 'usedPrimitives' ? (
-        advanced ? (
+        neutralCtx === 'both' ? (
           <div className="space-y-24">
             <div className="space-y-8">
               <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-amber-text)">
@@ -72,9 +68,10 @@ export function PairedRolesPanelViewRouter() {
           </div>
         ) : (
           <UsedNeutralPrimitivesTable
-            global={globalLight}
-            usedIndices={usedCombinedIndices}
-            label="Used neutral primitive tokens (light and dark mapping)"
+            global={neutralCtx === 'dark' ? globalDark : globalLight}
+            usedIndices={neutralCtx === 'dark' ? usedDarkIndices : usedLightIndices}
+            label={`Used neutral primitive tokens — ${neutralCtx === 'dark' ? 'Dark elevated' : 'Light'} mapping`}
+            tier1ExportMode={neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport}
           />
         )
       ) : null}
@@ -144,7 +141,7 @@ export function PairedRolesPanelViewRouter() {
         </div>
       ) : null}
 
-      {inspectionView === 'neutral' && advanced && neutralCtx === 'both' ? (
+      {inspectionView === 'neutral' && neutralCtx === 'both' ? (
         <div className="space-y-32">
           <div className="space-y-8">
             <p className="text-micro font-medium uppercase tracking-wide text-(--chrome-amber-text)">
@@ -185,24 +182,20 @@ export function PairedRolesPanelViewRouter() {
         </div>
       ) : null}
 
-      {inspectionView === 'neutral' && !(advanced && neutralCtx === 'both') ? (
+      {inspectionView === 'neutral' && neutralCtx !== 'both' ? (
         <>
           <NeutralScaleReferenceTable
-            global={advanced && neutralCtx === 'dark' ? globalDark : globalLight}
-            tier1ExportMode={
-              !advanced ? {architecture: 'simple'} : neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport
-            }
+            global={neutralCtx === 'dark' ? globalDark : globalLight}
+            tier1ExportMode={neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport}
             themeContext={neutralCtx}
             embedded
           />
           <NeutralScaleUsageTable
-            global={advanced && neutralCtx === 'dark' ? globalDark : globalLight}
+            global={neutralCtx === 'dark' ? globalDark : globalLight}
             usedIndices={
-              neutralCtx === 'both' ? usedCombinedIndices : neutralCtx === 'dark' ? usedDarkIndices : usedLightIndices
+              neutralCtx === 'dark' ? usedDarkIndices : usedLightIndices
             }
-            tier1ExportMode={
-              !advanced ? {architecture: 'simple'} : neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport
-            }
+            tier1ExportMode={neutralCtx === 'dark' ? tier1DarkExport : tier1LightExport}
             themeContext={neutralCtx}
             embedded
           />

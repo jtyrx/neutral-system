@@ -85,6 +85,8 @@ function ExportSectionInner({
           darkRamp:
             architecture === 'advanced' && architectureRamps.architecture === 'advanced'
               ? architectureRamps.dark
+              : architecture === 'simple' && architectureRamps.architecture === 'simple'
+                ? architectureRamps.dark
               : undefined,
           light: exportLightJson,
           dark: exportDarkJson,
@@ -258,4 +260,7 @@ function ExportSectionInner({
   )
 }
 
+ExportSectionInner.displayName = 'ExportSectionInner'
+
 export const ExportSection = memo(ExportSectionInner)
+ExportSection.displayName = 'ExportSection'

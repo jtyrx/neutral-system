@@ -41,9 +41,9 @@ type Props = {
 const GROUP_HINTS: PairedRoleGroupHints = {
   surface:
     'Elevation ladder: sunken → overlay on the ramp; surface.inverse is a dedicated high-contrast flip (grouped separately).',
-  text: 'Readable hierarchy: default (primary) down to disabled; text.on is for bold / inverse surfaces.',
+  text: 'Readable hierarchy: default (primary) down to disabled; text.inverse is for bold / inverse surfaces.',
   inversePair:
-    'Contrast-flip pair: surface.inverse and text.on — ramp mirrors, not normal ladder rungs.',
+    'Contrast-flip pair: surface.inverse, text.inverse, border.inverse — ramp mirrors, not normal ladder rungs.',
 }
 
 export function PreviewComparison({

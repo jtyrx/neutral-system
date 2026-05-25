@@ -26,6 +26,7 @@ const ROLE_SCOPE_DESC: Record<RoleScope, string> = {
   border: 'Stroke, divider, and outline tokens.',
   text: 'Foreground content and icon color tokens.',
   inverse: 'Tokens for reversed-contrast surfaces.',
+  brand: 'Brand surface, text, and border tokens (custom brandOklch color).',
   interactive: 'State layers, overlays, and focus indicators.',
 }
 

@@ -19,12 +19,14 @@ export function tokenCssVarName(name: string): string {
 }
 
 /**
- * Custom brand is a preview-only semantic: it drives live chrome (`--color-surface-brand`) but is
- * intentionally omitted from downloadable export payloads so the distributed system remains
- * ramp-derived. Use this predicate to filter tokens before serializing to JSON/CSS/Tailwind.
+ * Custom brand tokens are preview-only semantics: they drive live chrome (`--color-surface-brand`,
+ * `--color-text-brand`, `--color-border-brand`) but are intentionally omitted from downloadable
+ * export payloads so the distributed system remains ramp-derived. All three brand-pair roles
+ * (`surface.brand`, `text.brand`, `border.brand`) carry `customColor: true` when `brandOklch` parses.
+ * Use this predicate to filter tokens before serializing to JSON/CSS/Tailwind.
  */
 export function isPreviewOnlyBrandToken(t: SystemToken): boolean {
-  return t.role === 'surface.brand' && t.customColor === true
+  return (t.role === 'surface.brand' || t.role === 'text.brand' || t.role === 'border.brand') && t.customColor === true
 }
 
 /** Optional `emphasis.*` ladder — omitted from downloadable token JSON only (see ExportSection). */

@@ -11,8 +11,6 @@ import type {KnownSystemRole, SystemRole} from '@/lib/neutral-engine/types'
 /** Intents that can diverge from raw `KnownSystemRole` names (policy aliases). */
 export type SemanticIntent =
   | KnownSystemRole
-  | 'border.brand'
-  | 'border.inverse'
   | 'border.onOverlay'
   | 'border.onScrim'
   | 'text.onBrand'
@@ -21,8 +19,12 @@ export type SemanticIntent =
 
 /**
  * Resolves a named intent to the engine role used for tier-2 `--color-*` vars.
- * `border.brand` / `text.onBrand` intentionally map to strong / on — document
- * in product language, not as separate ramp slots.
+ *
+ * Brand pair (`surface.brand`, `text.brand`, `border.brand`) and inverse pair
+ * (`surface.inverse`, `text.inverse`, `border.inverse`) are first-class roles — each
+ * emits its own CSS variable. Brand tokens use `brandOklch` (customColor) rather than
+ * neutral ramp picks; border.inverse shares the surface.inverse ramp index.
+ * `text.onBrand` remains as a product-language alias for `text.brand`.
  */
 export const SEMANTIC_INTENT_TO_ROLE: Record<SemanticIntent, SystemRole> = {
   'surface.sunken': 'surface.sunken',
@@ -36,16 +38,17 @@ export const SEMANTIC_INTENT_TO_ROLE: Record<SemanticIntent, SystemRole> = {
   'border.subtle': 'border.subtle',
   'border.strong': 'border.strong',
   'border.focus': 'border.focus',
-  'border.brand': 'border.strong',
-  'border.inverse': 'border.focus',
+  'border.brand': 'border.brand',
+  'border.inverse': 'border.inverse',
   'border.onScrim': 'border.subtle',
   'border.onOverlay': 'border.default',
   'text.default': 'text.default',
   'text.subtle': 'text.subtle',
   'text.muted': 'text.muted',
   'text.disabled': 'text.disabled',
-  'text.on': 'text.on',
-  'text.onBrand': 'text.on',
+  'text.inverse': 'text.inverse',
+  'text.brand': 'text.brand',
+  'text.onBrand': 'text.brand',
   'text.onScrim': 'text.default',
   'text.onOverlayScrim': 'text.default',
   'overlay.scrim': 'overlay.scrim',

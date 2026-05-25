@@ -12,7 +12,7 @@ import type {TokenView} from '@/lib/neutral-engine/tokenViews'
 
 export type PairedRolesPanelVariant = 'split' | 'focus'
 
-export type RoleScope = 'all' | 'surface' | 'border' | 'text' | 'interactive' | 'inverse'
+export type RoleScope = 'all' | 'surface' | 'border' | 'text' | 'interactive' | 'inverse' | 'brand'
 
 export type InspectionView = 'paired' | 'neutral'
 
@@ -83,6 +83,7 @@ export const PANEL_CONFIG = {
     {value: 'border', label: 'Border'},
     {value: 'text', label: 'Content'},
     {value: 'inverse', label: 'Inverse'},
+    {value: 'brand', label: 'Brand'},
     {value: 'interactive', label: 'State & overlay', shortLabel: 'State'},
   ],
   displayOptions: [

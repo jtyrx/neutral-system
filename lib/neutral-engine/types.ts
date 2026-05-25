@@ -91,7 +91,10 @@ export type KnownSystemRole =
   | 'text.subtle'
   | 'text.muted'
   | 'text.disabled'
-  | 'text.on'
+  | 'text.inverse'
+  | 'text.brand'
+  | 'border.inverse'
+  | 'border.brand'
   | 'overlay.scrim'
   | 'state.hover'
 
@@ -159,8 +162,8 @@ export type SystemMappingConfig = {
    */
   roleMappingMode?: 'arithmetic' | 'contrast'
   /**
-   * Custom OKLCH for `surface.brand` (user-editable). Invalid strings fall back to ramp-derived brand
-   * in the engine while keeping this field as typed by the user.
+   * Custom OKLCH for brand-pair tokens (`surface.brand`, `text.brand`, `border.brand`).
+   * Invalid strings fall back to ramp-derived values while keeping this field as typed by the user.
    */
   brandOklch: string
   /**
@@ -181,7 +184,7 @@ export type SystemToken = {
   alpha?: number
   /**
    * When true, exports use `serialized.oklchCss` directly (not `var(--color-neutral-*)` from the ramp).
-   * Used for `surface.brand` when `brandOklch` parses successfully.
+   * Set on all brand-pair tokens (`surface.brand`, `text.brand`, `border.brand`) when `brandOklch` parses.
    */
   customColor?: boolean
   /** DTCG token type — always 'color' for system tokens */

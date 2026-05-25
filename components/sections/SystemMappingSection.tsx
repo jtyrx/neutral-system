@@ -169,7 +169,7 @@ function SystemMappingSectionInner({
 
       <div
         id="light-theme-role-ladders"
-        className="grid gap-16 nsb-lg:grid-cols-2 nsb-lg:gap-24"
+        className="grid gap-16 nsb-lg:grid-cols-1 nsb-lg:gap-24"
       >
         <div className="rounded-2xl border border-(--chrome-amber-border) bg-(--chrome-amber-surface) p-16 sm:p-20 flex flex-col justify-between">
           <div className="border-b border-(--chrome-amber-border-soft) pb-12">
@@ -272,7 +272,7 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text shade count"
-                  hint="Standard ladder (default → disabled). text.on is mirrored from default, not counted."
+                  hint="Standard ladder (default → disabled). text.inverse is mirrored from default, not counted."
                   min={1}
                   max={4}
                   value={config.textCount}
@@ -389,7 +389,7 @@ function SystemMappingSectionInner({
                 />
                 <NumField
                   label="Text shade count"
-                  hint="Standard ladder (default → disabled). text.on is mirrored from default, not counted."
+                  hint="Standard ladder (default → disabled). text.inverse is mirrored from default, not counted."
                   min={1}
                   max={4}
                   value={config.darkTextCount}

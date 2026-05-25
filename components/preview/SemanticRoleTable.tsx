@@ -6,17 +6,18 @@ import {
 } from '@/components/preview/primitiveTokenTable'
 import type {Tier1NeutralExportMode} from '@/lib/neutral-engine/chromeAliases'
 import type {GlobalSwatch, TokenView} from '@/lib/neutral-engine'
-import {isInversePairRole, isOverflowRole} from '@/lib/neutral-engine/semanticNaming'
+import {isBrandPairRole, isInversePairRole, isOverflowRole} from '@/lib/neutral-engine/semanticNaming'
 
 /** Filter paired-role tables by semantic layer (dot-path roles). */
-export type SemanticLayerFilter = 'all' | 'surface' | 'border' | 'text' | 'interactive' | 'inverse'
+export type SemanticLayerFilter = 'all' | 'surface' | 'border' | 'text' | 'interactive' | 'inverse' | 'brand'
 
 function roleMatchesLayerFilter(role: string, filter: SemanticLayerFilter): boolean {
   if (filter === 'all') return true
   if (filter === 'inverse') return isInversePairRole(role)
-  if (filter === 'surface') return role.startsWith('surface.') && !isInversePairRole(role)
-  if (filter === 'border') return role.startsWith('border.')
-  if (filter === 'text') return role.startsWith('text.') && !isInversePairRole(role)
+  if (filter === 'brand') return isBrandPairRole(role)
+  if (filter === 'surface') return role.startsWith('surface.') && !isInversePairRole(role) && !isBrandPairRole(role)
+  if (filter === 'border') return role.startsWith('border.') && !isBrandPairRole(role)
+  if (filter === 'text') return role.startsWith('text.') && !isInversePairRole(role) && !isBrandPairRole(role)
   if (filter === 'interactive') {
     return role.startsWith('state.') || role.startsWith('overlay.')
   }
@@ -88,7 +89,7 @@ SemanticRoleTableRow.displayName = 'SemanticRoleTableRow'
  */
 export function SemanticRoleTable({tokenView, global, label, layerFilter = 'all', tier1ExportMode, className}: Props) {
   const base = tokenView.sortedForTable.filter(
-    (t) => !isOverflowRole(t.role) && !(t.role === 'surface.brand' && t.customColor),
+    (t) => !isOverflowRole(t.role) && !(isBrandPairRole(t.role) && t.customColor),
   )
   const filtered =
     layerFilter === 'all' ? base : base.filter((t) => roleMatchesLayerFilter(t.role, layerFilter))

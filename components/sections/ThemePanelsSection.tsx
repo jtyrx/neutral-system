@@ -37,18 +37,19 @@ const themeTableGroups: {section: PairSection; hint: string}[] = [
   },
   {section: {kind: 'layer', layer: 'border'}, hint: 'default · subtle · strong · focus'},
   {section: {kind: 'layer', layer: 'text'}, hint: 'default · subtle · muted · disabled'},
-  {section: {kind: 'inverse'}, hint: 'surface.inverse · text.on (contrast flip)'},
+  {section: {kind: 'inverse'}, hint: 'surface.inverse · text.inverse · border.inverse (contrast flip)'},
   {section: {kind: 'layer', layer: 'interactive'}, hint: 'state.hover · overlay.scrim'},
 ]
 
 function tokensForThemeTableBlock(view: TokenView, section: PairSection): SystemToken[] {
   if (section.kind === 'inverse') return tokensForInversePairCategory(view)
+  // Brand tokens are inspected from the Custom Brand section, not here.
+  if (section.kind === 'brand') return []
   const base =
     section.layer === 'surface' || section.layer === 'text'
       ? tokensForSemanticLayerPublicNonInverse(view, section.layer)
       : tokensForSemanticLayerPublic(view, section.layer)
-  // Brand is inspected from the Custom Brand section, not as a neutral primitive row.
-  return base.filter((t) => !(t.role === 'surface.brand' && t.customColor))
+  return base
 }
 
 function RoleTokenTable({
@@ -190,8 +191,9 @@ function ThemeTokenColumn({
             {themeTableGroups.map(({section, hint: groupHint}) => {
               const groupTokens = tokensForThemeTableBlock(tokenView, section)
               if (groupTokens.length === 0) return null
-              const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
-              const k = section.kind === 'inverse' ? 'inverse' : section.layer
+              const titleKey =
+                section.kind === 'inverse' ? 'inversePair' : section.kind === 'brand' ? 'brandPair' : section.layer
+              const k = section.kind === 'inverse' ? 'inverse' : section.kind === 'brand' ? 'brand' : section.layer
               return (
                 <div key={k} className="space-y-8">
                   <h4 className={cn('text-xs font-semibold uppercase tracking-wide', themeColumnHeadingVariants({tone}))}>
@@ -257,7 +259,7 @@ function ThemePanelsSectionInner({globalLight, globalDark, lightTokenView, darkT
         </p>
       </header>
 
-      <div className="grid gap-16 nsb-lg:grid-cols-2 nsb-lg:gap-16">
+      <div className="grid gap-16 nsb-lg:grid-cols-1 nsb-lg:gap-16">
         <ThemeTokenColumn
           eyebrow="Light theme"
           title="Primitive tokens"

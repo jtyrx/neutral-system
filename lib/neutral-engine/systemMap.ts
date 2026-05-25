@@ -129,7 +129,7 @@ function clampIndex(i: number, n: number): number {
 
 /**
  * Full ladder opposite of `globalIndex` (theme-flip counterpart): light end ↔ dark end.
- * Used for `surface.inverse` vs `surface.sunken` and `text.on` vs `text.default`.
+ * Used for `surface.inverse` vs `surface.sunken` and `text.inverse` vs `text.default`.
  */
 export function mirrorRampIndex(globalIndex: number, n: number): number {
   return clampIndex(n - 1 - globalIndex, n)
@@ -162,7 +162,7 @@ export function resolveSurfaceInverseIndex(standardSurfaceIndices: number[], n: 
   return mirrorRampIndex(standardSurfaceIndices[0]!, n)
 }
 
-/** `text.on`: theme-flip of `text.default` (first slot after semantic ordering). */
+/** `text.inverse`: theme-flip of `text.default` (first slot after semantic ordering). */
 export function resolveTextInverseIndex(orderedTextIndices: number[], n: number): number {
   if (orderedTextIndices.length === 0) return clampIndex(0, n)
   return mirrorRampIndex(orderedTextIndices[0]!, n)
@@ -484,7 +484,7 @@ export function deriveSystemTokens(
   }
 
   const surfaceInverseIdx = resolveSurfaceInverseIndex(fillIndices, n)
-  const textOnIdx = resolveTextInverseIndex(textOrdered, n)
+  const textInverseIdx = resolveTextInverseIndex(textOrdered, n)
   const borderFocusIdx = resolveBorderFocusIndex(fillIndices, n)
 
   fillIndices.forEach((idx, k) => {
@@ -538,17 +538,43 @@ export function deriveSystemTokens(
     const finalIdx = applyRoleStepOverride(idx, role, theme, n, cfg)
     tokens.push(makeToken(role, role, role, theme, finalIdx, global[finalIdx]!))
   })
-  const textOnFinal = applyRoleStepOverride(textOnIdx, 'text.on', theme, n, cfg)
+  const textInverseFinal = applyRoleStepOverride(textInverseIdx, 'text.inverse', theme, n, cfg)
   tokens.push(
     makeToken(
-      'text.on',
-      'text.on',
-      'text.on',
+      'text.inverse',
+      'text.inverse',
+      'text.inverse',
       theme,
-      textOnFinal,
-      global[textOnFinal]!,
+      textInverseFinal,
+      global[textInverseFinal]!,
     ),
   )
+  tokens.push(
+    makeToken('border.inverse', 'border.inverse', 'border.inverse', theme, surfaceInverseFinal, global[surfaceInverseFinal]!),
+  )
+  const textBrandResolved = resolveBrandColorForTokens(cfg.brandOklch, global[textInverseFinal]!)
+  tokens.push({
+    id: 'text.brand',
+    name: 'text.brand',
+    role: 'text.brand',
+    theme,
+    sourceGlobalIndex: textInverseFinal,
+    serialized: textBrandResolved.serialized,
+    ...(textBrandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
+  })
+  const borderStrongIdx = strokeIndices[strokeIndices.length - 1] ?? 0
+  const borderBrandResolved = resolveBrandColorForTokens(cfg.brandOklch, global[borderStrongIdx]!)
+  tokens.push({
+    id: 'border.brand',
+    name: 'border.brand',
+    role: 'border.brand',
+    theme,
+    sourceGlobalIndex: borderStrongIdx,
+    serialized: borderBrandResolved.serialized,
+    ...(borderBrandResolved.customColor ? {customColor: true as const} : {}),
+    $type: 'color',
+  })
 
   const altBase = isLight
     ? clampIndex(Math.floor(n * 0.45), n)

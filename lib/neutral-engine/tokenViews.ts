@@ -1,4 +1,4 @@
-import {compareSemanticRoles, isInversePairRole, isOverflowRole} from '@/lib/neutral-engine/semanticNaming'
+import {compareSemanticRoles, isBrandPairRole, isInversePairRole, isOverflowRole} from '@/lib/neutral-engine/semanticNaming'
 import type {SystemRole, SystemToken} from '@/lib/neutral-engine/types'
 
 /**
@@ -15,10 +15,12 @@ export type TokenView = {
   byLayer: Record<SemanticLayer, SystemToken[]>
   /** Same as {@link byLayer} but excludes overflow `*.layer-*` roles. */
   byLayerPublic: Record<SemanticLayer, SystemToken[]>
-  /** Public surface/text layers without inverse flip roles (use with inverse-pair category). */
+  /** Public surface/text layers without inverse-pair or brand-pair roles (use alongside those categories). */
   byLayerPublicNonInverse: Record<'surface' | 'text', SystemToken[]>
-  /** Inverse surface + text-on-inverse for paired-role “Inverse” category. */
+  /** Inverse surface + border/text-on-inverse for paired-role “Inverse” category. */
   inversePairCategory: SystemToken[]
+  /** Brand surface + border/text-on-brand for paired-role “Brand” category. */
+  brandPairCategory: SystemToken[]
 }
 
 export function buildTokenView(tokens: SystemToken[]): TokenView {
@@ -73,8 +75,8 @@ export function buildTokenView(tokens: SystemToken[]): TokenView {
   }
 
   const byLayerPublicNonInverse: Record<'surface' | 'text', SystemToken[]> = {
-    surface: byLayerPublic.surface.filter((t) => !isInversePairRole(t.role)),
-    text: byLayerPublic.text.filter((t) => !isInversePairRole(t.role)),
+    surface: byLayerPublic.surface.filter((t) => !isInversePairRole(t.role) && !isBrandPairRole(t.role)),
+    text: byLayerPublic.text.filter((t) => !isInversePairRole(t.role) && !isBrandPairRole(t.role)),
   }
 
   const inversePairCategory: SystemToken[] = []
@@ -84,6 +86,13 @@ export function buildTokenView(tokens: SystemToken[]): TokenView {
   }
   inversePairCategory.sort(sortRole)
 
+  const brandPairCategory: SystemToken[] = []
+  for (const role of BRAND_PAIR_ROLES) {
+    const list = byRole.get(role)
+    if (list) brandPairCategory.push(...list.filter((t) => !isOverflowRole(t.role)))
+  }
+  brandPairCategory.sort(sortRole)
+
   const view: TokenView = {
     byRole,
     byGlobalIndex,
@@ -92,6 +101,7 @@ export function buildTokenView(tokens: SystemToken[]): TokenView {
     byLayerPublic,
     byLayerPublicNonInverse,
     inversePairCategory,
+    brandPairCategory,
   }
   return view
 }
@@ -118,13 +128,25 @@ export function tokensForSemanticLayerPublicNonInverse(view: TokenView, layer: S
   return tokensForSemanticLayerPublic(view, layer)
 }
 
-const INVERSE_PAIR_ROLES = ['surface.inverse', 'text.on'] as const satisfies readonly SystemRole[]
+const INVERSE_PAIR_ROLES = ['surface.inverse', 'text.inverse', 'border.inverse'] as const satisfies readonly SystemRole[]
+const BRAND_PAIR_ROLES = ['surface.brand', 'text.brand', 'border.brand'] as const satisfies readonly SystemRole[]
 
-/** Inverse surface + text-on-inverse for paired-role “Inverse” category. */
+/** Inverse surface + border/text-on-inverse for paired-role “Inverse” category. */
 export function tokensForInversePairCategory(view: TokenView): SystemToken[] {
   if (view.inversePairCategory) return view.inversePairCategory
   const out: SystemToken[] = []
   for (const role of INVERSE_PAIR_ROLES) {
+    const list = view.byRole.get(role)
+    if (list) out.push(...list.filter((t) => !isOverflowRole(t.role)))
+  }
+  return out.sort((a, b) => compareSemanticRoles(a.role, b.role) || a.name.localeCompare(b.name))
+}
+
+/** Brand surface + border/text-on-brand for paired-role “Brand” category. */
+export function tokensForBrandPairCategory(view: TokenView): SystemToken[] {
+  if (view.brandPairCategory) return view.brandPairCategory
+  const out: SystemToken[] = []
+  for (const role of BRAND_PAIR_ROLES) {
     const list = view.byRole.get(role)
     if (list) out.push(...list.filter((t) => !isOverflowRole(t.role)))
   }

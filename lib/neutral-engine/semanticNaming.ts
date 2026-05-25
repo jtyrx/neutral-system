@@ -5,9 +5,10 @@
  * **Lexicon (intent):**
  * - **Surface** `surface.*` — elevation: `sunken` (well) → `default` (page) → `subtle` → `raised` → `overlay`;
  *   `brand` (accent plane); `inverse` (high-contrast ramp flip vs `sunken`).
- * - **Text** `text.*` — hierarchy: `default` → `subtle` → `muted` → `disabled`; `on` for copy on inverse/brand.
+ * - **Text** `text.*` — hierarchy: `default` → `subtle` → `muted` → `disabled`; `inverse` for copy on inverse surfaces; `brand` for copy on brand surfaces (uses `brandOklch`).
  * - **Border** `border.*` — stroke ladder `default` / `subtle` / `strong` (mapping order is engine-defined);
- *   `focus` is max-contrast vs page base, not a stroke rung.
+ *   `focus` is max-contrast vs page base, not a stroke rung; `inverse` shares the surface.inverse ramp index;
+ *   `brand` uses `brandOklch` (not a neutral ramp pick).
  * - **Interactive** — `overlay.scrim`, `state.hover` (alt pool); `emphasis.*` optional widen contrast (see exports).
  *
  * **Config names:** `SystemMappingConfig` still uses legacy `fill*` / `stroke*` for surface / border ladder
@@ -47,15 +48,15 @@ export const SURFACE_SLOTS = [...SURFACE_STANDARD_NAMES, 'brand', 'inverse'] as 
 export const BORDER_LADDER_NAMES = ['default', 'subtle', 'strong'] as const
 export const BORDER_STANDARD_SLOT_COUNT = BORDER_LADDER_NAMES.length
 
-/** Full border role set for badges, exports, and docs (ladder + focus). */
-export const BORDER_SLOTS = [...BORDER_LADDER_NAMES, 'focus'] as const
+/** Full border role set for badges, exports, and docs (ladder + focus + paired roles). */
+export const BORDER_SLOTS = [...BORDER_LADDER_NAMES, 'focus', 'brand', 'inverse'] as const
 
-/** Content hierarchy: standard ladder + `on` (contrast flip of `default`, not part of textCount). */
-export const TEXT_SLOTS = ['default', 'subtle', 'muted', 'disabled', 'on'] as const
-/** Standard text ladder only (default → disabled). `on` is mapped separately, not part of text count. */
+/** Content hierarchy: standard ladder + `inverse` (contrast flip of `default`, not part of textCount). */
+export const TEXT_SLOTS = ['default', 'subtle', 'muted', 'disabled', 'inverse'] as const
+/** Standard text ladder only (default → disabled). `inverse` is mapped separately, not part of text count. */
 export const TEXT_STANDARD_SLOT_COUNT = 4
 
-/** Index of `on` in the full **text** slot array (0-based). */
+/** Index of `inverse` in the full **text** slot array (0-based). */
 export const INVERSE_MODIFIER_INDEX = 4
 
 /** Stable ordering for `surface.*` roles in tables and layer lists (brand before inverse flip). */
@@ -65,15 +66,20 @@ export const SURFACE_ROLE_SORT_ORDER: readonly string[] = [
   'surface.inverse',
 ]
 
-/** Stable ordering for `border.*` (ladder then focus). */
+/** Stable ordering for `border.*` (ladder, focus, then paired roles). */
 export const BORDER_ROLE_SORT_ORDER: readonly string[] = BORDER_SLOTS.map((n) => `border.${n}`)
 
 /** Stable ordering for `text.*` (ladder then on). */
 export const TEXT_ROLE_SORT_ORDER: readonly string[] = TEXT_SLOTS.map((n) => `text.${n}`)
 
-/** Contrast-flip pair roles (`surface.inverse`, `text.on`) — not normal hierarchy steps. */
+/** Contrast-flip pair roles (`surface.inverse`, `text.inverse`, `border.inverse`) — not normal hierarchy steps. */
 export function isInversePairRole(role: string): boolean {
-  return role === 'surface.inverse' || role === 'text.on'
+  return role === 'surface.inverse' || role === 'text.inverse' || role === 'border.inverse'
+}
+
+/** Brand surface plane roles (`surface.brand`, `text.brand`, `border.brand`) — paired on-brand tokens. */
+export function isBrandPairRole(role: string): boolean {
+  return role === 'surface.brand' || role === 'text.brand' || role === 'border.brand'
 }
 
 /** Dedicated focus-ring token (max-contrast neutral), not a stroke ladder rung. */

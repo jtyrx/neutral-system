@@ -8,7 +8,7 @@ import {cn} from '@/lib/cn'
 export type TokenSelectTheme = 'light' | 'darkElevated'
 
 type Props = {
-  /** Semantic role id (e.g. `surface.brand`, `text.on`). */
+  /** Semantic role id (e.g. `surface.brand`, `text.inverse`). */
   role: string
   /** Optional override label. Defaults to the CSS variable name. */
   label?: ReactNode | undefined

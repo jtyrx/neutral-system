@@ -9,6 +9,8 @@ import {ChevronDown} from 'lucide-react'
 
 import {cn} from '@/lib/utils'
 
+//TODO extend `next/link` to support button styling
+
 const buttonBase = cn(
   'btn-sys',
   'group/button shrink-0',
@@ -95,6 +97,8 @@ type ButtonProps = React.ComponentProps<'button'> &
      * pair with `asChild` + a non-`<button>` host (e.g. `Link`).
      */
     nativeButton?: boolean
+    /** Adds a subtle drop shadow. */
+    shadow?: boolean
   }
 
 function Button({
@@ -105,6 +109,7 @@ function Button({
   nativeButton = true,
   disabled,
   focusableWhenDisabled,
+  shadow,
   ref,
   children,
   ...rest
@@ -128,7 +133,7 @@ function Button({
       'data-slot': 'button',
       'data-variant': variant,
       'data-size': size,
-      className: cn(buttonVariants({variant, size}), className),
+      className: cn(buttonVariants({variant, size}), shadow && 'shadow-md', className),
     }),
   }) as React.ReactElement
 }

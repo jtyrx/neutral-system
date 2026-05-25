@@ -75,6 +75,20 @@ describe('exportCssVariables', () => {
     // Dark tier-2 on :root for pre–data-theme resolution
     expect(css.match(/:root\s*\{/g)?.length).toBeGreaterThanOrEqual(2)
   })
+
+  it('simple mode scopes black-first dark primitive overrides before dark semantic aliases', () => {
+    const {ramps, light, dark} = buildDefaultExportSource()
+    if (ramps.architecture !== 'simple') throw new Error('expected simple ramps')
+    const css = exportCssVariables({architecture: 'simple', ramps, light, dark})
+    const darkBlock = css.match(/\[data-theme="dark"\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
+    const darkPrimitive = `--color-neutral-0: ${ramps.dark[0]!.serialized.oklchCss};`
+
+    expect(css).toContain(`  --color-neutral-0: ${ramps.global[0]!.serialized.oklchCss};`)
+    expect(darkBlock).toContain(darkPrimitive)
+    expect(darkBlock.indexOf(darkPrimitive)).toBeLessThan(
+      darkBlock.indexOf('--color-surface-default:'),
+    )
+  })
 })
 
 describe('exportCssVariables (advanced sibling ramps)', () => {
@@ -94,12 +108,14 @@ describe('exportCssVariables (advanced sibling ramps)', () => {
     expect(css).toMatch(/\s--color-neutral-dark-[a-zA-Z0-9]+:/)
     const firstLightLabel = ramps.light[0]?.label ?? '0'
     expect(css).toContain(`  --color-neutral-${firstLightLabel}:`)
-    // Lightness-based model: dark-0 = lightest dark swatch (ramp[0]), NOT darkest
+    // Black-first dark model: dark-0 = darkest dark swatch (ramp[0]).
     const firstDarkLabel = ramps.dark[0]?.label ?? '0'
     const firstDarkSwatch = ramps.dark[0]!
+    expect(firstDarkLabel).toBe('0')
     expect(css).toContain(
       `  --color-neutral-dark-${firstDarkLabel}: ${firstDarkSwatch.serialized.oklchCss};`,
     )
+    expect(firstDarkSwatch.serialized.oklchCss).toContain('18.000%')
   })
 })
 
@@ -142,6 +158,21 @@ describe('DTCG JSON export', () => {
     expect(surfaceDefault.$value).toBe(`{color.neutral.${global[source!.sourceGlobalIndex]!.label}}`)
     expect(surfaceDefault.$extensions?.['neutral-system']?.role).toBe('surface.default')
     expect(surfaceDefault.$extensions?.['neutral-system']?.theme).toBe('light')
+  })
+
+  it('uses literal dark semantic values in simple DTCG exports because primitive paths are light-scoped', () => {
+    const {global, light, dark} = buildDefaultExportSource()
+    const tree = buildDtcgTokenTree({architecture: 'simple', global, light, dark})
+    const source = dark.find((token) => token.role === 'surface.default')
+    const surfaceDefault = tokenAtRole(tree, 'dark', 'surface.default')
+
+    expect(source).toBeDefined()
+    expect(typeof surfaceDefault.$value).toBe('object')
+    expect(surfaceDefault.$value).toMatchObject({
+      colorSpace: 'oklch',
+      alpha: 1,
+    })
+    expect(surfaceDefault.$extensions?.['neutral-system']?.sourceReference).toBeUndefined()
   })
 
   it('uses literal DTCG color values for alpha and custom semantic tokens', () => {

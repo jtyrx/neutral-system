@@ -70,7 +70,7 @@ export const PREVIEW_BLOCK_CASES: PreviewBlockCase[] = [
     id: 'callout',
     eyebrow: 'Emphasis',
     title: 'Notification & brand callout',
-    intent: 'Inverse strip = semantic ramp flip. Brand strip uses surface.brand with text.on for saturated-plane ink.',
+    intent: 'Inverse strip = semantic ramp flip. Brand strip uses surface.brand with text.brand for saturated-plane ink.',
     Component: BlockCaseWrapper(CalloutBlock),
     chainSpec: calloutChainSpec,
   },

@@ -27,8 +27,8 @@ export const SURFACE_TEXT_CONTRACTS: Record<string, readonly SystemRole[]> = {
   'surface.subtle': ['text.default', 'text.subtle', 'text.muted'],
   'surface.raised': ['text.default', 'text.subtle', 'text.muted'],
   'surface.overlay': ['text.default', 'text.subtle', 'text.muted'],
-  'surface.brand': ['text.on', 'text.default', 'text.subtle'],
-  'surface.inverse': ['text.on', 'text.default'],
+  'surface.brand': ['text.brand', 'text.default', 'text.subtle'],
+  'surface.inverse': ['text.inverse', 'text.default'],
 }
 
 function tokenByRole(tokens: SystemToken[], role: SystemRole): SystemToken | undefined {

@@ -12,18 +12,18 @@ import {
 test('dynamic text fitting preserves legacy 41-step light/dark text seeds', () => {
   const cfg = migrateSystemMappingConfig({})
   expect(resolveLightTextStartIndex(41, 4, 2)).toBe(34)
-  expect(resolveDarkTextStartOffset(41, 4, 2)).toBe(16)
+  expect(resolveDarkTextStartOffset(41, 4, 2)).toBe(34)
 
   const clamped = clampSystemMappingToLadderLength(41, cfg)
   expect(clamped.textStart).toBe(34)
-  expect(clamped.darkTextStart).toBe(15)
+  expect(clamped.darkTextStart).toBe(34)
   expect(clamped.textCount).toBe(4)
   expect(clamped.darkTextCount).toBe(4)
 
   const lightText = previewResolvedRoleIndices(clamped, 41, 'light').text.slice(0, 4)
   const darkText = previewResolvedRoleIndices(clamped, 41, 'darkElevated').text.slice(0, 4)
   expect(lightText).toEqual([40, 38, 36, 34])
-  expect(darkText).toEqual([1, 3, 5, 7])
+  expect(darkText).toEqual([40, 38, 36, 34])
 })
 
 test('16-step ladder edge-fits text without duplicate clamped picks', () => {
@@ -41,12 +41,12 @@ test('16-step ladder edge-fits text without duplicate clamped picks', () => {
 })
 
 test('pickDarkIndices starts dark surfaces at the dark edge when start offset is 0', () => {
-  expect(pickDarkIndices(0, 5, 1, 41)).toEqual([40, 39, 38, 37, 36])
+  expect(pickDarkIndices(0, 5, 1, 41)).toEqual([0, 1, 2, 3, 4])
 })
 
 test('pickDarkIndices keeps spacing stable for larger offsets and steps', () => {
-  expect(pickDarkIndices(1, 4, 2, 41)).toEqual([39, 37, 35, 33])
-  expect(pickDarkIndices(2, 4, 2, 41)).toEqual([38, 36, 34, 32])
+  expect(pickDarkIndices(1, 4, 2, 41)).toEqual([1, 3, 5, 7])
+  expect(pickDarkIndices(2, 4, 2, 41)).toEqual([2, 4, 6, 8])
 })
 
 test('legacy darkFillStart = -1 is normalized to the same result as 0', () => {
@@ -61,7 +61,7 @@ test('legacy darkFillStart = -1 is normalized to the same result as 0', () => {
   )
 })
 
-test('dark preview surface indices now anchor to the dark edge while light remains unchanged', () => {
+test('dark preview surface indices align with light positions on the black-first dark ramp', () => {
   const cfg = clampSystemMappingToLadderLength(41, {
     ...DEFAULT_SYSTEM_MAPPING,
     darkFillStart: 2,
@@ -72,6 +72,6 @@ test('dark preview surface indices now anchor to the dark edge while light remai
     0, 1, 2, 3, 4,
   ])
   expect(previewResolvedRoleIndices(cfg, 41, 'darkElevated').surface.slice(0, 5)).toEqual([
-    38, 36, 34, 32, 30,
+    2, 4, 6, 8, 10,
   ])
 })

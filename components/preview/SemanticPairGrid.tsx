@@ -5,6 +5,7 @@ import {friendlySemanticCategoryLabel, humanizeRole} from '@/components/preview/
 import type {GlobalSwatch, SystemToken, TokenView} from '@/lib/neutral-engine'
 import type {SemanticLayer} from '@/lib/neutral-engine/tokenViews'
 import {
+  tokensForBrandPairCategory,
   tokensForInversePairCategory,
   tokensForSemanticLayerPublicNonInverse,
 } from '@/lib/neutral-engine/tokenViews'
@@ -46,6 +47,8 @@ const sectionGroupVariants = cva(
       kind: {
         inverse:
           'rounded-xl border border-(--color-surface-inverse)/15 bg-(--color-surface-inverse)/4 p-16',
+        brand:
+          'rounded-xl border border-(--color-surface-brand)/20 bg-(--color-surface-brand)/5 p-16',
         layer: 'border-b border-hairline',
       },
     },
@@ -64,25 +67,29 @@ function zipByName(light: SystemToken[], dark: SystemToken[]): {light: SystemTok
 
 export type PairEmphasis = 'light' | 'dark' | 'both'
 
-/** One semantic layer group or the dedicated inverse contrast-flip group. */
-export type PairSection = {kind: 'layer'; layer: SemanticLayer} | {kind: 'inverse'}
+/** One semantic layer group, the dedicated inverse contrast-flip group, or the brand pair group. */
+export type PairSection = {kind: 'layer'; layer: SemanticLayer} | {kind: 'inverse'} | {kind: 'brand'}
 
-/** Default paired-role order: hierarchy surfaces → borders → content → inverse pair → interactive. */
+/** Default paired-role order: hierarchy surfaces → borders → content → inverse pair → brand pair → interactive. */
 export const DEFAULT_PAIR_SECTIONS: PairSection[] = [
   {kind: 'layer', layer: 'surface'},
   {kind: 'layer', layer: 'border'},
   {kind: 'layer', layer: 'text'},
   {kind: 'inverse'},
+  {kind: 'brand'},
   {kind: 'layer', layer: 'interactive'},
 ]
 
 export type PairedRoleGroupHints = Partial<Record<SemanticLayer, string>> & {
   /** Subcopy under the Inverse heading (contrast-flip roles). */
   inversePair?: string
+  /** Subcopy under the Brand heading (custom-color brand roles). */
+  brandPair?: string
 }
 
 function tokensForPairSection(view: TokenView, section: PairSection): SystemToken[] {
   if (section.kind === 'inverse') return tokensForInversePairCategory(view)
+  if (section.kind === 'brand') return tokensForBrandPairCategory(view)
   return tokensForSemanticLayerPublicNonInverse(view, section.layer)
 }
 
@@ -224,12 +231,17 @@ export function SemanticPairGrid({
           if (!firstDarkIdx.has(p.dark.sourceGlobalIndex)) firstDarkIdx.set(p.dark.sourceGlobalIndex, i)
         })
 
-        const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
+        const titleKey =
+          section.kind === 'inverse' ? 'inversePair' : section.kind === 'brand' ? 'brandPair' : section.layer
         const hint =
-          section.kind === 'inverse' ? groupHints?.inversePair : groupHints?.[section.layer]
+          section.kind === 'inverse'
+            ? groupHints?.inversePair
+            : section.kind === 'brand'
+              ? groupHints?.brandPair
+              : groupHints?.[section.layer]
         return (
           <div
-            key={section.kind === 'inverse' ? 'inverse' : section.layer}
+            key={section.kind === 'inverse' ? 'inverse' : section.kind === 'brand' ? 'brand' : section.layer}
             className={sectionGroupVariants({kind: section.kind})}
           >
             <div>
@@ -330,12 +342,17 @@ export function SemanticSingleThemeGrid({
         toks.forEach((t, i) => {
           if (!firstRowForSource.has(t.sourceGlobalIndex)) firstRowForSource.set(t.sourceGlobalIndex, i)
         })
-        const titleKey = section.kind === 'inverse' ? 'inversePair' : section.layer
+        const titleKey =
+          section.kind === 'inverse' ? 'inversePair' : section.kind === 'brand' ? 'brandPair' : section.layer
         const hint =
-          section.kind === 'inverse' ? groupHints?.inversePair : groupHints?.[section.layer]
+          section.kind === 'inverse'
+            ? groupHints?.inversePair
+            : section.kind === 'brand'
+              ? groupHints?.brandPair
+              : groupHints?.[section.layer]
         return (
           <div
-            key={section.kind === 'inverse' ? 'inverse' : section.layer}
+            key={section.kind === 'inverse' ? 'inverse' : section.kind === 'brand' ? 'brand' : section.layer}
             className={sectionGroupVariants({kind: section.kind})}
           >
             <div>

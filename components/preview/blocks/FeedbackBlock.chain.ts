@@ -55,8 +55,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Badge text on inverse / brand',
-      dtcgPath: 'color.text.on',
-      cssVar: '--color-text-on',
+      dtcgPath: 'color.text.inverse',
+      cssVar: '--color-text-inverse',
       usage: 'color',
       description: 'Guaranteed contrast on both inverse and brand surfaces.',
     },

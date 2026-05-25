@@ -37,6 +37,15 @@ export type GlobalScaleConfig = {
    */
   lCurveStrength?: number | undefined
   /**
+   * Per-segment curve strength. When either A or B is set, the ramp is split at `pivotIndex`.
+   * Stops with index `< pivotIndex` use `lCurveStrengthA`; stops `>= pivotIndex` use `lCurveStrengthB`.
+   * Falls back to `lCurveStrength` when a segment value is undefined.
+   */
+  lCurveStrengthA?: number | undefined
+  lCurveStrengthB?: number | undefined
+  /** Absolute stop index splitting A and B segments. Defaults to `8`. */
+  pivotIndex?: number | undefined
+  /**
    * Per-end chroma override. When both are set, chroma is interpolated from `chromaLight`
    * (t=0, light end) to `chromaDark` (t=1, dark end), then shaped by `chromaMode`.
    * When either is absent, `baseChroma` is used for both ends (current behaviour).
@@ -210,5 +219,5 @@ export type WorkbenchSelection =
 export interface AlphaNeutralConfig {
   lightIndexOffset: number
   darkIndexOffset: number
-  alphaStops: readonly [number, number, number, number]
+  alphaStops: readonly number[]
 }

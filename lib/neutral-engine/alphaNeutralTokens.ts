@@ -29,7 +29,7 @@ function alphaLines(
   prefix: string,
   baseIndex: number,
   swatches: GlobalSwatch[],
-  stops: readonly [number, number, number, number],
+  stops: readonly number[],
   /** When set (Advanced Mode sibling ramps), emits `--color-neutral-*` / `--color-neutral-dark-*` refs via {@link tier1NeutralCssVarName}. */
   tier1Advanced?: Exclude<Tier1NeutralExportMode, {architecture: 'simple'}>,
 ): string[] {

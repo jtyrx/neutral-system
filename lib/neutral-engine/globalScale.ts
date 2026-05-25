@@ -119,6 +119,9 @@ function cacheKeyForGlobalScale(config: GlobalScaleConfig, direction: GlobalScal
     config.chromaDark ?? '',
     config.hueLight ?? '',
     config.hueDark ?? '',
+    config.lCurveStrengthA ?? '',
+    config.lCurveStrengthB ?? '',
+    config.pivotIndex ?? '',
   ].join('|')
 }
 
@@ -171,10 +174,16 @@ export function buildGlobalScale(
   const out: GlobalSwatch[] = []
   const labels = labelsForNamingStyle(namingStyle, n)
 
+  const pivot = config.pivotIndex ?? 8
+  const useDual = config.lCurveStrengthA !== undefined || config.lCurveStrengthB !== undefined
+
   for (let i = 0; i < n; i++) {
     const outputT = n === 1 ? 0 : i / (n - 1)
     const t = direction === 'dark-to-light' ? 1 - outputT : outputT
-    const L = easeL(lHigh, lLow, t, config.lCurve, config.lCurveStrength)
+    const strength = useDual
+      ? (i < pivot ? (config.lCurveStrengthA ?? config.lCurveStrength) : (config.lCurveStrengthB ?? config.lCurveStrength))
+      : config.lCurveStrength
+    const L = easeL(lHigh, lLow, t, config.lCurve, strength)
     const C = chromaAtT(chromaMode, t, chromaAtLight, chromaAtDark)
     // When hue drift is active, extract H from the Oklab range at linear t.
     // The range is sampled at linear t (not eased) so the hue shift is time-uniform.

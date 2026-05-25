@@ -22,7 +22,7 @@ const DEFAULT_LIGHT_SCALE_VALUES = {
  * Dark sibling ramp defaults (Advanced Mode) — same structure as light; differs in tail anchoring & lightness curve.
  */
 const DEFAULT_DARK_SCALE_VALUES = {
-  steps: 16,
+  steps: 14,
   lHigh: 0.975,
   lLow: 0.18,
   progression: 'linear',

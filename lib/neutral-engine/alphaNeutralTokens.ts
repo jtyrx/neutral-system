@@ -8,7 +8,7 @@ import {
 export const DEFAULT_ALPHA_NEUTRAL_CONFIG: AlphaNeutralConfig = {
   lightIndexOffset: 0,
   darkIndexOffset: 0,
-  alphaStops: [0.08, 0.16, 0.32, 0.48],
+  alphaStops: [0.04, 0.06, 0.08, 0.12, 0.16, 0.24],
 }
 
 // TODO: Revise alpha engine to use surface engine's deriveAlphaBaseIndex
@@ -29,7 +29,7 @@ function alphaLines(
   prefix: string,
   baseIndex: number,
   swatches: GlobalSwatch[],
-  stops: readonly [number, number, number, number],
+  stops: readonly number[],
   /** When set (Advanced Mode sibling ramps), emits `--color-neutral-*` / `--color-neutral-dark-*` refs via {@link tier1NeutralCssVarName}. */
   tier1Advanced?: Exclude<Tier1NeutralExportMode, {architecture: 'simple'}>,
 ): string[] {
@@ -41,7 +41,7 @@ function alphaLines(
   const varRef = `var(--${varCssName})`
   return stops.map((alpha, i) => {
     const pct = Math.round(alpha * 100)
-    return `  --color-${prefix}-alpha-${(i + 1) * 100}: color-mix(in oklch, ${varRef} ${pct}%, transparent);`
+    return `  --color-${prefix}-alpha-${i}: color-mix(in oklch, ${varRef} ${pct}%, transparent);`
   })
 }
 

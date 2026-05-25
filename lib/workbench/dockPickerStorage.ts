@@ -13,6 +13,7 @@ export type DockPickerTabPersisted =
   | 'oklch'
   | 'tune'
   | 'map'
+  | 'curve'
 
 const LEGACY_MERGED_TO_ROLE_LADDER = new Set<string>([
   'steps',
@@ -44,7 +45,7 @@ function coerceMode(v: unknown): RampPreviewMode | null {
 }
 
 function coerceTab(v: unknown): DockPickerTabPersisted | null {
-  if (v === 'roleLadder' || v === 'oklch' || v === 'tune' || v === 'map') return v
+  if (v === 'roleLadder' || v === 'oklch' || v === 'tune' || v === 'map' || v === 'curve') return v
   /* Merged picker tabs → single Role ladder panel */
   if (typeof v === 'string' && LEGACY_MERGED_TO_ROLE_LADDER.has(v)) {
     return 'roleLadder'

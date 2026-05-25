@@ -69,25 +69,39 @@ describe('deriveAlphaNeutralCssLines', () => {
   const darkTokens = [makeToken('text.default', 3)]
   const config = DEFAULT_ALPHA_NEUTRAL_CONFIG
 
-  it('emits 8 CSS lines total (4 light + 4 dark)', () => {
+  it('emits 12 CSS lines total (6 light + 6 dark)', () => {
     const lines = deriveAlphaNeutralCssLines(ramps, lightTokens, darkTokens, config)
-    expect(lines).toHaveLength(8)
+    expect(lines).toHaveLength(12)
   })
 
   it('light alpha lines reference the light base primitive', () => {
     const lines = deriveAlphaNeutralCssLines(ramps, lightTokens, darkTokens, config)
     const lightLines = lines.filter(l => l.includes('--color-neutral-alpha'))
-    expect(lightLines).toHaveLength(4)
+    expect(lightLines).toHaveLength(6)
     // index 38 * 25 = 950, so label is "950" → var(--color-neutral-950)
     lightLines.forEach(l => expect(l).toContain('var(--color-neutral-950)'))
+  })
+
+  it('light alpha lines use index-based names alpha-0 through alpha-5', () => {
+    const lines = deriveAlphaNeutralCssLines(ramps, lightTokens, darkTokens, config)
+    const lightLines = lines.filter(l => l.includes('--color-neutral-alpha'))
+    expect(lightLines[0]).toContain('--color-neutral-alpha-0')
+    expect(lightLines[5]).toContain('--color-neutral-alpha-5')
   })
 
   it('dark alpha lines reference the dark base primitive', () => {
     const lines = deriveAlphaNeutralCssLines(ramps, lightTokens, darkTokens, config)
     const darkLines = lines.filter(l => l.includes('--color-dark-neutral-alpha'))
-    expect(darkLines).toHaveLength(4)
+    expect(darkLines).toHaveLength(6)
     // index 3 * 25 = 75, so label is "75" → var(--color-neutral-75)
     darkLines.forEach(l => expect(l).toContain('var(--color-neutral-75)'))
+  })
+
+  it('dark alpha lines use index-based names alpha-0 through alpha-5', () => {
+    const lines = deriveAlphaNeutralCssLines(ramps, lightTokens, darkTokens, config)
+    const darkLines = lines.filter(l => l.includes('--color-dark-neutral-alpha'))
+    expect(darkLines[0]).toContain('--color-dark-neutral-alpha-0')
+    expect(darkLines[5]).toContain('--color-dark-neutral-alpha-5')
   })
 
   it('uses color-mix for alpha blending', () => {
@@ -107,7 +121,7 @@ describe('deriveAlphaNeutralCssLines', () => {
     )
 
     const darkLines = lines.filter(l => l.includes('--color-dark-neutral-alpha'))
-    expect(darkLines).toHaveLength(4)
+    expect(darkLines).toHaveLength(6)
     darkLines.forEach(l => expect(l).toContain('var(--color-neutral-dark-2)'))
   })
 })

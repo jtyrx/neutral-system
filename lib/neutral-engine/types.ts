@@ -15,6 +15,13 @@ export type NeutralArchitectureMode = 'advanced' | 'simple'
 
 export type NeutralVariantId = 'pure' | 'warm' | 'cool' | 'bluish' | 'custom'
 
+/**
+ * Huetone-style single-anchor quadratic Bezier lightness distribution.
+ * `midpoint` ∈ [0,1]: 0.5 = linear/symmetric; < 0.5 = more light steps; > 0.5 = more dark steps.
+ * Replaces the `lCurve` + `lCurveStrength` cluster from v1.
+ */
+export type LightnessModel = {kind: 'linear-oklch'; midpoint?: number}
+
 export type GlobalScaleConfig = {
   steps: number
   /** OKLCH L, 0–1 (lightest). */
@@ -29,21 +36,20 @@ export type GlobalScaleConfig = {
   hue: number
   namingStyle: NamingStyle
   variantId: NeutralVariantId
-  /** Lightness distribution curve. Defaults to `'linear'` when omitted. */
+  /**
+   * Huetone-style quadratic Bezier lightness distribution (v2+).
+   * When set, supersedes `lCurve` / `lCurveStrength` / `lCurveStrengthA/B` / `pivotIndex`.
+   */
+  lightnessModel?: LightnessModel | undefined
+  /** @deprecated Use `lightnessModel` instead. Kept for v1 migration read and engine fallback. */
   lCurve?: LCurve | undefined
-  /**
-   * Blend from linear lightness spacing into the curve from `lCurve`.
-   * `0` = fully linear ramp; `1` = full selected curve. Defaults to `1` when omitted.
-   */
+  /** @deprecated Use `lightnessModel` instead. */
   lCurveStrength?: number | undefined
-  /**
-   * Per-segment curve strength. When either A or B is set, the ramp is split at `pivotIndex`.
-   * Stops with index `< pivotIndex` use `lCurveStrengthA`; stops `>= pivotIndex` use `lCurveStrengthB`.
-   * Falls back to `lCurveStrength` when a segment value is undefined.
-   */
+  /** @deprecated Use `lightnessModel` instead. */
   lCurveStrengthA?: number | undefined
+  /** @deprecated Use `lightnessModel` instead. */
   lCurveStrengthB?: number | undefined
-  /** Absolute stop index splitting A and B segments. Defaults to `8`. */
+  /** @deprecated Use `lightnessModel` instead. */
   pivotIndex?: number | undefined
   /**
    * Per-end chroma override. When both are set, chroma is interpolated from `chromaLight`

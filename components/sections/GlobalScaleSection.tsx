@@ -700,50 +700,6 @@ function SystemShapeSegment({
           )
         }
       />
-      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
-      <ResponsiveSelect
-        id={`${idPrefix}-l-curve`}
-        className="h-32 max-w-[13rem] min-w-160 flex-1 shrink py-4 text-xs"
-        value={config.lCurve ?? 'linear'}
-        options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
-        onValueChange={(v) => schedule('lCurve', v as LCurve, 'L curve')}
-      />
-      <Toolbar.Separator className="m-4 h-16 bg-border data-[orientation=vertical]:w-px" />
-      <Popover>
-        <PopoverTrigger
-          type="button"
-          aria-label="L curve strength sliders"
-          disabled={(config.lCurve ?? 'linear') === 'linear'}
-          className={GLOBAL_SCALE_POPOVER_ICON_TRIGGER_CLASS}
-        >
-          <Settings2 aria-hidden />
-        </PopoverTrigger>
-        <PopoverContent className="w-320 gap-16" align="start" sideOffset={8}>
-          <PopoverHeader>
-            <PopoverTitle>L curve strength</PopoverTitle>
-          </PopoverHeader>
-          <LightnessSparkline swatches={global} />
-          <div className="space-y-8">
-            <span className="text-xs font-medium text-muted tabular-nums">
-              Strength {Math.round((config.lCurveStrength ?? 1) * 100)}%
-            </span>
-            <Slider
-              disabled={(config.lCurve ?? 'linear') === 'linear'}
-              min={0}
-              max={100}
-              step={1}
-              value={[Math.round((config.lCurveStrength ?? 1) * 100)]}
-              onValueChange={([pct]) =>
-                typeof pct === 'number' &&
-                schedule('lCurveStrength', pct / 100, 'L curve strength')
-              }
-            />
-            <p className="text-micro text-muted">
-              0% = linear spacing · 100% = full selected curve
-            </p>
-          </div>
-        </PopoverContent>
-      </Popover>
     </>
   )
 }

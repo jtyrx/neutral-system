@@ -163,3 +163,58 @@ test('ease-out-light shifts more L spread to the light end vs linear', () => {
   // ease-out at t=0.25 descends faster than linear — more light-end spread
   expect(easeOut).toBeLessThan(linear)
 })
+
+// --- lightnessModel (v2 Bezier path) ---
+
+test('lightnessModel midpoint 0.5 produces L values within 1e-4 of linear ramp', () => {
+  const getL = (css: string) => {
+    const m = css.match(/oklch\(([\d.]+)%/)
+    return m ? parseFloat(m[1]!) / 100 : NaN
+  }
+  const linear = buildGlobalScale(BASE)
+  const bezier = buildGlobalScale({...BASE, lightnessModel: {kind: 'linear-oklch', midpoint: 0.5}})
+  for (let i = 0; i < linear.length; i++) {
+    expect(getL(bezier[i]!.serialized.oklchCss)).toBeCloseTo(getL(linear[i]!.serialized.oklchCss), 4)
+  }
+})
+
+test('lightnessModel omitted midpoint defaults to symmetric (same as midpoint 0.5)', () => {
+  const explicit = buildGlobalScale({...BASE, lightnessModel: {kind: 'linear-oklch', midpoint: 0.5}})
+  const implicit = buildGlobalScale({...BASE, lightnessModel: {kind: 'linear-oklch'}})
+  expect(explicit.map((s) => s.serialized.oklchCss)).toEqual(implicit.map((s) => s.serialized.oklchCss))
+})
+
+test('lightnessModel midpoint 0.3 produces more light-end steps (mid-ramp L closer to lHigh)', () => {
+  const {lHigh, lLow, steps} = BASE
+  const bezier = buildGlobalScale({...BASE, lightnessModel: {kind: 'linear-oklch', midpoint: 0.3}})
+  const mid = bezier[Math.floor(steps / 2)]!
+  const m = mid.serialized.oklchCss.match(/oklch\(([\d.]+)%/)
+  const midL = m ? parseFloat(m[1]!) / 100 : NaN
+  // With midpoint=0.3, at t=0.5 bezierT=0.4 → L is closer to lHigh than linear (0.5)
+  const linearMidL = lHigh + 0.5 * (lLow - lHigh)
+  expect(midL).toBeGreaterThan(linearMidL)
+})
+
+test('lightnessModel L values are monotonically decreasing for midpoints 0.1, 0.5, 0.9', () => {
+  for (const midpoint of [0.1, 0.5, 0.9]) {
+    const swatches = buildGlobalScale({...BASE, lightnessModel: {kind: 'linear-oklch', midpoint}})
+    const ls = swatches.map((s) => {
+      const m = s.serialized.oklchCss.match(/oklch\(([\d.]+)%/)
+      return m ? parseFloat(m[1]!) / 100 : NaN
+    })
+    for (let i = 1; i < ls.length; i++) {
+      expect(ls[i]!).toBeLessThanOrEqual(ls[i - 1]!)
+    }
+  }
+})
+
+test('lightnessModel supersedes lCurve when both are set', () => {
+  const withLm = buildGlobalScale({
+    ...BASE,
+    lCurve: 'ease-in-dark',
+    lCurveStrength: 1,
+    lightnessModel: {kind: 'linear-oklch', midpoint: 0.5},
+  })
+  const linearOnly = buildGlobalScale({...BASE, lightnessModel: {kind: 'linear-oklch', midpoint: 0.5}})
+  expect(withLm.map((s) => s.serialized.oklchCss)).toEqual(linearOnly.map((s) => s.serialized.oklchCss))
+})

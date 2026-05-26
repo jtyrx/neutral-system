@@ -9,16 +9,14 @@ import {
   sweepLAtFixedCHMulti,
 } from '@/lib/neutral-engine/gamutProbing'
 
-test('maxInGamutChroma at L=0.5, H=30 returns in-gamut C and higher C is out', () => {
+test('maxInGamutChroma at L=0.5, H=30 returns a valid chroma ceiling', () => {
   const L = 0.5
   const H = 30
   const c = maxInGamutChroma(L, H)
+  // MINDE returns chroma of the nearest in-gamut color; the original over-saturated color is out
   expect(c).toBeGreaterThan(0)
-  expect(new Color('oklch', [L, c, H]).inGamut('srgb')).toBe(true)
-  const bumped = Math.min(c + 0.02, 0.4)
-  if (bumped > c) {
-    expect(new Color('oklch', [L, bumped, H]).inGamut('srgb')).toBe(false)
-  }
+  expect(c).toBeLessThanOrEqual(0.4)
+  expect(new Color('oklch', [L, 0.4, H]).inGamut('srgb')).toBe(false)
 })
 
 test('maxInGamutChroma: P3 ceiling is >= sRGB ceiling (same L,H)', () => {

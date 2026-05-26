@@ -9,6 +9,8 @@ import {ThemePreviewControls} from '@/components/workbench/ThemePreviewControls'
 import type {ContrastEmphasis} from '@/lib/neutral-engine'
 import {Button, ButtonLink} from '../ui/button'
 
+import type {ContrastModel} from '@/lib/neutral-engine/contrastModel'
+
 // A1: previewTheme / onPreviewTheme removed — never consumed in this component.
 type Props = {
   contrastEmphasis: ContrastEmphasis
@@ -19,6 +21,8 @@ type Props = {
   onComparisonLayoutChange: (l: ComparisonLayout) => void
   inspectionMode: boolean
   onToggleInspection: () => void
+  contrastModel: ContrastModel
+  onContrastModelChange: (m: ContrastModel) => void
 }
 
 const FRACTION_SLASH = '⁄'
@@ -32,6 +36,8 @@ function WorkbenchHeaderInner({
   onComparisonLayoutChange,
   inspectionMode,
   onToggleInspection,
+  contrastModel,
+  onContrastModelChange,
 }: Props) {
   const headerRef = useRef<HTMLElement>(null)
 
@@ -100,6 +106,13 @@ function WorkbenchHeaderInner({
           </Button>
           <Button variant="link" size="sm">
             Link
+          </Button>
+          <Button
+            variant={contrastModel === 'apca' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onContrastModelChange(contrastModel === 'apca' ? 'wcag-2.1' : 'apca')}
+          >
+            {contrastModel === 'apca' ? 'Lc (APCA)' : 'WCAG 2.1'}
           </Button>
           <ComparisonLayoutPicker
             value={comparisonLayout}

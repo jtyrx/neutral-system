@@ -5,6 +5,10 @@ import {memo, useMemo} from 'react'
 import type {ComparisonLayout} from '@/components/preview/composed/PreviewComparison'
 import {PreviewBlockSection} from '@/components/preview/PreviewBlockSection'
 import {
+  previewComparisonSplitClass,
+  resolvePreviewBlockSectionLayout,
+} from '@/components/preview/previewBlockSectionLayout'
+import {
   PREVIEW_BLOCK_CASES,
   type PreviewBlockCase,
 } from '@/components/preview/previewBlockRegistry'
@@ -22,7 +26,6 @@ type Props = {
   darkTokenView: TokenView
   liveBrandSurfaceOklch: {light: string; dark: string}
   comparisonLayout: ComparisonLayout
-  /** Focus mode selects one theme; split mode shows both. */
   previewTheme: 'light' | 'dark'
   inspectionMode: boolean
   onSelectSystem: (role: string, theme?: TokenSelectTheme) => void
@@ -53,14 +56,29 @@ function BlockRow({
   darkThemeVars,
 }: BlockRowProps) {
   const Case = block.Component
+  const sectionLayout = resolvePreviewBlockSectionLayout(block.sectionLayout)
+  const comparison = sectionLayout.comparison
+  const hideLabels = comparison?.hideLabels ?? false
+  const frameProps = {
+    showLabel: !hideLabels,
+    ...(comparison?.frameClassName != null ? {className: comparison.frameClassName} : {}),
+    ...(comparison?.frameContentClassName != null
+      ? {contentClassName: comparison.frameContentClassName}
+      : {}),
+  }
+
+  const caseProps = {
+    inspection: inspectionMode,
+    onSelectSystem,
+  } as const
+
   const lightPane = (
     <Case
       global={globalLight}
       tokenView={lightTokenView}
       brandPlaneOklch={liveBrandSurfaceOklch.light}
       theme="light"
-      inspection={inspectionMode}
-      onSelectSystem={onSelectSystem}
+      {...caseProps}
     />
   )
   const darkPane = (
@@ -69,18 +87,27 @@ function BlockRow({
       tokenView={darkTokenView}
       brandPlaneOklch={liveBrandSurfaceOklch.dark}
       theme="darkElevated"
-      inspection={inspectionMode}
-      onSelectSystem={onSelectSystem}
+      {...caseProps}
     />
   )
 
   const content =
     comparisonLayout === 'split' ? (
-      <div className="grid grid-cols-1 gap-20 md:grid-cols-2 md:gap-24">
-        <ThemeComparisonFrame theme="light" label="Light" themeVars={lightThemeVars}>
+      <div
+        className={previewComparisonSplitClass(
+          comparison?.splitGap ?? 'default',
+          comparison?.splitClassName,
+        )}
+      >
+        <ThemeComparisonFrame theme="light" label="Light" themeVars={lightThemeVars} {...frameProps}>
           {lightPane}
         </ThemeComparisonFrame>
-        <ThemeComparisonFrame theme="dark" label="Dark elevated" themeVars={darkThemeVars}>
+        <ThemeComparisonFrame
+          theme="dark"
+          label="Dark elevated"
+          themeVars={darkThemeVars}
+          {...frameProps}
+        >
           {darkPane}
         </ThemeComparisonFrame>
       </div>
@@ -89,6 +116,7 @@ function BlockRow({
         theme={previewTheme}
         label={previewTheme === 'light' ? 'Light' : 'Dark elevated'}
         themeVars={previewTheme === 'light' ? lightThemeVars : darkThemeVars}
+        {...frameProps}
       >
         {previewTheme === 'light' ? lightPane : darkPane}
       </ThemeComparisonFrame>
@@ -100,6 +128,7 @@ function BlockRow({
       eyebrow={block.eyebrow}
       title={block.title}
       intent={block.intent}
+      layout={block.sectionLayout}
       blockId={block.id}
       hasChainSpec={block.chainSpec != null}
       onChainSelect={onChainSelect}
@@ -111,7 +140,6 @@ function BlockRow({
 
 /**
  * Paired Light / Dark elevated preview for every semantic block, following `comparisonLayout`.
- * All annotations route click-to-select through `onSelectSystem` so the right-side Inspector stays in sync.
  */
 export const SemanticPreviewWorkbench = memo(function SemanticPreviewWorkbench(props: Props) {
   const lightThemeVars = useMemo(
@@ -128,7 +156,14 @@ export const SemanticPreviewWorkbench = memo(function SemanticPreviewWorkbench(p
       data-inspection={props.inspectionMode ? 'on' : 'off'}
     >
       {PREVIEW_BLOCK_CASES.map((block, i) => (
-        <BlockRow key={block.id} block={block} index={i} lightThemeVars={lightThemeVars} darkThemeVars={darkThemeVars} {...props} />
+        <BlockRow
+          key={block.id}
+          block={block}
+          index={i}
+          lightThemeVars={lightThemeVars}
+          darkThemeVars={darkThemeVars}
+          {...props}
+        />
       ))}
     </div>
   )

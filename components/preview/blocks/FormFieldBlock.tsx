@@ -1,46 +1,45 @@
-import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
 import type {BlockCaseProps} from '@/components/preview/blockTypes'
+import {
+  PreviewBlockShell,
+  PreviewSpecimen,
+  PreviewSpecimenStack,
+} from '@/components/preview/blocks/previewSpecimen'
 import {Input} from '@/components/ui/input.tsx'
 
 export function FormFieldBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
   return (
-    <div className="space-y-12">
-      <label className="block space-y-4">
-        <span className="text-micro font-medium text-subtle">
-          Company
-        </span>
-        <Input
-          placeholder="Search accounts…"
-          className="border-brand"
-        />
-        <span className="flex flex-wrap items-center gap-x-2 text-nano text-white/45">
-          <span>placeholder</span>
-          <SemanticTokenAnnotation role="text.muted" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-          <span>·</span>
-          <span>field edge</span>
-          <SemanticTokenAnnotation role="border.strong" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        </span>
-      </label>
-      <label className="block space-y-4">
-        <span className="text-micro font-medium text-subtle">
-          Read-only
-        </span>
-        <Input
-          readOnly
-          aria-readonly="true"
-          className="cursor-default border-default text-disabled"
-          defaultValue="INV-20418 · locked"
-        />
-        <span className="flex items-center gap-x-2 text-nano text-white/45">
-          <span>locked text</span>
-          <SemanticTokenAnnotation role="text.disabled" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        </span>
-      </label>
-      <p className="flex flex-wrap items-center gap-x-2 text-micro leading-snug text-subtle">
-        <span>Use a shorter billing cycle to reduce variance.</span>
-        <SemanticTokenAnnotation role="text.subtle" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-      </p>
-    </div>
+    <PreviewBlockShell
+      theme={theme}
+      inspection={inspection}
+      onSelectSystem={onSelectSystem}
+      footnotes={[
+        {prefix: 'label', role: 'text.subtle'},
+        {prefix: 'placeholder', role: 'text.muted'},
+        {prefix: 'read-only value', role: 'text.disabled'},
+        {prefix: 'active edge', role: 'border.strong'},
+        {prefix: 'read-only edge', role: 'border.default'},
+      ]}
+    >
+      <PreviewSpecimenStack>
+        <PreviewSpecimen label="Active">
+          <label className="flex w-full flex-col gap-4">
+            <span className="text-micro font-medium text-subtle">Token path</span>
+            <Input placeholder="surface.default" className="border-strong" />
+          </label>
+        </PreviewSpecimen>
+        <PreviewSpecimen label="Read-only">
+          <label className="flex w-full flex-col gap-4">
+            <span className="text-micro font-medium text-subtle">CSS variable</span>
+            <Input
+              readOnly
+              aria-readonly="true"
+              className="cursor-default border-default text-disabled"
+              defaultValue="--color-neutral-12"
+            />
+          </label>
+        </PreviewSpecimen>
+      </PreviewSpecimenStack>
+    </PreviewBlockShell>
   )
 }
 FormFieldBlock.displayName = 'FormFieldBlock'

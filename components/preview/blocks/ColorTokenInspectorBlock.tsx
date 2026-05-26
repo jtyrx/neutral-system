@@ -2,35 +2,57 @@
 
 import {useMemo} from 'react'
 
-import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
 import type {BlockCaseProps} from '@/components/preview/blockTypes'
+import {
+  PreviewBlockShell,
+  PreviewSpecimen,
+  previewSectionRule,
+} from '@/components/preview/blocks/previewSpecimen'
+import {cn} from '@/lib/utils'
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip.tsx'
 import {tokensForSemanticLayerPublic} from '@/lib/neutral-engine/tokenViews'
 
-export function ColorTokenInspectorBlock({tokenView, theme, inspection, onSelectSystem}: BlockCaseProps) {
-  const surfaceTokens = useMemo(() => tokensForSemanticLayerPublic(tokenView, 'surface'), [tokenView])
-  const borderTokens = useMemo(() => tokensForSemanticLayerPublic(tokenView, 'border'), [tokenView])
-  const textTokens = useMemo(() => tokensForSemanticLayerPublic(tokenView, 'text'), [tokenView])
-
-  const rows = [
-    {label: 'Surface', tokens: surfaceTokens},
-    {label: 'Border', tokens: borderTokens},
-    {label: 'Text', tokens: textTokens},
-  ]
+export function ColorTokenInspectorBlock({
+  tokenView,
+  theme,
+  inspection,
+  onSelectSystem,
+}: BlockCaseProps) {
+  const layers = useMemo(
+    () =>
+      (['surface', 'border', 'text'] as const).map((layer) => ({
+        label: layer.charAt(0).toUpperCase() + layer.slice(1),
+        tokens: tokensForSemanticLayerPublic(tokenView, layer),
+      })),
+    [tokenView],
+  )
 
   return (
-    <TooltipProvider>
-      <div className="space-y-12 rounded-lg border border-subtle bg-default p-12">
-        {rows.map(({label, tokens}) => (
-          <div key={label}>
-            <p className="mb-6 text-micro font-medium uppercase tracking-wide text-muted">{label}</p>
-            <div className="flex flex-wrap gap-6">
+    <PreviewBlockShell
+      theme={theme}
+      inspection={inspection}
+      onSelectSystem={onSelectSystem}
+      footnotes={[
+        {prefix: 'swatches', role: 'surface.default'},
+        {prefix: 'borders', role: 'border.default'},
+        {prefix: 'text roles', role: 'text.default'},
+      ]}
+    >
+      <TooltipProvider>
+        <div className="flex flex-col">
+          {layers.map(({label, tokens}, index) => (
+          <PreviewSpecimen
+            key={label}
+            label={label}
+            className={cn(index > 0 && previewSectionRule)}
+          >
+            <div className="flex flex-wrap gap-4">
               {tokens.map((t) => (
                 <Tooltip key={t.id}>
                   <TooltipTrigger asChild>
                     <button
                       type="button"
-                      className="h-28 w-28 rounded-full border-2 border-hairline-strong shadow-inner transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="size-28 rounded-full border-2 border-hairline-strong shadow-inner transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       style={{backgroundColor: t.serialized.hex}}
                       onClick={() => onSelectSystem?.(t.role, theme)}
                       aria-label={t.role}
@@ -42,13 +64,11 @@ export function ColorTokenInspectorBlock({tokenView, theme, inspection, onSelect
                 </Tooltip>
               ))}
             </div>
-          </div>
-        ))}
-        {inspection ? null : (
-          <p className="text-nano text-white/45">Click a swatch to inspect its token</p>
-        )}
-      </div>
-    </TooltipProvider>
+          </PreviewSpecimen>
+          ))}
+        </div>
+      </TooltipProvider>
+    </PreviewBlockShell>
   )
 }
 ColorTokenInspectorBlock.displayName = 'ColorTokenInspectorBlock'

@@ -8,7 +8,14 @@ export const chainSpec: BlockChainSpec = {
       dtcgPath: 'color.text.subtle',
       cssVar: '--color-text-subtle',
       usage: 'color',
-      description: 'Secondary text emphasis for input labels.',
+      description: 'Secondary emphasis for field labels above the control.',
+    },
+    {
+      element: 'Placeholder',
+      dtcgPath: 'color.text.muted',
+      cssVar: '--color-text-muted',
+      usage: 'color',
+      description: 'Hint text inside an empty, editable field.',
     },
     {
       element: 'Field edge (active)',
@@ -25,11 +32,11 @@ export const chainSpec: BlockChainSpec = {
       description: 'Default border for read-only fields.',
     },
     {
-      element: 'Locked text',
+      element: 'Read-only value',
       dtcgPath: 'color.text.disabled',
       cssVar: '--color-text-disabled',
       usage: 'color',
-      description: 'Disabled/read-only text — communicates the field is not editable.',
+      description: 'Non-editable export or locked token value inside the field.',
     },
   ],
 }

@@ -1,40 +1,77 @@
-import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
 import type {BlockCaseProps} from '@/components/preview/blockTypes'
+import {
+  PreviewBlockShell,
+  PreviewBlockSplit,
+  PreviewSpecimen,
+} from '@/components/preview/blocks/previewSpecimen'
 import {Button} from '@/components/ui/button.tsx'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card.tsx'
 
 export function DataCardBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
   return (
-    <div className="space-y-8">
-      <div
-        className="rounded-lg border border-default bg-raised p-12 sm:p-16"
-        style={{boxShadow: '0 1px 0 rgba(0,0,0,0.06), 0 14px 30px rgba(0,0,0,0.12)'}}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-8">
-          <h4 className="text-sm font-semibold text-default">
-            Active users
-          </h4>
-          <span className="text-micro tabular-nums text-muted">
-            Updated 14:02 UTC
-          </span>
-        </div>
-        <p className="mt-12 text-2xl font-semibold tabular-nums tracking-tight text-default">
-          12.4k
-        </p>
-        <Button variant="outline" size="sm" className="mt-16">
-          View breakdown
-        </Button>
-      </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-4 text-nano text-white/45">
-        <span>card surface</span>
-        <SemanticTokenAnnotation role="surface.raised" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        <span>·</span>
-        <span>control edge</span>
-        <SemanticTokenAnnotation role="border.default" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        <span>·</span>
-        <span>focus ring</span>
-        <SemanticTokenAnnotation role="border.focus" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-      </div>
-    </div>
+    <PreviewBlockShell
+      theme={theme}
+      inspection={inspection}
+      onSelectSystem={onSelectSystem}
+      footnotes={[
+        {prefix: 'card surface', role: 'surface.raised'},
+        {prefix: 'card border', role: 'border.default'},
+        {prefix: 'footer well', role: 'surface.subtle'},
+      ]}
+    >
+      <PreviewBlockSplit aside="wide-main">
+        <PreviewSpecimen label="Structured">
+          <Card size="sm" className="w-full border-default bg-raised shadow-raised">
+            <CardHeader>
+              <CardTitle>Semantic mapping</CardTitle>
+              <CardAction>
+                <Button variant="outline" size="xs">
+                  Inspect
+                </Button>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-4 font-mono text-nano tabular-nums">
+                <dt className="text-muted">surface.default</dt>
+                <dd className="text-default">neutral-12</dd>
+                <dt className="text-muted">text.muted</dt>
+                <dd className="text-default">neutral-18</dd>
+                <dt className="text-muted">border.focus</dt>
+                <dd className="text-default">derived</dd>
+              </dl>
+            </CardContent>
+            <CardFooter className="justify-end gap-6">
+              <Button variant="ghost" size="sm">
+                Reset
+              </Button>
+              <Button variant="default" size="sm">
+                Apply
+              </Button>
+            </CardFooter>
+          </Card>
+        </PreviewSpecimen>
+
+        <PreviewSpecimen label="Compact">
+          <Card size="sm" className="w-full border-default bg-default">
+            <CardHeader className="pb-0">
+              <CardTitle className="text-xs">Export format</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-micro leading-relaxed text-subtle">
+                CSS variables, JSON, or Tailwind v4 inline theme.
+              </p>
+            </CardContent>
+          </Card>
+        </PreviewSpecimen>
+      </PreviewBlockSplit>
+    </PreviewBlockShell>
   )
 }
 DataCardBlock.displayName = 'DataCardBlock'

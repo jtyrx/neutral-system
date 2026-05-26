@@ -24,8 +24,17 @@ import {chainSpec as overlayMenuChainSpec} from '@/components/preview/blocks/Ove
 import {SurfaceHierarchyBlock} from '@/components/preview/blocks/SurfaceHierarchyBlock'
 import {chainSpec as surfaceHierarchyChainSpec} from '@/components/preview/blocks/SurfaceHierarchyBlock.chain'
 import type {BlockCaseProps} from '@/components/preview/blockTypes'
+import type {PreviewBlockSectionLayout} from '@/components/preview/previewBlockSectionLayout'
+import {previewSectionLayouts} from '@/components/preview/previewBlockSectionLayout'
 
 export type {BlockCaseProps}
+export type {
+  PreviewBlockSectionLayout,
+  PreviewSectionAlign,
+  PreviewSectionTier,
+  PreviewSectionWidth,
+} from '@/components/preview/previewBlockSectionLayout'
+export {previewSectionLayouts}
 
 export type PreviewBlockCase = {
   id: string
@@ -33,7 +42,8 @@ export type PreviewBlockCase = {
   title: string
   intent: string
   Component: ComponentType<BlockCaseProps>
-  /** Token chain spec — required for new blocks; backfilled on existing blocks in Phase 2 */
+  /** Section tier, width, alignment, and comparison rhythm (see `previewSectionLayouts`). */
+  sectionLayout: PreviewBlockSectionLayout
   chainSpec?: BlockChainSpec
 }
 
@@ -46,80 +56,94 @@ export const PREVIEW_BLOCK_CASES: PreviewBlockCase[] = [
     id: 'layout-nav',
     eyebrow: 'Application shell',
     title: 'Layout & navigation',
-    intent: 'Layered shell: recessed nav well, primary canvas, grouped workspace. Quiet nav vs active selection.',
+    intent: 'Recessed nav well, active selection, and workspace panel: operational shell density (Stripe/Linear), not analytics chrome.',
     Component: BlockCaseWrapper(LayoutNavBlock),
+    sectionLayout: {...previewSectionLayouts.wide, sectionAlign: 'start'},
     chainSpec: layoutNavChainSpec,
   },
   {
     id: 'data-card',
-    eyebrow: 'Data surface',
-    title: 'Interactive data card',
-    intent: 'Raised surface = lifted analytics tile. Focus ring uses the dedicated focus token — keyboard-first, not a default border.',
+    eyebrow: 'Card',
+    title: 'Card specimens',
+    intent: 'shadcn-style card header, content, footer, and compact settings card. Token mapping readout instead of hero metrics.',
     Component: BlockCaseWrapper(DataCardBlock),
+    sectionLayout: {...previewSectionLayouts.standard, sectionAlign: 'start'},
     chainSpec: dataCardChainSpec,
   },
   {
     id: 'form-field',
     eyebrow: 'Input',
-    title: 'Form field',
-    intent: 'Strong border = control boundary. Muted placeholder vs disabled read-only vs subtle help — distinct semantics.',
+    title: 'Labeled field',
+    intent: 'text.subtle labels, text.muted placeholders, border.strong on the active field, and read-only export values with text.disabled and border.default.',
     Component: BlockCaseWrapper(FormFieldBlock),
+    sectionLayout: {...previewSectionLayouts.compact, sectionAlign: 'start'},
     chainSpec: formFieldChainSpec,
   },
   {
     id: 'callout',
     eyebrow: 'Emphasis',
-    title: 'Notification & brand callout',
-    intent: 'Inverse strip = semantic ramp flip. Brand strip uses surface.brand with text.brand for saturated-plane ink.',
+    title: 'Inverse & brand callouts',
+    intent: 'Inverse strip (surface/text.inverse) beside brand plane (surface.brand + text.brand) without decorative gradients.',
     Component: BlockCaseWrapper(CalloutBlock),
+    sectionLayout: {...previewSectionLayouts.standard, sectionAlign: 'start'},
     chainSpec: calloutChainSpec,
   },
   {
     id: 'overlay-menu',
-    eyebrow: 'Ephemeral surface',
-    title: 'Action menu overlay',
-    intent: 'Overlay = top elevation plane for ephemeral UI. Scrim dims the canvas; menu uses overlay + default border.',
+    eyebrow: 'Overlays',
+    title: 'Popover, tooltip & menu',
+    intent: 'Real Popover, Tooltip, and DropdownMenu on surface.overlay: ephemeral UI specimens aligned with shadcn blocks.',
     Component: BlockCaseWrapper(OverlayMenuBlock),
+    sectionLayout: {...previewSectionLayouts.standard, sectionAlign: 'center'},
     chainSpec: overlayMenuChainSpec,
   },
   {
     id: 'button-variants',
-    eyebrow: 'Interactive controls',
-    title: 'Button variants',
-    intent: 'All six variants × four sizes × four states (rest, focus ring, disabled, loading). Reveals how the neutral system sets fill, border, and ring for every button role.',
+    eyebrow: 'Button',
+    title: 'Button matrix & group',
+    intent: 'Variant × size matrix (rest, disabled, loading), tabbable focus ring row, and button groups. Native :focus-visible; token footnotes for fill and border.focus.',
     Component: BlockCaseWrapper(ButtonVariantsBlock),
+    sectionLayout: {...previewSectionLayouts.canvas, sectionAlign: 'start'},
     chainSpec: buttonVariantsChainSpec,
   },
   {
     id: 'form-controls',
-    eyebrow: 'Input surfaces',
-    title: 'Form controls',
-    intent: 'Input default/disabled/invalid + Slider + ToggleGroup — exercises field border, focus ring, placeholder, and disabled opacity against the neutral surface.',
+    eyebrow: 'Form controls',
+    title: 'Input, tabs, radio & slider',
+    intent: 'Input states, inline kbd shortcut, ToggleGroup tabs, RadioGroup segments, and slider (shadcn input/tabs/radio-group/kbd patterns).',
     Component: BlockCaseWrapper(FormControlsBlock),
+    sectionLayout: {
+      ...previewSectionLayouts.standard,
+      sectionWidth: 'lg',
+      sectionAlign: 'start',
+    },
     chainSpec: formControlsChainSpec,
   },
   {
     id: 'surface-hierarchy',
-    eyebrow: 'Depth system',
-    title: 'Surface hierarchy',
-    intent: 'Four nested elevation planes (sunken → default → raised → overlay) demonstrating that each step of the neutral ladder produces legible depth.',
+    eyebrow: 'Surfaces',
+    title: 'Elevation ladder',
+    intent: 'Flat stacked planes (sunken → overlay) with role annotations: tweakcn-style theme preview without nested card clutter.',
     Component: BlockCaseWrapper(SurfaceHierarchyBlock),
+    sectionLayout: {...previewSectionLayouts.wide, sectionAlign: 'start'},
     chainSpec: surfaceHierarchyChainSpec,
   },
   {
     id: 'color-token-inspector',
-    eyebrow: 'Token reference',
-    title: 'Color token inspector',
-    intent: 'Clickable swatch grid for every surface, border, and text role. Hover to see the CSS variable name; click to open the inspector panel.',
+    eyebrow: 'Tokens',
+    title: 'Semantic swatch grid',
+    intent: 'Per-layer swatch specimens with tooltips: inspectable token logic like Figma variables / tweakcn theme editor.',
     Component: BlockCaseWrapper(ColorTokenInspectorBlock),
+    sectionLayout: {...previewSectionLayouts.canvas, sectionAlign: 'start'},
     chainSpec: colorTokenInspectorChainSpec,
   },
   {
     id: 'feedback',
-    eyebrow: 'Status & state',
-    title: 'Feedback states',
-    intent: 'Skeleton skeleton, toast overlay, and badge group — exercises overlay surface, border, muted/disabled text, and inverse/brand planes in a single block.',
+    eyebrow: 'Status',
+    title: 'Badge, skeleton & toast',
+    intent: 'Badge variant row, skeleton loading, and toast on overlay (shadcn badge + skeleton blocks).',
     Component: BlockCaseWrapper(FeedbackBlock),
+    sectionLayout: {...previewSectionLayouts.standard, sectionAlign: 'start'},
     chainSpec: feedbackChainSpec,
   },
 ] satisfies PreviewBlockCase[]

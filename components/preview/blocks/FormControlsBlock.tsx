@@ -2,60 +2,94 @@
 
 import {useState} from 'react'
 
-import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
 import type {BlockCaseProps} from '@/components/preview/blockTypes'
+import {
+  PreviewBlockCanvas,
+  PreviewBlockShell,
+  PreviewBlockSplit,
+  PreviewKbd,
+  PreviewSpecimen,
+  PreviewSpecimenStack,
+  previewSectionRule,
+} from '@/components/preview/blocks/previewSpecimen'
 import {Input} from '@/components/ui/input.tsx'
+import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group.tsx'
 import {SliderField} from '@/components/ui/slider.tsx'
 import {ToggleGroup, ToggleGroupItem} from '@/components/ui/toggle-group.tsx'
 
-export function FormControlsBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
-  const [alignValue, setAlignValue] = useState<string[]>(['center'])
+export function FormControlsBlock({
+  theme,
+  inspection,
+  onSelectSystem,
+}: BlockCaseProps) {
+  const [view, setView] = useState<string[]>(['ramp'])
+  const [density, setDensity] = useState('comfortable')
 
   return (
-    <div className="space-y-16 rounded-md bg-default p-12">
-      <div className="grid gap-16 sm:grid-cols-2">
-        <div className="space-y-12">
-          <div className="space-y-4">
-            <label className="text-micro font-medium text-subtle">Default</label>
-            <Input placeholder="Enter a value…" className="border-default" />
-          </div>
-          <div className="space-y-4">
-            <label className="text-micro font-medium text-subtle">Disabled</label>
-            <Input placeholder="Not editable" disabled />
-          </div>
-          <div className="space-y-4">
-            <label className="text-micro font-medium text-subtle">Invalid</label>
+    <PreviewBlockShell
+      theme={theme}
+      inspection={inspection}
+      onSelectSystem={onSelectSystem}
+      footnotes={[
+        {prefix: 'field edge', role: 'border.default'},
+        {prefix: 'focus ring', role: 'border.focus'},
+        {prefix: 'placeholder', role: 'text.muted'},
+      ]}
+    >
+      <PreviewBlockCanvas>
+        <PreviewSpecimen label="Input">
+          <PreviewSpecimenStack className="gap-6">
+            <Input placeholder="Token name…" />
+            <Input placeholder="Locked field" disabled />
             <Input aria-invalid defaultValue="bad@value" />
-          </div>
-        </div>
-        <div className="space-y-16">
-          <SliderField label="Opacity" defaultValue={[60]} min={0} max={100} />
-          <div className="space-y-4">
-            <p className="text-micro font-medium text-subtle">Alignment</p>
+            <div className="relative max-w-sm">
+              <Input placeholder="Search roles…" className="pr-28" />
+              <div className="pointer-events-none absolute top-1/2 right-8 flex -translate-y-1/2 gap-4">
+                <PreviewKbd>⌘</PreviewKbd>
+                <PreviewKbd>K</PreviewKbd>
+              </div>
+            </div>
+            <SliderField label="Chroma taper" defaultValue={[42]} min={0} max={100} />
+          </PreviewSpecimenStack>
+        </PreviewSpecimen>
+
+        <PreviewBlockSplit className={previewSectionRule}>
+          <PreviewSpecimen label="Tabs">
             <ToggleGroup
-              value={alignValue}
-              onValueChange={setAlignValue}
+              value={view}
+              onValueChange={setView}
               variant="outline"
               size="sm"
+              className="w-full max-w-xs"
             >
-              <ToggleGroupItem value="left">Left</ToggleGroupItem>
-              <ToggleGroupItem value="center">Center</ToggleGroupItem>
-              <ToggleGroupItem value="right">Right</ToggleGroupItem>
+              <ToggleGroupItem value="ramp" className="flex-1">
+                Ramp
+              </ToggleGroupItem>
+              <ToggleGroupItem value="roles" className="flex-1">
+                Roles
+              </ToggleGroupItem>
+              <ToggleGroupItem value="export" className="flex-1">
+                Export
+              </ToggleGroupItem>
             </ToggleGroup>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-4 text-nano text-white/45">
-        <span>field edge</span>
-        <SemanticTokenAnnotation role="border.default" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        <span>·</span>
-        <span>focus ring</span>
-        <SemanticTokenAnnotation role="border.focus" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        <span>·</span>
-        <span>placeholder</span>
-        <SemanticTokenAnnotation role="text.muted" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-      </div>
-    </div>
+          </PreviewSpecimen>
+          <PreviewSpecimen label="Radio">
+            <RadioGroup
+              value={density}
+              onValueChange={(value) => {
+                if (typeof value === 'string') setDensity(value)
+              }}
+              variant="scrim"
+              className="w-fit"
+            >
+              <RadioGroupItem value="compact">Compact</RadioGroupItem>
+              <RadioGroupItem value="comfortable">Comfortable</RadioGroupItem>
+              <RadioGroupItem value="spacious">Spacious</RadioGroupItem>
+            </RadioGroup>
+          </PreviewSpecimen>
+        </PreviewBlockSplit>
+      </PreviewBlockCanvas>
+    </PreviewBlockShell>
   )
 }
 FormControlsBlock.displayName = 'FormControlsBlock'

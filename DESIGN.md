@@ -102,9 +102,11 @@ components:
 
 **Creative North Star: "The Calibration Chamber"**
 
-Neutral System Builder is a precision instrument, not a creative sandbox. Its UI is deliberately colorless: achromatic neutrals from near-black to near-white, a single warm accent that appears only where it carries meaning, and motion that communicates system response rather than aesthetic personality. The chrome recedes so the ramp colors — the actual output of the tool — read true. Every pixel that isn't the user's color system is a pixel that should not exist.
+Neutral System Builder is a precision instrument, not a creative sandbox or portfolio piece. Personality: **rigorous, composed, operable** — the kind of surface you would trust inside Stripe, Figma, Linear, or Vercel. Its UI is deliberately colorless: achromatic neutrals from near-black to near-white, a single warm accent that appears only where it carries meaning, and motion that communicates system response rather than aesthetic personality. The chrome recedes so the ramp colors — the actual output of the tool — read true. Every pixel that isn't the user's color system is a pixel that should not exist.
 
-The system rejects three things without exception: the weight and darkness of Adobe-style tooling, the bubbly friendliness of no-code SaaS surfaces, and the block-stacking rhythm of Notion-style everything-is-a-block layouts. This is not a tool that performs expertise; it is a tool built by people who have it, for people who do too.
+**Reference posture (tone, not mimicry):** Stripe-like operational density and clarity; Figma-like inspectable token logic in panels and readouts; Linear-like restrained hierarchy and fast focused workflows; Klim specimen–level typographic discipline in labels and numerical copy.
+
+The system rejects without exception: Adobe-style tool heaviness, no-code SaaS gloss, Notion block-stacking, AI-wrapper theatrics (glow, vague magic panels), portfolio motion that competes with logic, and analytics-dashboard clutter that reads as BI instead of authoring.
 
 The design language is taut without being stark. Type is set at information density, not comfort density. Controls recede until needed, then confirm without surprising. The floating dock uses genuine depth (hardcoded shadows, backdrop blur) to separate it from the canvas it floats above, earning its visual weight rather than borrowing it from a color.
 
@@ -258,6 +260,9 @@ Monospaced uppercase section dividers. Appears before grouped control blocks.
 - **Don't** apply Adobe-style tool heaviness: no persistent dark icon bars, no multiple competing floating panels, no nested bordered regions within bordered regions.
 - **Don't** apply no-code SaaS friendliness: no gradient cards, no pastel tints, no rounded-everything pill aesthetics applied uniformly. Roundness is earned by component role (toolbar, pill toggle) not applied by default.
 - **Don't** stack blocks like Notion: each section should have a clear spatial hierarchy. Avoid uniform vertical rhythm that makes every block feel the same weight.
+- **Don't** use AI-wrapper visuals: glowing gradients, “magic” panels, or chatbot-first framing. Intelligence shows up as inspectable tokens and contrast math, not decorative futurism.
+- **Don't** perform taste through motion or branding effects. Portfolio theatrics compete with the ramp; the system logic is the proof.
+- **Don't** borrow analytics-dashboard patterns (metric cards, chart chrome, BI density). This is design-system authoring, not reporting.
 - **Don't** use `border-left` or `border-right` greater than 1px as a colored accent stripe. Rewrite with background tints or full borders.
 - **Don't** use gradient text (`background-clip: text`). Emphasis via weight or size only.
 - **Don't** animate layout properties (`width`, `height`, `padding`, `margin`). Animate `transform`, `opacity`, `color`, `background-color`, `box-shadow`.

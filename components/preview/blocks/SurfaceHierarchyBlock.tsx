@@ -1,35 +1,58 @@
-import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
 import type {BlockCaseProps} from '@/components/preview/blockTypes'
+import {
+  PreviewBlockCanvas,
+  PreviewBlockShell,
+} from '@/components/preview/blocks/previewSpecimen'
+import {SemanticTokenAnnotation} from '@/components/preview/SemanticTokenAnnotation'
+import {cn} from '@/lib/utils'
 
-export function SurfaceHierarchyBlock({theme, inspection, onSelectSystem}: BlockCaseProps) {
+const PLANES = [
+  {role: 'surface.sunken', label: 'Sunken', surface: 'bg-sunken'},
+  {role: 'surface.default', label: 'Default', surface: 'bg-default'},
+  {role: 'surface.raised', label: 'Raised', surface: 'bg-raised'},
+  {role: 'surface.overlay', label: 'Overlay', surface: 'bg-overlay shadow-overlay'},
+] as const
+
+export function SurfaceHierarchyBlock({
+  theme,
+  inspection,
+  onSelectSystem,
+}: BlockCaseProps) {
   return (
-    <div className="rounded-lg border border-subtle bg-sunken p-12 sm:p-16">
-      <div className="flex items-center gap-6">
-        <p className="text-micro font-semibold uppercase tracking-wide text-muted">Sunken</p>
-        <SemanticTokenAnnotation role="surface.sunken" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-      </div>
-      <div className="mt-8 rounded-md border border-subtle bg-default p-10">
-        <div className="flex items-center gap-6">
-          <p className="text-micro font-semibold uppercase tracking-wide text-subtle">Default</p>
-          <SemanticTokenAnnotation role="surface.default" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-        </div>
-        <div className="mt-8 rounded-md border border-default bg-raised p-10 shadow-raised">
-          <div className="flex items-center gap-6">
-            <p className="text-micro font-semibold uppercase tracking-wide text-subtle">Raised</p>
-            <SemanticTokenAnnotation role="surface.raised" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
-          </div>
-          <div className="mt-8 rounded-md border border-default bg-overlay p-10 shadow-overlay">
-            <div className="flex items-center gap-6">
-              <p className="text-micro font-semibold uppercase tracking-wide text-default">Overlay</p>
-              <SemanticTokenAnnotation role="surface.overlay" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
+    <PreviewBlockShell
+      theme={theme}
+      inspection={inspection}
+      onSelectSystem={onSelectSystem}
+      footnotes={[
+        {prefix: 'ladder', role: 'surface.default'},
+        {prefix: 'dividers', role: 'border.subtle'},
+      ]}
+    >
+      <PreviewBlockCanvas tone="stage">
+        <div className="flex flex-col">
+          {PLANES.map((plane, index) => (
+            <div
+              key={plane.role}
+              className={cn(
+                'flex flex-wrap items-center gap-6 px-8 py-10 sm:px-10',
+                plane.surface,
+                index > 0 && 'border-t border-hairline',
+              )}
+            >
+              <p className="font-mono text-nano uppercase tracking-[0.12em] text-default">
+                {plane.label}
+              </p>
+              <SemanticTokenAnnotation
+                role={plane.role}
+                inspection={inspection}
+                theme={theme}
+                onSelect={onSelectSystem}
+              />
             </div>
-            <p className="mt-4 text-micro leading-relaxed text-subtle">
-              Highest elevation — menus, popovers, dialogs.
-            </p>
-          </div>
+          ))}
         </div>
-      </div>
-    </div>
+      </PreviewBlockCanvas>
+    </PreviewBlockShell>
   )
 }
 SurfaceHierarchyBlock.displayName = 'SurfaceHierarchyBlock'

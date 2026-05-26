@@ -87,7 +87,7 @@ function buildOklchString(L: number, C: number, hueDeg: number | null): string {
 
 /** Inclusive; global ladder step count allowed in the builder UI and engine. */
 export const GLOBAL_SCALE_STEP_MIN = 8
-export const GLOBAL_SCALE_STEP_MAX = 48
+export const GLOBAL_SCALE_STEP_MAX = 16
 
 /**
  * Deterministic global ramp. Default direction: index 0 = lightest (lHigh), last = darkest (lLow).

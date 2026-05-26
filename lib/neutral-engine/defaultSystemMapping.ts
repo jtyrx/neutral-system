@@ -12,26 +12,26 @@ import {
 /** Wide-mode baseline: canonical seed for Light + Dark elevated (see product defaults). */
 export const DEFAULT_SYSTEM_MAPPING: SystemMappingConfig = {
   fillStart: 0,                // Index where fill slots start in the palette (light mode)
-  strokeStart: 4,              // Index where stroke slots start in the palette (light mode)
+  strokeStart: 8,              // Index where stroke slots start in the palette (light mode)
   textStart: 34,               // Legacy 41-step seed; ladder clamp recomputes from steps × count × interval
-  fillCount: 5,                // Standard surface ladder (sunken → overlay); inverse is separate
-  strokeCount: 4,              // Saved presets may use 4; engine clamps border ladder to max 3 (`BORDER_STANDARD_SLOT_COUNT`). `border.focus` is separate.
+  fillCount: 7,                // Standard surface ladder (sunken → overlay); inverse is separate
+  strokeCount: 3,              // Saved presets may use 4; engine clamps border ladder to max 3 (`BORDER_STANDARD_SLOT_COUNT`). `border.focus` is separate.
   textCount: 5,                // Standard text ladder (default → disabled); text.inverse is separate
   darkFillStart: 0,            // Index where fill slots start from the dark edge of the palette
-  darkStrokeStart: 2,          // Index where stroke slots start in the palette (dark mode)
+  darkStrokeStart: 8,          // Index where stroke slots start in the palette (dark mode)
   darkTextStart: 34,           // Black-first dark ramp: same direct text start as light for the 41-step seed
-  darkFillCount: 5,            // Standard surface ladder (dark elevated)
-  darkStrokeCount: 4,          // Same clamp as `strokeCount`: max effective border ladder is 3. `border.focus` is separate.
+  darkFillCount: 7,            // Standard surface ladder (dark elevated)
+  darkStrokeCount: 3,          // Same clamp as `strokeCount`: max effective border ladder is 3. `border.focus` is separate.
   darkTextCount: 5,            // Standard text ladder (dark elevated)
   altCount: 2,                 // Number of alternative slots/groups to allocate
   lightFillStepInterval: 1,    // Step interval between fills in light mode
   lightStrokeStepInterval: 1,  // Step interval between strokes in light mode
-  lightTextStepInterval: 2,    // Step interval between text slots in light mode
+  lightTextStepInterval: 1,    // Step interval between text slots in light mode
   darkFillStepInterval: 1,     // Step interval between fills in dark mode
   darkStrokeStepInterval: 1,   // Step interval between strokes in dark mode
-  darkTextStepInterval: 2,     // Step interval between text slots in dark mode
+  darkTextStepInterval: 1,     // Step interval between text slots in dark mode
   contrastDistance: 1,         // Integer distance to increase contrast group separation
-  themeMode: 'light',          // Starting theme mode; can be 'light' or 'dark'
+  themeMode: 'darkElevated',          // Starting theme mode; can be 'light' or 'darkElevated'
   darkSegmentLength: 8,        // Segment length for dark mode palette linear mappings
   altAlpha: 0.45,              // Alpha value to use for alternative slots
   includeContrastGroups: false,// Whether to include explicit contrast groups in mapping

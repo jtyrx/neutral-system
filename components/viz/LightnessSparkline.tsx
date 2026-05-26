@@ -21,7 +21,7 @@ function LightnessSparklineInner({swatches}: Props) {
   if (swatches.length < 2) return null
   const min = Math.min(...ls)
   const max = Math.max(...ls)
-  const h = 48
+  const h = 16
   const w = 200
   const pad = 4
   const pts = ls

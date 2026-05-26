@@ -5,6 +5,14 @@ import {labelsForNamingStyle} from '@/lib/neutral-engine/naming'
 import type {ChromaMode, GlobalScaleConfig, GlobalScaleDirection, GlobalSwatch, LCurve} from '@/lib/neutral-engine/types'
 
 /**
+ * Quadratic Bezier lightness bias. P0=0, control=midpoint, P2=1.
+ * midpoint=0.5 → linear; <0.5 → more light steps; >0.5 → more dark steps.
+ */
+function bezierT(u: number, midpoint: number): number {
+  return 2 * u * (1 - u) * midpoint + u * u
+}
+
+/**
  * Maps `t ∈ [0,1]` through the lightness curve shape only (does not interpolate to L).
  *
  * - `linear` (default): `t`.
@@ -122,6 +130,8 @@ function cacheKeyForGlobalScale(config: GlobalScaleConfig, direction: GlobalScal
     config.lCurveStrengthA ?? '',
     config.lCurveStrengthB ?? '',
     config.pivotIndex ?? '',
+    config.lightnessModel?.kind ?? '',
+    config.lightnessModel?.midpoint ?? '',
   ].join('|')
 }
 
@@ -176,14 +186,20 @@ export function buildGlobalScale(
 
   const pivot = config.pivotIndex ?? 8
   const useDual = config.lCurveStrengthA !== undefined || config.lCurveStrengthB !== undefined
+  const lm = config.lightnessModel
 
   for (let i = 0; i < n; i++) {
     const outputT = n === 1 ? 0 : i / (n - 1)
     const t = direction === 'dark-to-light' ? 1 - outputT : outputT
-    const strength = useDual
-      ? (i < pivot ? (config.lCurveStrengthA ?? config.lCurveStrength) : (config.lCurveStrengthB ?? config.lCurveStrength))
-      : config.lCurveStrength
-    const L = easeL(lHigh, lLow, t, config.lCurve, strength)
+    let L: number
+    if (lm?.kind === 'linear-oklch') {
+      L = lHigh + bezierT(t, lm.midpoint ?? 0.5) * (lLow - lHigh)
+    } else {
+      const strength = useDual
+        ? (i < pivot ? (config.lCurveStrengthA ?? config.lCurveStrength) : (config.lCurveStrengthB ?? config.lCurveStrength))
+        : config.lCurveStrength
+      L = easeL(lHigh, lLow, t, config.lCurve, strength)
+    }
     const C = chromaAtT(chromaMode, t, chromaAtLight, chromaAtDark)
     // When hue drift is active, extract H from the Oklab range at linear t.
     // The range is sampled at linear t (not eased) so the hue shift is time-uniform.

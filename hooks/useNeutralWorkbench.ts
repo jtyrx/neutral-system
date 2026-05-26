@@ -34,6 +34,7 @@ import type {
   ThemeMode,
   WorkbenchSelection,
 } from '@/lib/neutral-engine/types'
+import type {ContrastModel} from '@/lib/neutral-engine/contrastModel'
 import type {ContrastEmphasis} from '@/lib/neutral-engine/semanticNaming'
 import type {OkhslEdit, OkhslView} from '@/lib/neutral-engine/okhsl'
 import type {TokenView} from '@/lib/neutral-engine/tokenViews'
@@ -48,7 +49,7 @@ import {labelForGlobalPatchKey, labelForSystemPatchKey} from '@/lib/neutral-engi
 import {
   readWorkbenchFromStorage,
   writeWorkbenchToStorage,
-  type WorkbenchPersistedPayloadV1,
+  type WorkbenchPersistedPayloadV2,
 } from '@/lib/workbench/workbenchStorage'
 
 const DEFAULT_GLOBAL: GlobalScaleConfig = DEFAULT_GLOBAL_SCALE_CONFIG
@@ -97,6 +98,8 @@ export interface NeutralWorkbench {
   setPreviewTheme: (value: 'light' | 'dark', label?: string) => void
   contrastEmphasis: ContrastEmphasis
   setContrastEmphasis: (value: ContrastEmphasis, label?: string) => void
+  contrastModel: ContrastModel
+  setContrastModel: Dispatch<SetStateAction<ContrastModel>>
   selection: WorkbenchSelection | null
   setSelection: Dispatch<SetStateAction<WorkbenchSelection | null>>
   selectGlobal: (index: number) => void
@@ -131,6 +134,7 @@ export function useNeutralWorkbench(): NeutralWorkbench {
   const [systemConfigBase, setSystemConfigBase] = useState<SystemMappingConfig>(DEFAULT_SYSTEM)
   const [previewTheme, setPreviewThemeBase] = useState<'light' | 'dark'>('light')
   const [contrastEmphasis, setContrastEmphasisBase] = useState<ContrastEmphasis>('default')
+  const [contrastModel, setContrastModel] = useState<ContrastModel>('wcag-2.1')
   const [selection, setSelection] = useState<WorkbenchSelection | null>(null)
   const [comparisonLayout, setComparisonLayout] = useState<ComparisonLayout>('split')
   const [showContrastPairs, setShowContrastPairs] = useState(false)
@@ -163,6 +167,7 @@ export function useNeutralWorkbench(): NeutralWorkbench {
       setOkhslEnabled(p.okhslEnabled)
       setAlphaConfig(p.alphaConfig)
       setSelection(p.selection)
+      setContrastModel(p.contrastModel)
       if (p.neutralArchitecture === 'simple') {
         setScaleEditTarget('global')
       } else {
@@ -380,13 +385,13 @@ export function useNeutralWorkbench(): NeutralWorkbench {
   }, [lightRamp, darkRamp, effectiveMappingLight, effectiveMappingDark])
 
   const lightTokens = useMemo(
-    () => deriveSystemTokens(lightRamp, {...effectiveMappingLight, themeMode: 'light'}),
-    [lightRamp, effectiveMappingLight],
+    () => deriveSystemTokens(lightRamp, {...effectiveMappingLight, themeMode: 'light'}, contrastModel),
+    [lightRamp, effectiveMappingLight, contrastModel],
   )
 
   const darkTokens = useMemo(
-    () => deriveSystemTokens(darkRamp, {...effectiveMappingDark, themeMode: 'darkElevated'}),
-    [darkRamp, effectiveMappingDark],
+    () => deriveSystemTokens(darkRamp, {...effectiveMappingDark, themeMode: 'darkElevated'}, contrastModel),
+    [darkRamp, effectiveMappingDark, contrastModel],
   )
 
   useEffect(() => {
@@ -489,9 +494,9 @@ export function useNeutralWorkbench(): NeutralWorkbench {
     [architectureRamps, lightTokens, darkTokens, alphaConfig],
   )
 
-  const persistPayload: WorkbenchPersistedPayloadV1 = useMemo(
+  const persistPayload: WorkbenchPersistedPayloadV2 = useMemo(
     () => ({
-      v: 1,
+      v: 2,
       neutralArchitecture,
       globalScale,
       lightScale,
@@ -505,6 +510,7 @@ export function useNeutralWorkbench(): NeutralWorkbench {
       scaleEditTarget,
       alphaConfig,
       selection,
+      contrastModel,
     }),
     [
       neutralArchitecture,
@@ -520,6 +526,7 @@ export function useNeutralWorkbench(): NeutralWorkbench {
       scaleEditTarget,
       alphaConfig,
       selection,
+      contrastModel,
     ],
   )
 
@@ -592,6 +599,8 @@ export function useNeutralWorkbench(): NeutralWorkbench {
       setPreviewTheme,
       contrastEmphasis,
       setContrastEmphasis,
+      contrastModel,
+      setContrastModel,
       selection,
       setSelection,
       selectGlobal,
@@ -655,6 +664,8 @@ export function useNeutralWorkbench(): NeutralWorkbench {
       setPreviewTheme,
       contrastEmphasis,
       setContrastEmphasis,
+      contrastModel,
+      setContrastModel,
       selection,
       setSelection,
       selectGlobal,

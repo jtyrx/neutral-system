@@ -71,10 +71,6 @@ type Props = {
 
 function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
   const clampedSteps = clampGlobalScaleSteps(secondary.steps)
-  const curve = secondary.lCurve ?? 'linear'
-  const isLinear = curve === 'linear'
-
-  const strengthPct = Math.round((secondary.lCurveStrength ?? 1) * 100)
 
   return (
     <CollapsibleControlGroup
@@ -218,64 +214,6 @@ function PickerSecondaryControlsInner({secondary, patchSecondary}: Props) {
             />
           </label>
 
-          <label className="space-y-4">
-            <span className="ns-label">L curve</span>
-            <ResponsiveSelect
-              id="picker-l-curve"
-              className="h-32 w-full py-4 text-xs"
-              value={curve}
-              options={curveOptions.map((o) => ({value: o.id, label: o.label}))}
-              onValueChange={(v) => patchSecondary({lCurve: v as LCurve})}
-            />
-          </label>
-        </div>
-
-        <div className="flex items-center gap-8">
-          <Popover>
-            <PopoverTrigger
-              type="button"
-              disabled={isLinear}
-              aria-label="L curve strength"
-              className={cn(
-                'inline-flex size-32 shrink-0 items-center justify-center rounded-md border border-hairline bg-raised text-subtle outline-none transition',
-                'hover:bg-sidebar-border hover:text-default',
-                'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/35',
-                'disabled:pointer-events-none disabled:opacity-45',
-                '[&_svg]:pointer-events-none [&_svg]:size-16',
-              )}
-            >
-              <Settings2 className="size-14" aria-hidden />
-            </PopoverTrigger>
-            <PopoverContent className="w-320 gap-16" align="start" sideOffset={8}>
-              <PopoverHeader>
-                <PopoverTitle>L curve strength</PopoverTitle>
-              </PopoverHeader>
-              <div className="space-y-8">
-                <span className="text-xs font-medium text-muted tabular-nums">
-                  Strength {strengthPct}%
-                </span>
-                <Slider
-                  disabled={isLinear}
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={[strengthPct]}
-                  onValueChange={([pct]) =>
-                    typeof pct === 'number' &&
-                    patchSecondary({lCurveStrength: pct / 100})
-                  }
-                />
-                <p className="picker-caption">
-                  0% = linear spacing · 100% = full curve
-                </p>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <span className="picker-caption">
-            {isLinear
-              ? 'Linear curve — open popover disabled'
-              : `Strength ${strengthPct}%`}
-          </span>
         </div>
       </div>
     </CollapsibleControlGroup>

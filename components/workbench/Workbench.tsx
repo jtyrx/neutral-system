@@ -40,6 +40,8 @@ export function Workbench() {
         onComparisonLayoutChange={wb.setComparisonLayout}
         inspectionMode={wb.inspectionMode}
         onToggleInspection={wb.toggleInspectionMode}
+        contrastModel={wb.contrastModel}
+        onContrastModelChange={wb.setContrastModel}
       />
 
       <main
@@ -88,6 +90,7 @@ export function Workbench() {
                 : EMPTY_SYSTEM_TOKENS
             }
             onDismissGlobal={dismissGlobalInspector}
+            contrastModel={wb.contrastModel}
           />
           <WorkbenchControlsShell
             wb={wb}

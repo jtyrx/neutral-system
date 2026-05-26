@@ -1,5 +1,10 @@
 import {resolveBrandColorForTokens} from '@/lib/neutral-engine/brandColor'
 import {contrastTextOnBg} from '@/lib/neutral-engine/contrast'
+import {
+  computeContrast,
+  textTargetsForModel,
+  type ContrastModel,
+} from '@/lib/neutral-engine/contrastModel'
 import {parseColorFromSerialized, serializeColor} from '@/lib/neutral-engine/serialize'
 import {
   altRoleForIndex,
@@ -242,6 +247,7 @@ export function findIndexForContrast(
   againstIndex: number,
   targetRatio: number,
   direction: 'lower' | 'higher',
+  model?: ContrastModel,
 ): number {
   const n = global.length
   if (n < 2) return 0
@@ -254,7 +260,10 @@ export function findIndexForContrast(
     const sw = global[i]
     if (!sw) continue
     const c = parseColorFromSerialized(sw.serialized)
-    if (contrastTextOnBg(c, bgColor) >= targetRatio) return i
+    const contrast = model === 'apca'
+      ? Math.abs(computeContrast(c, bgColor, 'apca'))
+      : contrastTextOnBg(c, bgColor)
+    if (contrast >= targetRatio) return i
   }
   return direction === 'higher' ? n - 1 : 0
 }
@@ -408,6 +417,7 @@ function applyRoleStepOverride(
 export function deriveSystemTokens(
   global: GlobalSwatch[],
   cfg: SystemMappingConfig,
+  contrastModel?: ContrastModel,
 ): SystemToken[] {
   const n = global.length
   if (n < 2) return []
@@ -453,11 +463,10 @@ export function deriveSystemTokens(
     // surface.default is the second fill slot (index 1), falling back to the first.
     const surfaceDefaultIdx = fillIndices[1] ?? fillIndices[0] ?? 0
     const dir = 'higher'
-    // Targets per slot: text.default(4.5), text.subtle(3.0), text.muted(2.0), text.disabled(1.5)
-    const targets = [4.5, 3.0, 2.0, 1.5]
-    textOrdered = targets
+    const targets = textTargetsForModel(contrastModel ?? 'wcag-2.1')
+    textOrdered = Array.from(targets)
       .slice(0, textStandardCount)
-      .map((ratio) => findIndexForContrast(global, surfaceDefaultIdx, ratio, dir))
+      .map((ratio) => findIndexForContrast(global, surfaceDefaultIdx, ratio, dir, contrastModel))
   }
 
   const surfaceInverseIdx = resolveSurfaceInverseIndex(fillIndices, n)
@@ -636,13 +645,14 @@ export function previewResolvedRoleIndices(
 export function deriveAllThemeTokens(
   ramps: ArchitectureRamps,
   base: SystemMappingConfig,
+  contrastModel?: ContrastModel,
 ): {light: SystemToken[]; dark: SystemToken[]} {
   if (ramps.architecture === 'simple') {
-    const light = deriveSystemTokens(ramps.global, {...base, themeMode: 'light'})
-    const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'})
+    const light = deriveSystemTokens(ramps.global, {...base, themeMode: 'light'}, contrastModel)
+    const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'}, contrastModel)
     return {light, dark}
   }
-  const light = deriveSystemTokens(ramps.light, {...base, themeMode: 'light'})
-  const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'})
+  const light = deriveSystemTokens(ramps.light, {...base, themeMode: 'light'}, contrastModel)
+  const dark = deriveSystemTokens(ramps.dark, {...base, themeMode: 'darkElevated'}, contrastModel)
   return {light, dark}
 }

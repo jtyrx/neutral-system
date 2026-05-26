@@ -6,6 +6,7 @@ import {memo, useCallback, useEffect, useRef, useState} from 'react'
 import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button.tsx'
 import {analyzeSwatch} from '@/lib/neutral-engine/heuristics'
+import {computeContrast, type ContrastModel} from '@/lib/neutral-engine/contrastModel'
 import {parseColorFromSerialized} from '@/lib/neutral-engine/serialize'
 import type {
   GlobalSwatch,
@@ -24,11 +25,13 @@ type Props = {
   global: GlobalSwatch[]
   lightTokens: SystemToken[]
   darkTokens: SystemToken[]
+  contrastModel?: ContrastModel
   /** Clears selection when the user closes the global swatch inspector. */
   onDismissGlobal?: () => void
 }
 
 function inspectorAreEqual(prev: Props, next: Props): boolean {
+  if (prev.contrastModel !== next.contrastModel) return false
   if (prev.global !== next.global) return false
   if (prev.onDismissGlobal !== next.onDismissGlobal) return false
   const a = prev.selection
@@ -60,12 +63,14 @@ type GlobalSwatchInspectorProps = {
   global: GlobalSwatch[]
   index: number
   onDismiss: () => void
+  contrastModel?: ContrastModel
 }
 
 function GlobalSwatchInspector({
   global,
   index,
   onDismiss,
+  contrastModel = 'wcag-2.1',
 }: GlobalSwatchInspectorProps) {
   const white = CANVAS_WHITE
   const black = CANVAS_BLACK
@@ -95,8 +100,9 @@ function GlobalSwatchInspector({
   const next = global[idx + 1]
   const advice = analyzeSwatch(s, next, white, black)
   const sColor = parseColorFromSerialized(s.serialized)
-  const onWhite = sColor.contrastWCAG21(white)
-  const onBlack = sColor.contrastWCAG21(black)
+  const isApca = contrastModel === 'apca'
+  const onWhite = computeContrast(sColor, white, contrastModel)
+  const onBlack = computeContrast(sColor, black, contrastModel)
 
   return (
     <div
@@ -173,13 +179,17 @@ function GlobalSwatchInspector({
         <div>
           <dt className="text-muted">Contrast vs white</dt>
           <dd>
-            {onWhite.toFixed(2)} ({advice.wcagOnWhite})
+            {isApca
+              ? `Lc ${Math.abs(onWhite).toFixed(1)}`
+              : `${onWhite.toFixed(2)} (${advice.wcagOnWhite})`}
           </dd>
         </div>
         <div>
           <dt className="text-muted">Contrast vs black</dt>
           <dd>
-            {onBlack.toFixed(2)} ({advice.wcagOnBlack})
+            {isApca
+              ? `Lc ${Math.abs(onBlack).toFixed(1)}`
+              : `${onBlack.toFixed(2)} (${advice.wcagOnBlack})`}
           </dd>
         </div>
         {advice.tooCloseToNext ? (
@@ -198,6 +208,7 @@ function InspectorInner({
   global,
   lightTokens,
   darkTokens,
+  contrastModel = 'wcag-2.1',
   onDismissGlobal,
 }: Props) {
   const white = CANVAS_WHITE
@@ -222,6 +233,7 @@ function InspectorInner({
         global={global}
         index={selection.index}
         onDismiss={dismiss}
+        contrastModel={contrastModel}
       />
     )
   }
@@ -235,7 +247,8 @@ function InspectorInner({
   if (!token) return null
 
   const bg = token.theme === 'light' ? white : black
-  const cr = parseColorFromSerialized(token.serialized).contrastWCAG21(bg)
+  const isApca = contrastModel === 'apca'
+  const cr = computeContrast(parseColorFromSerialized(token.serialized), bg, contrastModel)
 
   return (
     <div className="group/ins space-y-12 rounded-md border ns-panel p-16">
@@ -280,7 +293,7 @@ function InspectorInner({
             <dt className="text-muted">
               Contrast vs {token.theme === 'light' ? 'white' : 'black'}
             </dt>
-            <dd>{cr.toFixed(2)}</dd>
+            <dd>{isApca ? `Lc ${Math.abs(cr).toFixed(1)}` : cr.toFixed(2)}</dd>
           </div>
         </dl>
       </div>

@@ -8,19 +8,18 @@ export const DEFAULT_C_CEILING = 0.4
 
 export type OklchGamutTarget = 'srgb' | 'p3' | 'rec2020'
 
-function oklchInGamut(L: number, C: number, H: number, target: OklchGamutTarget): boolean {
-  return new Color('oklch', [L, C, H]).inGamut(target)
-}
-
 export type MaxInGamutChromaOpts = {
   cMax?: number
+  /** @deprecated No-op — MINDE has no iteration count. Kept for call-site compatibility. */
   iterations?: number
   /** @default 'srgb' */
   targetSpace?: OklchGamutTarget
 }
 
 /**
- * Maximum OKLCH chroma at fixed L and H inside `targetSpace` (binary search).
+ * Maximum OKLCH chroma at fixed L and H inside `targetSpace`.
+ * Uses CSS Color 4 MINDE (`toGamut({method:'css'})`): returns the chroma of the
+ * nearest in-gamut color by ΔE_OK. Matches Harmonizer/oklch.com output.
  */
 export function maxInGamutChroma(
   L: number,
@@ -29,20 +28,12 @@ export function maxInGamutChroma(
 ): number {
   const target = opts?.targetSpace ?? 'srgb'
   const cMax = opts?.cMax ?? DEFAULT_C_CEILING
-  const iterations = opts?.iterations ?? 24
   const Lc = Math.min(1, Math.max(0, L))
   if (cMax <= 0 || !Number.isFinite(H)) return 0
 
-  if (oklchInGamut(Lc, cMax, H, target)) return cMax
-
-  let lo = 0
-  let hi = cMax
-  for (let i = 0; i < iterations; i++) {
-    const mid = (lo + hi) / 2
-    if (oklchInGamut(Lc, mid, H, target)) lo = mid
-    else hi = mid
-  }
-  return lo
+  const overSat = new Color('oklch', [Lc, cMax, H])
+  if (overSat.inGamut(target)) return cMax
+  return overSat.toGamut({space: target, method: 'css'}).to('oklch').coords[1] ?? 0
 }
 
 export type MultiGamutSample = {

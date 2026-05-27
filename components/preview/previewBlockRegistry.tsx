@@ -74,7 +74,7 @@ export const PREVIEW_BLOCK_CASES: PreviewBlockCase[] = [
     id: 'form-field',
     eyebrow: 'Input',
     title: 'Labeled field',
-    intent: 'text.subtle labels, text.muted placeholders, border.strong on the active field, and read-only export values with text.disabled and border.default.',
+    intent: 'text.subtle labels, text.muted placeholders, border.emphasis on the active field, and read-only export values with text.disabled and border.default.',
     Component: BlockCaseWrapper(FormFieldBlock),
     sectionLayout: {...previewSectionLayouts.compact, sectionAlign: 'start'},
     chainSpec: formFieldChainSpec,

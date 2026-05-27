@@ -6,7 +6,7 @@
  * - **Surface** `surface.*` — elevation: `sunken` (well) → `default` (page) → `subtle` → `raised` → `overlay`;
  *   `brand` (accent plane); `inverse` (high-contrast ramp flip vs `sunken`).
  * - **Text** `text.*` — hierarchy: `default` → `subtle` → `muted` → `disabled`; `inverse` for copy on inverse surfaces; `brand` for copy on brand surfaces (uses `brandOklch`).
- * - **Border** `border.*` — stroke ladder `default` / `subtle` / `strong` (mapping order is engine-defined);
+ * - **Border** `border.*` — stroke ladder `muted` / `default` / `emphasis` (lightest → standard → heaviest);
  *   `focus` is max-contrast vs page base, not a stroke rung; `inverse` shares the surface.inverse ramp index;
  *   `brand` uses `brandOklch` (not a neutral ramp pick).
  * - **Interactive** — `overlay.scrim`, `state.hover` (alt pool); `emphasis.*` optional widen contrast (see exports).
@@ -45,7 +45,7 @@ export const SURFACE_STANDARD_COUNT_MAX = SURFACE_STANDARD_SLOT_COUNT
 export const SURFACE_SLOTS = [...SURFACE_STANDARD_NAMES, 'brand', 'inverse'] as const
 
 /** Border ramp picks only (strokeCount); `focus` is derived separately — see {@link resolveBorderFocusIndex}. */
-export const BORDER_LADDER_NAMES = ['default', 'subtle', 'strong'] as const
+export const BORDER_LADDER_NAMES = ['muted', 'default', 'emphasis'] as const
 export const BORDER_STANDARD_SLOT_COUNT = BORDER_LADDER_NAMES.length
 
 /** Full border role set for badges, exports, and docs (ladder + focus + paired roles). */

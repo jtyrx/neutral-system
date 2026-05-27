@@ -26,8 +26,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Dividers',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Low-emphasis borders for structural dividers that recede behind content.',
     },

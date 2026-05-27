@@ -55,9 +55,9 @@ Tailwind v4 syntax for CSS custom property utilities. Use these everywhere a `c.
 | `c.tm` color | `className="text-(--color-text-muted)"` |
 | `c.tdis` color | `className="text-(--color-text-disabled)"` |
 | `c.ton` color | `className="text-(--color-text-on)"` |
-| `c.bs` borderColor | `className="border-(--color-border-subtle)"` or `style={{borderColor: 'var(--color-border-subtle)'}}` |
+| `c.bs` borderColor | `className="border-(--color-border-muted)"` or `style={{borderColor: 'var(--color-border-muted)'}}` |
 | `c.bd` borderColor | `className="border-(--color-border-default)"` or `style={{borderColor: 'var(--color-border-default)'}}` |
-| `c.bStr` borderColor | `className="border-(--color-border-strong)"` or `style={{borderColor: 'var(--color-border-strong)'}}` |
+| `c.bStr` borderColor | `className="border-(--color-border-emphasis)"` or `style={{borderColor: 'var(--color-border-emphasis)'}}` |
 
 **When to use `style` vs `className`:** Use `className` for `background-color`, `color`, and the full `border-color` shorthand. Use `style={{borderColor: 'var(--color-*)'}}` when the element already has a complex `style` object or when the Tailwind utility would fight an existing `border-*` class.
 
@@ -384,7 +384,7 @@ export const chainSpec: BlockChainSpec = {
       dtcgPath: 'color.border.default',
       cssVar: '--color-border-default',
       usage: 'border-color',
-      description: 'Default weight field boundary — lighter than border.strong, appropriate for non-critical data entry where the control affords editing but doesn\'t demand attention.',
+      description: 'Default weight field boundary — lighter than border.emphasis, appropriate for non-critical data entry where the control affords editing but doesn\'t demand attention.',
     },
     {
       element: 'Field label',
@@ -471,7 +471,7 @@ export function ColorTokenInspectorBlock({tokenView, theme, inspection, onSelect
 
   return (
     <TooltipProvider>
-      <div className="space-y-12 rounded-lg border border-(--color-border-subtle) bg-(--color-surface-default) p-12">
+      <div className="space-y-12 rounded-lg border border-(--color-border-muted) bg-(--color-surface-default) p-12">
         {rows.map(({label, tokens}) => (
           <div key={label}>
             <p className="mb-6 text-micro font-medium uppercase tracking-wide text-(--color-text-muted)">{label}</p>
@@ -521,8 +521,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Card edge',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Subtle border — the inspector is a reference panel, not an interactive control. A hairline boundary groups the content without framing it like a form field.',
     },
@@ -588,14 +588,14 @@ export function FormFieldBlock({theme, inspection, onSelectSystem}: BlockCasePro
         </span>
         <Input
           placeholder="Search accounts…"
-          style={{borderColor: 'var(--color-border-strong)'}}
+          style={{borderColor: 'var(--color-border-emphasis)'}}
         />
         <span className="flex flex-wrap items-center gap-x-2 text-nano text-white/45">
           <span>placeholder</span>
           <SemanticTokenAnnotation role="text.muted" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
           <span>·</span>
           <span>field edge</span>
-          <SemanticTokenAnnotation role="border.strong" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
+          <SemanticTokenAnnotation role="border.emphasis" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         </span>
       </label>
       <label className="block space-y-4">
@@ -640,10 +640,10 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Active field edge',
-      dtcgPath: 'color.border.strong',
-      cssVar: '--color-border-strong',
+      dtcgPath: 'color.border.emphasis',
+      cssVar: '--color-border-emphasis',
       usage: 'border-color',
-      description: 'Strong weight — form fields that capture primary data use border.strong to signal editability. Heavier than layout dividers (border.subtle) and distinct from border.default used on read-only fields.',
+      description: 'Strong weight — form fields that capture primary data use border.emphasis to signal editability. Heavier than layout dividers (border.muted) and distinct from border.default used on read-only fields.',
     },
     {
       element: 'Read-only field edge',
@@ -725,18 +725,18 @@ export function LayoutNavBlock({theme, inspection, onSelectSystem}: BlockCasePro
   return (
     <div className="space-y-8">
       <div
-        className="flex min-h-176 overflow-hidden rounded-md border border-(--color-border-subtle) bg-(--color-surface-default)"
+        className="flex min-h-176 overflow-hidden rounded-md border border-(--color-border-muted) bg-(--color-surface-default)"
       >
         <aside
           className="flex w-[32%] shrink-0 flex-col border-r bg-(--color-surface-sunken)"
           style={{
-            borderColor: 'var(--color-border-subtle)',
+            borderColor: 'var(--color-border-muted)',
             boxShadow: 'inset -1px 0 0 rgba(0,0,0,0.04), inset 2px 0 6px rgba(0,0,0,0.04)',
           }}
         >
           <p
             className="border-b px-8 py-6 text-nano font-medium uppercase tracking-wide text-(--color-text-muted)"
-            style={{borderColor: 'var(--color-border-subtle)'}}
+            style={{borderColor: 'var(--color-border-muted)'}}
           >
             Navigation
           </p>
@@ -761,14 +761,14 @@ export function LayoutNavBlock({theme, inspection, onSelectSystem}: BlockCasePro
         <div className="flex min-w-0 flex-1 flex-col">
           <div
             className="border-b px-12 py-8 text-xs text-(--color-text-default)"
-            style={{borderColor: 'var(--color-border-subtle)'}}
+            style={{borderColor: 'var(--color-border-muted)'}}
           >
             Main workspace
           </div>
           <div className="flex-1 p-8 sm:p-12">
             <div
               className="rounded-md border bg-(--color-surface-subtle) p-8 sm:p-12"
-              style={{borderColor: 'var(--color-border-subtle)'}}
+              style={{borderColor: 'var(--color-border-muted)'}}
             >
               <p className="text-xs font-medium text-(--color-text-default)">
                 Panel
@@ -791,7 +791,7 @@ export function LayoutNavBlock({theme, inspection, onSelectSystem}: BlockCasePro
         <SemanticTokenAnnotation role="surface.subtle" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
         <span>·</span>
         <span>dividers</span>
-        <SemanticTokenAnnotation role="border.subtle" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
+        <SemanticTokenAnnotation role="border.muted" inspection={inspection} theme={theme} onSelect={onSelectSystem} />
       </div>
     </div>
   )
@@ -836,8 +836,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Dividers',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Subtle borders — structural dividers should read as layout guides, not interactive affordances.',
     },
@@ -1042,7 +1042,7 @@ export function OverlayMenuBlock({c, theme, inspection, onSelectSystem}: CaseRen
     <div className="space-y-8">
       <div
         className="relative min-h-[7rem] rounded-md border bg-(--color-surface-default) p-12"
-        style={{borderColor: 'var(--color-border-subtle)'}}
+        style={{borderColor: 'var(--color-border-muted)'}}
       >
         <p className="text-xs text-(--color-text-subtle)">
           Anchor region
@@ -1062,7 +1062,7 @@ export function OverlayMenuBlock({c, theme, inspection, onSelectSystem}: CaseRen
           <Button variant="ghost" size="sm" className="w-full justify-start text-(--color-text-default)">
             Archive
           </Button>
-          <div className="my-4 border-t" style={{borderColor: 'var(--color-border-subtle)'}} />
+          <div className="my-4 border-t" style={{borderColor: 'var(--color-border-muted)'}} />
           <Button variant="ghost" size="sm" className="w-full justify-start text-(--color-text-default)">
             Delete…
           </Button>
@@ -1116,8 +1116,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Divider',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Subtle weight separates destructive actions within the menu without creating the visual weight of a section header.',
     },
@@ -1189,7 +1189,7 @@ export function SurfaceHierarchyBlock({theme, inspection, onSelectSystem}: Block
   return (
     <div
       className="rounded-lg border bg-(--color-surface-sunken) p-12 sm:p-16"
-      style={{borderColor: 'var(--color-border-subtle)'}}
+      style={{borderColor: 'var(--color-border-muted)'}}
     >
       <div className="flex items-center gap-6">
         <p className="text-micro font-semibold uppercase tracking-wide text-(--color-text-muted)">Sunken</p>
@@ -1197,7 +1197,7 @@ export function SurfaceHierarchyBlock({theme, inspection, onSelectSystem}: Block
       </div>
       <div
         className="mt-8 rounded-md border bg-(--color-surface-default) p-10"
-        style={{borderColor: 'var(--color-border-subtle)'}}
+        style={{borderColor: 'var(--color-border-muted)'}}
       >
         <div className="flex items-center gap-6">
           <p className="text-micro font-semibold uppercase tracking-wide text-(--color-text-subtle)">Default</p>
@@ -1269,8 +1269,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Shallow borders',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Subtle weight on sunken and default planes — structural boundaries that define shape without competing with the elevation story.',
     },
@@ -1377,7 +1377,7 @@ export function FeedbackBlock({c}: CaseRenderProps) {
         <p className="text-micro font-medium uppercase tracking-wide text-(--color-text-muted)">Badges</p>
         <div className="flex flex-wrap gap-6">
           <Badge variant="default" className="bg-(--color-surface-raised) border-(--color-border-default) text-(--color-text-default)">Default</Badge>
-          <Badge variant="subtle" className="bg-(--color-surface-subtle) border-(--color-border-subtle) text-(--color-text-subtle)">Subtle</Badge>
+          <Badge variant="subtle" className="bg-(--color-surface-subtle) border-(--color-border-muted) text-(--color-text-subtle)">Subtle</Badge>
           <Badge variant="solid" className="bg-(--color-surface-inverse) text-(--color-text-on)">Inverse</Badge>
           <Badge variant="brand" style={{backgroundColor: c.brand}} className="text-(--color-text-on)">Brand</Badge>
           <Badge variant="destructive">Destructive</Badge>
@@ -1441,8 +1441,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Subtle badge edge',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
     },
     {

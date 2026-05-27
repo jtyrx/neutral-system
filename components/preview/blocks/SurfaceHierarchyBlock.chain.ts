@@ -33,8 +33,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Subtle border',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Low-emphasis structural divider — sunken and default tiers.',
     },

@@ -16,7 +16,7 @@ export function FormFieldBlock({theme, inspection, onSelectSystem}: BlockCasePro
         {prefix: 'label', role: 'text.subtle'},
         {prefix: 'placeholder', role: 'text.muted'},
         {prefix: 'read-only value', role: 'text.disabled'},
-        {prefix: 'active edge', role: 'border.strong'},
+        {prefix: 'active edge', role: 'border.emphasis'},
         {prefix: 'read-only edge', role: 'border.default'},
       ]}
     >
@@ -24,7 +24,7 @@ export function FormFieldBlock({theme, inspection, onSelectSystem}: BlockCasePro
         <PreviewSpecimen label="Active">
           <label className="flex w-full flex-col gap-4">
             <span className="text-micro font-medium text-subtle">Token path</span>
-            <Input placeholder="surface.default" className="border-strong" />
+            <Input placeholder="surface.default" className="border-emphasis" />
           </label>
         </PreviewSpecimen>
         <PreviewSpecimen label="Read-only">

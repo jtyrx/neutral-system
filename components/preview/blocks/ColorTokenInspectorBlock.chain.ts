@@ -12,8 +12,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Block border',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
       description: 'Low-emphasis container edge — recedes behind the swatch content.',
     },

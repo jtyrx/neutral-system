@@ -23,7 +23,7 @@ export function LayoutNavBlock({theme, inspection, onSelectSystem}: BlockCasePro
         {prefix: 'nav well', role: 'surface.sunken'},
         {prefix: 'active item', role: 'surface.default'},
         {prefix: 'workspace', role: 'surface.default'},
-        {prefix: 'dividers', role: 'border.subtle'},
+        {prefix: 'dividers', role: 'border.muted'},
       ]}
     >
       <PreviewBlockCanvas tone="flush" className="overflow-hidden">

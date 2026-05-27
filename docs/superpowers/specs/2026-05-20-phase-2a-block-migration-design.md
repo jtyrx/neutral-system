@@ -77,9 +77,9 @@ Every `c.*` field maps directly to a CSS custom property via Tailwind's arbitrar
 | `c.tm` | `text.muted` | `text-(--color-text-muted)` | — |
 | `c.tdis` | `text.disabled` | `text-(--color-text-disabled)` | — |
 | `c.ton` | `text.on` | `text-(--color-text-on)` | — |
-| `c.bs` | `border.subtle` | `border-(--color-border-subtle)` | — |
+| `c.bs` | `border.muted` | `border-(--color-border-muted)` | — |
 | `c.bd` | `border.default` | `border-(--color-border-default)` | — |
-| `c.bStr` | `border.strong` | `border-(--color-border-strong)` | — |
+| `c.bStr` | `border.emphasis` | `border-(--color-border-emphasis)` | — |
 | `c.scrimBg` | `overlay.scrim` | — | `style={{backgroundColor: c.scrimBg}}` |
 
 For `borderColor` on a specific element (not the full border shorthand), use:
@@ -139,7 +139,7 @@ Named export is always `chainSpec`. Entry `description` fields document the desi
 
 **What makes a good description:**
 - Explains the semantic intent, not the pixel value: *"Recessed well — creates depth below the main canvas without a hard border"*
-- Notes any non-obvious choices: *"Uses border.strong not border.default — form fields need a heavier affordance than layout dividers"*
+- Notes any non-obvious choices: *"Uses border.emphasis not border.default — form fields need a heavier affordance than layout dividers"*
 - Omit if the role name is already self-explanatory
 
 ---
@@ -169,7 +169,7 @@ Swatch grid for all semantic roles.
 | Element | DTCG path | Usage |
 |---|---|---|
 | Card background | `color.surface.default` | `background-color` |
-| Card edge | `color.border.subtle` | `border-color` |
+| Card edge | `color.border.muted` | `border-color` |
 | Group label | `color.text.muted` | `color` |
 
 ### FormFieldBlock
@@ -178,7 +178,7 @@ Active input, read-only input, help text.
 | Element | DTCG path | Usage |
 |---|---|---|
 | Field label | `color.text.subtle` | `color` |
-| Active field edge | `color.border.strong` | `border-color` |
+| Active field edge | `color.border.emphasis` | `border-color` |
 | Read-only field edge | `color.border.default` | `border-color` |
 | Locked text | `color.text.disabled` | `color` |
 | Help text | `color.text.subtle` | `color` |
@@ -192,7 +192,7 @@ Sidebar nav, active row, workspace panel.
 | Nav well | `color.surface.sunken` | `background-color` |
 | Active nav row | `color.surface.default` | `background-color` |
 | Panel | `color.surface.subtle` | `background-color` |
-| Dividers | `color.border.subtle` | `border-color` |
+| Dividers | `color.border.muted` | `border-color` |
 | Primary text | `color.text.default` | `color` |
 | Secondary text | `color.text.subtle` | `color` |
 | Label / metadata | `color.text.muted` | `color` |
@@ -215,7 +215,7 @@ Scrimmed anchor + floating action menu.
 | Anchor background | `color.surface.default` | `background-color` |
 | Menu plane | `color.surface.overlay` | `background-color` |
 | Menu edge | `color.border.default` | `border-color` |
-| Divider | `color.border.subtle` | `border-color` |
+| Divider | `color.border.muted` | `border-color` |
 | Menu item text | `color.text.default` | `color` |
 | Anchor text | `color.text.subtle` | `color` |
 | Scrim | `color.overlay.scrim` | `background-color` (runtime via `c.scrimBg`) |
@@ -226,7 +226,7 @@ Four nested elevation planes — sunken → default → raised → overlay.
 | Element | DTCG path | Usage |
 |---|---|---|
 | Outermost (Sunken) | `color.surface.sunken` | `background-color` |
-| Outer edge | `color.border.subtle` | `border-color` |
+| Outer edge | `color.border.muted` | `border-color` |
 | Default plane | `color.surface.default` | `background-color` |
 | Raised plane | `color.surface.raised` | `background-color` |
 | Raised edge | `color.border.default` | `border-color` |
@@ -247,7 +247,7 @@ Loading skeletons + toast overlay + badge row.
 | Default badge | `color.surface.raised` | `background-color` |
 | Default badge edge | `color.border.default` | `border-color` |
 | Subtle badge | `color.surface.subtle` | `background-color` |
-| Subtle badge edge | `color.border.subtle` | `border-color` |
+| Subtle badge edge | `color.border.muted` | `border-color` |
 | Inverse badge | `color.surface.inverse` | `background-color` |
 | Brand badge | `color.surface.brand` | `background-color` (runtime via `c.brand`) |
 | On-surface text | `color.text.on` | `color` |

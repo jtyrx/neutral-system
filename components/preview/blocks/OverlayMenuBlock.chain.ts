@@ -11,8 +11,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Anchor border',
-      dtcgPath: 'color.border.subtle',
-      cssVar: '--color-border-subtle',
+      dtcgPath: 'color.border.muted',
+      cssVar: '--color-border-muted',
       usage: 'border-color',
     },
     {

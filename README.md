@@ -60,7 +60,7 @@ Pick where on the ramp the **semantic surfaces, borders, and text** land, indepe
 
 ### 3 · Preview
 
-Both themes render side-by-side in realistic UI blocks — surfaces at each elevation, text at each tone, borders in context, interactive states, WCAG 2.2 contrast pairs for the pairings that matter. The preview is the inspector. Click a swatch or a token, the right rail shows its OKLCH, hex, source index, and contrast ratios. This is where you discover that `text.muted` fails on `surface.sunken`, or that `border.subtle` disappears in dark elevated, and adjust before shipping.
+Both themes render side-by-side in realistic UI blocks — surfaces at each elevation, text at each tone, borders in context, interactive states, WCAG 2.2 contrast pairs for the pairings that matter. The preview is the inspector. Click a swatch or a token, the right rail shows its OKLCH, hex, source index, and contrast ratios. This is where you discover that `text.muted` fails on `surface.sunken`, or that `border.muted` disappears in dark elevated, and adjust before shipping.
 
 ### 4 · Export
 

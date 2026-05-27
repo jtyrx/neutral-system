@@ -120,9 +120,9 @@
     --color-surface-raised: oklch(22.326% 0 none);
     --color-surface-overlay: oklch(24.385% 0 none);
     --color-surface-brand: oklch(69.3% 0.2546 37.91);
-    --color-border-subtle: oklch(28.502% 0 none);
+    --color-border-muted: oklch(28.502% 0 none);
     --color-border-default: oklch(26.444% 0 none);
-    --color-border-strong: oklch(40% 0.02 285);
+    --color-border-emphasis: oklch(40% 0.02 285);
     --color-border-focus: oklch(78% 0.14 55);
     --color-text-default: oklch(96.441% 0 none);
     --color-text-subtle: oklch(92.324% 0 none);
@@ -207,7 +207,7 @@
      * bg-popover, etc.) are wired straight to `--color-*` in `@theme inline` below.
      */
     --muted: var(--color-surface-subtle);
-    --border: var(--color-border-subtle);
+    --border: var(--color-border-muted);
     --ring: var(--color-border-focus);
     --destructive-subtle: var(--color-red-400);
     --destructive: var(--color-red-500);
@@ -215,7 +215,7 @@
     --radius: 0.625rem;
     --sidebar: var(--color-surface-sunken);
     --sidebar-accent: var(--color-surface-subtle);
-    --sidebar-border: var(--color-border-subtle);
+    --sidebar-border: var(--color-border-muted);
 
     /* Chrome control field — used for toolbar control surface-sunken (dark default) */
     --chrome-control-field: var(--color-dark-neutral-alpha-alt-100);
@@ -231,9 +231,9 @@
     --color-surface-raised: oklch(92.324% 0 none);
     --color-surface-overlay: oklch(90.265% 0 none);
     --color-surface-brand: oklch(69.3% 0.2546 37.91);
-    --color-border-subtle: oklch(88.206% 0 none);
+    --color-border-muted: oklch(88.206% 0 none);
     --color-border-default: oklch(90.265% 0 none);
-    --color-border-strong: oklch(86.148% 0 none);
+    --color-border-emphasis: oklch(86.148% 0 none);
     --color-border-focus: oklch(18.209% 0 none);
     --color-text-default: oklch(16.15% 0 none);
     --color-text-subtle: oklch(20.268% 0 none);
@@ -630,9 +630,10 @@
   /* Semantic border utilities: border-hairline, border-default, border-focus, etc. */
   --border-color-default: var(--color-border-default);
   --border-color-focus: var(--color-border-focus);
-  --border-color-subtle: var(--color-border-subtle);
+  --border-color-muted: var(--color-border-muted);
+  --border-color-emphasis: var(--color-border-emphasis);
   --border-color-brand: var(--color-border-brand);
-  --border-color-scrim: var(--color-border-subtle);
+  --border-color-scrim: var(--color-border-muted);
   --border-color-overlay-scrim: var(--color-border-default);
   /* --border-color-inverse: var(--color-border-focus); */
   --border-color-hairline: var(--chrome-hairline);

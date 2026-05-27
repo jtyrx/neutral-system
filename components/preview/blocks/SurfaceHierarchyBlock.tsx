@@ -25,7 +25,7 @@ export function SurfaceHierarchyBlock({
       onSelectSystem={onSelectSystem}
       footnotes={[
         {prefix: 'ladder', role: 'surface.default'},
-        {prefix: 'dividers', role: 'border.subtle'},
+        {prefix: 'dividers', role: 'border.muted'},
       ]}
     >
       <PreviewBlockCanvas tone="stage">

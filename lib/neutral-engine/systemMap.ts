@@ -154,7 +154,7 @@ function clampSurfaceStandardCount(raw: number): number {
   return Math.max(SURFACE_STANDARD_COUNT_MIN, Math.min(SURFACE_STANDARD_COUNT_MAX, r))
 }
 
-/** Clamp border ladder count (default / subtle / strong only; {@link border.focus} is separate). */
+/** Clamp border ladder count (muted / default / emphasis only; {@link border.focus} is separate). */
 function clampBorderStandardCount(raw: number): number {
   const r = Math.round(raw)
   if (!Number.isFinite(r)) return 1

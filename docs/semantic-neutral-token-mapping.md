@@ -16,7 +16,7 @@ This document defines how neutral primitives are assigned to semantic roles. Com
 | Text | `--color-text-default`, `--color-text-subtle`, `--color-text-muted`, `--color-text-disabled`, `--color-text-on` |
 | Icon | `--color-icon-default`, `--color-icon-subtle`, `--color-icon-subtlest`, `--color-icon-disabled`, `--color-icon-inverse` |
 | Surface | `--color-surface-sunken`, `--color-surface-default`, `--color-surface-subtle`, `--color-surface-raised`, `--color-surface-overlay`, `--color-surface-brand`, `--color-surface-inverse` |
-| Border | `--color-border-subtle`, `--color-border-default`, `--color-border-strong`, `--color-border-focus` |
+| Border | `--color-border-muted`, `--color-border-default`, `--color-border-emphasis`, `--color-border-focus` |
 | Alpha neutral (light) | `--color-neutral-alpha-100`, `--color-neutral-alpha-200`, `--color-neutral-alpha-300`, `--color-neutral-alpha-400` |
 | Alpha neutral (dark) | `--color-dark-neutral-alpha-100`, `--color-dark-neutral-alpha-200`, `--color-dark-neutral-alpha-300`, `--color-dark-neutral-alpha-400` |
 
@@ -83,9 +83,9 @@ With `steps: 41`, `lHigh: 98.5%`, `lLow: 16.15%`, light/dark **text starts are l
 | `surface.overlay` | → idx 4 | → idx 4 | `color.elevation.surface.overlay` | Modals, popovers |
 | `surface.brand` | Step past overlay | Step past overlay | `color.background.brand.bold` | Accent plane |
 | `surface.inverse` | Dark-end flip | Light-end flip | `color.background.inverse` | High-contrast inverse |
-| `border.subtle` | Stroke start idx | Dark stroke start | `color.border.subtle` | Dividers, hairlines |
+| `border.muted` | Stroke start idx | Dark stroke start | `color.border.muted` | Dividers, hairlines |
 | `border.default` | → +1 interval | → +1 interval | `color.border` | Standard border |
-| `border.strong` | → +2 intervals | → +2 intervals | `color.border.bold` | Emphasis border |
+| `border.emphasis` | → +2 intervals | → +2 intervals | `color.border.bold` | Emphasis border |
 | `border.focus` | Ramp flip of surface.default | Ramp flip of surface.default | `color.border.focused` | Focus ring — always max contrast |
 | `text.default` | Text start idx | Dark text start | `color.text` | Primary body copy |
 | `text.subtle` | → +1 × textStep | → +1 × textStep | `color.text.subtle` | Secondary copy |
@@ -183,12 +183,12 @@ The surface ladder models **luminance elevation**: containers appear lighter (in
 
 | Token | CSS Variable | Use When |
 |---|---|---|
-| Subtle | `--color-border-subtle` | Hairlines, separators between same-surface items |
+| Muted | `--color-border-muted` | Hairlines, separators between same-surface items |
 | Default | `--color-border-default` | Standard control outlines, table cell boundaries |
-| Strong | `--color-border-strong` | Emphasis borders, selected control outlines |
+| Emphasis | `--color-border-emphasis` | Emphasis borders, selected control outlines |
 | Focus | `--color-border-focus` | **Focus rings only** — never for decorative borders |
 
-**Focus ring special case:** `border.focus` is resolved as a ramp flip of `surface.default` (see `resolveBorderFocusIndex` in `systemMap.ts`). This guarantees it is always the highest-contrast neutral available in the current mode, independent of the border ladder position. Never swap a decorative `border.strong` for `border.focus` — the semantics carry accessibility guarantees.
+**Focus ring special case:** `border.focus` is resolved as a ramp flip of `surface.default` (see `resolveBorderFocusIndex` in `systemMap.ts`). This guarantees it is always the highest-contrast neutral available in the current mode, independent of the border ladder position. Never swap a decorative `border.emphasis` for `border.focus` — the semantics carry accessibility guarantees.
 
 ---
 
@@ -283,7 +283,7 @@ Under **Contrast & role mapping → Alpha neutral base offset**:
 ```css
 .card {
   background: var(--color-surface-raised);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid var(--color-border-muted);
   /* shadow token (onboarding candidate): box-shadow: var(--shadow-raised); */
 }
 
@@ -390,7 +390,7 @@ Under **Contrast & role mapping → Alpha neutral base offset**:
 | `color: var(--color-text-subtle)` | `color: var(--color-neutral-400)` |
 | `background: var(--color-surface-raised)` | `background: oklch(96% 0.005 260)` |
 | Match icon tier to adjacent text tier | Use `--color-icon-default` for a muted supporting icon |
-| Use `--color-border-focus` for focus rings only | Swap `border.strong` into focus context for visual effect |
+| Use `--color-border-focus` for focus rings only | Swap `border.emphasis` into focus context for visual effect |
 | Use `--color-neutral-alpha-200` for hover fills | Use a solid surface token for hover (surface tokens should be static) |
 | Test alpha tokens on all three surface layers | Verify alpha tokens only on `surface.default` |
 | Consume via `[data-theme]` data attribute | Read primitive values from CSS at runtime |

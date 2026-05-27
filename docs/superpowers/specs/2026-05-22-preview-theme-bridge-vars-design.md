@@ -53,11 +53,11 @@ Extend `themeVars` inline style to also set the `@theme inline` bridge var alias
 | `surface.raised` | `--color-surface-raised` | `--background-color-raised` |
 | `surface.overlay` | `--color-surface-overlay` | `--background-color-overlay` |
 | `border.default` | `--color-border-default` | `--border-color-default` |
-| `border.subtle` | `--color-border-subtle` | `--border-color-subtle` |
-| `border.strong` | `--color-border-strong` | `--border-color-brand` (note: suffix changes) |
+| `border.muted` | `--color-border-muted` | `--border-color-muted` |
+| `border.emphasis` | `--color-border-emphasis` | `--border-color-emphasis` |
 | `border.focus` | `--color-border-focus` | `--border-color-focus` |
 
-Note: `border.strong` maps to `--border-color-brand` (not `--border-color-strong`) to match `globals.css`'s `@theme inline { --border-color-brand: var(--color-border-strong) }`.
+Note: `border.emphasis` maps to `--border-color-emphasis` via `@theme inline { --border-color-emphasis: var(--color-border-emphasis) }`. `--border-color-brand` remains the custom brand stroke (`border.brand`).
 
 ---
 
@@ -80,8 +80,8 @@ const PREVIEW_BRIDGE_VAR_MAP: Partial<Record<string, string>> = {
   'surface.raised': '--background-color-raised',
   'surface.overlay': '--background-color-overlay',
   'border.default': '--border-color-default',
-  'border.subtle': '--border-color-subtle',
-  'border.strong': '--border-color-brand',
+  'border.muted': '--border-color-muted',
+  'border.emphasis': '--border-color-emphasis',
   'border.focus': '--border-color-focus',
 }
 ```

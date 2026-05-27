@@ -19,8 +19,8 @@ export const chainSpec: BlockChainSpec = {
     },
     {
       element: 'Field edge (active)',
-      dtcgPath: 'color.border.strong',
-      cssVar: '--color-border-strong',
+      dtcgPath: 'color.border.emphasis',
+      cssVar: '--color-border-emphasis',
       usage: 'border-color',
       description: 'High-emphasis border for the active/focused input field.',
     },

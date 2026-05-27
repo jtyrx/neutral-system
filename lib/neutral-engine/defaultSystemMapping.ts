@@ -72,5 +72,19 @@ export function migrateSystemMappingConfig(partial: PartialSystemWithLegacy): Sy
     if (rest.darkTextStepInterval === undefined) m.darkTextStepInterval = legacyStepInterval
   }
 
+  if (m.roleStepOverrides) {
+    const migrated: NonNullable<SystemMappingConfig['roleStepOverrides']> = {}
+    for (const [role, override] of Object.entries(m.roleStepOverrides)) {
+      const nextRole =
+        role === 'border.subtle'
+          ? 'border.muted'
+          : role === 'border.strong'
+            ? 'border.emphasis'
+            : role
+      migrated[nextRole] = override
+    }
+    m.roleStepOverrides = migrated
+  }
+
   return m
 }

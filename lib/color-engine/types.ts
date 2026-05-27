@@ -1,10 +1,8 @@
 export type PaletteName = 'blue' | 'green' | 'orange' | 'yellow' | 'red' | 'purple'
 
-export type ChromaPolicy = 'max' | 'even'
-
 export type PaletteTheme = 'light' | 'dark'
 
-export type PaletteGamut = 'srgb' | 'display-p3'
+export type PaletteGamut = 'srgb' | 'display-p3' | 'rec2020'
 
 export type OklchStop = {
   index: number
@@ -15,6 +13,7 @@ export type OklchStop = {
   oklchCss: string
   inSrgb: boolean
   inP3: boolean
+  srgbDeltaE: number
   contrastOnWhite: {wcag: number; apca: number}
   contrastOnBlack: {wcag: number; apca: number}
   contrastOnSurface: {wcag: number; apca: number}
@@ -23,7 +22,6 @@ export type OklchStop = {
 export type PaletteConfig = {
   name: PaletteName
   hue: number
-  chromaPolicy: ChromaPolicy
 }
 
 export type GeneratedPalette = {

@@ -1,5 +1,4 @@
 export type {
-  ChromaPolicy,
   ContrastReport,
   GeneratedPalette,
   OklchStop,

@@ -1,4 +1,5 @@
-import type {ChromaPolicy, PaletteConfig, PaletteGamut, PaletteName} from '@/lib/color-engine/types'
+import type {PaletteConfig, PaletteGamut, PaletteName} from '@/lib/color-engine/types'
+import {DARK_L, LIGHT_L} from '@/lib/color-engine/presetLightness'
 import type {ContrastModel} from '@/lib/neutral-engine/contrastModel'
 
 const STORAGE_KEY = 'color-palettes:workbench:v1'
@@ -6,9 +7,10 @@ const STORAGE_KEY = 'color-palettes:workbench:v1'
 export type ColorPalettesPersistedV1 = {
   v: 1
   palettes: PaletteConfig[]
-  chromaPolicy: ChromaPolicy
   gamut: PaletteGamut
   contrastModel: ContrastModel
+  lightStops: number[]
+  darkStops: number[]
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -19,24 +21,25 @@ function isPaletteName(v: unknown): v is PaletteName {
   return v === 'blue' || v === 'green' || v === 'orange' || v === 'yellow' || v === 'red' || v === 'purple'
 }
 
-function isChromaPolicy(v: unknown): v is ChromaPolicy {
-  return v === 'max' || v === 'even'
-}
-
 function isPaletteGamut(v: unknown): v is PaletteGamut {
-  return v === 'srgb' || v === 'display-p3'
+  return v === 'srgb' || v === 'display-p3' || v === 'rec2020'
 }
 
 function isContrastModel(v: unknown): v is ContrastModel {
   return v === 'wcag-2.1' || v === 'apca'
 }
 
+function coerceLStops(v: unknown, fallback: readonly number[]): number[] {
+  if (!Array.isArray(v) || v.length !== fallback.length) return [...fallback]
+  if (!v.every((x) => typeof x === 'number' && x >= 0 && x <= 1)) return [...fallback]
+  return v as number[]
+}
+
 function coercePaletteConfig(v: unknown): PaletteConfig | null {
   if (!isRecord(v)) return null
   if (!isPaletteName(v.name)) return null
   if (typeof v.hue !== 'number' || !Number.isFinite(v.hue)) return null
-  if (!isChromaPolicy(v.chromaPolicy)) return null
-  return {name: v.name, hue: v.hue, chromaPolicy: v.chromaPolicy}
+  return {name: v.name, hue: v.hue}
 }
 
 export function parseColorPalettesStorage(
@@ -49,10 +52,11 @@ export function parseColorPalettesStorage(
     const palettes = Array.isArray(parsed.palettes)
       ? (parsed.palettes.map(coercePaletteConfig).filter(Boolean) as PaletteConfig[])
       : []
-    const chromaPolicy = isChromaPolicy(parsed.chromaPolicy) ? parsed.chromaPolicy : 'max'
     const gamut = isPaletteGamut(parsed.gamut) ? parsed.gamut : 'display-p3'
     const contrastModel = isContrastModel(parsed.contrastModel) ? parsed.contrastModel : 'wcag-2.1'
-    return {v: 1, palettes, chromaPolicy, gamut, contrastModel}
+    const lightStops = coerceLStops(parsed.lightStops, LIGHT_L)
+    const darkStops = coerceLStops(parsed.darkStops, DARK_L)
+    return {v: 1, palettes, gamut, contrastModel, lightStops, darkStops}
   } catch {
     return null
   }

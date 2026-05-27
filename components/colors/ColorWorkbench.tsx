@@ -46,18 +46,25 @@ export function ColorWorkbench() {
           <ThemeTab value="dark" active={previewTheme === 'dark'} onClick={() => setPreviewTheme('dark')} />
         </div>
         <p className="font-mono text-micro text-muted">
-          Display P3 · {wb.chromaPolicy === 'max' ? 'Max chroma' : 'Even chroma'}
+          {wb.gamut === 'srgb' ? 'sRGB' : wb.gamut === 'display-p3' ? 'Display P3' : 'Max chroma'}
         </p>
       </header>
 
       <ColorPaletteControls
         palettes={wb.palettes}
-        chromaPolicy={wb.chromaPolicy}
+        gamut={wb.gamut}
         contrastModel={wb.contrastModel}
-        onChromaPolicyChange={wb.setChromaPolicy}
+        previewTheme={previewTheme}
+        lightStops={wb.lightStops}
+        darkStops={wb.darkStops}
+        onGamutChange={wb.setGamut}
         onContrastModelChange={wb.setContrastModel}
         onHueChange={wb.setHue}
         onResetHues={wb.resetHues}
+        onStopChange={(theme, index, value) =>
+          theme === 'light' ? wb.setLightStop(index, value) : wb.setDarkStop(index, value)
+        }
+        onResetStops={wb.resetStops}
       />
 
       <div className="flex-1 overflow-auto px-16 pb-16">

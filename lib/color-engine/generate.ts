@@ -1,12 +1,14 @@
 import Color from 'colorjs.io'
 
-import type {ChromaPolicy, OklchStop, PaletteGamut, PaletteName, PaletteTheme} from '@/lib/color-engine/types'
+import type {OklchStop, PaletteGamut, PaletteName, PaletteTheme} from '@/lib/color-engine/types'
 import {maxInGamutChroma} from '@/lib/neutral-engine/gamutProbing'
 import type {OklchGamutTarget} from '@/lib/neutral-engine/gamutProbing'
 import {PALETTE_DARK_L, PALETTE_LIGHT_L} from '@/lib/color-engine/presetLightness'
 
 function gamutTarget(gamut: PaletteGamut): OklchGamutTarget {
-  return gamut === 'display-p3' ? 'p3' : 'srgb'
+  if (gamut === 'display-p3') return 'p3'
+  if (gamut === 'rec2020') return 'rec2020'
+  return 'srgb'
 }
 
 function round(v: number, decimals: number): number {
@@ -19,8 +21,6 @@ export type GeneratePaletteOpts = {
   hue: number
   theme: PaletteTheme
   gamut: PaletteGamut
-  chromaPolicy: ChromaPolicy
-  // Override default lightness array (length 9). Omit to use preset.
   lightness?: readonly number[]
 }
 
@@ -35,14 +35,7 @@ export function generatePalette(opts: GeneratePaletteOpts): OklchStop[] {
     maxInGamutChroma(L, opts.hue, {targetSpace: target}),
   )
 
-  let resolvedChroma: number[]
-  if (opts.chromaPolicy === 'max') {
-    resolvedChroma = maxChromaPerStop
-  } else {
-    // even: uniform C = min across all stops (bottleneck constrains palette)
-    const cEven = Math.min(...maxChromaPerStop)
-    resolvedChroma = lightnessArr.map(() => cEven)
-  }
+  const resolvedChroma = maxChromaPerStop
 
   // 2. Resolve surface anchor (stop index 1 = array index 0 = surface.default)
   const surfaceL = lightnessArr[0] ?? 0.97
@@ -59,15 +52,19 @@ export function generatePalette(opts: GeneratePaletteOpts): OklchStop[] {
     const color = new Color('oklch', [L, C, H])
 
     const inSrgb = color.inGamut('srgb')
-    const inP3 = color.inGamut('p3')
+    // MINDE allows colors slightly outside the strict P3 cube (ΔE_OK ≈ 0.02);
+    // check with a small tolerance to avoid false P3+ badges on P3-targeted stops.
+    const p3Clamped = color.toGamut({space: 'p3', method: 'css'})
+    const inP3 = color.inGamut('p3') || (p3Clamped as Color).deltaEOK(color) < 0.02
 
     // Clip to sRGB for serialization — matches globalScale.ts render-layer pattern
     const srgbClamped = color.toGamut({space: 'srgb', method: 'css'})
     const hex = srgbClamped.toString({format: 'hex'})
+    const srgbDeltaE = (srgbClamped as Color).deltaEOK(color)
     const oklchCss = `oklch(${round(L, 4)} ${round(C, 4)} ${round(H, 2)})`
 
     return {
-      index: i + 1,
+      index: i,
       L,
       C,
       H,
@@ -75,6 +72,7 @@ export function generatePalette(opts: GeneratePaletteOpts): OklchStop[] {
       oklchCss,
       inSrgb,
       inP3,
+      srgbDeltaE,
       contrastOnWhite: {
         wcag: Math.abs(color.contrastWCAG21(white)),
         apca: Math.abs(color.contrast(white, 'APCA')),
@@ -96,10 +94,17 @@ export function generateBothThemes(opts: {
   name: PaletteName
   hue: number
   gamut: PaletteGamut
-  chromaPolicy: ChromaPolicy
+  lightness?: readonly number[]
+  darkness?: readonly number[]
 }): {light: OklchStop[]; dark: OklchStop[]} {
   return {
-    light: generatePalette({...opts, theme: 'light'}),
-    dark: generatePalette({...opts, theme: 'dark'}),
+    light: generatePalette({
+      name: opts.name, hue: opts.hue, gamut: opts.gamut, theme: 'light',
+      ...(opts.lightness !== undefined && {lightness: opts.lightness}),
+    }),
+    dark: generatePalette({
+      name: opts.name, hue: opts.hue, gamut: opts.gamut, theme: 'dark',
+      ...(opts.darkness !== undefined && {lightness: opts.darkness}),
+    }),
   }
 }

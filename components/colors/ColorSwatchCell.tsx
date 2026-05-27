@@ -1,10 +1,10 @@
 'use client'
 
-import {useState} from 'react'
+import {useSyncExternalStore, useState} from 'react'
 
 import type {ContrastModel} from '@/lib/neutral-engine/contrastModel'
+import {getDisplayGamutSnapshot, subscribeDisplayGamut} from '@/lib/neutral-engine/displayGamut'
 import type {OklchStop} from '@/lib/color-engine/types'
-import {cn} from '@/lib/utils'
 
 type Props = {
   stop: OklchStop
@@ -12,10 +12,30 @@ type Props = {
 }
 
 function GamutBadge({stop}: {stop: OklchStop}) {
-  if (stop.inSrgb) return null
-  const label = stop.inP3 ? 'P3' : 'P3+'
+  const displayTier = useSyncExternalStore(subscribeDisplayGamut, getDisplayGamutSnapshot, () => 'srgb')
+
+  // No badge if in sRGB, or if the color is only marginally outside sRGB
+  // (ΔE_OK < 0.02 ≈ 1× JND — MINDE gamut mapping minimises ΔE, so even P3
+  // boundary colours land just under 0.04; 0.02 catches real P3 midtones
+  // while keeping light tints (ΔE < 0.005) badge-free)
+  if (stop.inSrgb || stop.srgbDeltaE < 0.02) return null
+
+  let label: string
+  if (!stop.inP3) {
+    // Beyond P3 — rec2020 territory
+    label = 'P3+'
+  } else if (displayTier === 'srgb') {
+    // P3 color on an sRGB monitor — showing sRGB fallback
+    label = 'sRGB'
+  } else {
+    label = 'P3'
+  }
+
   return (
-    <span className="absolute right-4 top-4 rounded-sm bg-black/30 px-4 py-1 font-mono text-[0.55rem] leading-none text-white/90 backdrop-blur-sm">
+    <span
+      className="absolute right-4 top-4 rounded-sm bg-black/30 px-4 py-1 font-mono text-[0.55rem] leading-none text-white/90 backdrop-blur-sm"
+      title={displayTier === 'srgb' && stop.inP3 ? `sRGB fallback: ${stop.hex}` : undefined}
+    >
       {label}
     </span>
   )
@@ -42,12 +62,13 @@ export function ColorSwatchCell({stop, contrastModel}: Props) {
       </button>
 
       <div className="flex flex-col gap-1 pt-4">
-        <p className="font-mono text-[0.6rem] leading-none text-muted">{stop.index}</p>
-        <p className="font-mono text-[0.6rem] leading-none text-subtle">{stop.hex}</p>
+        <p className="font-mono text-nano leading-none text-muted">{stop.index}</p>
+        <p className="font-mono text-nano leading-none text-subtle">{stop.hex}</p>
+        <p className="font-mono text-nano leading-none text-muted">{stop.oklchCss}</p>
       </div>
 
       {expanded && (
-        <div className="mt-6 flex flex-col gap-3 rounded-md border border-hairline bg-raised p-8 text-[0.65rem]">
+        <div className="mt-6 flex flex-col gap-3 rounded-md border border-hairline bg-raised p-8 text-micro">
           <p className="font-mono text-muted uppercase tracking-wide">Contrast</p>
           <div className="grid grid-cols-2 gap-x-8 gap-y-2">
             <span className="text-subtle">vs white</span>
@@ -57,7 +78,7 @@ export function ColorSwatchCell({stop, contrastModel}: Props) {
             <span className="text-subtle">vs surface</span>
             <span className="font-mono text-default">{contrastLabel(stop.contrastOnSurface[contrastModel === 'apca' ? 'apca' : 'wcag'], contrastModel)}</span>
           </div>
-          <p className="font-mono text-[0.55rem] text-muted">{stop.oklchCss}</p>
+          <p className="font-mono text-nano text-muted">{stop.oklchCss}</p>
         </div>
       )}
     </div>

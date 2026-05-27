@@ -100,11 +100,11 @@ export function generateBothThemes(opts: {
   return {
     light: generatePalette({
       name: opts.name, hue: opts.hue, gamut: opts.gamut, theme: 'light',
-      ...(opts.lightness !== undefined && { lightness: opts.lightness }),
+      ...(opts.lightness !== undefined && {lightness: opts.lightness}),
     }),
     dark: generatePalette({
       name: opts.name, hue: opts.hue, gamut: opts.gamut, theme: 'dark',
-      ...(opts.darkness !== undefined && { lightness: opts.darkness }),
+      ...(opts.darkness !== undefined && {lightness: opts.darkness}),
     }),
   }
 }

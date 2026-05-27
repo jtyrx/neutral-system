@@ -3,7 +3,8 @@
 import {useSyncExternalStore, type ReactNode} from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { BookOpen, Check, Home, Layers, Settings, Sliders } from 'lucide-react'
+import {usePathname} from 'next/navigation'
+import {BookOpen, Check, Home, Layers, Palette, Settings, Sliders} from 'lucide-react'
 
 import {
   Sidebar,
@@ -119,6 +120,7 @@ function SidebarDockElevationDebugMenuItem() {
 }
 
 export function AppSidebar() {
+  const pathname = usePathname()
   return (
     <Sidebar id="nsb-nav" variant="inset" collapsible="icon" side="left">
       <SidebarHeader>
@@ -139,10 +141,18 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive tooltip="Builder">
+                <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Builder">
                   <Link href="/">
                     <Home />
                     <span>Builder</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/colors'} tooltip="Colors">
+                  <Link href="/colors">
+                    <Palette />
+                    <span>Colors</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

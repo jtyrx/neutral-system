@@ -1,4 +1,4 @@
-import type {PaletteName} from '@/lib/color-engine/types'
+import type { PaletteName } from '@/lib/color-engine/types'
 
 // OKLCH L in [0, 1]. 10 stops, 0-indexed (matches Primer's chromatic scale convention).
 // Light: stop 0 (lightest tint) → stop 9 (darkest shade).

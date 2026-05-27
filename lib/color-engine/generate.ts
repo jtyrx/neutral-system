@@ -1,9 +1,9 @@
 import Color from 'colorjs.io'
 
-import type {OklchStop, PaletteGamut, PaletteName, PaletteTheme} from '@/lib/color-engine/types'
-import {maxInGamutChroma} from '@/lib/neutral-engine/gamutProbing'
-import type {OklchGamutTarget} from '@/lib/neutral-engine/gamutProbing'
-import {PALETTE_DARK_L, PALETTE_LIGHT_L} from '@/lib/color-engine/presetLightness'
+import type { OklchStop, PaletteGamut, PaletteName, PaletteTheme } from '@/lib/color-engine/types'
+import { maxInGamutChroma } from '@/lib/neutral-engine/gamutProbing'
+import type { OklchGamutTarget } from '@/lib/neutral-engine/gamutProbing'
+import { PALETTE_DARK_L, PALETTE_LIGHT_L } from '@/lib/color-engine/presetLightness'
 
 function gamutTarget(gamut: PaletteGamut): OklchGamutTarget {
   if (gamut === 'display-p3') return 'p3'
@@ -32,7 +32,7 @@ export function generatePalette(opts: GeneratePaletteOpts): OklchStop[] {
 
   // 1. Resolve chroma per stop
   const maxChromaPerStop = lightnessArr.map((L) =>
-    maxInGamutChroma(L, opts.hue, {targetSpace: target}),
+    maxInGamutChroma(L, opts.hue, { targetSpace: target }),
   )
 
   const resolvedChroma = maxChromaPerStop
@@ -54,12 +54,12 @@ export function generatePalette(opts: GeneratePaletteOpts): OklchStop[] {
     const inSrgb = color.inGamut('srgb')
     // MINDE allows colors slightly outside the strict P3 cube (ΔE_OK ≈ 0.02);
     // check with a small tolerance to avoid false P3+ badges on P3-targeted stops.
-    const p3Clamped = color.toGamut({space: 'p3', method: 'css'})
+    const p3Clamped = color.toGamut({ space: 'p3', method: 'css' })
     const inP3 = color.inGamut('p3') || (p3Clamped as Color).deltaEOK(color) < 0.02
 
     // Clip to sRGB for serialization — matches globalScale.ts render-layer pattern
-    const srgbClamped = color.toGamut({space: 'srgb', method: 'css'})
-    const hex = srgbClamped.toString({format: 'hex'})
+    const srgbClamped = color.toGamut({ space: 'srgb', method: 'css' })
+    const hex = srgbClamped.toString({ format: 'hex' })
     const srgbDeltaE = (srgbClamped as Color).deltaEOK(color)
     const oklchCss = `oklch(${round(L, 4)} ${round(C, 4)} ${round(H, 2)})`
 
@@ -96,15 +96,15 @@ export function generateBothThemes(opts: {
   gamut: PaletteGamut
   lightness?: readonly number[]
   darkness?: readonly number[]
-}): {light: OklchStop[]; dark: OklchStop[]} {
+}): { light: OklchStop[]; dark: OklchStop[] } {
   return {
     light: generatePalette({
       name: opts.name, hue: opts.hue, gamut: opts.gamut, theme: 'light',
-      ...(opts.lightness !== undefined && {lightness: opts.lightness}),
+      ...(opts.lightness !== undefined && { lightness: opts.lightness }),
     }),
     dark: generatePalette({
       name: opts.name, hue: opts.hue, gamut: opts.gamut, theme: 'dark',
-      ...(opts.darkness !== undefined && {lightness: opts.darkness}),
+      ...(opts.darkness !== undefined && { lightness: opts.darkness }),
     }),
   }
 }

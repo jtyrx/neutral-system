@@ -1,6 +1,10 @@
 'use client'
 
-import type {PaletteConfig, PaletteGamut, PaletteTheme} from '@/lib/color-engine/types'
+import type {
+  PaletteConfig,
+  PaletteGamut,
+  PaletteTheme,
+} from '@/lib/color-engine/types'
 import type {ContrastModel} from '@/lib/neutral-engine/contrastModel'
 import {cn} from '@/lib/utils'
 
@@ -29,14 +33,14 @@ function TogglePair<T extends string>({
   onChange: (v: T) => void
 }) {
   return (
-    <div className="flex rounded-md border border-hairline bg-sunken overflow-hidden">
+    <div className="flex overflow-hidden rounded-md border border-hairline bg-sunken">
       {options.map((opt) => (
         <button
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
           className={cn(
-            'px-10 py-5 text-[0.7rem] font-mono transition-colors',
+            'px-10 py-5 font-mono text-[0.7rem] transition-colors',
             value === opt.value
               ? 'bg-default text-default'
               : 'text-subtle hover:text-default',
@@ -106,10 +110,15 @@ export function ColorPaletteControls({
         </button>
       </div>
 
-      <div className="grid gap-8" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))'}}>
+      <div
+        className="grid gap-8"
+        style={{gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))'}}
+      >
         {palettes.map((p) => (
           <label key={p.name} className="flex flex-col gap-4">
-            <span className="font-mono text-micro capitalize text-subtle">{p.name} hue</span>
+            <span className="font-mono text-micro text-subtle capitalize">
+              {p.name} hue
+            </span>
             <div className="flex items-center gap-8">
               <input
                 type="range"
@@ -145,14 +154,18 @@ export function ColorPaletteControls({
       <div className="flex flex-col gap-6">
         {activeStops.map((L, i) => (
           <div key={i} className="flex items-center gap-8">
-            <span className="w-10 text-right font-mono text-micro text-muted">{i}</span>
+            <span className="w-10 text-right font-mono text-micro text-muted">
+              {i}
+            </span>
             <input
               type="range"
               min={0}
               max={1}
               step={0.01}
               value={L}
-              onChange={(e) => onStopChange(previewTheme, i, Number(e.target.value))}
+              onChange={(e) =>
+                onStopChange(previewTheme, i, Number(e.target.value))
+              }
               className="flex-1"
             />
             <span className="w-28 text-right font-mono text-micro text-muted">

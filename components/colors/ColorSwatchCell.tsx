@@ -63,8 +63,8 @@ export function ColorSwatchCell({stop, contrastModel}: Props) {
 
       <div className="flex flex-col gap-1 pt-4">
         <p className="font-mono text-nano leading-none text-muted">{stop.index}</p>
-        <p className="font-mono text-nano leading-none text-subtle">{stop.hex}</p>
         <p className="font-mono text-nano leading-none text-muted">{stop.oklchCss}</p>
+        <p className="font-mono text-nano leading-none text-subtle">{stop.hex}</p>
       </div>
 
       {expanded && (

@@ -14,9 +14,9 @@ export type OklchStop = {
   inSrgb: boolean
   inP3: boolean
   srgbDeltaE: number
-  contrastOnWhite: {wcag: number; apca: number}
-  contrastOnBlack: {wcag: number; apca: number}
-  contrastOnSurface: {wcag: number; apca: number}
+  contrastOnWhite: { wcag: number; apca: number }
+  contrastOnBlack: { wcag: number; apca: number }
+  contrastOnSurface: { wcag: number; apca: number }
 }
 
 export type PaletteConfig = {
